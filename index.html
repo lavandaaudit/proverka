@@ -1,597 +1,73 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
-    <meta charset="UTF-8">
-    <title>GEOMETRIC CHAOS x PLANET CHAOS · GLOBAL SURVIVAL MONITOR</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        /* ------------------------------------------------------------------
-           CORE STYLES
-           ------------------------------------------------------------------ */
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            height: 100%;
-            font-family: 'Courier New', monospace;
-            color: #0af;
-            overflow: hidden;
-        }
+<meta charset="UTF-8">
+<title>IBONARIUM · ARHIVE · 25.01.2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        canvas {
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  height: 100%;
+  overflow-y: auto;
+}
 
-        /* UI LAYER */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .interactive {
-            pointer-events: auto;
-        }
-
-        #hud {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            font-size: 13px;
-            opacity: 0.9;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px rgba(0, 170, 255, 0.7);
-            font-weight: bold;
-            color: #fff;
-        }
-
-        #hud-sub {
-            position: absolute;
-            top: 32px;
-            left: 16px;
-            font-size: 11px;
-            opacity: 0.6;
-            color: #6cf;
-        }
-
-        #status {
-            position: absolute;
-            top: 50px;
-            left: 16px;
-            font-size: 11px;
-            color: #0f0;
-            opacity: 0.7;
-        }
-
-        /* DATA LIST - Expanded width since nav is gone */
-        #data-main {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            bottom: 20px;
-            width: 550px;
-            font-size: 11px;
-            line-height: 1.1;
-            overflow-y: auto;
-            color: #0f0;
-            display: grid;
-            grid-template-columns: auto auto;
-            align-content: start;
-            justify-content: start;
-            column-gap: 25px;
-            row-gap: 2px;
-            padding-right: 15px;
-            scrollbar-width: thin;
-            scrollbar-color: #004466 #001122;
-        }
-
-        /* HEATMAP */
-        #heatmap {
-            position: absolute;
-            top: 80px;
-            right: 650px;
-            display: grid;
-            grid-template-columns: repeat(10, 12px);
-            gap: 2px;
-            opacity: 1;
-            pointer-events: none;
-        }
-
-        .heatcell {
-            width: 12px;
-            height: 12px;
-            background: #111;
-            border: 1px solid #333;
-            transition: background 0.5s;
-        }
-
-        /* FOOTER */
-        #clock {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            font-size: 11px;
-            opacity: 0.7;
-            color: #6cf;
-            text-align: right;
-            line-height: 1.3;
-        }
-
-        /* STYLES */
-        .category {
-            margin: 12px 0 6px 0;
-            font-size: 12px;
-            color: #0af;
-            font-weight: bold;
-            grid-column: span 2;
-            border-bottom: 2px solid #004466;
-            padding-bottom: 2px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .row {
-            white-space: pre;
-            opacity: 0.9;
-        }
-
-        .label {
-            color: #6cf;
-        }
-
-        .val {
-            font-weight: bold;
-        }
-
-        .val-safe {
-            color: #0f0;
-        }
-
-        .val-watch {
-            color: #ffd700;
-        }
-
-        .val-warn {
-            color: #ff8c00;
-        }
-
-        .val-danger {
-            color: #f0c;
-            text-shadow: 0 0 5px #f0c;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #001122;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #004466;
-        }
-
-        @media (max-width: 900px) {
-            #data-main {
-                left: 16px;
-                top: 200px;
-                width: auto;
-                right: 16px;
-                grid-template-columns: 1fr;
-            }
-
-            #heatmap {
-                right: 16px;
-                top: 80px;
-            }
-        }
-    </style>
+/* одна сторінка = один екран */
+.section {
+  width: 100%;
+  height: 100vh;
+  border: none;
+  display: block;
+  background: #000;
+}
+</style>
 </head>
 
 <body>
 
-    <canvas id="c"></canvas>
+<!-- 1 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/TEST2.ORIGINAL.FILE.25.01.2026/"
+  loading="lazy">
+</iframe>
 
-    <div id="ui-layer">
-        <div id="hud">Ibonarium subiective.stability.monitor.25.01.2026</div>
-        <div id="hud-sub">Entropy Detection Systems · GEOMETRIC CHAOS · Deepmind Intelligence</div>
-        <div id="status">Syncing with planetary nodes...</div>
+<!-- 2 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/ibonarium.soncemetr.2026/"
+  loading="lazy">
+</iframe>
 
-        <div id="heatmap"></div>
+<!-- 3 (NEW) -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/new5/"
+  loading="lazy">
+</iframe>
 
-        <div id="data-main" class="interactive"></div>
-        <div id="clock">—</div>
-    </div>
+<!-- 4 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/hlam5/"
+  loading="lazy">
+</iframe>
 
-    <script>
-        const canvas = document.getElementById('c');
-        const ctx = canvas.getContext('2d');
-        const dataDiv = document.getElementById('data-main');
-        const statusDiv = document.getElementById('status');
-        const clockDiv = document.getElementById('clock');
-        const heatmapDiv = document.getElementById('heatmap');
+<!-- 5 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/parsergeopolitical/"
+  loading="lazy">
+</iframe>
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
+<!-- 6 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/economic.radar/"
+  loading="lazy">
+</iframe>
 
-        const startTime = Date.now();
-
-        function formatRelativeTime(ms) {
-            const s = Math.floor(ms / 1000);
-            if (s < 60) return `+${s}s`;
-            const m = Math.floor(s / 60);
-            const sec = s % 60;
-            return `+${m}m ${sec}s`;
-        }
-
-        function updateClock() {
-            const now = new Date();
-            clockDiv.innerHTML = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}<br>${formatRelativeTime(Date.now() - startTime)}`;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        const proxy = 'https://corsproxy.io/?';
-
-        // REAL DATA STATE
-        let survivalData = {
-            cyber_stress: 0.1,
-            orbital_threat: 0.1,
-            sociopolitical_chaos: 0.1,
-            geophysical_stress: 0.1,
-            bio_entropy: 0.1,
-            market_volatility: 0.1
-        };
-
-        // HISTORIES - Pre-fill with noise for better visuals on start
-        const HISTORY_LIMIT = 50;
-        function createNoise() { return Array.from({ length: HISTORY_LIMIT }, () => Math.random() * 0.2 + 0.1); }
-        let histories = {
-            cyber: createNoise(),
-            asteroids: createNoise(),
-            sentiment: createNoise(),
-            quakes: createNoise(),
-            radiation: createNoise(),
-            chaos: createNoise()
-        };
-
-        let heatmapValues = [];
-
-        // Stars & Background
-        const stars = [];
-        for (let i = 0; i < 400; i++) stars.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: Math.random() * 1.5,
-            alpha: Math.random() * 0.5 + 0.2,
-            v: Math.random() * 0.02 + 0.005
-        });
-
-        const formulas = ["ΔS ≥ 0", "H = -Σ p log p", "G = H - TS", "Ψ(t) = e^(-iHt/ħ)Ψ(0)", "Chaos Level: MAX", "Cyber Attack Vector Found", "Orbital Decay Check"];
-        const formulaObjs = formulas.map(f => ({
-            text: f,
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            a: 0,
-            p: Math.random() * 6.28
-        }));
-
-        function getColorClass(val, thresholds) {
-            if (val === null || val === undefined) return 'val-safe';
-            let v = parseFloat(val);
-            if (v >= thresholds.danger) return 'val-danger';
-            if (v >= thresholds.warn) return 'val-warn';
-            if (v >= thresholds.watch) return 'val-watch';
-            return 'val-safe';
-        }
-
-        function getColor(val, thresholds) {
-            const cls = getColorClass(val, thresholds);
-            if (cls === 'val-danger') return '#f0c';
-            if (cls === 'val-warn') return '#ff8c00';
-            if (cls === 'val-watch') return '#ffd700';
-            return '#0f0';
-        }
-
-        function updateHeatmap() {
-            heatmapDiv.innerHTML = '';
-            heatmapValues.slice(0, 100).forEach(h => {
-                const cell = document.createElement('div');
-                cell.className = 'heatcell';
-                cell.style.background = h.color;
-                heatmapDiv.appendChild(cell);
-            });
-        }
-
-        async function fetchSmart(url) {
-            try {
-                let r = await fetch(url);
-                if (r.ok) return await r.json();
-            } catch (e) { }
-            try {
-                let r = await fetch(proxy + encodeURIComponent(url));
-                if (r.ok) return await r.json();
-            } catch (e) { }
-            return null;
-        }
-
-        function pushHistory(arr, val) {
-            arr.push(val);
-            if (arr.length > HISTORY_LIMIT) arr.shift();
-        }
-
-        async function fetchData() {
-            statusDiv.innerHTML = 'Polling global sensors...';
-            let html = '';
-            let sourcesCount = 0;
-            heatmapValues = [];
-
-            // --- 1. CYBER THREAT LAYER ---
-            html += '<div class="category">CYBER ATTACK VECTORS (CVE+NEWS)</div>';
-            // The API below (cve.circl.lu) provides real-time Common Vulnerabilities and Exposures data
-            let cveData = await fetchSmart('https://cve.circl.lu/api/last');
-            if (!cveData || !Array.isArray(cveData)) {
-                // Fallback: Use proxy news for "cybersecurity vulnerability"
-                const newsFallback = await fetchSmart(`https://api.gdeltproject.org/api/v2/doc/doc?query=cyberattack%20vulnerability&mode=ArtList&format=json&maxrecords=5`);
-                if (newsFallback?.articles) {
-                    newsFallback.articles.forEach(a => {
-                        html += `<div class="row"><span class="label">NEWS </span><span class="val val-watch">${a.title.substring(0, 35)}...</span></div>`;
-                        heatmapValues.push({ color: '#ffd700' });
-                    });
-                    survivalData.cyber_stress = 0.4 + Math.random() * 0.2;
-                } else {
-                    html += `<div class="row"><span class="label">STATUS </span><span class="val val-warn">SENSOR_OFFLINE (PROXY_FAIL)</span></div>`;
-                }
-            } else {
-                cveData.slice(0, 8).forEach(item => {
-                    const score = item.cvss || 5.0;
-                    html += `<div class="row"><span class="label">${item.id} </span><span class="val ${getColorClass(score, { watch: 6, warn: 8, danger: 9 })}">${score}</span></div>`;
-                    heatmapValues.push({ color: getColor(score, { watch: 6, warn: 8, danger: 9 }) });
-                });
-                survivalData.cyber_stress = (cveData.reduce((s, i) => s + (i.cvss || 0), 0) / cveData.length) / 10;
-            }
-            pushHistory(histories.cyber, survivalData.cyber_stress * 10);
-            sourcesCount++;
-
-            // --- 2. SPACE DEBRIS / ASTEROIDS (NASA NeoWS) ---
-            html += '<div class="category">ORBITAL THREATS (NASA NEOWS)</div>';
-            const today = new Date().toISOString().split('T')[0];
-            const nasa = await fetchSmart(`https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=DEMO_KEY`);
-            if (nasa?.near_earth_objects?.[today]) {
-                const list = nasa.near_earth_objects[today];
-                list.slice(0, 8).forEach(o => {
-                    const dist = parseFloat(o.close_approach_data[0].miss_distance.kilometers) / 1000000;
-                    const hazard = o.is_potentially_hazardous_asteroid;
-                    html += `<div class="row"><span class="label">${o.name.substring(0, 12)} </span><span class="val ${hazard ? 'val-danger' : 'val-safe'}">${dist.toFixed(1)}M km</span></div>`;
-                    heatmapValues.push({ color: hazard ? '#f0c' : '#0f0' });
-                });
-                survivalData.orbital_threat = (list.filter(o => o.is_potentially_hazardous_asteroid).length / 3) + 0.1;
-                pushHistory(histories.asteroids, list.length);
-                sourcesCount++;
-            }
-
-            // --- 3. GEOPOLITICAL STABILITY (GDELT INDEX) ---
-            html += '<div class="category">GEOPOLITICAL FLOW (GDELT REAL-TIME)</div>';
-            // Broader query to catch more events
-            const gdelt = await fetchSmart('https://api.gdeltproject.org/api/v2/doc/doc?query=instability%20OR%20crisis%20OR%20conflict%20OR%20riot&mode=ArtList&format=json&maxrecords=15');
-
-            let instabilityIndex = 0;
-            if (gdelt?.articles && gdelt.articles.length > 0) {
-                gdelt.articles.slice(0, 5).forEach(a => {
-                    html += `<div class="row"><span class="label">ALERT </span><span class="val val-warn">${a.title.substring(0, 35)}</span></div>`;
-                    heatmapValues.push({ color: '#ff8c00' });
-                });
-                instabilityIndex = gdelt.articles.length * 5 + Math.random() * 10;
-            } else {
-                // Fallback simulation to avoiding static "NO_FEED"
-                const fallbackEvents = [
-                    "Regional Border Tension", "Trade Route Disruption", "Energy Sector Strike",
-                    "Cyber-Political Interference", "Resource Scarcity Protest"
-                ];
-                fallbackEvents.slice(0, 3).forEach(evt => {
-                    html += `<div class="row"><span class="label">EST. </span><span class="val val-watch">${evt}</span></div>`;
-                    heatmapValues.push({ color: '#ffd700' });
-                });
-                instabilityIndex = 30 + Math.random() * 20; // Simulated base level
-            }
-
-            survivalData.sociopolitical_chaos = Math.min(1, instabilityIndex / 100);
-            html += `<div class="row"><span class="label">Instability Index </span><span class="val ${getColorClass(instabilityIndex, { watch: 40, warn: 60, danger: 80 })}">${instabilityIndex.toFixed(1)}</span></div>`;
-            pushHistory(histories.sentiment, instabilityIndex);
-            sourcesCount++;
-
-            // --- 4. EARTH STRESS (USGS + OPEN-METEO AIR) ---
-            html += '<div class="category">GEOPHYSICAL & ATMOSPHERE</div>';
-            const air = await fetchSmart('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=50.45&longitude=30.52&current=pm10,pm2_5,european_aqi,uv_index');
-            if (air?.current) {
-                const a = air.current;
-                html += `<div class="row"><span class="label">Kyiv AQI </span><span class="val ${getColorClass(a.european_aqi, { watch: 50, warn: 100, danger: 150 })}">${a.european_aqi}</span></div>`;
-                html += `<div class="row"><span class="label">UV Index </span><span class="val ${getColorClass(a.uv_index, { watch: 3, warn: 6, danger: 9 })}">${a.uv_index}</span></div>`;
-                heatmapValues.push({ color: getColor(a.european_aqi, { watch: 50, warn: 100, danger: 150 }) });
-            }
-
-            const quakes = await fetchSmart('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson');
-            if (quakes?.features) {
-                quakes.features.slice(0, 5).forEach(q => {
-                    const mag = q.properties.mag || 0;
-                    html += `<div class="row"><span class="label">M${mag.toFixed(1)} </span><span class="val ${getColorClass(mag, { watch: 4, warn: 5, danger: 6 })}">${(q.properties.place || 'Unknown').substring(0, 18)}</span></div>`;
-                    heatmapValues.push({ color: getColor(mag, { watch: 4, warn: 5, danger: 6 }) });
-                });
-                const topMag = quakes.features.length > 0 ? Math.max(...quakes.features.map(f => f.properties.mag)) : 0;
-                survivalData.geophysical_stress = topMag / 9;
-                pushHistory(histories.quakes, topMag);
-            }
-            sourcesCount++;
-
-            // --- 5. FINANCE & CRYPTO (COINGECKO) ---
-            html += '<div class="category">MARKET ENTROPY (CRYPTO)</div>';
-            // Added DASH to the monitoring list
-            const crypto = await fetchSmart('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,dash&vs_currencies=usd&include_24hr_change=true');
-            if (crypto) {
-                for (let id in crypto) {
-                    const change = crypto[id].usd_24h_change || 0;
-                    const price = crypto[id].usd;
-                    html += `<div class="row"><span class="label">${id.toUpperCase()} </span><span class="val ${change < -5 ? 'val-danger' : 'val-safe'}">${price}$ (${change.toFixed(1)}%)</span></div>`;
-                    heatmapValues.push({ color: change < -5 ? '#f0c' : '#0f0' });
-                }
-                survivalData.market_volatility = Math.abs(crypto.bitcoin?.usd_24h_change || 0) / 10;
-            }
-            sourcesCount++;
-
-            // --- 6. MARINE FLOW (OPEN-METEO MARINE) ---
-            html += '<div class="category">OCEANIC DYNAMICS</div>';
-            const marine = await fetchSmart('https://marine-api.open-meteo.com/v1/marine?latitude=43.0&longitude=34.0&current=wave_height,sea_surface_temperature');
-            if (marine?.current) {
-                const m = marine.current;
-                html += `<div class="row"><span class="label">Black Sea Temp </span><span class="val">${m.sea_surface_temperature}°C</span></div>`;
-                html += `<div class="row"><span class="label">Wave Height </span><span class="val">${m.wave_height}m</span></div>`;
-                heatmapValues.push({ color: '#0af' });
-            }
-            sourcesCount++;
-
-            // --- 7. RADIATION / BIO-RISK ---
-            html += '<div class="category">BIO-ENTROPY & RADIATION</div>';
-            const bioData = [
-                { l: 'Background CPM', v: 12 + Math.random() * 5, t: { watch: 30, warn: 100, danger: 500 } },
-                { l: 'Pathogen Risk', v: 0.12 + Math.random() * 0.05, t: { watch: 0.4, warn: 0.6, danger: 0.8 } }
-            ];
-            bioData.forEach(k => {
-                html += `<div class="row"><span class="label">${k.l} </span><span class="val ${getColorClass(k.v, k.t)}">${k.v.toFixed(2)}</span></div>`;
-                heatmapValues.push({ color: getColor(k.v, k.t) });
-            });
-            survivalData.bio_entropy = bioData[1].v;
-            pushHistory(histories.radiation, bioData[0].v);
-            sourcesCount++;
-
-            // UPDATE UI
-            dataDiv.innerHTML = html;
-            statusDiv.innerHTML = `Sources: ${sourcesCount} • Latency: ${Math.floor(Math.random() * 200)}ms • SYNC_LOCKED`;
-            updateHeatmap();
-        }
-
-        setInterval(fetchData, 60000);
-        fetchData();
-
-        // DRAWING
-        function drawGraph(title, history, mx, my, w, h, color, maxVal, unit) {
-            ctx.save();
-            ctx.translate(mx, my);
-            ctx.strokeStyle = 'rgba(0,170,255,0.1)';
-            ctx.lineWidth = 1;
-            for (let i = 0; i <= 4; i++) {
-                let y = i * h / 4; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-            }
-            ctx.fillStyle = color; ctx.font = '10px Courier New'; ctx.fillText(title, 0, -5);
-
-            if (history.length > 1) {
-                ctx.beginPath();
-                history.forEach((v, i) => {
-                    const x = i * (w / (HISTORY_LIMIT - 1));
-                    const y = h - (v / maxVal) * h;
-                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                });
-                ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
-                const last = history[history.length - 1];
-                ctx.fillStyle = '#fff'; ctx.fillText(last.toFixed(1) + (unit || ''), w + 5, h - (last / maxVal) * h + 3);
-            }
-            ctx.restore();
-        }
-
-        function drawTopology() {
-            const rx = canvas.width / 2 + (canvas.width > 900 ? 150 : 0);
-            const ry = canvas.height / 2;
-            const radius = 200;
-            ctx.save(); ctx.translate(rx, ry);
-
-            // Background circles
-            ctx.strokeStyle = 'rgba(0,170,255,0.1)';
-            [0.5, 1].forEach(fac => {
-                ctx.beginPath(); ctx.arc(0, 0, radius * fac, 0, 6.28); ctx.stroke();
-            });
-
-            const keys = Object.keys(survivalData);
-            const step = 6.28 / keys.length;
-            ctx.beginPath();
-            keys.forEach((k, i) => {
-                const val = Math.max(0.1, survivalData[k]);
-                const a = i * step - 1.57;
-                const x = Math.cos(a) * radius * val, y = Math.sin(a) * radius * val;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.closePath();
-            ctx.fillStyle = 'rgba(255,0,200,0.15)'; ctx.fill();
-            ctx.strokeStyle = '#f0c'; ctx.lineWidth = 2; ctx.stroke();
-
-            keys.forEach((k, i) => {
-                const val = Math.max(0.1, survivalData[k]);
-                const a = i * step - 1.57;
-                const x = Math.cos(a) * radius * val, y = Math.sin(a) * radius * val;
-                ctx.beginPath(); ctx.arc(x, y, 4, 0, 6.28); ctx.fillStyle = '#fff'; ctx.fill();
-                ctx.fillStyle = '#0af'; ctx.font = '10px Courier New'; ctx.fillText(k.replace('_', ' ').toUpperCase(), Math.cos(a) * (radius + 20) - 30, Math.sin(a) * (radius + 20));
-            });
-            ctx.restore();
-        }
-
-        let time = 0;
-        function loop() {
-            time += 0.016;
-            ctx.fillStyle = 'rgba(0,0,0,0.15)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            stars.forEach(s => {
-                const tw = Math.sin(time * 5 + s.x) * 0.3 + 0.7;
-                ctx.fillStyle = `rgba(200,240,255,${s.alpha * tw})`;
-                ctx.fillRect(s.x, s.y, s.size, s.size);
-            });
-
-            formulaObjs.forEach(f => {
-                const alpha = Math.sin(time * 0.5 + f.p) * 0.3 + 0.3;
-                ctx.fillStyle = `rgba(180,255,200,${alpha})`;
-                ctx.font = '14px Courier New';
-                ctx.fillText(f.text, f.x + Math.sin(time + f.p) * 20, f.y);
-            });
-
-            // Graphs
-            if (canvas.width > 900) {
-                const gx = canvas.width - 220, gy = 80;
-                drawGraph('CYBER STRESS (CVSS)', histories.cyber, gx, gy, 180, 70, '#f0c', 10, '');
-                drawGraph('ASTEROID COUNT', histories.asteroids, gx, gy + 110, 180, 70, '#0af', 20, '');
-                drawGraph('GDELT CHAOS IND.', histories.sentiment, gx, gy + 220, 180, 70, '#ffd700', 100, '%');
-                drawGraph('SEISMIC MAX (MAG)', histories.quakes, gx, gy + 330, 180, 70, '#0f0', 9, 'M');
-                drawGraph('RADIATION CPM', histories.radiation, gx, gy + 440, 180, 70, '#ff8c00', 50, '');
-            }
-
-            drawTopology();
-
-            // Center Animation
-            const cx = canvas.width / 2 + (canvas.width > 900 ? 150 : 0);
-            const cy = canvas.height / 2;
-            ctx.strokeStyle = `rgba(0, 255, 200, ${0.1 + survivalData.sociopolitical_chaos * 0.4})`;
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                ctx.arc(cx, cy, 40 + i * 20 + Math.sin(time * 2) * 10, 0, 6.28);
-                ctx.stroke();
-            }
-
-            requestAnimationFrame(loop);
-        }
-        loop();
-    </script>
 </body>
-
 </html>
