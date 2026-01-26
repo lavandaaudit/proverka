@@ -12,8 +12,7 @@ html, body {
   background: #000;
   height: 100%;
   overflow-y: auto;
-  line-height: 0;
-  scroll-behavior: smooth; /* плавний скрол */
+  line-height: 0; /* прибирає мікрощілини між блоками */
 }
 
 /* одна сторінка = один екран */
@@ -25,9 +24,8 @@ html, body {
   padding: 0;
   border: none;
   background: #000;
-  will-change: transform;       /* покращує рендеринг */
-  backface-visibility: hidden; /* покращує плавність */
-  contain: layout paint;        /* ізоляція рендеру */
+  line-height: 0;       /* надійне прибрання відступів */
+  vertical-align: top;  /* прибирає будь-які невидимі пропуски */
 }
 
 /* ================= DOCENT BUTTON ================= */
@@ -72,9 +70,6 @@ html, body {
   width: 100%;
   height: 100%;
   border: none;
-  will-change: transform;
-  backface-visibility: hidden;
-  contain: layout paint;
 }
 
 /* ✕ CLOSE */
