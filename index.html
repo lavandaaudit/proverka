@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Лабораторні інструменти — 2 проєкти</title>
+  <title>txtLaborant2 + new13 — разом</title>
   <style>
     * {
       margin: 0;
@@ -12,99 +12,58 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f8f9fa;
-      color: #222;
-      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      background: #f9f9f9;
+      color: #111;
+      line-height: 1.5;
     }
 
     header {
-      background: #2c3e50;
+      background: #1a2533;
       color: white;
-      padding: 14px 16px;
+      padding: 12px 16px;
       text-align: center;
       font-size: 1.1rem;
-      font-weight: 500;
       position: sticky;
       top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    .container {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 0;
-    }
-
-    .frame-wrapper {
-      height: 100vh;
-      border: none;
-      width: 100%;
-      background: #fff;
-      position: relative;
-    }
-
-    .frame-wrapper + .frame-wrapper {
-      margin-top: 1px; /* тонка лінія-роздільник */
-    }
-
-    .label {
-      position: absolute;
-      top: 8px;
-      left: 12px;
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.82rem;
       z-index: 10;
-      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
     }
 
-    /* === Адаптивність === */
-    @media (min-width: 992px) {
-      .container {
-        display: flex;
-        flex-direction: row;
-        height: 100vh;
-      }
+    .section {
+      padding: 16px;
+      background: white;
+      margin-bottom: 16px;
+    }
 
-      .frame-wrapper {
-        width: 50%;
-        height: 100vh;
-      }
+    .section h2 {
+      margin: 0 0 12px 0;
+      font-size: 1.25rem;
+      color: #1a2533;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
 
-      .frame-wrapper + .frame-wrapper {
-        margin-top: 0;
-        border-left: 1px solid #ddd;
-      }
+    /* Щоб iframes не "з'їдали" весь екран */
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      min-height: 400px;          /* мінімальна висота, якщо контент порожній */
+    }
 
+    /* Мобільна адаптація — нічого не ламаємо */
+    @media (max-width: 600px) {
       header {
-        font-size: 1.25rem;
-      }
-    }
-
-    @media (max-width: 991px) {
-      .frame-wrapper {
-        height: 55vh;          /* можна налаштувати 50–60vh */
-        min-height: 480px;     /* щоб не було занадто маленьким */
-      }
-    }
-
-    @media (max-width: 480px) {
-      header {
-        padding: 12px 14px;
         font-size: 1rem;
+        padding: 10px 14px;
       }
-
-      .label {
-        font-size: 0.75rem;
-        padding: 5px 8px;
+      .section {
+        padding: 12px;
       }
-
-      .frame-wrapper {
-        min-height: 420px;
+      .section h2 {
+        font-size: 1.1rem;
       }
     }
   </style>
@@ -112,31 +71,17 @@
 <body>
 
 <header>
-  Лабораторні інструменти — два проєкти в одному вікні
+  txtLaborant2 　↓　 new13
 </header>
 
-<div class="container">
+<div class="section">
+  <h2>Перший варіант — txtLaborant2</h2>
+  <iframe src="https://lavandaaudit.github.io/txtLaborant2/"></iframe>
+</div>
 
-  <div class="frame-wrapper">
-    <div class="label">txtLaborant2 (перший варіант)</div>
-    <iframe 
-      src="https://lavandaaudit.github.io/txtLaborant2/" 
-      frameborder="0" 
-      allowfullscreen
-      loading="lazy"
-    ></iframe>
-  </div>
-
-  <div class="frame-wrapper">
-    <div class="label">new13 (другий варіант)</div>
-    <iframe 
-      src="https://lavandaaudit.github.io/new13/" 
-      frameborder="0" 
-      allowfullscreen
-      loading="lazy"
-    ></iframe>
-  </div>
-
+<div class="section">
+  <h2>Другий варіант — new13</h2>
+  <iframe src="https://lavandaaudit.github.io/new13/"></iframe>
 </div>
 
 </body>
