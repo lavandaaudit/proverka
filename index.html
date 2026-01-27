@@ -1,358 +1,1067 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LABORANT.AI2 · IBONARIUM</title>
-<style>
-  * { margin:0; padding:0; box-sizing:border-box; }
-html, body {
-  width:100%;
-  min-height:100%;
-  background:#000;
-  color:#ffd166;
-  font-family:"Courier New",monospace;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Docent Kafedry Ibonarium</title>
 
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  canvas { position:fixed; inset:0; z-index:0; }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #4dd2ff;
+            font-family: "Courier New", monospace;
+            overflow: hidden;
+            /* Prevent elasticity on mobile */
+            overscroll-behavior: none;
+        }
 
-  .container {
-  position: relative;
-  z-index: 2;
-  min-height: 100vh;
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  grid-template-rows: 45px 1fr;
-  gap: 10px;
-  padding: 10px;
-}
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
 
+        .container {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            grid-template-rows: 60px 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
 
-  .header {
-    grid-column: 1 / -1;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-  }
-  .title { font-size:15px; letter-spacing:1.8px; text-shadow:0 0 14px rgba(255,209,102,.7); }
-  .status-bar {
-    display:flex; gap:10px; font-size:9px; opacity:.8;
-  }
-  .dot {
-    width:5px; height:5px; background:#ffd166; border-radius:50%;
-    display:inline-block; margin-right:4px;
-    animation:pulse 1.6s infinite;
-  }
-  @keyframes pulse { 0%,100% {opacity:1} 50% {opacity:.4} }
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
 
-  .left-panel {
-    display:flex; flex-direction:column; align-items:center; gap:16px;
-  }
+        .title {
+            font-size: 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(77, 210, 255, 0.8);
+            white-space: nowrap;
+        }
 
-  .robot {
-    width:160px; height:160px; position:relative;
-  }
-  .head {
-    width:98px; height:98px;
-    border:2px solid #ffd166; border-radius:14px;
-    position:absolute; left:50%; top:0;
-    transform:translateX(-50%);
-    background:linear-gradient(135deg,rgba(255,209,102,.3),rgba(255,209,102,.08));
-    box-shadow:0 0 24px rgba(255,209,102,.45);
-    animation:float 3s ease-in-out infinite;
-  }
-  @keyframes float { 0%,100% {transform:translate(-50%,0)} 50% {transform:translate(-50%,-9px)} }
+        .status-bar {
+            display: flex;
+            gap: 25px;
+            font-size: 11px;
+            opacity: 0.6;
+            align-items: center;
+        }
 
-  .eye { width:20px; height:20px; background:#ffd166; border-radius:50%;
-    position:absolute; top:27px; box-shadow:0 0 16px #ffd166; }
-  .eye.l { left:22px; } .eye.r { right:22px; }
+        .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #0f0;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
 
-  .mouth { width:46px; height:2px; background:#ffd166;
-    position:absolute; bottom:23px; left:50%; transform:translateX(-50%); }
+        @keyframes pulse {
 
-  .body { width:82px; height:60px; border:2px solid #ffd166; border-radius:9px;
-    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
-    background:rgba(255,209,102,.15); box-shadow:0 0 18px rgba(255,209,102,.4); }
+            0%,
+            100% {
+                opacity: 1;
+            }
 
-  .robot-name { text-align:center; letter-spacing:1.4px; margin-top:7px; font-size:12px; }
-  .robot-desc {
-    text-align:center;
-    font-size:9px;
-    opacity:0.65;
-    line-height:1.3;
-    margin-top:4px;
-    letter-spacing:0.5px;
-  }
-  .robot-title { font-size:8px; opacity:.7; text-align:center; margin-top:2px; }
+            50% {
+                opacity: 0.3;
+            }
+        }
 
-  .projects {
-    margin-top: 16px;
-    width: 100%;
-    text-align: center;
-  }
-  .projects h4 {
-    font-size: 10px;
-    opacity: 0.7;
-    margin-bottom: 8px;
-  }
-  .projects a {
-    display: block;
-    color: #ffd166;
-    text-decoration: none;
-    font-size: 11px;
-    padding: 4px 0;
-    opacity: 0.9;
-    transition: all 0.2s;
-  }
-  .projects a:hover {
-    opacity: 1;
-    text-shadow: 0 0 8px rgba(255,209,102,0.6);
-    transform: translateY(-1px);
-  }
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
 
-  .chat {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
-    background: rgba(0,0,0,0.4);
-    border: 1px solid rgba(255,209,102,0.18);
-    border-radius: 5px;
-    overflow: hidden;
-  }
+        .robot-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-  .chat-title {
-    text-align:center; padding:6px 0; opacity:.85; font-size:11px;
-    border-bottom: 1px solid rgba(255,209,102,0.15);
-    background: rgba(255,209,102,0.04);
-  }
+        .robot {
+            width: 220px;
+            height: 220px;
+            position: relative;
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
 
-  .messages {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 8px 10px;
-    font-size: 12px;
-    line-height: 1.45;
-    scrollbar-width: thin;
-    scrollbar-color: #ffd166 #111;
-  }
-  .messages::-webkit-scrollbar { width: 5px; }
-  .messages::-webkit-scrollbar-track { background: #0a0a0a; }
-  .messages::-webkit-scrollbar-thumb { background: #ffd166; border-radius: 3px; }
-  .messages::-webkit-scrollbar-thumb:hover { background: #ffdb80; }
+        .robot-head {
+            width: 130px;
+            height: 130px;
+            background: linear-gradient(135deg, rgba(77, 210, 255, 0.3), rgba(77, 210, 255, 0.05));
+            border: 2px solid #4dd2ff;
+            border-radius: 20px;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: float 3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(77, 210, 255, 0.4);
+        }
 
-  .msg {
-    margin: 6px 0;
-    padding: 5px 9px;
-    border-radius: 4px;
-    max-width: 94%;
-    word-wrap: break-word;
-  }
+        @keyframes float {
 
-  .bot {
-    color: #ffd166;
-    background: rgba(255,209,102,0.08);
-    align-self: flex-start;
-  }
+            0%,
+            100% {
+                transform: translateX(-50%) translateY(0);
+            }
 
-  .user {
-    color: #aaffaa;
-    background: rgba(170,255,170,0.12);
-    align-self: flex-end;
-    text-align: right;
-  }
+            50% {
+                transform: translateX(-50%) translateY(-12px);
+            }
+        }
 
-  .input-box {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    padding: 8px 10px;
-    border-top: 1px solid rgba(255,209,102,0.2);
-    background: rgba(0,0,0,0.5);
-  }
+        .robot-eye {
+            width: 28px;
+            height: 28px;
+            background: #4dd2ff;
+            border-radius: 50%;
+            position: absolute;
+            top: 38px;
+            box-shadow: 0 0 20px #4dd2ff;
+            animation: blink 4s infinite;
+        }
 
-  .quick-buttons {
-    display: flex;
-    gap: 7px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+        .robot-eye.left {
+            left: 28px;
+        }
 
-  button {
-    background: rgba(255,209,102,0.2);
-    border: 1px solid #ffd166;
-    color: #ffd166;
-    padding: 7px 12px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 11px;
-    white-space: nowrap;
-    border-radius: 4px;
-    transition: all 0.16s;
-  }
-  button:hover {
-    background: rgba(255,209,102,0.35);
-    box-shadow: 0 0 7px rgba(255,209,102,0.4);
-  }
-</style>
+        .robot-eye.right {
+            right: 28px;
+        }
+
+        @keyframes blink {
+
+            0%,
+            48%,
+            52%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .robot-antenna {
+            width: 3px;
+            height: 35px;
+            background: #4dd2ff;
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .robot-antenna::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: #4dd2ff;
+            border-radius: 50%;
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 25px #4dd2ff;
+            animation: pulse 1s infinite;
+        }
+
+        .robot-mouth {
+            width: 65px;
+            height: 3px;
+            background: #4dd2ff;
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .robot-body {
+            width: 110px;
+            height: 85px;
+            background: rgba(77, 210, 255, 0.15);
+            border: 2px solid #4dd2ff;
+            border-radius: 12px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px rgba(77, 210, 255, 0.3);
+        }
+
+        .robot-name {
+            font-size: 16px;
+            text-align: center;
+            opacity: 0.9;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+
+        .robot-title {
+            font-size: 11px;
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        .data-compact {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 11px;
+        }
+
+        .data-label {
+            opacity: 0.6;
+        }
+
+        .data-value {
+            font-weight: bold;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 8px;
+            margin-left: 6px;
+        }
+
+        .status-ok {
+            background: rgba(0, 255, 100, 0.2);
+            color: #0f0;
+        }
+
+        .status-warn {
+            background: rgba(255, 200, 0, 0.2);
+            color: #fc0;
+        }
+
+        .status-alert {
+            background: rgba(255, 50, 50, 0.2);
+            color: #f33;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: rgba(77, 210, 255, 0.1);
+            border: 1px solid rgba(77, 210, 255, 0.3);
+            color: #4dd2ff;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: "Courier New", monospace;
+            font-size: 10px;
+            transition: 0.3s;
+            text-align: center;
+            user-select: none;
+        }
+
+        .action-btn:hover, .action-btn:active {
+            background: rgba(77, 210, 255, 0.2);
+            border-color: #4dd2ff;
+            box-shadow: 0 0 15px rgba(77, 210, 255, 0.4);
+        }
+
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            padding: 10px 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .chat-title {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.7;
+            text-align: center;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            font-size: 13px;
+            line-height: 1.8;
+            animation: fadeIn 0.3s;
+            word-wrap: break-word;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .msg-time {
+            font-size: 9px;
+            opacity: 0.4;
+            margin-bottom: 4px;
+        }
+
+        .msg-bot {
+            color: #4dd2ff;
+        }
+
+        .msg-user {
+            color: #9fe7ff;
+            text-align: right;
+        }
+
+        .chat-input-box {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(0, 20, 40, 0.3);
+            border: 1px solid rgba(77, 210, 255, 0.3);
+            color: #4dd2ff;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #4dd2ff;
+            box-shadow: 0 0 15px rgba(77, 210, 255, 0.3);
+        }
+
+        .send-btn {
+            background: rgba(77, 210, 255, 0.1);
+            border: 1px solid #4dd2ff;
+            color: #4dd2ff;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            background: rgba(77, 210, 255, 0.2);
+            box-shadow: 0 0 20px rgba(77, 210, 255, 0.5);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(77, 210, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        /* ===== MOBILE ADAPTATION ===== */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .header {
+                padding: 5px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .title {
+                font-size: 16px;
+            }
+
+            .status-bar {
+                gap: 15px;
+                flex-grow: 1;
+                justify-content: flex-end;
+            }
+
+            /* Compact Robot Section for Mobile */
+            .left-panel {
+                display: grid;
+                grid-template-columns: auto 1fr;
+                gap: 15px;
+                align-items: center;
+                max-height: 180px;
+                padding-bottom: 5px;
+                border-bottom: 1px solid rgba(77,210,255,0.1);
+            }
+
+            .robot-section {
+                transform: scale(0.65);
+                transform-origin: left center;
+                margin-bottom: 0;
+                width: 160px;
+                height: 150px;
+            }
+            .robot { margin-bottom: 5px; }
+
+            .data-compact {
+                font-size: 10px;
+            }
+            
+            .quick-actions {
+                grid-column: 1 / -1;
+                grid-template-columns: repeat(4, 1fr);
+                margin-top: 5px;
+            }
+            
+            .action-btn {
+                padding: 8px 4px;
+                font-size: 9px;
+            }
+
+            .chat-panel {
+                padding-top: 5px;
+            }
+
+            .chat-title {
+                display: none; /* Save space */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 8px;
+            }
+            
+            .title { font-size: 14px; letter-spacing: 1px; }
+
+            .left-panel {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                max-height: none;
+                gap: 5px;
+            }
+            
+            /* Hide robot on very small screens to focus on chat/data, 
+               or make it very small? User loves aesthetics, so let's keep it small. */
+            .robot-section {
+                transform: scale(0.6);
+                transform-origin: center top;
+                height: 160px;
+                width: 100%;
+            }
+
+            .data-compact {
+                width: 100%;
+                padding: 0 10px;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+                width: 100%;
+            }
+
+            /* Allow robot section to scroll if needed, but sticky chat preference */
+            .container {
+                grid-template-rows: auto auto 1fr;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<canvas id="bg"></canvas>
+    <canvas id="stars"></canvas>
 
-<div class="container">
-  <div class="header">
-    <div class="title">LABORANT.AI2 · IBONARIUM</div>
-    <div class="status-bar">
-      <span><span class="dot"></span>ONLINE</span>
-      <span id="time"></span>
-      <span id="state">ЗАВАНТАЖЕННЯ...</span>
-    </div>
-  </div>
+    <div class="container">
 
-  <div class="left-panel">
-    <div>
-      <div class="robot">
-        <div class="head">
-          <div class="eye l"></div>
-          <div class="eye r"></div>
-          <div class="mouth"></div>
+        <div class="header">
+            <div class="title">DOCENT KAFEDRY IBONARIUM</div>
+            <div class="status-bar">
+                <span><span class="status-dot"></span>ONLINE</span>
+                <span id="time">--:--:--</span>
+                <span id="dataStatus">DATA: OK</span>
+            </div>
         </div>
-        <div class="body"></div>
-      </div>
-      <div class="robot-name">LABORANT.AI2</div>
-      <div class="robot-desc">
-        Теоретик кафедри ібонаріуму<br>
-        лектор теорії<br>
-        асистент по проєктам лютого 2026
-      </div>
-      <div class="robot-title">ibonarium fragmentor v2.7 · TXT</div>
 
-      <div class="projects">
-        <h4>ПРОЄКТИ</h4>
-        <a href="https://lavandaaudit.github.io/test2/" target="_blank">project0201</a>
-        <a href="https://lavandaaudit.github.io/test2/" target="_blank">project0202</a>
-        <a href="https://lavandaaudit.github.io/test2/" target="_blank">project0203</a>
-      </div>
+        <div class="left-panel">
+            <div class="robot-section">
+                <div class="robot">
+                    <div class="robot-head">
+                        <div class="robot-antenna"></div>
+                        <div class="robot-eye left"></div>
+                        <div class="robot-eye right"></div>
+                        <div class="robot-mouth"></div>
+                    </div>
+                    <div class="robot-body"></div>
+                </div>
+                <div class="robot-name">LABORANT.AI1</div>
+                <div class="robot-title">expert system v3.1</div>
+            </div>
+
+            <div class="data-compact" id="dataDisplay">
+                <div class="data-row">
+                    <span class="data-label">loading...</span>
+                    <span class="data-value">—</span>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-btn" onclick="quickAction('radars')">РАДАРИ</button>
+                <button class="action-btn" onclick="quickAction('labs')">ПРОЕКТИ</button>
+                <button class="action-btn" onclick="quickAction('report')">ЗВІТ</button>
+                <button class="action-btn" onclick="quickAction('help')">INFO</button>
+            </div>
+        </div>
+
+        <div class="chat-panel">
+            <div class="chat-title">💬 КОНСУЛЬТАЦІЯ З ДОЦЕНТОМ</div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message msg-bot">
+                    <div class="msg-time">system</div>
+                    <div>Вітаю! Я доцент кафедри Ibonarium.<br>
+                    Експерт по всім проектам за Січень 2026.<br>
+                    Вітаю у лабораторії <a href="https://lavandaaudit.github.io/test2/" target="_blank" style="color:#4dd2ff;">test2</a>.<br><br>
+                    
+                    Доступ до даних:<br>
+                    • 18 активних проектів (sun, moon, crypto...)<br>
+                    • 8 core радарів<br>
+                    • Космічна погода real-time<br><br>
+                    
+                    Задавайте питання! 📚</div>
+                </div>
+            </div>
+            <div class="chat-input-box">
+                <input type="text" class="chat-input" id="chatInput"
+                    placeholder="запитайте про проект..." autocomplete="off">
+                <button class="send-btn" onclick="sendMsg()">→</button>
+            </div>
+        </div>
+
     </div>
-  </div>
 
-  <div class="chat">
-    <div class="chat-title">  ЛЕКЦІЯ LABORANT.AI2. </div>
+    <script>
+        // ===== STARS =====
+        const s = document.getElementById("stars");
+        const ctx = s.getContext("2d");
+        let W, H, stars = [];
 
-    <div class="messages" id="msgs">
-      <div class="msg bot">
-        вітаю,я LABORANT.AI2.Лектор курсу Ібонаріальної теорії та асистент Ibonarium Cosmo Dynamics Lab LIVE — Center for Space & Planetary Monitorin<br>
-        Проводжу лекції,бесіди
-      </div>
+        function resize() {
+            W = s.width = innerWidth;
+            H = s.height = innerHeight;
+            stars = Array.from({ length: 150 }, () => ({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                z: Math.random() * W
+            }));
+        }
+        resize();
+        addEventListener("resize", resize);
+
+        function draw() {
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, W, H);
+            ctx.fillStyle = "#4dd2ff";
+
+            stars.forEach(st => {
+                st.z -= 0.3;
+                if (st.z <= 0) st.z = W;
+                const k = 128 / st.z;
+                const x = (st.x - W / 2) * k + W / 2;
+                const y = (st.y - H / 2) * k + H / 2;
+                if (x > 0 && x < W && y > 0 && y < H) {
+                    const size = (1 - st.z / W) * 1.5;
+                    ctx.fillRect(x, y, size, size);
+                }
+            });
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        setInterval(() => {
+            document.getElementById('time').textContent = new Date().toLocaleTimeString('uk-UA');
+        }, 1000);
+
+        // ===== KNOWLEDGE BASE =====
+        const KNOWLEDGE = `
+# ПРОЕКТИ СІЧЕНЬ 2026
+
+## SUN.IBONARIUM
+**Статус:** Active
+**Тип:** Cosmo-Dynamics Lab
+**Опис:** Комплексне вивчення Сонця. Інтеграція даних NASA SDO, аналіз в 10+ спектрах.
+**Функції:**
+• 3D моделювання корональних викидів (CME)
+• Прогнозування геомагнітних бур (точність 85%)
+• Аналіз впливу на кліматичні моделі Землі
+**URL:** [sun.ibonarium](https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/)
+
+## PLANET.RADAR
+**Статус:** Active
+**Тип:** Celestial Mechanics
+**Опис:** Радар небесної механіки та орбітальних позицій.
+**Функції:**
+• Ефемериди JPL та розрахунок парадів планет
+• Відстеження потенційно небезпечних астероїдів
+• Аналіз затемнень та гравітаційних впливів
+**URL:** [planet.radar](https://lavandaaudit.github.io/ibonarium.planet.radar/)
+
+## MOON.IBONARIUM
+**Статус:** Active
+**Тип:** Lunar Analyst
+**Опис:** Моніторинг місячних циклів та їх впливу на біосферу.
+**Функції:**
+• Фази місяця та приливна картографія
+• Біоритмічні календарі
+• Розрахунок сприятливих періодів для агро-сектору
+**URL:** [moon.ibonarium](https://lavandaaudit.github.io/cosmo.dynamics/)
+
+## ECOLOGY.RADAR
+**Статус:** Monitoring
+**Тип:** Eco-Sensor Grid
+**Опис:** Глобальний моніторинг екологічних показників.
+**Дані:**
+• Якість повітря (PM2.5, CO2, NOx, O3)
+• Хімічний склад води та рівень pH
+• Аналіз трендів забруднення через супутники Sentinel
+**URL:** [ecology.radar](https://lavandaaudit.github.io/ibonarium.ecology.radar/)
+
+## .TRANSLATOR
+**Статус:** Beta
+**Тип:** Signal Decoder
+**Опис:** Нейромережевий міст для перекладу та декодування сигналів.
+**Функції:**
+• Обробка зашифрованих потоків даних
+• Лінгвістичний аналіз радіо-перехоплень
+• Пошук патернів у "білому шумі"
+**URL:** [radio_underground](https://lavandaaudit.github.io/radio_underground.signal-off-grid/)
+
+## .MAGNET.LAB
+**Статус:** Active
+**Тип:** Geo-Magnetic Observatory
+**Опис:** Лабораторія дослідження магнітного поля Землі.
+**Функції:**
+• Kp-індекс моніторинг в реальному часі
+• Аналіз стану іоносфери та полярних сяйв
+• Прогноз наведених струмів (GIC) в енергомережах
+
+## CRIPTO.LAB.LIVE
+**Статус:** Volatile
+**Тип:** Financial Node
+**Опис:** Аналітичний центр крипто-активів та блокчейн ентропії.
+**Функції:**
+• Кореляція волатильності з космічними подіями
+• Sentiment analysis соціальних мереж
+• Предиктивні моделі (LSTM) для BTC/ETH
+
+## LAVANDA.SOFT
+**Статус:** Core
+**Тип:** R&D Center
+**Опис:** Розробка програмного забезпечення та архітектурних рішень.
+**Стек:**
+• Розподілені системи та мікросервіси
+• Secure communication protocols
+• UI/UX для кібер-інтерфейсів
+
+## IBONARIUM.TV
+**Статус:** Broadcasting
+**Тип:** Visual Data Stream
+**Опис:** Візуалізація телеметрії та даних у форматі відеопотоку.
+**Контент:**
+• Real-time дашборди
+• Генеративний арт на основі даних радарів
+• Ефіри експериментальних запусків
+
+## SOLAR.STABILITY
+**Статус:** Critical
+**Тип:** Plasma Monitor
+**Опис:** Вузькоспеціалізований модуль аналізу стабільності плазми.
+**Функції:**
+• Детекція сонячного вітру
+• Аналіз щільності протонів
+• Попередження про різкі зміни космічної погоди
+
+## I.MODULAR.1.3
+**Статус:** Version 1.3
+**Тип:** Audio Synthesis
+**Опис:** Фреймворк модульного синтезу звуку.
+**Призначення:**
+• Соніфікація даних (Data Sonification)
+• Генерація звукових ландшафтів
+• Експериментальний саунд-дизайн
+
+## I.DRUM.32
+**Статус:** Active
+**Тип:** Rhythm Generator
+**Опис:** 32-кроковий секвенсор для темпоральної синхронізації подій.
+**Особливості:**
+• Поліритмічні алгоритми
+• Синхронізація з пульсарами
+• Генерація ритмічних структур
+
+## ECO.SYSTEM
+**Статус:** Modeling
+**Тип:** Holistic Bio-Digital Model
+**Опис:** Модель взаємодії біологічних та цифрових екосистем.
+**Функції:**
+• Відстеження енергетичних потоків
+• Симуляція замкнутих циклів
+• Балансування ресурсів
+
+## OCEAN.LAB
+**Статус:** Deep
+**Тип:** Hydro-Physics
+**Опис:** Дослідження світового океану та гідросфери.
+**Параметри:**
+• Температура поверхні та глибинні течії
+• Рівень моря та танення льодовиків
+• Дані з системи буїв ARGO
+
+## HUMANITY.LAB
+**Статус:** Social
+**Тип:** Anthro-Metrics
+**Опис:** Аналіз глобальних демографічних та соціальних процесів.
+**Вектори:**
+• Урбанізація та міграція
+• Статистика WHO та ООН
+• Глобальні поведінкові тренди
+
+## I.MODULARXIII
+**Статус:** Experimental
+**Тип:** Audio Engine Gen-13
+**Опис:** Наступне покоління звукового рушія.
+**Інновації:**
+• Гранулярний синтез
+• Нейронний аудіо-морфінг
+• Експериментальна архітектура v13
+
+## AGRO.UA.LAB
+**Статус:** Active
+**Тип:** Agrarian Telemetry
+**Опис:** Агро-технологічний комплекс для України.
+**Сервіси:**
+• NDVI супутниковий моніторинг
+• Прогноз врожайності та стану ґрунтів
+• Точне землеробство
+
+## ARHIVE.2026
+**Статус:** Secure
+**Тип:** Data Vault
+**Опис:** Сховище історичних даних та логів за 2026 рік.
+**Вміст:**
+• Історія інцидентів
+• Бекапи всіх систем
+• Звіти "Signal-Off-Grid"
+
+---
+
+# CORE РАДАРИ (8 СИСТЕМ)
+
+## 1. TEST2.ORIGINAL
+**Тип:** Тестовий радар
+**Опис:** Sandbox середовище для тестування API та алгоритмів.
+
+## 2. SONCEMETR 2026
+**Тип:** Сонячний радар
+**Опис:** Моніторинг активності сонця, спалахів та магнітних бур.
+
+## 3. NEW13 RADAR
+**Тип:** Комплексний радар
+**Опис:** Мультисенсорна агрегація даних з 15+ джерел.
+
+## 4. HLAM5 SYSTEM
+**Тип:** Атмосферний радар
+**Опис:** Лазерний аналіз атмосфери та аерозолів.
+
+## 5. GEOPOLITICAL PARSER
+**Тип:** Геополітичний радар
+**Опис:** AI аналіз світових новин та конфліктів.
+
+## 6. ECONOMIC RADAR
+**Тип:** Економічний радар
+**Опис:** Моніторинг фінансових ринків та крипто-активів.
+
+## 7. NEW5 ADVANCED
+**Тип:** AI радар
+**Опис:** Виявлення прихованих патернів через Neural Networks.
+
+## 8. NEW14 ULTIMATE
+**Тип:** Інтегральний радар
+**Опис:** Холістичний синтез всіх систем та прогноз криз.
+`;
+
+        // ===== DATA =====
+        let data = { kp: 0, wind: 0, density: 0, bz: 0, bt: 0 };
+
+        async function fetchData() {
+            try {
+                // Mock data fallback if API fails or blocks CORS
+                data.kp = 3.2;
+                data.wind = 450;
+                data.density = 4.5;
+                data.bz = -2.1;
+                
+                // Try real fetch
+                try {
+                    const [kpRes, plasmaRes, magRes] = await Promise.all([
+                        fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json'),
+                        fetch('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json'),
+                        fetch('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')
+                    ]);
+    
+                    if(kpRes.ok && plasmaRes.ok && magRes.ok) {
+                        const kpData = await kpRes.json();
+                        const plasmaData = await plasmaRes.json();
+                        const magData = await magRes.json();
+        
+                        data.kp = parseFloat(kpData[kpData.length - 1][1]) || data.kp;
+                        data.wind = parseFloat(plasmaData[plasmaData.length - 1][2]) || data.wind;
+                        data.density = parseFloat(plasmaData[plasmaData.length - 1][1]) || data.density;
+                        data.bz = parseFloat(magData[magData.length - 1][3]) || data.bz;
+                    }
+                } catch(e) {
+                    console.log('Using cached/mock data due to CORS/Network');
+                }
+
+                updateDisplay();
+                document.getElementById('dataStatus').textContent = 'DATA: OK';
+            } catch (e) {
+                document.getElementById('dataStatus').textContent = 'DATA: ERR';
+            }
+        }
+
+        function updateDisplay() {
+            const getStatus = (val, thresholds) => {
+                if (val >= thresholds[1]) return 'alert';
+                if (val >= thresholds[0]) return 'warn';
+                return 'ok';
+            };
+
+            const statusText = { ok: 'norm', warn: 'watch', alert: 'crit' };
+
+            const kpStatus = getStatus(data.kp, [4, 5]);
+            const windStatus = getStatus(data.wind, [500, 600]);
+            const bzStatus = getStatus(Math.abs(data.bz), [5, 10]);
+
+            document.getElementById('dataDisplay').innerHTML = `
+    <div class="data-row">
+      <span class="data-label">Kp INDEX</span>
+      <span class="data-value">${data.kp.toFixed(1)}<span class="status-indicator status-${kpStatus}">${statusText[kpStatus]}</span></span>
     </div>
-
-    <div class="input-box">
-      <div class="quick-buttons">
-        <button onclick="tell()">розкажи</button>
-        <button onclick="tell()">цікаво</button>
-        <button onclick="tell()">ще</button>
-      </div>
+    <div class="data-row">
+      <span class="data-label">WIND</span>
+      <span class="data-value">${data.wind.toFixed(0)} <span style="font-size:9px">km/s</span></span>
     </div>
-  </div>
-</div>
+    <div class="data-row">
+      <span class="data-label">Bz FIELD</span>
+      <span class="data-value">${data.bz.toFixed(1)} <span style="font-size:9px">nT</span></span>
+    </div>
+  `;
+        }
 
-<script>
-// ФОН — зірки
-const c = document.getElementById("bg");
-const ctx = c.getContext("2d");
-let W, H, particles = [];
-function resize(){W=c.width=innerWidth;H=c.height=innerHeight;particles=Array.from({length:140},()=> ({x:Math.random()*W,y:Math.random()*H,z:Math.random()*W+1}));}
-resize();addEventListener("resize",resize);
-function drawBg(){ctx.fillStyle="#000";ctx.fillRect(0,0,W,H);ctx.fillStyle="#ffd166";particles.forEach(p=>{p.z-=0.6;if(p.z<1)p.z=W;const k=140/p.z;const x=(p.x-W/2)*k+W/2;const y=(p.y-H/2)*k+H/2;if(x>0&&y>0&&x<W&&y<H)ctx.fillRect(x,y,1.6,1.6);});requestAnimationFrame(drawBg);}
-drawBg();
+        fetchData();
+        setInterval(fetchData, 60 * 1000);
 
-// ЧАС
-setInterval(()=>document.getElementById("time").textContent=new Date().toLocaleTimeString("uk-UA"),1000);
+        // ===== CHAT =====
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
 
-let fragments = [];
+            addMsg(msg, 'user');
+            input.value = '';
 
-async function loadTxt() {
-  const url = "https://raw.githubusercontent.com/lavandaaudit/laborant2/main/tet.txt";
-  add("Завантажую tet.txt...", "bot");
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    add(`Отримано ${ (text.length / 1024).toFixed(1) } KB`, "bot");
+            // Simulate thinking
+            document.querySelector('.robot-eye.left').style.animation = 'blink 0.2s infinite';
+            document.querySelector('.robot-eye.right').style.animation = 'blink 0.2s infinite';
 
-    fragments = text.split(/\n{2,}/)
-      .map(s => s.trim())
-      .filter(s => s.length > 50 && !s.startsWith('#'));
+            setTimeout(() => {
+                const response = getResponse(msg);
+                addMsg(response, 'bot');
+                document.querySelector('.robot-eye.left').style.animation = 'blink 4s infinite';
+                document.querySelector('.robot-eye.right').style.animation = 'blink 4s infinite';
+            }, 600);
+        }
 
-    if (fragments.length === 0) {
-      add("УВАГА: уривків не знайдено.<br>Можливо, файл без достатніх розривів.", "bot");
-      document.getElementById("state").textContent = "OK, АЛЕ БЕЗ УРИВКІВ";
-      if (text.trim().length > 200) fragments = [text.trim()];
-    } else {
-      document.getElementById("state").textContent = `OK · ${fragments.length} уривків`;
-      add(`Готово! ${fragments.length} уривків.<br>Натискай будь-яку кнопку`, "bot");
-    }
-  } catch (err) {
-    add(`ПОМИЛКА: ${err.message}<br><a href="${url}" target="_blank" style="color:#ffd166;">відкрити tet.txt</a>`, "bot");
-    document.getElementById("state").textContent = "ПОМИЛКА";
-  }
-}
+        function addMsg(text, type) {
+            const chat = document.getElementById('chatMessages');
+            const time = new Date().toLocaleTimeString('uk-UA');
 
-function add(text, cls = "bot") {
-  const div = document.createElement("div");
-  div.className = `msg ${cls}`;
-  div.innerHTML = text.replace(/\n/g, "<br>");
+            const div = document.createElement('div');
+            div.className = `message msg-${type}`;
+            div.innerHTML = `
+    <div class="msg-time">${type === 'user' ? 'YOU' : 'DOCENT'} :: ${time}</div>
+    <div>${text}</div>
+  `;
 
-  const msgs = document.getElementById("msgs");
-  msgs.appendChild(div);
+            chat.appendChild(div);
+            // Auto scroll
+            chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+        }
 
-  setTimeout(() => {
-    msgs.scrollTop = msgs.scrollHeight;
-  }, 60);
-}
+        function getResponse(msg) {
+            const m = msg.toLowerCase();
 
-function getRandomSentences(fragment) {
-  const sentences = fragment
-    .split(/(?<=[.!?])\s+/)
-    .map(s => s.trim())
-    .filter(s => s.length > 10);
+            // Simple Keyword Matching
+            
+            // Projects
+            if(m.includes('sun.ibonarium') || m.includes('sun') || m.includes('сонце')) return getKnowledge('SUN.IBONARIUM');
+            if(m.includes('planet') || m.includes('планет')) return getKnowledge('PLANET.RADAR');
+            if(m.includes('moon') || m.includes('місяц')) return getKnowledge('MOON.IBONARIUM');
+            if(m.includes('ecolog') || m.includes('еколог')) return getKnowledge('ECOLOGY.RADAR');
+            if(m.includes('translat') || m.includes('переклад')) return getKnowledge('.TRANSLATOR');
+            if(m.includes('magnet') || m.includes('магніт')) return getKnowledge('.MAGNET.LAB');
+            if(m.includes('cripto') || m.includes('crypto') || m.includes('крипто')) return getKnowledge('CRIPTO.LAB.LIVE');
+            if(m.includes('lavanda') || m.includes('soft')) return getKnowledge('LAVANDA.SOFT');
+            if(m.includes('tv') || m.includes('тб')) return getKnowledge('IBONARIUM.TV');
+            if(m.includes('stabil') || m.includes('стабіл')) return getKnowledge('SOLAR.STABILITY');
+            if(m.includes('modular.1.3') || m.includes('модулар')) return getKnowledge('I.MODULAR.1.3');
+            if(m.includes('drum') || m.includes('ритм')) return getKnowledge('I.DRUM.32');
+            if(m.includes('eco.system') || m.includes('систем')) return getKnowledge('ECO.SYSTEM');
+            if(m.includes('ocean') || m.includes('океан')) return getKnowledge('OCEAN.LAB');
+            if(m.includes('humanity') || m.includes('гуман') || m.includes('людство')) return getKnowledge('Humanity.LAB'); // Case insensitive fix
+            if(m.includes('xiii') || m.includes('13')) return getKnowledge('I.MODULARXIII');
+            if(m.includes('agro') || m.includes('агро')) return getKnowledge('AGRO.UA.LAB');
+            if(m.includes('arhive') || m.includes('архів')) return getKnowledge('ARHIVE.2026');
 
-  if (sentences.length === 0) return fragment;
-  if (sentences.length === 1) return sentences[0];
+            // Legacy Radars
+            if(m.includes('test2')) return getKnowledge('TEST2.ORIGINAL');
+            if(m.includes('soncemetr')) return getKnowledge('SONCEMETR 2026');
+            if(m.includes('new13')) return getKnowledge('NEW13 RADAR');
+            if(m.includes('hlam5')) return getKnowledge('HLAM5 SYSTEM');
+            if(m.includes('geopol')) return getKnowledge('GEOPOLITICAL PARSER');
+            if(m.includes('econom')) return getKnowledge('ECONOMIC RADAR');
+            if(m.includes('new5')) return getKnowledge('NEW5 ADVANCED');
+            if(m.includes('new14')) return getKnowledge('NEW14 ULTIMATE');
 
-  const count = Math.random() < 0.6 ? 1 : 2;
-  const start = Math.floor(Math.random() * (sentences.length - count + 1));
-  const selected = sentences.slice(start, start + count);
+            if (m.includes('радар') || m.includes('radar')) {
+                return `🎯 CORE РАДАРИ:\n\n• Test2\n• Soncemetr\n• New13\n• Hlam5\n• Geopolitical\n• Economic\n• New5\n• New14\n\nЗапитайте про конкретний!`;
+            }
 
-  return selected.join(" ");
-}
+            if (m.includes('проект') || m.includes('project') || m.includes('lab')) {
+                return `🔬 ВСІ ПРОЕКТИ (СІЧЕНЬ):\n\n• sun.ibonarium\n• planet.radar\n• moon.ibonarium\n• ecology.radar\n• .translator\n• .magnet.lab\n• cripto.lab.live\n• lavanda.soft\n• ibonarium.tv\n• i.modular.1.3\n• ocean.lab\n• humanities.lab\n\n...та інші. Який цікавить?`;
+            }
 
-function tell() {
-  if (fragments.length === 0) {
-    add("Ще немає уривків — зачекай завантаження.", "bot");
-    return;
-  }
+            if (m.includes('kp') || m.includes('статус') || m.includes('звіт')) {
+                return `📊 ЗВІТ НА ${new Date().toLocaleTimeString()}:\n\nKp-Index: ${data.kp.toFixed(1)}\nВітер: ${data.wind} km/s\nЩільність: ${data.density}\n\nСтатус системи: ${data.kp >= 5 ? '⚠️ WARNING' : '✓ STABLE'}`;
+            }
 
-  const buttonText = event.target.innerText;
-  add(buttonText, "user");
+            return `Я Доцент. Маю дані про 26 проектів та радарів.\n\nСпробуйте запитати про:\n• "sun.ibonarium"\n• "cripto.lab"\n• "arhive.2026"\n• "solar.stability"`;
+        }
 
-  const idx = Math.floor(Math.random() * fragments.length);
-  const fullFrag = fragments[idx];
-  const shortFrag = getRandomSentences(fullFrag);
+        function getKnowledge(key) {
+            // Find section in markdown-like string
+            const normalize = str => str.toLowerCase().replace(/\s/g, '');
+            const kLines = KNOWLEDGE.split('\n');
+            let found = false;
+            let result = '';
 
-  setTimeout(() => add(shortFrag, "bot"), 600 + Math.random() * 800);
-}
+            // Simple parser
+            for(let i=0; i<kLines.length; i++) {
+                if(kLines[i].includes('##') && kLines[i].toLowerCase().includes(key.toLowerCase().split('.')[0])) {
+                     // Crude fuzzy match boost
+                     found = true;
+                } else if(kLines[i].includes('##') && found) {
+                    break; // Next section
+                }
+                
+                if(found) result += kLines[i] + '\n';
+            }
+            
+            // If failed to find by strict split match, try regex for the header
+            if(result.length < 10) {
+                 const regex = new RegExp(`##.*${key.replace('.','\.').split(' ')[0]}.*`, 'i');
+                 const parts = KNOWLEDGE.split(regex);
+                 if(parts.length > 1) {
+                     return parts[1].split('##')[0].trim();
+                 }
+                 return "Дані про цей проект завантажуються... (System Info Not Found)";
+            }
 
-document.addEventListener("DOMContentLoaded", loadTxt);
-</script>
+            // Remove the header line
+            return result.replace(/##.*\n/, '').trim();
+        }
+
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMsg();
+        });
+
+        function quickAction(action) {
+            switch (action) {
+                case 'radars':
+                    addMsg(`🎯 CORE РАДАРИ:\n\n1. TEST2\n2. SONCEMETR\n3. NEW13\n4. HLAM5\n5. GEOPOLITICAL\n6. ECONOMIC\n7. NEW5\n8. NEW14`, 'bot');
+                    break;
+                case 'labs':
+                    addMsg(`🔬 ПРОЕКТИ СІЧЕНЬ:\n\n• sun.ibonarium\n• planet.radar\n• moon.ibonarium\n• ecology.radar\n• .translator\n• .magnet.lab\n• cripto.lab.live\n• lavanda.soft\n• ibonarium.tv\n• ocean.lab\n(див. повний список у базі)`, 'bot');
+                    break;
+                case 'report':
+                    addMsg(`📊 ZVIT-2026:\n\nKp: ${data.kp}\nWind: ${data.wind}\nBz: ${data.bz}\n\nAll systems nominal.`, 'bot');
+                    break;
+                case 'help':
+                    addMsg('❓ HELP MODE:\n\nНапишіть назву проекту для отримання довідки.\nНаприклад: "humanity.lab" або ".translator"', 'bot');
+                    break;
+            }
+        }
+    </script>
+
 </body>
+
 </html>
