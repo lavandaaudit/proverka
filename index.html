@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>IBONARIUM HUB • 2026</title>
-
+  <title>Лабораторні інструменти — 2 проєкти</title>
   <style>
     * {
       margin: 0;
@@ -13,133 +12,132 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #e0e0ff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f9fa;
+      color: #222;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
     }
 
     header {
+      background: #2c3e50;
+      color: white;
+      padding: 14px 16px;
       text-align: center;
-      margin-bottom: 2.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
-    h1 {
-      font-size: clamp(1.9rem, 7vw, 3.4rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(90deg, #a78bfa, #7c3aed, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 0.4rem;
+    .container {
+      max-width: 100%;
+      margin: 0 auto;
+      padding: 0;
     }
 
-    .subtitle {
-      font-size: clamp(1rem, 4vw, 1.3rem);
-      opacity: 0.8;
-      margin-bottom: 1.5rem;
-    }
-
-    .cards {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+    .frame-wrapper {
+      height: 100vh;
+      border: none;
       width: 100%;
-      max-width: 420px;
+      background: #fff;
+      position: relative;
     }
 
-    .card {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 1.8rem 1.4rem;
-      text-decoration: none;
-      color: inherit;
-      transition: all 0.28s ease;
-      cursor: pointer;
+    .frame-wrapper + .frame-wrapper {
+      margin-top: 1px; /* тонка лінія-роздільник */
     }
 
-    .card:hover {
-      transform: translateY(-8px);
-      background: rgba(255, 255, 255, 0.12);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
-    }
-
-    .card h2 {
-      font-size: 1.5rem;
-      margin-bottom: 0.6rem;
-      color: #c4b5fd;
-    }
-
-    .card p {
-      font-size: 1rem;
-      opacity: 0.85;
-      line-height: 1.45;
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 0.78rem;
-      padding: 0.3em 0.7em;
-      border-radius: 2em;
-      background: rgba(167, 139, 250, 0.25);
-      color: #c4b5fd;
-      margin-top: 1rem;
-    }
-
-    footer {
-      margin-top: 3rem;
+    .label {
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      background: rgba(0,0,0,0.65);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
       font-size: 0.82rem;
-      opacity: 0.6;
-      text-align: center;
+      z-index: 10;
+      backdrop-filter: blur(4px);
     }
 
-    @media (min-width: 500px) {
-      .cards {
+    /* === Адаптивність === */
+    @media (min-width: 992px) {
+      .container {
+        display: flex;
         flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
-        max-width: 900px;
+        height: 100vh;
       }
-      .card {
-        flex: 1 1 320px;
-        max-width: 380px;
+
+      .frame-wrapper {
+        width: 50%;
+        height: 100vh;
+      }
+
+      .frame-wrapper + .frame-wrapper {
+        margin-top: 0;
+        border-left: 1px solid #ddd;
+      }
+
+      header {
+        font-size: 1.25rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      .frame-wrapper {
+        height: 55vh;          /* можна налаштувати 50–60vh */
+        min-height: 480px;     /* щоб не було занадто маленьким */
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 12px 14px;
+        font-size: 1rem;
+      }
+
+      .label {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+      }
+
+      .frame-wrapper {
+        min-height: 420px;
       }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>IBONARIUM</h1>
-    <div class="subtitle">DUAL ENGINE PULSE • 2026</div>
-  </header>
+<header>
+  Лабораторні інструменти — два проєкти в одному вікні
+</header>
 
-  <div class="cards">
+<div class="container">
 
-    <a href="https://lavandaaudit.github.io/fisicman/" class="card">
-      <h2>LABORANT.AI2 · IBONARIUM</h2>
-      <p>Теоретик кафедри ібонаріуму, уривки текстів, фрагментатор v2.7, проєкти 0201–0203</p>
-      <div class="badge">основна версія</div>
-    </a>
-
-    <a href="https://lavandaaudit.github.io/new13/" class="card">
-      <h2>DUAL ENGINE PULSE</h2>
-      <p>Моніторинг корони, wind / dens / bt / temp / bz / phi / bx / by, синхронізація IO</p>
-      <div class="badge">режим 2026</div>
-    </a>
-
+  <div class="frame-wrapper">
+    <div class="label">txtLaborant2 (перший варіант)</div>
+    <iframe 
+      src="https://lavandaaudit.github.io/txtLaborant2/" 
+      frameborder="0" 
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
   </div>
 
-  <footer>
-    lavandaaudit • IBONARIUM fragmentor • січень–лютий 2026
-  </footer>
+  <div class="frame-wrapper">
+    <div class="label">new13 (другий варіант)</div>
+    <iframe 
+      src="https://lavandaaudit.github.io/new13/" 
+      frameborder="0" 
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  </div>
+
+</div>
 
 </body>
 </html>
