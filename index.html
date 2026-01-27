@@ -1,29 +1,103 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<title>IBONARIUM · STACK · 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>IBONARIUM · STACK · 2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      height: 100%;
+      overflow-y: auto;
+      font-family: system-ui, sans-serif;
+    }
 
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  height: 100%;
-  overflow-y: auto;
-}
+    /* один екран = одна сторінка */
+    .section {
+      width: 100%;
+      height: 100vh;
+      border: none;
+      display: block;
+      background: #000;
+    }
 
-/* один екран = одна сторінка */
-.section {
-  width: 100%;
-  height: 100vh;
-  border: none;
-  display: block;
-  background: #000;
-}
-</style>
+    /* Кнопка DOCENT */
+    #docent-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 25px;
+      z-index: 1000;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #4a6bff;
+      color: white;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: all 0.2s;
+    }
 
+    #docent-btn:hover {
+      background: #5a7aff;
+      transform: scale(1.08);
+    }
+
+    /* Модальне вікно */
+    #docent-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      position: relative;
+      width: 92%;
+      max-width: 1100px;
+      height: 92vh;
+      background: #111;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .close-btn:hover {
+      background: #e63946;
+    }
+
+    .modal-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
 </head>
 <body>
 
@@ -40,6 +114,42 @@ html, body {
   src="https://lavandaaudit.github.io/new13/"
   loading="lazy">
 </iframe>
+
+<!-- Кнопка DOCENT -->
+<button id="docent-btn">DOCENT</button>
+
+<!-- Модальне вікно -->
+<div id="docent-modal">
+  <div class="modal-content">
+    <button class="close-btn" title="Закрити">×</button>
+    <iframe 
+      class="modal-iframe"
+      src="https://lavandaaudit.github.io/Docent.kafedry.ibonariuma/"
+      loading="lazy">
+    </iframe>
+  </div>
+</div>
+
+<script>
+  const btn = document.getElementById('docent-btn');
+  const modal = document.getElementById('docent-modal');
+  const closeBtn = document.querySelector('.close-btn');
+
+  btn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+
+  closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Закриття по кліку поза контентом (опціонально)
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.style.display = 'none';
+    }
+  });
+</script>
 
 </body>
 </html>
