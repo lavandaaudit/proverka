@@ -22,64 +22,6 @@ html, body {
   border: none;
   display: block;
 }
-
-/* DOCENT BUTTON */
-#docent-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 24px;
-  z-index: 9999;
-  font-family: "Courier New", monospace;
-  font-size: 14px;
-  letter-spacing: 2px;
-  color: #9ff;
-  background: rgba(0,0,0,0.65);
-  border: 1px solid #3ff;
-  padding: 10px 14px;
-  cursor: pointer;
-}
-
-#docent-btn:hover {
-  background: #3ff;
-  color: #000;
-}
-
-/* MODAL */
-#docent-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  z-index: 10000;
-}
-
-#docent-box {
-  position: absolute;
-  inset: 5%;
-  background: #000;
-  border: 1px solid #3ff;
-}
-
-#docent-box iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-#docent-close {
-  position: absolute;
-  top: 8px;
-  right: 10px;
-  font-size: 16px;
-  color: #3ff;
-  cursor: pointer;
-  border: 1px solid #3ff;
-  padding: 4px 8px;
-}
-#docent-close:hover {
-  background: #3ff;
-  color: #000;
-}
 </style>
 </head>
 
@@ -94,30 +36,8 @@ html, body {
 <iframe class="section" src="https://lavandaaudit.github.io/economic.radar/" loading="lazy"></iframe>
 <iframe class="section" src="https://lavandaaudit.github.io/new14/" loading="lazy"></iframe>
 
-<!-- DOCENT AS LAST PAGE -->
+<!-- DOCENT AS LAST PAGE (STATIC) -->
 <iframe class="section" src="https://lavandaaudit.github.io/Docent.kafedry.ibonariuma/" loading="lazy"></iframe>
-
-<!-- DOCENT MODAL -->
-<div id="docent-btn">DOCENT</div>
-
-<div id="docent-modal">
-  <div id="docent-box">
-    <div id="docent-close">✕</div>
-    <iframe src="https://lavandaaudit.github.io/Docent.kafedry.ibonariuma/"></iframe>
-  </div>
-</div>
-
-<script>
-const btn = document.getElementById("docent-btn");
-const modal = document.getElementById("docent-modal");
-const close = document.getElementById("docent-close");
-
-btn.onclick = () => modal.style.display = "block";
-close.onclick = () => modal.style.display = "none";
-modal.onclick = e => { 
-  if (e.target === modal) modal.style.display = "none"; 
-};
-</script>
 
 </body>
 </html>
