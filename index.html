@@ -92,7 +92,6 @@ html, body {
 <iframe class="section" src="https://lavandaaudit.github.io/hlam5/" loading="lazy"></iframe>
 <iframe class="section" src="https://lavandaaudit.github.io/parsergeopolitical/" loading="lazy"></iframe>
 <iframe class="section" src="https://lavandaaudit.github.io/economic.radar/" loading="lazy"></iframe>
-<iframe class="section" src="https://lavandaaudit.github.io/new5/" loading="lazy"></iframe>
 <iframe class="section" src="https://lavandaaudit.github.io/new14/" loading="lazy"></iframe>
 
 <!-- DOCENT AS LAST PAGE -->
@@ -115,7 +114,9 @@ const close = document.getElementById("docent-close");
 
 btn.onclick = () => modal.style.display = "block";
 close.onclick = () => modal.style.display = "none";
-modal.onclick = e => { if (e.target === modal) modal.style.display = "none"; };
+modal.onclick = e => { 
+  if (e.target === modal) modal.style.display = "none"; 
+};
 </script>
 
 </body>
