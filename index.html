@@ -2,78 +2,65 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<title>IBONARIUM · STACK · 2026</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONIRIUM · EXP-02 → GALAKTIKA</title>
 
 <style>
-/* RESET */
-* {
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-/* BASE */
-html, body {
-  width: 100%;
-  height: 100%;
   background: #000;
-}
-
-/* SCROLL STACK */
-body {
+  height: 100%;
   overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* FULLSCREEN SECTION */
+/* один екран = одна сторінка */
 .section {
   width: 100%;
   height: 100vh;
-  scroll-snap-align: start;
-  background: #000;
-}
-
-/* IFRAME */
-iframe {
-  width: 100%;
-  height: 100%;
   border: none;
   display: block;
-}
-
-/* MOBILE */
-@media (max-width: 768px) {
-  body {
-    scroll-snap-type: y proximity;
-  }
-
-  .section {
-    height: 100svh;
-  }
+  background: #000;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ===== PAGE 1 : EXP-02 ===== -->
-<section class="section">
-  <iframe
-    src="https://lavandaaudit.github.io/exp-02/"
-    loading="lazy">
-  </iframe>
-</section>
+<!-- 0 · ЛАБОРАТОРІЯ (ПЕРША) -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/lalboratoria/"
+  loading="lazy">
+</iframe>
 
-<!-- ===== PAGE 2 : GALAKTIKA ===== -->
-<section class="section">
-  <iframe
-    src="https://lavandaaudit.github.io/galaktika/"
-    loading="lazy">
-  </iframe>
-</section>
+<!-- 1 · ЛАБОРАНТ -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/laborant2/"
+  loading="lazy">
+</iframe>
+
+<!-- 2 · ТЕРАРІУМ -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
+  loading="lazy">
+</iframe>
+
+<!-- 3 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/new13/"
+  loading="lazy">
+</iframe>
+
+<!-- 4 -->
+<iframe
+  class="section"
+  src="https://lavandaaudit.github.io/exebition_1/"
+  loading="lazy">
+</iframe>
 
 </body>
 </html>
