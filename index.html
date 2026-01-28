@@ -1,119 +1,169 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<title>IBONARIUM · ARHIVE · 25.01.2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>IBONIRIUM · Final Singularity · v38.1</title>
 
 <style>
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* BASE */
+* { margin:0; padding:0; box-sizing:border-box; }
+
 html, body {
-  width: 100%;
-  height: 100%;
-  background: #000;
-  color: #fff;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  width:100%;
+  height:100%;
+  background:#000;
+  font-family:'JetBrains Mono', monospace;
+  color:#fff;
 }
 
-/* SCROLL SNAP */
-body {
-  scroll-snap-type: y mandatory;
+/* === SCROLL CONTAINER === */
+#scroll-stack {
+  height:100vh;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;
 }
 
-/* ONE SCREEN = ONE PAGE */
+/* === EACH SCREEN === */
 .section {
-  width: 100%;
-  height: 100vh;
-  border: none;
-  display: block;
-  background: #000;
-  scroll-snap-align: start;
+  position:relative;
+  width:100%;
+  height:100vh;
+  scroll-snap-align:start;
+  background:#000;
+  overflow:hidden;
 }
 
-/* iframe fix */
+/* === CANVAS LAYER === */
+canvas {
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+
+#stars { z-index:1; opacity:0.5; }
+#galaxy-canvas { z-index:2; pointer-events:auto; cursor:grab; }
+#galaxy-canvas:active { cursor:grabbing; }
+
+/* === HUD === */
+#main-hud {
+  position:fixed;
+  top:40px;
+  left:80px;
+  z-index:10;
+  max-width:320px;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.lab-title {
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:3px;
+  color:#00ffff;
+  border-bottom:1px solid rgba(0,255,255,.2);
+  padding-bottom:4px;
+}
+
+.description-block {
+  font-size:7px;
+  line-height:1.6;
+  color:#9affc2;
+  opacity:.7;
+}
+
+.data-row {
+  font-size:8px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.label { color:rgba(0,255,255,.4); }
+.val { color:#fff; font-weight:bold; }
+
+/* === NAV === */
+#navigation-controls {
+  position:fixed;
+  bottom:30px;
+  right:30px;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.zoom-btn {
+  width:36px;
+  height:36px;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,255,255,.4);
+  cursor:pointer;
+}
+
+/* === GALAKTIKA IFRAME === */
 iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
+  width:100%;
+  height:100%;
+  border:none;
 }
 
-/* --- MOBILE ADAPTATION --- */
-@media (max-width: 768px) {
-
-  body {
-    scroll-snap-type: y proximity;
+/* === MOBILE === */
+@media (max-width:768px) {
+  #main-hud {
+    left:16px;
+    top:16px;
+    max-width:240px;
   }
-
-  .section {
-    height: 100svh; /* коректна висота на моб */
-  }
-
-}
-
-/* --- OPTIONAL: subtle breathing between screens --- */
-.section {
-  transition: transform 0.6s ease;
 }
 </style>
 </head>
 
 <body>
 
-<!-- STACK -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/TEST2.ORIGINAL.FILE.25.01.2026/"
-  loading="lazy">
-</iframe>
+<div id="scroll-stack">
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/ibonarium.soncemetr.2026/"
-  loading="lazy">
-</iframe>
+  <!-- ================= SCREEN 1 : SINGULARITY ================= -->
+  <section class="section">
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/hlam5/"
-  loading="lazy">
-</iframe>
+    <canvas id="stars"></canvas>
+    <canvas id="galaxy-canvas"></canvas>
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/parsergeopolitical/"
-  loading="lazy">
-</iframe>
+    <div id="main-hud">
+      <div class="lab-title">LAB_IBONIRIUM_EXP_01</div>
+      <div class="description-block">
+        АВТОНОМНА СИМУЛЯЦІЯ СІНГУЛЯРНОСТІ.  
+        ДАНІ КОСМІЧНИХ І ЗЕМНИХ ПОТОКІВ МОДУЛЮЮТЬ СТАН.
+      </div>
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/economic.radar/"
-  loading="lazy">
-</iframe>
+      <div class="data-row"><span class="label">EXP_PHASE</span><span class="val">13/26</span></div>
+      <div class="data-row"><span class="label">ENTROPY</span><span class="val">72%</span></div>
+    </div>
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/new5/"
-  loading="lazy">
-</iframe>
+    <div id="navigation-controls">
+      <div class="zoom-btn" onclick="adjustZoom(0.3)">+</div>
+      <div class="zoom-btn" onclick="adjustZoom(-0.3)">−</div>
+    </div>
 
-<iframe class="section"
-  src="https://lavandaaudit.github.io/new14/"
-  loading="lazy">
-</iframe>
+  </section>
 
-<!-- DOCENT -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/Docent.kafedry.ibonariuma/"
-  loading="lazy">
-</iframe>
+  <!-- ================= SCREEN 2 : GALAKTIKA ================= -->
+  <section class="section">
+    <iframe
+      src="https://lavandaaudit.github.io/galaktika/"
+      loading="lazy">
+    </iframe>
+  </section>
 
-<!-- 🌌 GALAKTIKA — ПРОДОВЖЕННЯ -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/galaktika/"
-  loading="lazy">
-</iframe>
+</div>
 
+<script type="module" src="main.js"></script>
 </body>
 </html>
