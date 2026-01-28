@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>IBONIRIUM · Final Singularity · v38.1</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>IBONIRIUM · Final Singularity · v38.2</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
@@ -18,46 +18,28 @@ html, body {
   color:#fff;
 }
 
-/* === SCROLL CONTAINER === */
-#scroll-stack {
-  height:100vh;
-  overflow-y:auto;
-  scroll-snap-type:y mandatory;
-  -webkit-overflow-scrolling:touch;
-}
-
-/* === EACH SCREEN === */
-.section {
-  position:relative;
-  width:100%;
-  height:100vh;
-  scroll-snap-align:start;
-  background:#000;
-  overflow:hidden;
-}
-
-/* === CANVAS LAYER === */
+/* ================= FIXED LAYERS (ALWAYS VISIBLE) ================= */
 canvas {
   position:fixed;
   inset:0;
-  pointer-events:none;
+  z-index:1;
 }
 
-#stars { z-index:1; opacity:0.5; }
-#galaxy-canvas { z-index:2; pointer-events:auto; cursor:grab; }
+#stars { opacity:0.5; }
+#galaxy-canvas {
+  z-index:2;
+  cursor:grab;
+}
 #galaxy-canvas:active { cursor:grabbing; }
 
-/* === HUD === */
+/* HUD */
 #main-hud {
   position:fixed;
   top:40px;
   left:80px;
-  z-index:10;
+  z-index:5;
   max-width:320px;
   pointer-events:none;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
 }
 
 .lab-title {
@@ -74,23 +56,25 @@ canvas {
   line-height:1.6;
   color:#9affc2;
   opacity:.7;
+  margin-top:8px;
 }
 
 .data-row {
   font-size:8px;
   display:flex;
   justify-content:space-between;
+  margin-top:4px;
 }
 
 .label { color:rgba(0,255,255,.4); }
 .val { color:#fff; font-weight:bold; }
 
-/* === NAV === */
+/* NAV */
 #navigation-controls {
   position:fixed;
   bottom:30px;
   right:30px;
-  z-index:10;
+  z-index:5;
   display:flex;
   flex-direction:column;
   gap:12px;
@@ -108,14 +92,33 @@ canvas {
   cursor:pointer;
 }
 
-/* === GALAKTIKA IFRAME === */
+/* ================= SCROLL STACK ================= */
+#scroll-stack {
+  position:relative;
+  height:100vh;
+  overflow-y:auto;
+  scroll-snap-type:y mandatory;
+  -webkit-overflow-scrolling:touch;
+  z-index:10;
+}
+
+/* EACH SCREEN */
+.section {
+  height:100vh;
+  width:100%;
+  scroll-snap-align:start;
+  background:transparent;
+}
+
+/* GALAKTIKA */
 iframe {
   width:100%;
   height:100%;
   border:none;
+  background:#000;
 }
 
-/* === MOBILE === */
+/* MOBILE */
 @media (max-width:768px) {
   #main-hud {
     left:16px;
@@ -128,33 +131,32 @@ iframe {
 
 <body>
 
+<!-- ===== FIXED SYSTEM ===== -->
+<canvas id="stars"></canvas>
+<canvas id="galaxy-canvas"></canvas>
+
+<div id="main-hud">
+  <div class="lab-title">LAB_IBONIRIUM_EXP_01</div>
+  <div class="description-block">
+    АВТОНОМНА СИМУЛЯЦІЯ СІНГУЛЯРНОСТІ.  
+    СТАН ФОРМУЄТЬСЯ В РЕАЛЬНОМУ ЧАСІ.
+  </div>
+  <div class="data-row"><span class="label">PHASE</span><span class="val">13/26</span></div>
+  <div class="data-row"><span class="label">ENTROPY</span><span class="val">72%</span></div>
+</div>
+
+<div id="navigation-controls">
+  <div class="zoom-btn" onclick="adjustZoom(0.3)">+</div>
+  <div class="zoom-btn" onclick="adjustZoom(-0.3)">−</div>
+</div>
+
+<!-- ===== SCROLL DIMENSIONS ===== -->
 <div id="scroll-stack">
 
-  <!-- ================= SCREEN 1 : SINGULARITY ================= -->
-  <section class="section">
+  <!-- SCREEN 1 — EMPTY, BUT ACTIVE (CANVAS WORLD) -->
+  <section class="section"></section>
 
-    <canvas id="stars"></canvas>
-    <canvas id="galaxy-canvas"></canvas>
-
-    <div id="main-hud">
-      <div class="lab-title">LAB_IBONIRIUM_EXP_01</div>
-      <div class="description-block">
-        АВТОНОМНА СИМУЛЯЦІЯ СІНГУЛЯРНОСТІ.  
-        ДАНІ КОСМІЧНИХ І ЗЕМНИХ ПОТОКІВ МОДУЛЮЮТЬ СТАН.
-      </div>
-
-      <div class="data-row"><span class="label">EXP_PHASE</span><span class="val">13/26</span></div>
-      <div class="data-row"><span class="label">ENTROPY</span><span class="val">72%</span></div>
-    </div>
-
-    <div id="navigation-controls">
-      <div class="zoom-btn" onclick="adjustZoom(0.3)">+</div>
-      <div class="zoom-btn" onclick="adjustZoom(-0.3)">−</div>
-    </div>
-
-  </section>
-
-  <!-- ================= SCREEN 2 : GALAKTIKA ================= -->
+  <!-- SCREEN 2 — GALAKTIKA -->
   <section class="section">
     <iframe
       src="https://lavandaaudit.github.io/galaktika/"
