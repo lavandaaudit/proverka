@@ -3,64 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <title>IBONARIUM · STACK · 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
+/* Загальні стилі */
 html, body {
   margin: 0;
   padding: 0;
   background: #000;
   height: 100%;
-  overflow-y: auto;
+  overflow-y: scroll; /* вертикальний скрол */
+  -webkit-overflow-scrolling: touch; /* плавний скрол на iOS */
 }
 
-/* один екран = одна сторінка */
+/* Контейнер для iframe */
 .section {
   width: 100%;
-  height: 100vh;
+  height: 100vh; /* завжди займає весь екран */
   border: none;
   display: block;
   background: #000;
+}
+
+/* Плавний скрол між iframe */
+body {
+  scroll-behavior: smooth;
+}
+
+/* Додатково: мобільні оптимізації */
+@media (max-width: 768px) {
+  .section {
+    height: 100vh; /* для мобільних повна висота екрану */
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- 0 · ЛАБОРАТОРІЯ (ПЕРША) -->
-<iframe
-  class="section"
-  src="https://lavandaaudit.github.io/lalboratoria/"
-  loading="lazy">
-</iframe>
-
 <!-- 1 · ЛАБОРАНТ -->
-<iframe
-  class="section"
-  src="https://lavandaaudit.github.io/laborant2/"
-  loading="lazy">
-</iframe>
+<iframe class="section" src="https://lavandaaudit.github.io/laborant2/" loading="lazy"></iframe>
 
-<!-- 2 · ТЕРАРІУМ -->
-<iframe
-  class="section"
-  src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
-  loading="lazy">
-</iframe>
+<!-- Тераріум після лаборанта -->
+<iframe class="section" src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/" loading="lazy"></iframe>
+
+<!-- 2 -->
+<iframe class="section" src="https://lavandaaudit.github.io/new13/" loading="lazy"></iframe>
 
 <!-- 3 -->
-<iframe
-  class="section"
-  src="https://lavandaaudit.github.io/new13/"
-  loading="lazy">
-</iframe>
-
-<!-- 4 -->
-<iframe
-  class="section"
-  src="https://lavandaaudit.github.io/exebition_1/"
-  loading="lazy">
-</iframe>
+<iframe class="section" src="https://lavandaaudit.github.io/exebition_1/" loading="lazy"></iframe>
 
 </body>
 </html>
