@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,7 +35,7 @@ canvas { position: fixed; inset:0; }
 
   <div class="section-title">System Status</div>
   <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
-  <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase">--</span>/26</div>
+  <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase">--</span>/52</div>
   <div class="data-item"><span class="label">Current Time:</span> <span class="val" id="current-time">--:--:--</span></div>
   <div class="data-item"><span class="label">Progress:</span> <span class="val" id="progress-desc">Initializing...</span></div>
 
@@ -72,7 +71,7 @@ class Galaxy {
     this.stars = [];
     this.angle = 0;
     this.corePulse = 0;
-    this.phase = 0; // 0-26
+    this.phase = 0; // 0-52
     this.day = 0;
     this.initStars();
   }
@@ -125,7 +124,7 @@ class Galaxy {
   }
 
   nextPhase() {
-    this.phase = (this.phase+1)%26;
+    this.phase = (this.phase+1)%52;
     this.day++;
     document.getElementById('phase').textContent = this.phase;
     document.getElementById('day').textContent = this.day;
@@ -147,9 +146,9 @@ class Galaxy {
 
   updateProgressDesc(){
     let desc = "";
-    if(this.phase < 5) desc = "Початкова фаза: галактика нарощує ядро та невелику туманність.";
-    else if(this.phase < 12) desc = "Середня фаза: розширення туманності, збільшення щільності зірок.";
-    else if(this.phase < 20) desc = "Активна фаза: яскраве ядро, пульсації, формування нових потоків туманності.";
+    if(this.phase < 10) desc = "Початкова фаза: галактика нарощує ядро та невелику туманність.";
+    else if(this.phase < 24) desc = "Середня фаза: розширення туманності, збільшення щільності зірок.";
+    else if(this.phase < 40) desc = "Активна фаза: яскраве ядро, пульсації, формування нових потоків туманності.";
     else desc = "Зріла фаза: велика туманність, стабільне ядро, галактичні потоки у дії.";
     desc += ` День ${this.day}.`;
     document.getElementById('progress-desc').textContent = desc;
