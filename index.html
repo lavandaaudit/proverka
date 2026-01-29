@@ -3,289 +3,120 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IBONIRIUM · Galactic Core · EXP‑01</title>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden;
+      font-family: 'JetBrains Mono', monospace; color: #fff; }
 
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      touch-action: none;
-      font-family: 'JetBrains Mono', monospace;
-      color: #fff;
-    }
+    canvas { position: fixed; inset: 0; }
 
-    canvas {
-      position: fixed;
-      inset: 0;
-    }
+    #hud { position: fixed; top: 0; left: 0; z-index: 10; padding: 20px; 
+      background: rgba(0, 0, 0, 0.4); max-width: 340px; font-size: 9px; line-height: 1.5; }
 
-    #galaxy-canvas {
-      z-index: 2;
-      cursor: grab;
-    }
+    .hud-title { font-weight: 700; font-size: 12px; color: #00ffff;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.3); margin-bottom: 6px; padding-bottom: 4px; }
 
-    #galaxy-canvas:active {
-      cursor: grabbing;
-    }
+    .section-title { color: #00ffff; font-weight: 700; margin-top: 8px; margin-bottom: 3px; font-size: 10px; }
 
-    #hud {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      pointer-events: none;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      font-size: 9px;
-      line-height: 1.5;
-      max-width: 320px;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(0,255,255,0.2);
-      border-radius: 8px;
-    }
+    .data-item { margin-bottom: 4px; }
 
-    .hud-title {
-      font-weight: 700;
-      font-size: 11px;
-      color: #00ffff;
-      letter-spacing: 2px;
-      margin-bottom: 6px;
-      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-      padding-bottom: 4px;
-    }
+    .label { color: #00ffff; opacity: 0.7; margin-right: 4px; }
+    .val { color: #fff; font-weight: 700; }
 
-    .data-item {
-      margin-bottom: 3px;
-    }
-
-    .label {
-      color: #00ffff;
-      opacity: 0.7;
-      margin-right: 4px;
-    }
-
-    .val {
-      color: #fff;
-      font-weight: 700;
-    }
-
-    .section-title {
-      color: #00ffff;
-      font-weight: 700;
-      margin-top: 6px;
-      margin-bottom: 2px;
-      font-size: 10px;
-      text-decoration: underline;
-    }
-
-    .scanline {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background: rgba(0, 255, 255, 0.05);
-      z-index: 1000;
-      pointer-events: none;
-      animation: scan 10s linear infinite;
-    }
-
-    @keyframes scan {
-      from { top: 0; }
-      to { top: 100%; }
-    }
-
-    .btn-save {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-family: inherit;
-      font-size: 8px;
-      padding: 4px 10px;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: 0.3s;
-      margin-top: 6px;
-    }
-
-    .btn-save:hover {
-      background: #fff;
-      color: #000;
-    }
+    .btn-save { margin-top: 6px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff; font-size: 8px; padding: 4px 10px; cursor: pointer; pointer-events: auto; }
+    .btn-save:hover { background: #fff; color: #000; }
   </style>
 </head>
 
 <body>
-  <div class="scanline"></div>
-
   <canvas id="galaxy-canvas"></canvas>
 
   <div id="hud">
     <div class="hud-title">IBONIRIUM · EXP_01 · Galactic Core</div>
-
-    <div class="section-title">Система / Фаза експерименту</div>
+    
+    <div class="section-title">System Status</div>
     <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase-idx">--</span>/26</div>
     <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
-    <div class="data-item"><span class="label">AGE_EXPANSION:</span> <span class="val" id="cycle">--</span>%</div>
-    <div class="data-item"><span class="label">TARGET:</span> <span class="val">13_DEC_2026</span></div>
+    <div class="data-item"><span class="label">AGE_EXP:</span> <span class="val" id="cycle">--</span>%</div>
 
-    <div class="section-title">Космічні дані</div>
-    <div class="data-item"><span class="label">SOLAR_SSN:</span> <span class="val" id="ssn">--</span></div>
-    <div class="data-item"><span class="label">SOLAR_FLUX:</span> <span class="val" id="val-flux">--</span> Jy</div>
-    <div class="data-item"><span class="label">MAG_KP:</span> <span class="val" id="val-kp">--</span></div>
+    <div class="section-title">Space Weather (NOAA)</div>
+    <div class="data-item"><span class="label">Solar Flux (F10.7):</span> <span class="val" id="solar-flux">--</span></div>
+    <div class="data-item"><span class="label">Wind Speed:</span> <span class="val" id="wind-speed">--</span> km/s</div>
+    <div class="data-item"><span class="label">Mag Field Bz:</span> <span class="val" id="mag-bz">--</span> nT</div>
+    <div class="data-item"><span class="label">Planetary Kp:</span> <span class="val" id="kp-index">--</span></div>
 
-    <div class="section-title">Погодні / Планетарні дані</div>
-    <div class="data-item"><span class="label">AIR_T:</span> <span class="val" id="val-air">--</span>°C</div>
-    <div class="data-item"><span class="label">SOIL_T:</span> <span class="val" id="val-soil">--</span>°C</div>
-    <div class="data-item"><span class="label">HUMIDITY:</span> <span class="val" id="val-hum">--</span>%</div>
-    <div class="data-item"><span class="label">WIND_SPD:</span> <span class="val" id="val-wind">--</span> m/s</div>
-    <div class="data-item"><span class="label">SURFACE_P:</span> <span class="val" id="val-press">--</span> hPa</div>
-
-    <div class="section-title">Опис дослідження</div>
-    <div class="data-item">Симуляція галактик у межах експерименту IBONIRIUM. Кожна галактика має ядро, орбіти та зірки, що реагують на сонячну активність і планетарні умови.</div>
-    <div class="data-item">Взаємодія галактик впливає на розподіл енергії та туманності, формуючи динамічні цикли росту та пульсації ядра.</div>
-
-    <div class="section-title">Очікувані події</div>
-    <div class="data-item">- Зміна кількості зірок і розмірів галактик відповідно до сонячної активності.</div>
-    <div class="data-item">- Пульсація ядер галактик, дихання туманностей.</div>
-    <div class="data-item">- Взаємодія та зміщення галактик при зближенні.</div>
-    <div class="data-item">- Реакція на зміни погодних умов (вітер, температура, вологість) для симуляції “планетарної атмосфери”.</div>
+    <div class="section-title">Research + Expected Behavior</div>
+    <div class="data-item">Gалaктики реагують на зміни космічної погоди в реальному часі — сонячний потік,
+      магнітне поле і вітер впливають на швидкість обертання, розміри туманностей та щільність зірок.</div>
+    <div class="data-item">Очікується: посилення обертання при зростанні F10.7, розширення туманностей при збільшенні вітру,
+      і пульсація ядер при зміні магнітної активності (Kp змінюється циклічно).</div>
 
     <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
   </div>
 
-  <script type="module">
+  <script>
     const canvas = document.getElementById('galaxy-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
     class Galaxy {
-      constructor(x, y, color, starsCount, rotationSpeed, influenceRadius) {
-        this.x = x;
-        this.y = y;
+      constructor(x, y, color) {
+        this.x = x; this.y = y;
         this.color = color;
-        this.starsCount = starsCount;
-        this.rotationSpeed = rotationSpeed;
-        this.influenceRadius = influenceRadius;
+        this.rotationSpeed = 0.001;
+        this.influenceRadius = 100;
+        this.starsCount = 100;
         this.stars = [];
         this.angle = Math.random() * Math.PI * 2;
         this.corePulse = Math.random() * Math.PI * 2;
-        this.nebulaAngle = Math.random() * Math.PI * 2;
         this.initStars();
       }
-
       initStars() {
         this.stars = [];
         for (let i = 0; i < this.starsCount; i++) {
-          const radius = Math.random() * this.influenceRadius;
-          const angle = Math.random() * Math.PI * 2;
+          const r = Math.random() * this.influenceRadius;
+          const a = Math.random() * Math.PI * 2;
           const size = Math.random() * 2 + 0.5;
-          const depth = Math.random();
-          this.stars.push({ radius, angle, size, depth });
+          this.stars.push({ r, a, size });
         }
       }
-
-      update(galaxies) {
+      update() {
         this.angle += this.rotationSpeed;
         this.corePulse += 0.02;
-        this.nebulaAngle += 0.001;
-
-        galaxies.forEach(g => {
-          if (g === this) return;
-          const dx = g.x - this.x;
-          const dy = g.y - this.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < g.influenceRadius + this.influenceRadius) {
-            const force = (g.influenceRadius + this.influenceRadius - dist) * 0.0005;
-            this.x -= dx * force;
-            this.y -= dy * force;
-          }
-        });
       }
-
       draw(ctx) {
-        ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.save(); ctx.translate(this.x, this.y);
 
-        const nebulaRadius = this.influenceRadius * 1.3;
-        const nebulaGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, nebulaRadius);
-        nebulaGradient.addColorStop(0, 'rgba(255,255,255,0.05)');
-        nebulaGradient.addColorStop(0.3, this.color.replace(/0\.8\)/, '0.15)'));
-        nebulaGradient.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = nebulaGradient;
-        ctx.rotate(this.nebulaAngle);
-        ctx.beginPath();
-        ctx.arc(0, 0, nebulaRadius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.rotate(-this.nebulaAngle);
-
-        for (let i = 0; i < 3; i++) {
-          const radius = this.influenceRadius * (0.3 + i * 0.25);
-          ctx.strokeStyle = this.color.replace(/0\.8\)/, `${0.2 + i*0.15})`);
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.arc(0, 0, radius, 0, Math.PI * 2);
-          ctx.stroke();
+        ctx.fillStyle = this.color;
+        for (let s of this.stars) {
+          const px = s.r * Math.cos(s.a + this.angle);
+          const py = s.r * Math.sin(s.a + this.angle);
+          ctx.beginPath(); ctx.arc(px, py, s.size, 0, 2 * Math.PI); ctx.fill();
         }
-
-        this.stars.forEach(star => {
-          const sx = star.radius * Math.cos(star.angle + this.angle);
-          const sy = star.radius * Math.sin(star.angle + this.angle);
-          const scale = 0.5 + star.depth;
-          ctx.fillStyle = this.color;
-          ctx.beginPath();
-          ctx.arc(sx, sy, star.size * scale, 0, Math.PI * 2);
-          ctx.fill();
-        });
-
-        const coreRadius = 8 + 4 * Math.sin(this.corePulse);
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
-        gradient.addColorStop(0, 'rgba(255,255,255,0.8)');
-        gradient.addColorStop(0.3, this.color);
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
-        ctx.fill();
-
+        
         ctx.restore();
       }
     }
 
     const galaxies = [
-      new Galaxy(window.innerWidth * 0.3, window.innerHeight * 0.4, 'rgba(255,100,200,0.8)', 150, 0.002, 120),
-      new Galaxy(window.innerWidth * 0.7, window.innerHeight * 0.5, 'rgba(100,200,255,0.8)', 120, -0.0015, 100),
-      new Galaxy(window.innerWidth * 0.5, window.innerHeight * 0.75, 'rgba(200,255,100,0.8)', 180, 0.001, 140)
+      new Galaxy(canvas.width * 0.3, canvas.height * 0.4, 'rgba(255,100,200,0.8)'),
+      new Galaxy(canvas.width * 0.7, canvas.height * 0.5, 'rgba(100,200,255,0.8)'),
+      new Galaxy(canvas.width * 0.5, canvas.height * 0.75, 'rgba(200,255,100,0.8)')
     ];
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      galaxies.forEach(g => {
-        g.update(galaxies);
-        g.draw(ctx);
-      });
+      galaxies.forEach(g => { g.update(); g.draw(ctx); });
       requestAnimationFrame(animate);
     }
     animate();
-
-    window.addEventListener('resize', () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
 
     function takeSnapshot() {
       const link = document.createElement('a');
@@ -294,47 +125,44 @@
       link.click();
     }
 
-    // --- API ---
-    const NOAA_API = 'https://services.swpc.noaa.gov/json/solar-cycle.json';
-    const WEATHER_API_KEY = 'твій_ключ_OpenWeatherMap';
-    const WEATHER_API = `https://api.openweathermap.org/data/2.5/weather?q=Earth&appid=${WEATHER_API_KEY}&units=metric`;
-
-    async function fetchExternalData() {
+    async function fetchSpaceWeather() {
       try {
-        const [solarRes, weatherRes] = await Promise.all([fetch(NOAA_API), fetch(WEATHER_API)]);
-        const solarData = await solarRes.json();
-        const weatherData = await weatherRes.json();
+        const [fluxRes, windRes, magRes, kpRes] = await Promise.all([
+          fetch('https://services.swpc.noaa.gov/json/f107_cm_flux.json'),
+          fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json'),
+          fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json'),
+          fetch('https://services.swpc.noaa.gov/json/planetary_k_index_1m.json')
+        ]);
 
-        const ssn = solarData[solarData.length - 1]?.ssn || 0;
-        const solarFlux = solarData[solarData.length - 1]?.flux || 100;
-        const kp = solarData[solarData.length - 1]?.kp || 0;
+        const fluxData = await fluxRes.json();
+        const windData = await windRes.json();
+        const magData = await magRes.json();
+        const kpData = await kpRes.json();
 
-        const temp = weatherData.main.temp;
-        const humidity = weatherData.main.humidity;
-        const wind = weatherData.wind.speed;
-        const pressure = weatherData.main.pressure;
+        const latestFlux = fluxData[fluxData.length-1]?.f107 || 0;
+        const latestWind = windData[windData.length-1]?.speed || 0;
+        const latestBz = magData[magData.length-1]?.bz || 0;
+        const latestKp = kpData[kpData.length-1]?.kp || 0;
 
-        document.getElementById('ssn').textContent = ssn;
-        document.getElementById('val-flux').textContent = solarFlux;
-        document.getElementById('val-kp').textContent = kp;
-        document.getElementById('val-air').textContent = temp;
-        document.getElementById('val-hum').textContent = humidity;
-        document.getElementById('val-wind').textContent = wind;
-        document.getElementById('val-press').textContent = pressure;
+        document.getElementById('solar-flux').textContent = latestFlux.toFixed(1);
+        document.getElementById('wind-speed').textContent = latestWind.toFixed(1);
+        document.getElementById('mag-bz').textContent = latestBz.toFixed(2);
+        document.getElementById('kp-index').textContent = latestKp.toFixed(1);
 
-        galaxies.forEach(g => {
-          g.rotationSpeed = 0.001 + ssn * 0.00001 - kp * 0.00002;
-          g.influenceRadius = 100 + solarFlux * 0.5 + wind * 2;
-          g.starsCount = 100 + Math.floor(humidity + temp);
+        galaxies.forEach((g, i) => {
+          g.rotationSpeed = 0.0005 + latestFlux * 0.00001;
+          g.influenceRadius = 80 + latestWind * 0.4 + latestKp * 10;
+          g.starsCount = 80 + Math.floor(latestFlux);
           g.initStars();
         });
-      } catch (e) {
-        console.error('Failed to fetch API data:', e);
+
+      } catch (err) {
+        console.error('SWPC API fetch failed', err);
       }
     }
 
-    fetchExternalData();
-    setInterval(fetchExternalData, 30000);
+    fetchSpaceWeather();
+    setInterval(fetchSpaceWeather, 30000);
   </script>
 </body>
 </html>
