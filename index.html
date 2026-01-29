@@ -1,134 +1,253 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<title>IBONARIUM · FIELD LABYRINTH · 3D</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · Terrarium · EXP‑03 · Лабіринт Полів</title>
 <style>
-html,body{
-  margin:0;
-  padding:0;
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
   background:#000;
   overflow:hidden;
 }
-canvas{
-  display:block;
+canvas { position:fixed; inset:0; }
+#sensors{ position:fixed; left:0; right:0; bottom:0; height:140px; pointer-events:none; }
+#info {
+  position:fixed;
+  bottom:12px; left:12px;
+  font-family:monospace;
+  color:#88ffcc;
+  font-size:12px;
+  line-height:1.4;
+  opacity:0.85;
+}
+#panel {
+  position:fixed;
+  bottom:12px; right:12px;
+  max-width:360px;
+  font-family:monospace;
+  font-size:12px;
+  color:#c7ffd9;
+  line-height:1.45;
+  background:linear-gradient(to left,rgba(0,0,0,0.65),transparent);
+  padding:10px 14px;
 }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-
+<canvas id="stars"></canvas>
+<canvas id="terrarium"></canvas>
+<canvas id="sensors"></canvas>
+<div id="info">
+<b>IBONIRIUM · LAB TERRARIUM · EXP‑03</b><br>
+Phase: <span id="phase">Growth</span><br>
+Day: <span id="day">–</span><br>
+Solar SSN: <span id="ssn">–</span><br>
+Solar Factor: <span id="sf">–</span><br>
+Activity: <span id="ge">–</span><br>
+Target: 13 December
+</div>
+<div id="panel">
+<b>СТАН ЕКСПЕРИМЕНТУ</b><br>
+Поля культур з хаотичними формами та павутинням-зв’язками. З висоти утворюють лабіринт. Кожне поле — свій колір і форма.<br><br>
+До <b>13 грудня</b> — фаза росту. Потім фіксація.
+</div>
 <script>
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
-resize();
-window.addEventListener("resize", resize);
+/* CANVAS */
+const starCanvas = document.getElementById('stars');
+const tCanvas = document.getElementById('terrarium');
+const sensorCanvas = document.getElementById('sensors');
+const sctx = starCanvas.getContext('2d');
+const tctx = tCanvas.getContext('2d');
+const scx = sensorCanvas.getContext('2d');
 
 function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  starCanvas.width = tCanvas.width = sensorCanvas.width = innerWidth;
+  starCanvas.height = tCanvas.height = innerHeight;
+  sensorCanvas.height = 140;
 }
+addEventListener('resize', resize); resize();
 
-/* ===== CAMERA ===== */
-let camZ = 1.2;
-let targetZ = 1.2;
-
-canvas.addEventListener("wheel", e=>{
-  targetZ += e.deltaY * 0.0008;
-  targetZ = Math.max(0.4, Math.min(3, targetZ));
-});
-
-/* ===== FIELD NODES ===== */
-const COUNT = 70;
-const nodes = [];
-
-for(let i=0;i<COUNT;i++){
-  nodes.push({
-    x: (Math.random()-0.5)*2000,
-    y: (Math.random()-0.5)*2000,
-    z: Math.random()*600,
-    r: 40 + Math.random()*60,
-    phase: Math.random()*Math.PI*2,
-    speed: 0.002 + Math.random()*0.004,
-    links:[]
+/* Зірки */
+const stars = Array.from({length:300},()=>({x:Math.random(),y:Math.random(),z:Math.random()*0.8+0.2}));
+function drawStars(){
+  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  stars.forEach(st=>{
+    st.y += 0.00008 * st.z;
+    if(st.y>1) st.y=0;
+    sctx.globalAlpha = 0.25 + st.z*0.4;
+    sctx.fillStyle="#ddd";
+    sctx.beginPath();
+    sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.1, 0, Math.PI*2);
+    sctx.fill();
   });
+  sctx.globalAlpha=1;
 }
 
-/* ===== LABYRINTH LINKS ===== */
-for(let i=0;i<nodes.length;i++){
-  for(let j=i+1;j<nodes.length;j++){
-    const dx = nodes[i].x-nodes[j].x;
-    const dy = nodes[i].y-nodes[j].y;
-    const d = Math.hypot(dx,dy);
-    if(d < 420 && Math.random() < 0.35){
-      nodes[i].links.push(nodes[j]);
-      nodes[j].links.push(nodes[i]);
+/* NOAA */
+let solarFactor = 1;
+let solarSSN = 0;
+let activity = 0;
+async function updateSolar(){
+  try{
+    const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+    const d = await r.json();
+    const l = d[d.length-1];
+    solarSSN = l.predicted_ssn;
+    solarFactor = Math.min(4, 0.7 + solarSSN/100);
+    activity = solarFactor * (0.6 + Math.random()*0.4);
+   
+    document.getElementById('ssn').textContent = solarSSN.toFixed(1);
+    document.getElementById('sf').textContent = solarFactor.toFixed(2);
+    document.getElementById('ge').textContent = activity.toFixed(2);
+  }catch(e){
+    solarFactor = 1.2;
+  }
+}
+updateSolar(); setInterval(updateSolar, 1800000);
+
+/* КУЛЬТУРИ */
+const CULTURES = [
+  {name:'Пшениця', color:'rgba(255,200,80,0.55)'},
+  {name:'Ячмінь', color:'rgba(180,220,100,0.55)'},
+  {name:'Кукурудза', color:'rgba(255,230,150,0.55)'},
+  {name:'Рис', color:'rgba(150,200,255,0.55)'},
+  {name:'Соя', color:'rgba(180,150,255,0.55)'},
+  {name:'Овес', color:'rgba(200,180,255,0.55)'},
+  {name:'Гречка', color:'rgba(255,150,180,0.55)'}
+];
+
+/* Поле-клас */
+class Field {
+  constructor(x,y){
+    this.cx=x;
+    this.cy=y;
+    this.growth=0;
+    this.maxGrowth=20 + Math.random()*20; // більше радіус
+    this.offset=Math.random();
+    this.dir=Math.random()<0.5?1:-1;
+    this.speed=0.0003 + Math.random()*0.0005;
+    this.culture = CULTURES[Math.floor(Math.random()*CULTURES.length)];
+    this.chaosPoints = Array.from({length:5},()=>({x:(Math.random()-0.5)*30, y:(Math.random()-0.5)*30}));
+  }
+  grow(){
+    if(this.growth<this.maxGrowth) this.growth += 0.03*solarFactor;
+    this.offset += this.dir*this.speed;
+    if(this.offset>1) this.offset-=1;
+    if(this.offset<0) this.offset+=1;
+  }
+  draw(){
+    const breath = 1 + Math.sin(Date.now()*0.0008 + this.offset*Math.PI)*0.03;
+    const steps = Math.min(this.growth,this.maxGrowth)*30;
+
+    // Хаотична форма
+    tctx.strokeStyle=this.culture.color;
+    tctx.lineWidth=0.8;
+    tctx.beginPath();
+    for(let i=0;i<=steps;i++){
+      const t=i/steps;
+      let radius = t*100*breath*(1+activity*0.3);
+      // додаємо хаотичні точки для форми
+      this.chaosPoints.forEach(p=>{
+        radius += Math.sin(i*0.5 + p.x + Date.now()*0.0005)*5;
+      });
+      const angle = t*Math.PI*2*(0.25*10 + Math.sin(i*0.3+this.offset*5));
+      const x = this.cx + Math.cos(angle)*radius;
+      const y = this.cy + Math.sin(angle)*radius;
+      if(i===0) tctx.moveTo(x,y);
+      else tctx.lineTo(x,y);
+    }
+    tctx.stroke();
+
+    // Центр поля
+    const px=this.cx + Math.cos(this.offset*Math.PI*2)*this.growth*4;
+    const py=this.cy + Math.sin(this.offset*Math.PI*2)*this.growth*4;
+    tctx.fillStyle="rgba(30,20,50,0.9)";
+    tctx.beginPath();
+    tctx.arc(px,py,4,0,Math.PI*2);
+    tctx.fill();
+  }
+}
+
+/* Масив полів */
+const fields = Array.from({length:22},()=>new Field(
+  Math.random()*tCanvas.width,
+  Math.random()*tCanvas.height*0.85 + tCanvas.height*0.1
+));
+
+/* Зв'язки — лабіринт */
+function drawLinks(){
+  tctx.strokeStyle='rgba(180,180,255,0.1)';
+  tctx.lineWidth=0.5;
+  for(let i=0;i<fields.length;i++){
+    for(let j=i+1;j<fields.length;j++){
+      const f1=fields[i], f2=fields[j];
+      const dx=f2.cx-f1.cx;
+      const dy=f2.cy-f1.cy;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<400){
+        tctx.beginPath();
+        const chaos=Math.sin(Date.now()*0.001 + i*j)*5;
+        tctx.moveTo(f1.cx+chaos,f1.cy+chaos);
+        tctx.lineTo(f2.cx+chaos,f2.cy+chaos);
+        tctx.stroke();
+      }
     }
   }
 }
 
-/* ===== ORGANIC SHAPE ===== */
-function drawField(n, sx, sy, scale){
-  ctx.beginPath();
-  const pts = 16;
-  for(let i=0;i<=pts;i++){
-    const a = i/pts * Math.PI*2;
-    const noise = Math.sin(a*3 + n.phase)*0.35
-                + Math.cos(a*2 - n.phase)*0.25;
-    const rr = n.r * (1+noise) * scale;
-    const x = sx + Math.cos(a)*rr;
-    const y = sy + Math.sin(a)*rr;
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-  }
-  ctx.stroke();
+/* SENSORS */
+function drawSensors(){
+  scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
+  const baseY = 110;
+  scx.strokeStyle='rgba(120,255,180,0.15)';
+  scx.beginPath(); scx.moveTo(0,baseY); scx.lineTo(sensorCanvas.width,baseY); scx.stroke();
+
+  scx.fillStyle='rgba(255,220,140,0.75)';
+  scx.beginPath();
+  scx.arc(80, baseY-40, 9 + solarFactor*4.5, 0, Math.PI*2);
+  scx.fill();
+  scx.fillStyle="#fff"; scx.font="11px monospace";
+  scx.fillText('☀ SSN', 55, baseY+20);
+
+  scx.strokeStyle='rgba(160,220,255,0.75)';
+  scx.beginPath();
+  scx.moveTo(160, baseY);
+  scx.lineTo(160, baseY - activity*32);
+  scx.stroke();
+  scx.fillText('🧬 ріст', 130, baseY+20);
+
+  const now = new Date();
+  const t = Math.min(1,(now-START_DATE)/(STOP_DATE-START_DATE));
+  scx.strokeStyle='rgba(200,200,255,0.6)';
+  scx.beginPath();
+  scx.arc(260, baseY, 30, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
+  scx.stroke();
+  scx.fillText('⏳', 245, baseY+20);
 }
 
-/* ===== LOOP ===== */
-function loop(t){
+/* LOOP */
+const START_DATE = new Date('2026-01-01');
+const STOP_DATE = new Date('2026-12-13');
+function updateDay(){
+  const now = new Date();
+  const day = Math.floor((now-START_DATE)/86400000);
+  document.getElementById('day').textContent = day>=0?day:'–';
+  document.getElementById('phase').textContent = now<STOP_DATE?'Growth':'Final';
+}
+setInterval(updateDay,60000);
+updateDay();
+
+function loop(){
+  drawStars();
+  drawSensors();
+  if(new Date()<STOP_DATE){
+    tctx.clearRect(0,0,tCanvas.width,tCanvas.height);
+    fields.forEach(f=>{ f.grow(); f.draw(); });
+    drawLinks();
+  }
   requestAnimationFrame(loop);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  camZ += (targetZ-camZ)*0.05;
-
-  ctx.save();
-  ctx.translate(canvas.width/2, canvas.height/2);
-
-  nodes.forEach(n=>{
-    n.phase += n.speed;
-  });
-
-  /* draw links */
-  ctx.strokeStyle = "rgba(0,255,120,0.15)";
-  nodes.forEach(n=>{
-    n.links.forEach(o=>{
-      const dz = (n.z+o.z)*0.5;
-      const scale = camZ/(1+dz*0.002);
-
-      const x1 = n.x*scale;
-      const y1 = n.y*scale;
-      const x2 = o.x*scale;
-      const y2 = o.y*scale;
-
-      ctx.beginPath();
-      ctx.moveTo(x1,y1);
-      ctx.lineTo(x2,y2);
-      ctx.stroke();
-    });
-  });
-
-  /* draw fields */
-  nodes.forEach(n=>{
-    const scale = camZ/(1+n.z*0.002);
-    const sx = n.x*scale;
-    const sy = n.y*scale;
-
-    ctx.strokeStyle = `rgba(0,255,150,${0.25*scale})`;
-    drawField(n,sx,sy,scale);
-  });
-
-  ctx.restore();
 }
 loop();
 </script>
