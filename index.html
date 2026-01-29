@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · AgroSim · EXP‑AGRO · Поле Культур</title>
+<title>IBONIRIUM · AgroSim · EXP‑AGRO · Геометрія Поля</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { width:100%; height:100%; background:#000; overflow:hidden; }
@@ -31,14 +31,11 @@ Target: 13 December
 <div id="panel">
 <b>СТАН ЕКСПЕРИМЕНТУ</b><br>
 Поле культур під впливом сонячних даних NOAA.<br><br>
-<b>Як сонячні явища та погодні дані впливають на поле:</b><br>
-• Вища SSN → швидший ріст культур, яскравіше поле<br>
-• Зростання сонячної активності → швидше дозрівання, більше "витків" трактора<br>
-• Геомагнітні бурі / високий Kp → локальні пульсації рослин<br>
-• Спокійне сонце → рівне поле, спокійний ріст<br>
-• Різкі спалахи (X/M-класу) → короткочасні тремтіння рослин<br>
-• Протонні події (SEP) → випадкові "деформації" окремих культур<br>
-• Корональні викиди маси (CME) → глобальні пульсації всього поля<br><br>
+<b>Як сонячні явища впливають на поле:</b><br>
+• Вища SSN → швидший ріст, більше "витків" трактора<br>
+• Геомагнітні бурі / високий Kp → локальні пульсації культур<br>
+• Спокійне сонце → рівне поле, чиста геометрія<br>
+• Протонні події → випадкові "деформації" культур<br>
 До <b>13 грудня</b> — фаза росту. Потім фіксація.
 </div>
 
@@ -75,7 +72,7 @@ function drawStars(){
     sctx.globalAlpha=1;
 }
 
-/* NOAA / сонячні дані */
+/* NOAA */
 let solarFactor = 1;
 let solarSSN = 0;
 let activity = 0;
@@ -90,94 +87,136 @@ async function updateSolar(){
         document.getElementById('ssn').textContent = solarSSN.toFixed(1);
         document.getElementById('sf').textContent = solarFactor.toFixed(2);
         document.getElementById('ge').textContent = activity.toFixed(2);
-    }catch(e){
-        solarFactor = 1.2;
-    }
+    }catch(e){ solarFactor = 1.2; }
 }
 updateSolar();
 setInterval(updateSolar, 1800000);
 
-/* Поле культур */
-class AgroField {
-    constructor(x, y, crop){
+/* Поле з геометрією */
+class AgroWeb {
+    constructor(x, y, crop, shape){
         this.cx = x;
         this.cy = y;
         this.growth = 0;
         this.maxGrowth = 18 + Math.random()*12;
         this.offset = Math.random();
-        this.dir = Math.random() < 0.5 ? 1 : -1;
+        this.dir = Math.random()<0.5?1:-1;
         this.speed = 0.0003 + Math.random()*0.0005;
-        this.crop = crop; // назва культури
-        this.spiralDensity = 0.18 + solarFactor * 0.08;
-        this.maxRad = 80 + solarFactor*50;
-        this.tractorSize = 3 + solarFactor*1.5;
+        this.radials = 16 + Math.floor(solarFactor*8);
+        this.maxRad = 90 + solarFactor*60;
+        this.spiralDensity = 0.18 + solarFactor*0.08;
+        this.tractorSize = 2.5 + solarFactor*1.5;
+        this.crop = crop;
+        this.shape = shape; // форма культури
     }
     grow(){
         if(this.growth < this.maxGrowth) this.growth += 0.028*solarFactor;
+        this.radials = 16 + Math.floor(solarFactor*8);
+        this.maxRad = 90 + solarFactor*60;
+        this.spiralDensity = 0.18 + solarFactor*0.08;
+        this.tractorSize = 2.5 + solarFactor*1.5;
         this.speed = (0.0003 + Math.random()*0.0005)*solarFactor*1.3;
         this.offset += this.dir*this.speed;
         if(this.offset>1) this.offset-=1;
         if(this.offset<0) this.offset+=1;
     }
     draw(){
-        let breath = 1 + Math.sin(Date.now() * 0.0008 + this.offset * Math.PI) * 0.012;
-        // культура
-        fctx.fillStyle = "rgba(100,220,100,0.55)";
+        let breath = 1 + Math.sin(Date.now()*0.0008 + this.offset*Math.PI)*0.012;
+        // Радіальні нитки
+        fctx.strokeStyle = "rgba(200,220,255,0.3)";
+        fctx.lineWidth = 0.7;
+        for(let i=0;i<this.radials;i++){
+            const angle = i*(Math.PI*2/this.radials);
+            const ex = this.cx + Math.cos(angle)*this.maxRad*breath;
+            const ey = this.cy + Math.sin(angle)*this.maxRad*breath;
+            fctx.beginPath();
+            fctx.moveTo(this.cx,this.cy);
+            fctx.lineTo(ex,ey);
+            fctx.stroke();
+        }
+        // Спіраль
+        fctx.strokeStyle="rgba(220,240,255,0.45)";
+        fctx.lineWidth=0.6;
         fctx.beginPath();
-        fctx.arc(this.cx, this.cy, 10 + this.growth*0.7, 0, Math.PI*2);
+        const steps = Math.min(this.growth,this.maxGrowth)*25;
+        for(let i=0;i<=steps;i++){
+            const t = i/steps;
+            let radius = t*this.maxRad*breath;
+            const tDiff = Math.abs(t - this.offset);
+            if(tDiff<0.15){
+                const amp = (0.15 - tDiff)/0.15*(1.5+activity);
+                radius += Math.sin(Date.now()*0.015+t*20)*amp;
+            }
+            const angle = t*Math.PI*2*(this.spiralDensity*15);
+            const x = this.cx + Math.cos(angle)*radius;
+            const y = this.cy + Math.sin(angle)*radius;
+            // культура
+            fctx.fillStyle="rgba(100,220,100,0.55)";
+            fctx.beginPath();
+            switch(this.shape){
+                case "circle": fctx.arc(x,y,5,0,Math.PI*2); break;
+                case "square": fctx.rect(x-4,y-4,8,8); break;
+                case "triangle":
+                    fctx.moveTo(x,y-5);
+                    fctx.lineTo(x-4,y+4);
+                    fctx.lineTo(x+4,y+4);
+                    fctx.closePath();
+                    break;
+                case "ellipse": fctx.ellipse(x,y,6,4,0,0,Math.PI*2); break;
+            }
+            fctx.fill();
+        }
+        // трактор
+        const trRad = this.offset*this.maxRad*breath;
+        const trAngle = this.offset*Math.PI*2*12;
+        const tx = this.cx + Math.cos(trAngle)*trRad;
+        const ty = this.cy + Math.sin(trAngle)*trRad;
+        fctx.fillStyle="rgba(255,200,100,0.9)";
+        fctx.beginPath();
+        fctx.rect(tx-3,ty-3,this.tractorSize*2,this.tractorSize*2);
         fctx.fill();
         // підпис культури
         fctx.fillStyle="#fff";
         fctx.font="11px monospace";
-        fctx.fillText(this.crop, this.cx-15, this.cy-15);
-        // трактор
-        const tRad = this.offset*this.maxRad*breath;
-        const tAngle = this.offset*Math.PI*2*10;
-        const tx = this.cx + Math.cos(tAngle)*tRad;
-        const ty = this.cy + Math.sin(tAngle)*tRad;
-        fctx.fillStyle="rgba(255,200,100,0.9)";
-        fctx.beginPath();
-        fctx.rect(tx-3, ty-3, this.tractorSize*2, this.tractorSize*2);
-        fctx.fill();
+        fctx.fillText(this.crop, this.cx-15,this.cy-15);
     }
 }
 
-const crops = ["Пшениця","Кукурудза","Соя","Ячмінь","Ріпак","Гарбуз"];
-const fields = Array.from({length:crops.length}, (_,i)=>new AgroField(
+const crops = [
+    {name:"Пшениця", shape:"circle"},
+    {name:"Кукурудза", shape:"square"},
+    {name:"Соя", shape:"triangle"},
+    {name:"Ячмінь", shape:"ellipse"},
+    {name:"Ріпак", shape:"circle"},
+    {name:"Гарбуз", shape:"square"}
+];
+
+const fields = crops.map(c=>new AgroWeb(
     Math.random()*fCanvas.width,
     Math.random()*fCanvas.height*0.85 + fCanvas.height*0.1,
-    crops[i]
+    c.name,
+    c.shape
 ));
 
 /* SENSORS */
 function drawSensors(){
     scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
-    const baseY = 110;
+    const baseY=110;
     scx.strokeStyle='rgba(120,255,180,0.15)';
     scx.beginPath();
-    scx.moveTo(0,baseY);
-    scx.lineTo(sensorCanvas.width,baseY);
-    scx.stroke();
+    scx.moveTo(0,baseY); scx.lineTo(sensorCanvas.width,baseY); scx.stroke();
     scx.fillStyle='rgba(255,220,140,0.75)';
-    scx.beginPath();
-    scx.arc(80, baseY-40, 9 + solarFactor*4.5, 0, Math.PI*2);
-    scx.fill();
-    scx.fillStyle="#fff";
-    scx.font="11px monospace";
-    scx.fillText('☀ SSN', 55, baseY+20);
+    scx.beginPath(); scx.arc(80,baseY-40,9 + solarFactor*4.5,0,Math.PI*2); scx.fill();
+    scx.fillStyle="#fff"; scx.font="11px monospace"; scx.fillText('☀ SSN',55,baseY+20);
     scx.strokeStyle='rgba(160,220,255,0.75)';
-    scx.beginPath();
-    scx.moveTo(160, baseY);
-    scx.lineTo(160, baseY - activity*32);
-    scx.stroke();
-    scx.fillText('🌱 активність', 130, baseY+20);
+    scx.beginPath(); scx.moveTo(160,baseY); scx.lineTo(160,baseY-activity*32); scx.stroke();
+    scx.fillText('🌱 активність',130,baseY+20);
     const now = new Date();
-    const t = Math.min(1, (now - START_DATE) / (STOP_DATE - START_DATE));
+    const t = Math.min(1,(now-START_DATE)/(STOP_DATE-START_DATE));
     scx.strokeStyle='rgba(200,200,255,0.6)';
     scx.beginPath();
-    scx.arc(260, baseY, 30, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
-    scx.stroke();
-    scx.fillText('⏳', 245, baseY+20);
+    scx.arc(260,baseY,30,-Math.PI/2,-Math.PI/2+t*Math.PI*2); scx.stroke();
+    scx.fillText('⏳',245,baseY+20);
 }
 
 /* LOOP */
@@ -186,7 +225,7 @@ const STOP_DATE = new Date('2026-12-13');
 
 function updateDay(){
     const now = new Date();
-    const day = Math.floor((now - START_DATE)/86400000);
+    const day = Math.floor((now-START_DATE)/86400000);
     document.getElementById('day').textContent = day>=0?day:'–';
     document.getElementById('phase').textContent = now<STOP_DATE?'Growth':'Final';
 }
@@ -198,7 +237,7 @@ function loop(){
     drawSensors();
     if(new Date()<STOP_DATE){
         fctx.clearRect(0,0,fCanvas.width,fCanvas.height);
-        fields.forEach(f => { f.grow(); f.draw(); });
+        fields.forEach(f=>{ f.grow(); f.draw(); });
     }
     requestAnimationFrame(loop);
 }
