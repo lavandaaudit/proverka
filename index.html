@@ -1,226 +1,307 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONIRIUM · EXP-03 · Resonant Galaxies</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{
-  width:100%;height:100%;
-  background:#000;
-  overflow:hidden;
-}
-canvas{position:fixed;inset:0}
-#info{
-  position:fixed;
-  bottom:12px;left:12px;
-  font-family:monospace;
-  font-size:12px;
-  color:#d4fff0;
-  opacity:.85;
-}
-</style>
-</head>
-<body>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>IBONIRIUM · Galactic Core · EXP‑01</title>
 
-<canvas id="stars"></canvas>
-<canvas id="scene"></canvas>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-<div id="info">
-<b>IBONIRIUM · GALACTIC FIELD</b><br>
-mode: resonant cores<br>
-dimension: pseudo-3D
-</div>
-
-<script>
-const starsC = document.getElementById('stars');
-const sceneC = document.getElementById('scene');
-const sctx = starsC.getContext('2d');
-const ctx = sceneC.getContext('2d');
-
-function resize(){
-  starsC.width = sceneC.width = innerWidth;
-  starsC.height = sceneC.height = innerHeight;
-}
-addEventListener('resize', resize);
-resize();
-
-/* ---------- STARS (DEPTH) ---------- */
-const stars = Array.from({length:460},()=>({
-  x:Math.random(), y:Math.random(),
-  z:Math.random()*0.9+0.1
-}));
-
-function drawStars(){
-  sctx.clearRect(0,0,starsC.width,starsC.height);
-  stars.forEach(st=>{
-    sctx.globalAlpha = 0.1 + st.z*0.5;
-    sctx.fillStyle="#fff";
-    sctx.beginPath();
-    sctx.arc(
-      st.x*starsC.width,
-      st.y*starsC.height,
-      st.z*1.8,
-      0,Math.PI*2
-    );
-    sctx.fill();
-  });
-  sctx.globalAlpha = 1;
-}
-
-/* ---------- FIELD TIME ---------- */
-const T = ()=>Date.now()*0.0001;
-
-/* ---------- PALETTE ---------- */
-const PALETTE=[
-  'rgba(255,200,150,',
-  'rgba(180,230,255,',
-  'rgba(210,190,255,',
-  'rgba(255,180,220,',
-  'rgba(180,255,220,'
-];
-
-/* ---------- NEBULA ---------- */
-class Nebula{
-  constructor(radius){
-    this.a=Math.random()*Math.PI*2;
-    this.r=radius*(0.7+Math.random()*0.9);
-    this.s=0.00015+Math.random()*0.0002;
-    this.z=Math.random()*0.7+0.3;
-    this.size=16+Math.random()*30;
-    this.col=PALETTE[Math.floor(Math.random()*PALETTE.length)];
-  }
-  update(influence){
-    this.a += this.s*this.z*(1+influence*0.8);
-  }
-  draw(cx,cy,pulse){
-    const x=cx+Math.cos(this.a)*this.r*pulse;
-    const y=cy+Math.sin(this.a)*this.r*pulse;
-    ctx.globalAlpha=0.06+this.z*0.25;
-    ctx.fillStyle=this.col+(0.4*this.z)+')';
-    ctx.beginPath();
-    ctx.arc(x,y,this.size*this.z,0,Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha=1;
-  }
-}
-
-/* ---------- GALAXY ---------- */
-class Galaxy{
-  constructor(x,y){
-    this.baseX=x; this.baseY=y;
-    this.z=Math.random()*0.7+0.3;
-    this.mass=0.6+Math.random()*1.2;
-    this.radius=(90+Math.random()*70)*this.z;
-    this.spin=(0.00012+Math.random()*0.00018)*this.z;
-    this.angle=Math.random()*Math.PI*2;
-    this.phase=Math.random()*Math.PI*2;
-    this.col=PALETTE[Math.floor(Math.random()*PALETTE.length)]+'0.75)';
-    this.arms=3+Math.floor(Math.random()*3);
-
-    /* ядро */
-    this.coreAngle=Math.random()*Math.PI*2;
-    this.coreOrbit=6+Math.random()*10;
-    this.corePulse=Math.random()*Math.PI*2;
-
-    this.nebulae=Array.from(
-      {length:10+Math.floor(Math.random()*6)},
-      ()=>new Nebula(this.radius*1.2)
-    );
-  }
-
-  position(others){
-    let fx=0, fy=0;
-    others.forEach(o=>{
-      if(o===this) return;
-      const dx=o.baseX-this.baseX;
-      const dy=o.baseY-this.baseY;
-      const d=Math.hypot(dx,dy)+80;
-      const f=(o.mass*this.mass)/(d*d);
-      fx+=dx/d*f;
-      fy+=dy/d*f;
-    });
-    const breath=Math.sin(T()+this.phase);
-    return {
-      x:this.baseX+fx*120*this.z+Math.cos(this.phase)*breath*140*this.z,
-      y:this.baseY+fy*120*this.z+Math.sin(this.phase)*breath*140*this.z
-    };
-  }
-
-  update(){
-    this.angle+=this.spin;
-    this.coreAngle+=this.spin*1.6;
-    this.corePulse+=0.02;
-  }
-
-  draw(pos,field){
-    const pulse=1+Math.sin(this.corePulse)*0.25+field*0.15;
-
-    /* nebulae */
-    this.nebulae.forEach(n=>{
-      n.update(field);
-      n.draw(pos.x,pos.y,pulse);
-    });
-
-    /* arms */
-    ctx.strokeStyle=this.col;
-    ctx.lineWidth=1*this.z;
-    ctx.shadowColor=this.col;
-    ctx.shadowBlur=16*this.z;
-
-    for(let a=0;a<this.arms;a++){
-      ctx.beginPath();
-      for(let i=0;i<170;i++){
-        const t=i/170;
-        const r=this.radius*t*pulse;
-        const ang=t*5*Math.PI+this.angle+a*(Math.PI*2/this.arms);
-        const x=pos.x+Math.cos(ang)*r;
-        const y=pos.y+Math.sin(ang)*r;
-        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
-      }
-      ctx.stroke();
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* ядро – орбітальне */
-    const cx=pos.x+Math.cos(this.coreAngle)*this.coreOrbit*pulse;
-    const cy=pos.y+Math.sin(this.coreAngle)*this.coreOrbit*pulse;
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+      font-family: 'JetBrains Mono', monospace;
+      color: #fff;
+    }
 
-    ctx.shadowBlur=28*this.z;
-    ctx.fillStyle=this.col;
-    ctx.beginPath();
-    ctx.arc(cx,cy,7*this.z*pulse,0,Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur=0;
-  }
-}
+    canvas {
+      position: fixed;
+      inset: 0;
+    }
 
-/* ---------- SYSTEM ---------- */
-const galaxies=Array.from({length:6},()=>new Galaxy(
-  innerWidth*0.25+Math.random()*innerWidth*0.5,
-  innerHeight*0.25+Math.random()*innerHeight*0.5
-));
+    #stars {
+      z-index: 1;
+      opacity: 0.5;
+    }
 
-/* ---------- LOOP ---------- */
-function loop(){
-  drawStars();
-  ctx.clearRect(0,0,sceneC.width,sceneC.height);
+    #galaxy-canvas {
+      z-index: 2;
+      cursor: grab;
+    }
 
-  galaxies.forEach(g=>{
-    const pos=g.position(galaxies);
-    const field=galaxies.reduce((a,o)=>{
-      if(o===g) return a;
-      const d=Math.hypot(o.baseX-g.baseX,o.baseY-g.baseY);
-      return a+o.mass/(d*d);
-    },0);
+    #galaxy-canvas:active {
+      cursor: grabbing;
+    }
 
-    g.update();
-    g.draw(pos,field);
-  });
+    #hud {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-  requestAnimationFrame(loop);
-}
-loop();
-</script>
+    .hud-group {
+      font-size: 8px;
+      line-height: 1.5;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    .lab-title {
+      font-weight: 700;
+      font-size: 10px;
+      color: #00ffff;
+      letter-spacing: 3px;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+
+    .data-item {
+      margin-bottom: 2px;
+    }
+
+    .val {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .label {
+      color: #00ffff;
+      opacity: 0.6;
+      margin-right: 5px;
+    }
+
+    .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .btn-save {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: inherit;
+      font-size: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: 0.3s;
+    }
+
+    .btn-save:hover {
+      background: #fff;
+      color: #000;
+    }
+
+    .scanline {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: rgba(0, 255, 255, 0.05);
+      z-index: 1000;
+      pointer-events: none;
+      animation: scan 10s linear infinite;
+    }
+
+    @keyframes scan {
+      from {
+        top: 0;
+      }
+
+      to {
+        top: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="scanline"></div>
+
+  <canvas id="stars"></canvas>
+  <canvas id="galaxy-canvas"></canvas>
+
+  <div id="hud">
+    <!-- Top Left: Bio-System Status -->
+    <div class="hud-group">
+      <div class="lab-title">IBONIRIUM_EXP_01</div>
+      <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase-idx">--</span>/26</div>
+      <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
+      <div class="data-item"><span class="label">AGE_EXPANSION:</span> <span class="val" id="cycle">--</span>%</div>
+      <div class="data-item"><span class="label">TARGET:</span> <span class="val">13_DEC_2026</span></div>
+    </div>
+
+    <!-- Top Right: Cosmic Metals -->
+    <div class="hud-group" style="text-align: right;">
+      <div class="data-item"><span class="label">SOLAR_SSN:</span> <span class="val" id="ssn">--</span></div>
+      <div class="data-item"><span class="label">SOLAR_SF:</span> <span class="val" id="sf">--</span></div>
+      <div class="data-item"><span class="label">SOLAR_FLUX:</span> <span class="val" id="val-flux">--</span> Jy</div>
+      <div class="data-item"><span class="label">MAG_KP:</span> <span class="val" id="val-kp">--</span></div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="bottom-row">
+      <!-- Bottom Left: Planetary Metrics -->
+      <div class="hud-group">
+        <div class="data-item"><span class="label">AIR_T:</span> <span class="val" id="val-air">--</span>°C</div>
+        <div class="data-item"><span class="label">SOIL_T:</span> <span class="val" id="val-soil">--</span>°C</div>
+        <div class="data-item"><span class="label">HUMIDITY:</span> <span class="val" id="val-hum">--</span>%</div>
+        <div class="data-item"><span class="label">WIND_SPD:</span> <span class="val" id="val-wind">--</span> m/s</div>
+        <div class="data-item"><span class="label">SURFACE_P:</span> <span class="val" id="val-press">--</span> hPa
+        </div>
+      </div>
+
+      <!-- Bottom Right: Controls -->
+      <div class="hud-group" style="text-align: right;">
+        <div class="data-item"><span class="label">STATUS:</span> <span class="val"
+            style="color:#00ff00">LINK_STABLE</span></div>
+        <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ================= GALAXY SIMULATION with 3D cores and colored orbits =================
+    const canvas = document.getElementById('galaxy-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Galaxy {
+      constructor(x, y, color, starsCount, rotationSpeed, influenceRadius) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.starsCount = starsCount;
+        this.rotationSpeed = rotationSpeed;
+        this.influenceRadius = influenceRadius;
+        this.stars = [];
+        this.angle = Math.random() * Math.PI * 2;
+        this.corePulse = Math.random() * Math.PI * 2;
+        this.initStars();
+      }
+
+      initStars() {
+        for (let i = 0; i < this.starsCount; i++) {
+          const radius = Math.random() * this.influenceRadius;
+          const angle = Math.random() * Math.PI * 2;
+          const size = Math.random() * 2 + 0.5;
+          const depth = Math.random(); // для 3D ефекту
+          this.stars.push({ radius, angle, size, depth });
+        }
+      }
+
+      update(galaxies) {
+        this.angle += this.rotationSpeed;
+        this.corePulse += 0.02;
+
+        // Взаємодія з іншими галактиками
+        galaxies.forEach(g => {
+          if (g === this) return;
+          const dx = g.x - this.x;
+          const dy = g.y - this.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < g.influenceRadius + this.influenceRadius) {
+            const force = (g.influenceRadius + this.influenceRadius - dist) * 0.0005;
+            this.x -= dx * force;
+            this.y -= dy * force;
+          }
+        });
+      }
+
+      draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // Draw colored orbits
+        for (let i = 0; i < 3; i++) {
+          const radius = this.influenceRadius * (0.3 + i * 0.25);
+          ctx.strokeStyle = this.color.replace(/0\.8\)/, `${0.2 + i*0.15})`);
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // Draw stars
+        this.stars.forEach(star => {
+          const sx = star.radius * Math.cos(star.angle + this.angle);
+          const sy = star.radius * Math.sin(star.angle + this.angle);
+          const scale = 0.5 + star.depth; // 3D ефект
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          ctx.arc(sx, sy, star.size * scale, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Draw core with pulsing effect
+        const coreRadius = 8 + 4 * Math.sin(this.corePulse);
+        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
+        gradient.addColorStop(0, 'rgba(255,255,255,0.8)');
+        gradient.addColorStop(0.3, this.color);
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    const galaxies = [
+      new Galaxy(window.innerWidth * 0.3, window.innerHeight * 0.4, 'rgba(255,100,200,0.8)', 150, 0.002, 120),
+      new Galaxy(window.innerWidth * 0.7, window.innerHeight * 0.5, 'rgba(100,200,255,0.8)', 120, -0.0015, 100),
+      new Galaxy(window.innerWidth * 0.5, window.innerHeight * 0.75, 'rgba(200,255,100,0.8)', 180, 0.001, 140)
+    ];
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      galaxies.forEach(g => {
+        g.update(galaxies);
+        g.draw(ctx);
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    function takeSnapshot() {
+      const link = document.createElement('a');
+      link.download = `ibonarium_snapshot_${Date.now()}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script>
 </body>
+
 </html>
