@@ -2,251 +2,260 @@
 <html lang="uk">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IBONIRIUM · Galactic Simulation · EXP‑01</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · Galactic Simulation · EXP‑01</title>
 
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: #000; overflow: hidden;
-      font-family: 'JetBrains Mono', monospace; color: #fff; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; background:#000; overflow:hidden; font-family:'JetBrains Mono', monospace; color:#fff; }
+canvas { position: fixed; inset:0; }
 
-    canvas { position: fixed; inset: 0; }
+#hud { position: fixed; top:0; left:0; z-index:10; padding:20px; background:rgba(0,0,0,0.6); max-width:320px; font-size:10px; line-height:1.4; }
 
-    #hud {
-      position: fixed;
-      top: 0; left: 0;
-      z-index: 10;
-      padding: 20px;
-      background: rgba(0,0,0,0.6);
-      max-width: 300px;
-      font-size: 10px;
-      line-height: 1.4;
-    }
+.hud-title { font-weight:700; font-size:12px; color:#00ffff; border-bottom:1px solid rgba(0,255,255,0.3); margin-bottom:6px; padding-bottom:4px; }
 
-    .hud-title { font-weight: 700; font-size: 12px; color: #00ffff;
-      border-bottom: 1px solid rgba(0,255,255,0.3); margin-bottom: 6px; padding-bottom: 4px; }
+.section-title { color:#00ffff; font-weight:700; margin-top:8px; margin-bottom:3px; font-size:10px; }
 
-    .section-title { color: #00ffff; font-weight: 700; margin-top: 8px; margin-bottom: 3px; font-size: 10px; }
+.data-item { margin-bottom:4px; }
+.label { color:#00ffff; opacity:0.7; margin-right:4px; }
+.val { color:#fff; font-weight:700; }
 
-    .data-item { margin-bottom: 4px; }
-    .label { color: #00ffff; opacity: 0.7; margin-right: 4px; }
-    .val { color: #fff; font-weight: 700; }
-
-    .btn-save { margin-top: 6px; background: transparent; border: 1px solid rgba(255,255,255,0.2);
-      color: #fff; font-size: 8px; padding: 4px 10px; cursor: pointer; pointer-events: auto; }
-    .btn-save:hover { background: #fff; color: #000; }
-  </style>
+.btn-save { margin-top:6px; background:transparent; border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:8px; padding:4px 10px; cursor:pointer; pointer-events:auto; }
+.btn-save:hover { background:#fff; color:#000; }
+</style>
 </head>
 
 <body>
-  <canvas id="galaxy-canvas"></canvas>
+<canvas id="galaxy-canvas"></canvas>
 
-  <div id="hud">
-    <div class="hud-title">IBONIRIUM · GALAXY SIMULATION</div>
+<div id="hud">
+  <div class="hud-title">IBONIRIUM · GALAXY SIMULATION</div>
 
-    <div class="section-title">System Status</div>
-    <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
-    <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase">--</span>/26</div>
+  <div class="section-title">System Status</div>
+  <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
+  <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase">--</span>/26</div>
+  <div class="data-item"><span class="label">Current Time:</span> <span class="val" id="current-time">--:--:--</span></div>
+  <div class="data-item"><span class="label">Progress:</span> <span class="val" id="progress-desc">Initializing...</span></div>
 
-    <div class="section-title">Space Weather (NOAA)</div>
-    <div class="data-item"><span class="label">Solar Flux (F10.7):</span> <span class="val" id="solar-flux">--</span></div>
-    <div class="data-item"><span class="label">Wind Speed:</span> <span class="val" id="wind-speed">--</span></div>
-    <div class="data-item"><span class="label">Mag Field Bz:</span> <span class="val" id="mag-bz">--</span></div>
-    <div class="data-item"><span class="label">Kp Index:</span> <span class="val" id="kp-index">--</span></div>
+  <div class="section-title">Space Weather (NOAA)</div>
+  <div class="data-item"><span class="label">Solar Flux (F10.7):</span> <span class="val" id="solar-flux">--</span></div>
+  <div class="data-item"><span class="label">Wind Speed:</span> <span class="val" id="wind-speed">--</span></div>
+  <div class="data-item"><span class="label">Mag Field Bz:</span> <span class="val" id="mag-bz">--</span></div>
+  <div class="data-item"><span class="label">Kp Index:</span> <span class="val" id="kp-index">--</span></div>
 
-    <div class="section-title">Galaxy Behavior</div>
-    <div class="data-item">Розмір туманності, щільність зірок і обертання залежать від космічних умов.</div>
+  <div class="section-title">Galaxy Behavior</div>
+  <div class="data-item">Розмір туманності, щільність зірок і обертання залежать від космічних умов.</div>
 
-    <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
-  </div>
+  <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
+</div>
 
-  <script>
-    const canvas = document.getElementById('galaxy-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+<script>
+const canvas = document.getElementById('galaxy-canvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-    // ---------------------------
-    // Галaктика
-    // ---------------------------
-    class Galaxy {
-      constructor() {
-        this.x = canvas.width/2;
-        this.y = canvas.height/2;
-        this.color = 'rgba(100,200,255,0.8)';
-        this.rotationSpeed = 0.001;
-        this.influenceRadius = 120;
-        this.starsCount = 150;
-        this.stars = [];
-        this.angle = 0;
-        this.corePulse = 0;
-        this.phase = 0; // 0-26
-        this.day = 0;
-        this.initStars();
-      }
+// ---------------------------
+// Галaктика
+// ---------------------------
+class Galaxy {
+  constructor() {
+    this.x = canvas.width/2;
+    this.y = canvas.height/2;
+    this.color = 'rgba(100,200,255,0.8)';
+    this.rotationSpeed = 0.001;
+    this.influenceRadius = 120;
+    this.starsCount = 150;
+    this.stars = [];
+    this.angle = 0;
+    this.corePulse = 0;
+    this.phase = 0; // 0-26
+    this.day = 0;
+    this.initStars();
+  }
 
-      initStars() {
-        this.stars = [];
-        for(let i=0;i<this.starsCount;i++){
-          const r = Math.random()*this.influenceRadius;
-          const a = Math.random()*Math.PI*2;
-          const size = Math.random()*2+0.5;
-          this.stars.push({r,a,size});
-        }
-      }
+  initStars() {
+    this.stars = [];
+    for(let i=0;i<this.starsCount;i++){
+      const r = Math.random()*this.influenceRadius;
+      const a = Math.random()*Math.PI*2;
+      const size = Math.random()*2+0.5;
+      this.stars.push({r,a,size});
+    }
+  }
 
-      update() {
-        this.angle += this.rotationSpeed;
-        this.corePulse += 0.02;
-      }
+  update() {
+    this.angle += this.rotationSpeed;
+    this.corePulse += 0.02;
+  }
 
-      draw(ctx){
-        ctx.save();
-        ctx.translate(this.x,this.y);
+  draw(ctx){
+    ctx.save();
+    ctx.translate(this.x,this.y);
 
-        // туманність
-        const nebulaRadius = this.influenceRadius*1.3;
-        const nebulaGradient = ctx.createRadialGradient(0,0,0,0,0,nebulaRadius);
-        nebulaGradient.addColorStop(0,'rgba(255,255,255,0.05)');
-        nebulaGradient.addColorStop(0.5,this.color.replace(/0\.8\)/,'0.2)'));
-        nebulaGradient.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle = nebulaGradient;
-        ctx.beginPath(); ctx.arc(0,0,nebulaRadius,0,Math.PI*2); ctx.fill();
+    const nebulaRadius = this.influenceRadius*1.3;
+    const nebulaGradient = ctx.createRadialGradient(0,0,0,0,0,nebulaRadius);
+    nebulaGradient.addColorStop(0,'rgba(255,255,255,0.05)');
+    nebulaGradient.addColorStop(0.5,this.color.replace(/0\.8\)/,'0.2)'));
+    nebulaGradient.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = nebulaGradient;
+    ctx.beginPath(); ctx.arc(0,0,nebulaRadius,0,Math.PI*2); ctx.fill();
 
-        // зорі
-        for(let s of this.stars){
-          const px = s.r*Math.cos(s.a+this.angle);
-          const py = s.r*Math.sin(s.a+this.angle);
-          ctx.fillStyle = this.color;
-          ctx.beginPath(); ctx.arc(px,py,s.size,0,2*Math.PI);
-          ctx.fill();
-        }
-
-        // ядро
-        const coreRadius = 10 + 4*Math.sin(this.corePulse);
-        const gradient = ctx.createRadialGradient(0,0,0,0,0,coreRadius);
-        gradient.addColorStop(0,'rgba(255,255,255,0.8)');
-        gradient.addColorStop(0.3,this.color);
-        gradient.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle = gradient;
-        ctx.beginPath(); ctx.arc(0,0,coreRadius,0,Math.PI*2);
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      nextPhase() {
-        this.phase = (this.phase+1)%26;
-        this.day++;
-        document.getElementById('phase').textContent = this.phase;
-        document.getElementById('day').textContent = this.day;
-
-        // збільшення розміру, зірок і туманності щодня
-        this.influenceRadius *= 1 + 0.02;
-        this.starsCount = Math.floor(this.starsCount * 1.02);
-        this.initStars();
-
-        // зберігаємо прогрес
-        localStorage.setItem('galaxyProgress', JSON.stringify({
-          phase: this.phase,
-          day: this.day,
-          influenceRadius: this.influenceRadius,
-          starsCount: this.starsCount
-        }));
-      }
-
-      loadProgress() {
-        const data = JSON.parse(localStorage.getItem('galaxyProgress'));
-        if(data){
-          this.phase = data.phase || 0;
-          this.day = data.day || 0;
-          this.influenceRadius = data.influenceRadius || 120;
-          this.starsCount = data.starsCount || 150;
-          this.initStars();
-          document.getElementById('phase').textContent = this.phase;
-          document.getElementById('day').textContent = this.day;
-        }
-      }
+    for(let s of this.stars){
+      const px = s.r*Math.cos(s.a+this.angle);
+      const py = s.r*Math.sin(s.a+this.angle);
+      ctx.fillStyle = this.color;
+      ctx.beginPath(); ctx.arc(px,py,s.size,0,2*Math.PI);
+      ctx.fill();
     }
 
-    const galaxy = new Galaxy();
-    galaxy.loadProgress();
+    const coreRadius = 10 + 4*Math.sin(this.corePulse);
+    const gradient = ctx.createRadialGradient(0,0,0,0,0,coreRadius);
+    gradient.addColorStop(0,'rgba(255,255,255,0.8)');
+    gradient.addColorStop(0.3,this.color);
+    gradient.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath(); ctx.arc(0,0,coreRadius,0,Math.PI*2);
+    ctx.fill();
 
-    function animate(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      galaxy.update();
-      galaxy.draw(ctx);
-      requestAnimationFrame(animate);
+    ctx.restore();
+  }
+
+  nextPhase() {
+    this.phase = (this.phase+1)%26;
+    this.day++;
+    document.getElementById('phase').textContent = this.phase;
+    document.getElementById('day').textContent = this.day;
+
+    // Щоденний ріст
+    this.influenceRadius *= 1 + 0.02;
+    this.starsCount = Math.floor(this.starsCount*1.02);
+    this.initStars();
+
+    this.updateProgressDesc();
+
+    localStorage.setItem('galaxyProgress', JSON.stringify({
+      phase:this.phase,
+      day:this.day,
+      influenceRadius:this.influenceRadius,
+      starsCount:this.starsCount
+    }));
+  }
+
+  updateProgressDesc(){
+    let desc = "";
+    if(this.phase < 5) desc = "Початкова фаза: галактика нарощує ядро та невелику туманність.";
+    else if(this.phase < 12) desc = "Середня фаза: розширення туманності, збільшення щільності зірок.";
+    else if(this.phase < 20) desc = "Активна фаза: яскраве ядро, пульсації, формування нових потоків туманності.";
+    else desc = "Зріла фаза: велика туманність, стабільне ядро, галактичні потоки у дії.";
+    desc += ` День ${this.day}.`;
+    document.getElementById('progress-desc').textContent = desc;
+  }
+
+  loadProgress(){
+    const data = JSON.parse(localStorage.getItem('galaxyProgress'));
+    if(data){
+      this.phase = data.phase || 0;
+      this.day = data.day || 0;
+      this.influenceRadius = data.influenceRadius || 120;
+      this.starsCount = data.starsCount || 150;
+      this.initStars();
+      document.getElementById('phase').textContent = this.phase;
+      document.getElementById('day').textContent = this.day;
+      this.updateProgressDesc();
     }
-    animate();
+  }
+}
 
-    function takeSnapshot(){
-      const link = document.createElement('a');
-      link.download = `galaxy_snapshot_${Date.now()}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-    }
+const galaxy = new Galaxy();
+galaxy.loadProgress();
 
-    // ---------------------------
-    // NOAA API та вплив на галактику
-    // ---------------------------
-    async function fetchSpaceWeather(){
-      try{
-        const [fluxRes, windRes, magRes, kpRes] = await Promise.all([
-          fetch('https://services.swpc.noaa.gov/json/f107_cm_flux.json'),
-          fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json'),
-          fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json'),
-          fetch('https://services.swpc.noaa.gov/json/planetary_k_index_1m.json')
-        ]);
-        const fluxData = await fluxRes.json();
-        const windData = await windRes.json();
-        const magData = await magRes.json();
-        const kpData = await kpRes.json();
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  galaxy.update();
+  galaxy.draw(ctx);
+  requestAnimationFrame(animate);
+}
+animate();
 
-        const latestFlux = fluxData[fluxData.length-1]?.f107 || 70;
-        const latestWind = windData[windData.length-1]?.speed || 400;
-        const latestBz = magData[magData.length-1]?.bz || 0;
-        const latestKp = kpData[kpData.length-1]?.kp || 1;
+function takeSnapshot(){
+  const link = document.createElement('a');
+  link.download = `galaxy_snapshot_${Date.now()}.png`;
+  link.href = canvas.toDataURL();
+  link.click();
+}
 
-        document.getElementById('solar-flux').textContent = latestFlux.toFixed(1);
-        document.getElementById('wind-speed').textContent = latestWind.toFixed(1);
-        document.getElementById('mag-bz').textContent = latestBz.toFixed(2);
-        document.getElementById('kp-index').textContent = latestKp.toFixed(1);
+// ---------------------------
+// NOAA API
+// ---------------------------
+async function fetchSpaceWeather(){
+  try{
+    const [fluxRes, windRes, magRes, kpRes] = await Promise.all([
+      fetch('https://services.swpc.noaa.gov/json/f107_cm_flux.json'),
+      fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json'),
+      fetch('https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json'),
+      fetch('https://services.swpc.noaa.gov/json/planetary_k_index_1m.json')
+    ]);
+    const fluxData = await fluxRes.json();
+    const windData = await windRes.json();
+    const magData = await magRes.json();
+    const kpData = await kpRes.json();
 
-        // вплив на галактику
-        galaxy.rotationSpeed = 0.0005 + latestFlux*0.00001;
-        galaxy.influenceRadius = 100 + latestWind*0.3 + latestKp*10;
-        galaxy.starsCount = 100 + Math.floor(latestFlux*0.5);
-        galaxy.initStars();
+    const latestFlux = fluxData[fluxData.length-1]?.f107 || 70;
+    const latestWind = windData[windData.length-1]?.speed || 400;
+    const latestBz = magData[magData.length-1]?.bz || 0;
+    const latestKp = kpData[kpData.length-1]?.kp || 1;
 
-      }catch(err){ console.error('SWPC fetch failed',err); }
-    }
+    document.getElementById('solar-flux').textContent = latestFlux.toFixed(1);
+    document.getElementById('wind-speed').textContent = latestWind.toFixed(1);
+    document.getElementById('mag-bz').textContent = latestBz.toFixed(2);
+    document.getElementById('kp-index').textContent = latestKp.toFixed(1);
 
-    fetchSpaceWeather();
-    setInterval(fetchSpaceWeather, 60000); // оновлення кожну хвилину
+    galaxy.rotationSpeed = 0.0005 + latestFlux*0.00001;
+    galaxy.influenceRadius = 100 + latestWind*0.3 + latestKp*10;
+    galaxy.starsCount = 100 + Math.floor(latestFlux*0.5);
+    galaxy.initStars();
 
-    // ---------------------------
-    // Щоденний цикл росту о 00:00
-    // ---------------------------
-    function scheduleDailyPhase(){
-      const now = new Date();
-      const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1,0,0,0);
-      const millisTillMidnight = nextMidnight - now;
+  }catch(err){ console.error('SWPC fetch failed',err); }
+}
 
-      setTimeout(()=>{
-        galaxy.nextPhase();
-        scheduleDailyPhase(); // рекурсія для наступного дня
-      }, millisTillMidnight);
-    }
+fetchSpaceWeather();
+setInterval(fetchSpaceWeather, 60000);
+
+// ---------------------------
+// Online time
+// ---------------------------
+function updateTime(){
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('current-time').textContent = `${h}:${m}:${s}`;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// ---------------------------
+// Daily phase at 00:00
+// ---------------------------
+function scheduleDailyPhase(){
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1,0,0,0);
+  const millisTillMidnight = nextMidnight - now;
+  setTimeout(()=>{
+    galaxy.nextPhase();
     scheduleDailyPhase();
+  }, millisTillMidnight);
+}
+scheduleDailyPhase();
 
-    window.addEventListener('resize', ()=>{
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
+window.addEventListener('resize', ()=>{
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
 </body>
 </html>
