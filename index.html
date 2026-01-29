@@ -1,225 +1,206 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONIRIUM · AGRI TERRARIUM · EXP-04</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · AgroSim · EXP‑AGRO · Поле Культур</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-html, body {
-  width:100%; height:100%;
-  background:#000;
-  overflow:hidden;
-}
+html, body { width:100%; height:100%; background:#000; overflow:hidden; }
 canvas { position:fixed; inset:0; }
-
-#info {
-  position:fixed;
-  bottom:12px; left:12px;
-  font-family:monospace;
-  font-size:12px;
-  color:#baffc9;
-  line-height:1.45;
-  opacity:0.9;
-}
-
-#panel {
-  position:fixed;
-  bottom:12px; right:12px;
-  max-width:360px;
-  font-family:monospace;
-  font-size:12px;
-  color:#d8ffe8;
-  background:linear-gradient(to left,rgba(0,0,0,0.7),transparent);
-  padding:12px 14px;
-}
+#sensors{ position:fixed; left:0; right:0; bottom:0; height:140px; pointer-events:none; }
+#info { position:fixed; bottom:12px; left:12px; font-family:monospace; color:#88ffcc; font-size:12px; line-height:1.4; opacity:0.85; }
+#panel { position:fixed; bottom:12px; right:12px; max-width:360px; font-family:monospace; font-size:12px; color:#c7ffd9; line-height:1.45; background:linear-gradient(to left,rgba(0,0,0,0.65),transparent); padding:10px 14px; }
 </style>
 </head>
 <body>
-
 <canvas id="stars"></canvas>
-<canvas id="fields"></canvas>
+<canvas id="field"></canvas>
 <canvas id="sensors"></canvas>
 
 <div id="info">
-<b>IBONIRIUM · AGRI LAB · EXP-04</b><br>
-Day: <span id="day">–</span><br>
+<b>IBONIRIUM · LAB AGROSIM · EXP‑AGRO</b><br>
 Phase: <span id="phase">Growth</span><br>
+Day: <span id="day">–</span><br>
 Solar SSN: <span id="ssn">–</span><br>
 Solar Factor: <span id="sf">–</span><br>
-Wind: <span id="wind">–</span> m/s
+Field Activity: <span id="ge">–</span><br>
+Target: 13 December
 </div>
 
 <div id="panel">
-<b>СИМУЛЯТОР ПОЛІВ</b><br>
-Вид зверху. Кожне поле — окрема культура з власним циклом росту.<br><br>
-
-<b>Вплив даних:</b><br>
-• ☀ Сонячна активність → швидкість росту, насиченість кольору<br>
-• 🌬 Вітер → хвилі, нахил текстур, «дихання» поля<br>
-• ⏳ Час → фази: сходи → зелень → колос → стиглість<br>
-• 🚜 Трактори → локальні збурення структури<br><br>
-
-До кінця сезону — фіксація стану.
+<b>СТАН ЕКСПЕРИМЕНТУ</b><br>
+Поле культур під впливом сонячних даних NOAA.<br><br>
+<b>Як сонячні явища та погодні дані впливають на поле:</b><br>
+• Вища SSN → швидший ріст культур, яскравіше поле<br>
+• Зростання сонячної активності → швидше дозрівання, більше "витків" трактора<br>
+• Геомагнітні бурі / високий Kp → локальні пульсації рослин<br>
+• Спокійне сонце → рівне поле, спокійний ріст<br>
+• Різкі спалахи (X/M-класу) → короткочасні тремтіння рослин<br>
+• Протонні події (SEP) → випадкові "деформації" окремих культур<br>
+• Корональні викиди маси (CME) → глобальні пульсації всього поля<br><br>
+До <b>13 грудня</b> — фаза росту. Потім фіксація.
 </div>
 
 <script>
-/* ===== CANVAS ===== */
-const starC = document.getElementById('stars');
-const fieldC = document.getElementById('fields');
-const sensorC = document.getElementById('sensors');
-const sctx = starC.getContext('2d');
-const fctx = fieldC.getContext('2d');
-const scx  = sensorC.getContext('2d');
+/* CANVAS */
+const starCanvas = document.getElementById('stars');
+const fCanvas = document.getElementById('field');
+const sensorCanvas = document.getElementById('sensors');
+const sctx = starCanvas.getContext('2d');
+const fctx = fCanvas.getContext('2d');
+const scx = sensorCanvas.getContext('2d');
 
 function resize(){
-  starC.width = fieldC.width = sensorC.width = innerWidth;
-  starC.height = fieldC.height = innerHeight;
-  sensorC.height = 140;
+    starCanvas.width = fCanvas.width = sensorCanvas.width = innerWidth;
+    starCanvas.height = fCanvas.height = innerHeight;
+    sensorCanvas.height = 140;
 }
 addEventListener('resize', resize);
 resize();
 
-/* ===== STARS ===== */
-const stars = Array.from({length:260},()=>({
-  x:Math.random(), y:Math.random(), z:Math.random()*0.8+0.2
-}));
-
+/* Зірки */
+const stars = Array.from({length:300},()=>({x:Math.random(),y:Math.random(),z:Math.random()*0.8+0.2}));
 function drawStars(){
-  sctx.clearRect(0,0,starC.width,starC.height);
-  stars.forEach(st=>{
-    st.y += 0.00006 * st.z;
-    if(st.y>1) st.y=0;
-    sctx.globalAlpha = 0.2 + st.z*0.4;
-    sctx.fillStyle="#eee";
-    sctx.beginPath();
-    sctx.arc(st.x*starC.width, st.y*starC.height, st.z*1.1, 0, Math.PI*2);
-    sctx.fill();
-  });
-  sctx.globalAlpha=1;
+    sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+    stars.forEach(st=>{
+        st.y += 0.00008 * st.z;
+        if(st.y>1) st.y=0;
+        sctx.globalAlpha = 0.25 + st.z*0.4;
+        sctx.fillStyle="#ddd";
+        sctx.beginPath();
+        sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.1, 0, Math.PI*2);
+        sctx.fill();
+    });
+    sctx.globalAlpha=1;
 }
 
-/* ===== REAL DATA ===== */
+/* NOAA / сонячні дані */
 let solarFactor = 1;
 let solarSSN = 0;
-let windSpeed = 2;
-
+let activity = 0;
 async function updateSolar(){
-  try{
-    const r = await fetch(
-      'https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json'
-    );
-    const d = await r.json();
-    const l = d[d.length-1];
-    solarSSN = l.predicted_ssn;
-    solarFactor = Math.min(4, 0.7 + solarSSN/110);
-  }catch(e){ solarFactor = 1.1; }
-
-  document.getElementById('ssn').textContent = solarSSN.toFixed(1);
-  document.getElementById('sf').textContent = solarFactor.toFixed(2);
+    try{
+        const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+        const d = await r.json();
+        const l = d[d.length-1];
+        solarSSN = l.predicted_ssn;
+        solarFactor = Math.min(4, 0.7 + solarSSN/100);
+        activity = solarFactor * (0.6 + Math.random()*0.4);
+        document.getElementById('ssn').textContent = solarSSN.toFixed(1);
+        document.getElementById('sf').textContent = solarFactor.toFixed(2);
+        document.getElementById('ge').textContent = activity.toFixed(2);
+    }catch(e){
+        solarFactor = 1.2;
+    }
 }
-
-async function updateWind(){
-  try{
-    const r = await fetch(
-      'https://api.open-meteo.com/v1/forecast?latitude=49&longitude=32&current=wind_speed_10m'
-    );
-    const d = await r.json();
-    windSpeed = d.current.wind_speed_10m;
-  }catch(e){ windSpeed = 2; }
-
-  document.getElementById('wind').textContent = windSpeed.toFixed(1);
-}
-
 updateSolar();
-updateWind();
 setInterval(updateSolar, 1800000);
-setInterval(updateWind, 900000);
 
-/* ===== FIELD MODEL ===== */
-const crops = [
-  { name:'Пшениця', base:'#6bbf59' },
-  { name:'Кукурудза', base:'#3fa34d' },
-  { name:'Соняшник', base:'#8fcf3c' },
-  { name:'Ячмінь', base:'#7dbb5f' }
-];
-
-class Field {
-  constructor(x,y,w,h,crop){
-    this.x=x; this.y=y; this.w=w; this.h=h;
-    this.crop=crop;
-    this.age=Math.random()*0.3;
-    this.phase=0;
-  }
-  grow(){
-    this.age += 0.00015 * solarFactor;
-    this.phase = Math.min(3, Math.floor(this.age*4));
-  }
-  draw(){
-    const wave = Math.sin(Date.now()*0.001 + this.x)*windSpeed*0.6;
-    const shade = 30 + this.phase*25 + solarFactor*20;
-    fctx.fillStyle = `hsl(110,40%,${shade}%)`;
-    fctx.save();
-    fctx.translate(this.x+this.w/2,this.y+this.h/2);
-    fctx.rotate(wave*0.002);
-    fctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);
-    fctx.restore();
-  }
+/* Поле культур */
+class AgroField {
+    constructor(x, y, crop){
+        this.cx = x;
+        this.cy = y;
+        this.growth = 0;
+        this.maxGrowth = 18 + Math.random()*12;
+        this.offset = Math.random();
+        this.dir = Math.random() < 0.5 ? 1 : -1;
+        this.speed = 0.0003 + Math.random()*0.0005;
+        this.crop = crop; // назва культури
+        this.spiralDensity = 0.18 + solarFactor * 0.08;
+        this.maxRad = 80 + solarFactor*50;
+        this.tractorSize = 3 + solarFactor*1.5;
+    }
+    grow(){
+        if(this.growth < this.maxGrowth) this.growth += 0.028*solarFactor;
+        this.speed = (0.0003 + Math.random()*0.0005)*solarFactor*1.3;
+        this.offset += this.dir*this.speed;
+        if(this.offset>1) this.offset-=1;
+        if(this.offset<0) this.offset+=1;
+    }
+    draw(){
+        let breath = 1 + Math.sin(Date.now() * 0.0008 + this.offset * Math.PI) * 0.012;
+        // культура
+        fctx.fillStyle = "rgba(100,220,100,0.55)";
+        fctx.beginPath();
+        fctx.arc(this.cx, this.cy, 10 + this.growth*0.7, 0, Math.PI*2);
+        fctx.fill();
+        // підпис культури
+        fctx.fillStyle="#fff";
+        fctx.font="11px monospace";
+        fctx.fillText(this.crop, this.cx-15, this.cy-15);
+        // трактор
+        const tRad = this.offset*this.maxRad*breath;
+        const tAngle = this.offset*Math.PI*2*10;
+        const tx = this.cx + Math.cos(tAngle)*tRad;
+        const ty = this.cy + Math.sin(tAngle)*tRad;
+        fctx.fillStyle="rgba(255,200,100,0.9)";
+        fctx.beginPath();
+        fctx.rect(tx-3, ty-3, this.tractorSize*2, this.tractorSize*2);
+        fctx.fill();
+    }
 }
 
-/* ===== TRACTORS ===== */
-class Tractor {
-  constructor(field){
-    this.f=field;
-    this.t=Math.random();
-  }
-  draw(){
-    this.t+=0.0005;
-    const x=this.f.x+this.f.w*(this.t%1);
-    const y=this.f.y+this.f.h*0.5;
-    fctx.fillStyle='rgba(40,40,40,0.9)';
-    fctx.fillRect(x-4,y-2,8,4);
-  }
+const crops = ["Пшениця","Кукурудза","Соя","Ячмінь","Ріпак","Гарбуз"];
+const fields = Array.from({length:crops.length}, (_,i)=>new AgroField(
+    Math.random()*fCanvas.width,
+    Math.random()*fCanvas.height*0.85 + fCanvas.height*0.1,
+    crops[i]
+));
+
+/* SENSORS */
+function drawSensors(){
+    scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
+    const baseY = 110;
+    scx.strokeStyle='rgba(120,255,180,0.15)';
+    scx.beginPath();
+    scx.moveTo(0,baseY);
+    scx.lineTo(sensorCanvas.width,baseY);
+    scx.stroke();
+    scx.fillStyle='rgba(255,220,140,0.75)';
+    scx.beginPath();
+    scx.arc(80, baseY-40, 9 + solarFactor*4.5, 0, Math.PI*2);
+    scx.fill();
+    scx.fillStyle="#fff";
+    scx.font="11px monospace";
+    scx.fillText('☀ SSN', 55, baseY+20);
+    scx.strokeStyle='rgba(160,220,255,0.75)';
+    scx.beginPath();
+    scx.moveTo(160, baseY);
+    scx.lineTo(160, baseY - activity*32);
+    scx.stroke();
+    scx.fillText('🌱 активність', 130, baseY+20);
+    const now = new Date();
+    const t = Math.min(1, (now - START_DATE) / (STOP_DATE - START_DATE));
+    scx.strokeStyle='rgba(200,200,255,0.6)';
+    scx.beginPath();
+    scx.arc(260, baseY, 30, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
+    scx.stroke();
+    scx.fillText('⏳', 245, baseY+20);
 }
 
-/* ===== INIT ===== */
-const fields=[];
-const tractors=[];
-const cols=6, rows=4;
-const fw=innerWidth/cols, fh=innerHeight/rows;
-
-for(let y=0;y<rows;y++){
-  for(let x=0;x<cols;x++){
-    const crop=crops[Math.floor(Math.random()*crops.length)];
-    const f=new Field(x*fw,y*fh,fw,fh,crop);
-    fields.push(f);
-    if(Math.random()<0.3) tractors.push(new Tractor(f));
-  }
-}
-
-/* ===== TIME ===== */
-const START = new Date('2026-03-01');
-const END   = new Date('2026-09-30');
+/* LOOP */
+const START_DATE = new Date('2026-01-01');
+const STOP_DATE = new Date('2026-12-13');
 
 function updateDay(){
-  const now=new Date();
-  const day=Math.floor((now-START)/86400000);
-  document.getElementById('day').textContent=day>=0?day:'–';
-  document.getElementById('phase').textContent=now<END?'Growth':'Harvest';
+    const now = new Date();
+    const day = Math.floor((now - START_DATE)/86400000);
+    document.getElementById('day').textContent = day>=0?day:'–';
+    document.getElementById('phase').textContent = now<STOP_DATE?'Growth':'Final';
 }
 setInterval(updateDay,60000);
 updateDay();
 
-/* ===== LOOP ===== */
 function loop(){
-  drawStars();
-  fctx.clearRect(0,0,fieldC.width,fieldC.height);
-
-  fields.forEach(f=>{ f.grow(); f.draw(); });
-  tractors.forEach(t=>t.draw());
-
-  requestAnimationFrame(loop);
+    drawStars();
+    drawSensors();
+    if(new Date()<STOP_DATE){
+        fctx.clearRect(0,0,fCanvas.width,fCanvas.height);
+        fields.forEach(f => { f.grow(); f.draw(); });
+    }
+    requestAnimationFrame(loop);
 }
 loop();
 </script>
