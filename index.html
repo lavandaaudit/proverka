@@ -1,230 +1,245 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · WHEAT MONUMENTS · EXP-04</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBONIRIUM · AgroField · EXP-04</title>
 
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body {
-  width:100%; height:100%;
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;
   background:#000;
   overflow:hidden;
 }
-canvas { position:fixed; inset:0; }
-
-#info {
+canvas{position:fixed;inset:0}
+#sensors{
   position:fixed;
-  bottom:12px; left:12px;
-  font-family:monospace;
-  color:#f0ffd8;
-  font-size:12px;
-  line-height:1.4;
+  left:0;right:0;bottom:0;
+  height:140px;
+  pointer-events:none;
 }
-
-#panel {
+#info{
   position:fixed;
-  bottom:12px; right:12px;
+  left:12px;bottom:12px;
+  font-family:monospace;
+  font-size:12px;
+  color:#aaffcc;
+  line-height:1.45;
+}
+#panel{
+  position:fixed;
+  right:12px;bottom:12px;
   max-width:360px;
   font-family:monospace;
   font-size:12px;
-  color:#f6ffd6;
-  line-height:1.45;
-  background:linear-gradient(to left,rgba(0,0,0,0.7),transparent);
+  color:#ddffcc;
+  background:linear-gradient(to left,rgba(0,0,0,.7),transparent);
   padding:10px 14px;
 }
 </style>
 </head>
 <body>
 
-<canvas id="stars"></canvas>
+<canvas id="bg"></canvas>
 <canvas id="field"></canvas>
 <canvas id="sensors"></canvas>
 
 <div id="info">
-<b>IBONIRIUM · WHEAT MONUMENTS · EXP-04</b><br>
-Phase: <span id="phase">Vegetation</span><br>
+<b>IBONIRIUM · AGROFIELD · EXP-04</b><br>
+Phase: <span id="phase">Growth</span><br>
 Day: <span id="day">–</span><br>
 Solar SSN: <span id="ssn">–</span><br>
 Solar Factor: <span id="sf">–</span><br>
-Growth Energy: <span id="ge">–</span>
+Wind: <span id="wind">–</span> m/s<br>
+Target: 13 December
 </div>
 
 <div id="panel">
-<b>СТАДІЇ ДОЗРІВАННЯ</b><br>
-Пшениця проходить повний цикл: зелена → жовта → золота.
-Колір є індикатором часу, сонця та накопиченої енергії.
+<b>СТАН СИСТЕМИ</b><br>
+Геометричні агрополя, що ростуть під впливом космосу та атмосфери.<br><br>
+
+• ☀️ Сонце → швидкість росту, насиченість кольору<br>
+• 🌬️ Вітер → хвилі, нахил стебел, пульсації<br>
+• 🚜 Трактори-павуки → обхід поля, підтримка структури<br>
+• 🌱 Фази: seed → sprout → grow → ripe → dry<br><br>
+
+До <b>13 грудня</b> — активний ріст. Потім фіксація.
 </div>
 
 <script>
-/* ===== CANVAS ===== */
-const starCanvas = document.getElementById('stars');
-const fieldCanvas = document.getElementById('field');
-const sensorCanvas = document.getElementById('sensors');
-
-const sctx = starCanvas.getContext('2d');
-const fctx = fieldCanvas.getContext('2d');
-const scx = sensorCanvas.getContext('2d');
+/* CANVAS */
+const bg=document.getElementById('bg'),
+      fc=document.getElementById('field'),
+      sc=document.getElementById('sensors');
+const bctx=bg.getContext('2d'),
+      fctx=fc.getContext('2d'),
+      sctx=sc.getContext('2d');
 
 function resize(){
-  starCanvas.width = fieldCanvas.width = sensorCanvas.width = innerWidth;
-  starCanvas.height = fieldCanvas.height = innerHeight;
-  sensorCanvas.height = 140;
+  bg.width=fc.width=sc.width=innerWidth;
+  bg.height=fc.height=innerHeight;
+  sc.height=140;
 }
-addEventListener('resize', resize);
-resize();
+addEventListener('resize',resize);resize();
 
-/* ===== STARS ===== */
-const stars = Array.from({length:120},()=>({x:Math.random(),y:Math.random(),z:Math.random()}));
-function drawStars(){
-  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-  stars.forEach(st=>{
-    st.y+=0.00012*(1+st.z);
-    if(st.y>1) st.y=0;
-    sctx.globalAlpha=0.2+st.z*0.5;
-    sctx.fillStyle="#fff";
-    sctx.fillRect(
-      st.x*starCanvas.width,
-      st.y*starCanvas.height,
-      1+st.z,
-      1+st.z
-    );
+/* BACKGROUND STARS */
+const stars=Array.from({length:220},()=>({x:Math.random(),y:Math.random(),z:Math.random()}));
+function drawBG(){
+  bctx.clearRect(0,0,bg.width,bg.height);
+  stars.forEach(s=>{
+    s.y+=0.0001*s.z;
+    if(s.y>1)s.y=0;
+    bctx.globalAlpha=0.15+s.z*0.3;
+    bctx.fillStyle="#fff";
+    bctx.beginPath();
+    bctx.arc(s.x*bg.width,s.y*bg.height,s.z*1.2,0,Math.PI*2);
+    bctx.fill();
   });
-  sctx.globalAlpha=1;
+  bctx.globalAlpha=1;
 }
 
-/* ===== ENV ===== */
-let solarSSN=0, solarFactor=1, growthEnergy=1;
+/* DATA */
+let solarSSN=0, solarFactor=1, windSpeed=1;
 
-/* ===== COLOR UTILS ===== */
-function lerp(a,b,t){ return a+(b-a)*t; }
-function colorBlend(c1,c2,t){
-  return `rgb(
-    ${lerp(c1[0],c2[0],t)},
-    ${lerp(c1[1],c2[1],t)},
-    ${lerp(c1[2],c2[2],t)}
-  )`;
-}
-
-/* ===== WHEAT ===== */
-class Wheat {
-  constructor(){
-    this.x = Math.random()*2-1;
-    this.z = Math.random();
-    this.age = 0;
-    this.phase = Math.random()*Math.PI*2;
-  }
-
-  grow(){
-    this.age += 0.00035 * solarFactor;
-    if(this.age > 1) this.age = 1;
-  }
-
-  maturity(){
-    if(this.age < 0.4) return this.age/0.4;         // green
-    if(this.age < 0.7) return (this.age-0.4)/0.3;   // yellowing
-    return (this.age-0.7)/0.3;                       // gold
-  }
-
-  colors(){
-    if(this.age < 0.4){
-      return colorBlend([90,180,110],[150,200,120],this.maturity());
-    }
-    if(this.age < 0.7){
-      return colorBlend([150,200,120],[220,200,120],this.maturity());
-    }
-    return colorBlend([220,200,120],[240,210,140],this.maturity());
-  }
-
-  project(){
-    const depth = 0.35 + this.z*0.65;
-    const scale = 1.5 / depth;
-    return {
-      x: innerWidth/2 + this.x * innerWidth*0.28 * scale,
-      baseY: innerHeight*0.82 + depth*120,
-      scale
-    };
-  }
-
-  draw(){
-    const p = this.project();
-    const sway = Math.sin(Date.now()*0.00045 + this.phase) * 6 * p.scale;
-    const height = this.age * 260 * solarFactor * p.scale;
-    const stemColor = this.colors();
-
-    /* stem */
-    fctx.strokeStyle = stemColor;
-    fctx.lineWidth = 1.4 * p.scale;
-    fctx.beginPath();
-    fctx.moveTo(p.x, p.baseY);
-    fctx.lineTo(p.x+sway, p.baseY-height);
-    fctx.stroke();
-
-    /* ear */
-    if(this.age > 0.5){
-      const earLen = height*0.35;
-      const grains = 14;
-      for(let i=0;i<grains;i++){
-        const t = i/grains;
-        const y = p.baseY-height + t*earLen;
-        const w = (1-t)*8*p.scale;
-
-        fctx.fillStyle = stemColor;
-        fctx.beginPath();
-        fctx.ellipse(p.x+sway, y, w, w*0.55, 0, 0, Math.PI*2);
-        fctx.fill();
-
-        fctx.beginPath();
-        fctx.ellipse(p.x+sway-w*0.9,y,w*0.6,w*0.4,0,0,Math.PI*2);
-        fctx.ellipse(p.x+sway+w*0.9,y,w*0.6,w*0.4,0,0,Math.PI*2);
-        fctx.fill();
-      }
-    }
-  }
-}
-
-/* ===== FIELD ===== */
-const wheat = Array.from({length:50},()=>new Wheat()).sort((a,b)=>b.z-a.z);
-
-/* ===== NOAA ===== */
+/* NOAA SOLAR */
 async function updateSolar(){
   try{
-    const r = await fetch(
-      'https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json',
-      { cache:'no-store' }
-    );
-    const d = await r.json();
-    const l = d[d.length-1];
-    solarSSN = Number(l.predicted_ssn)||solarSSN;
-    solarFactor = Math.min(3,0.6+solarSSN/120);
-    growthEnergy = solarFactor*(0.7+Math.random()*0.3);
-
+    const r=await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+    const d=await r.json();
+    const l=d[d.length-1];
+    solarSSN=l.predicted_ssn;
+    solarFactor=Math.min(4,0.6+solarSSN/120);
     ssn.textContent=solarSSN.toFixed(1);
     sf.textContent=solarFactor.toFixed(2);
-    ge.textContent=growthEnergy.toFixed(2);
-  }catch(e){}
+  }catch{}
 }
-updateSolar();
+
+/* WIND — Open Meteo */
+async function updateWind(){
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=49.8&longitude=24.0&current_weather=true');
+    const d=await r.json();
+    windSpeed=d.current_weather.windspeed;
+    wind.textContent=windSpeed.toFixed(1);
+  }catch{}
+}
+
+updateSolar();updateWind();
 setInterval(updateSolar,1800000);
+setInterval(updateWind,900000);
 
-/* ===== TIME ===== */
-const START_DATE=new Date('2026-01-01');
-const STOP_DATE=new Date('2026-12-13');
-function updateDay(){
-  const now=new Date();
-  day.textContent=Math.max(0,Math.floor((now-START_DATE)/86400000));
-  phase.textContent=now<STOP_DATE?'Vegetation':'Final';
+/* FIELD CELL */
+class CropCell{
+  constructor(x,y){
+    this.x=x;this.y=y;
+    this.phase=0;
+    this.growth=Math.random()*0.4;
+    this.angle=Math.random()*Math.PI*2;
+  }
+  update(){
+    this.growth+=0.0004*solarFactor;
+    if(this.growth>1){this.growth=0;this.phase=Math.min(4,this.phase+1);}
+    this.angle+=windSpeed*0.0005;
+  }
+  draw(){
+    const size=14;
+    const wave=Math.sin(Date.now()*0.002+this.angle)*windSpeed*0.6;
+    const colors=[
+      "#3a2a1a", // seed
+      "#2e5c2a", // sprout
+      "#3faa55", // grow
+      "#c9b14a", // ripe
+      "#6b5a2a"  // dry
+    ];
+    fctx.strokeStyle=colors[this.phase];
+    fctx.lineWidth=1;
+    fctx.beginPath();
+    fctx.moveTo(this.x,this.y);
+    fctx.lineTo(
+      this.x+wave,
+      this.y-size*(0.5+this.growth)
+    );
+    fctx.stroke();
+  }
 }
-updateDay();
-setInterval(updateDay,60000);
 
-/* ===== LOOP ===== */
+/* FIELD GRID */
+const field=[];
+const step=18;
+for(let y=80;y<innerHeight-180;y+=step){
+  for(let x=60;x<innerWidth-60;x+=step){
+    field.push(new CropCell(x,y));
+  }
+}
+
+/* TRACTOR-SPIDERS */
+class Tractor{
+  constructor(){
+    this.t=Math.random();
+    this.r=80+Math.random()*200;
+    this.speed=0.00015+Math.random()*0.0002;
+  }
+  update(){this.t+=this.speed*solarFactor;}
+  draw(cx,cy){
+    const a=this.t*Math.PI*2;
+    const x=cx+Math.cos(a)*this.r;
+    const y=cy+Math.sin(a)*this.r;
+    fctx.fillStyle="rgba(80,80,120,.8)";
+    fctx.beginPath();
+    fctx.arc(x,y,4,0,Math.PI*2);
+    fctx.fill();
+    for(let i=0;i<6;i++){
+      const la=i*Math.PI*2/6;
+      fctx.strokeStyle="rgba(120,120,180,.6)";
+      fctx.beginPath();
+      fctx.moveTo(x,y);
+      fctx.lineTo(x+Math.cos(la)*8,y+Math.sin(la)*8);
+      fctx.stroke();
+    }
+  }
+}
+const tractors=Array.from({length:6},()=>new Tractor());
+
+/* SENSORS */
+function drawSensors(){
+  sctx.clearRect(0,0,sc.width,sc.height);
+  const y=110;
+  sctx.strokeStyle="rgba(120,255,180,.2)";
+  sctx.beginPath();sctx.moveTo(0,y);sctx.lineTo(sc.width,y);sctx.stroke();
+
+  sctx.fillStyle="#ffd";
+  sctx.beginPath();
+  sctx.arc(80,y-40,6+solarFactor*4,0,Math.PI*2);
+  sctx.fill();
+  sctx.fillText("☀ SSN",55,y+20);
+
+  sctx.strokeStyle="#9cf";
+  sctx.beginPath();
+  sctx.moveTo(160,y);
+  sctx.lineTo(160,y-windSpeed*6);
+  sctx.stroke();
+  sctx.fillText("🌬 wind",135,y+20);
+}
+
+/* TIME */
+const START=new Date('2026-01-01');
+const STOP=new Date('2026-12-13');
+function updateDay(){
+  const d=Math.floor((Date.now()-START)/86400000);
+  day.textContent=d>=0?d:"–";
+  phase.textContent=Date.now()<STOP?"Growth":"Final";
+}
+setInterval(updateDay,60000);updateDay();
+
+/* LOOP */
 function loop(){
-  drawStars();
-  if(new Date()<STOP_DATE){
-    fctx.clearRect(0,0,fieldCanvas.width,fieldCanvas.height);
-    wheat.forEach(w=>{ w.grow(); w.draw(); });
+  drawBG();
+  drawSensors();
+  if(Date.now()<STOP){
+    fctx.clearRect(0,0,fc.width,fc.height);
+    field.forEach(c=>{c.update();c.draw();});
+    tractors.forEach(t=>{t.update();t.draw(fc.width/2,fc.height/2);});
   }
   requestAnimationFrame(loop);
 }
