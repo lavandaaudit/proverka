@@ -1,57 +1,124 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-<meta charset="UTF-8">
-<title>IBONARIUM · STACK · 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<canvas id="field"></canvas>
 
-<style>
-/* Загальні стилі */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  height: 100%;
-  overflow-y: scroll; /* вертикальний скрол */
-  -webkit-overflow-scrolling: touch; /* плавний скрол на iOS */
+<script>
+const canvas = document.getElementById("field");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+}
+resize();
+addEventListener("resize", resize);
+
+/* ====== ВІТЕР ПО ФАЗАХ ====== */
+let windPhase = 0;
+let windTimer = 0;
+let windPower = 0;
+
+function updateWind(dt) {
+  windTimer += dt;
+
+  if (windTimer > 600 + Math.random() * 800) {
+    windTimer = 0;
+    windPhase = (windPhase + 1) % 4;
+  }
+
+  if (windPhase === 0) windPower += (0 - windPower) * 0.01;        // тиша
+  if (windPhase === 1) windPower += (0.4 - windPower) * 0.02;      // наростає
+  if (windPhase === 2) windPower += (1.2 - windPower) * 0.03;      // порив
+  if (windPhase === 3) windPower += (0 - windPower) * 0.015;       // затухає
 }
 
-/* Контейнер для iframe */
-.section {
-  width: 100%;
-  height: 100vh; /* завжди займає весь екран */
-  border: none;
-  display: block;
-  background: #000;
+/* ====== КОЛОСКИ ====== */
+const stalks = [];
+
+for (let i = 0; i < 50; i++) {
+  const z = Math.random(); // глибина
+  stalks.push({
+    x: Math.random() * 2 - 1,
+    z,
+    height: 120 + z * 280,
+    age: Math.random(),
+    swaySeed: Math.random() * 10,
+  });
 }
 
-/* Плавний скрол між iframe */
-body {
-  scroll-behavior: smooth;
+/* ====== КОЛІР ДОЗРІВАННЯ ====== */
+function grainColor(age) {
+  const g = Math.floor(120 + age * 80);
+  const r = Math.floor(90 + age * 120);
+  const b = Math.floor(40 - age * 30);
+  return `rgb(${r},${g},${b})`;
 }
 
-/* Додатково: мобільні оптимізації */
-@media (max-width: 768px) {
-  .section {
-    height: 100vh; /* для мобільних повна висота екрану */
+/* ====== МАЛЮВАННЯ КОЛОСКА ====== */
+function drawStalk(s, time) {
+  const perspective = 0.4 + s.z * 0.9;
+  const baseX = canvas.width / 2 + s.x * canvas.width * 0.4 * perspective;
+  const baseY = canvas.height * (0.9 - s.z * 0.35);
+
+  const stiffness = 0.4 + s.age * 0.6;
+  const sway =
+    Math.sin(time * 0.002 + s.swaySeed) *
+    windPower *
+    18 *
+    (1 - stiffness);
+
+  ctx.strokeStyle = grainColor(s.age);
+  ctx.lineWidth = 2 * perspective;
+  ctx.beginPath();
+  ctx.moveTo(baseX, baseY);
+  ctx.lineTo(
+    baseX + sway * perspective,
+    baseY - s.height * perspective
+  );
+  ctx.stroke();
+
+  // зерно
+  ctx.fillStyle = grainColor(s.age);
+  for (let i = 0; i < 6; i++) {
+    const t = i / 6;
+    ctx.beginPath();
+    ctx.ellipse(
+      baseX + sway * t * perspective,
+      baseY - s.height * t * perspective,
+      3 * perspective,
+      6 * perspective,
+      sway * 0.01,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
   }
 }
-</style>
-</head>
 
-<body>
+/* ====== ЦИКЛ ====== */
+let last = performance.now();
 
-<!-- 1 · ЛАБОРАНТ -->
-<iframe class="section" src="https://lavandaaudit.github.io/laborant2/" loading="lazy"></iframe>
+function animate(now) {
+  const dt = now - last;
+  last = now;
 
-<!-- Тераріум після лаборанта -->
-<iframe class="section" src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/" loading="lazy"></iframe>
+  updateWind(dt);
 
-<!-- 2 -->
-<iframe class="section" src="https://lavandaaudit.github.io/new13/" loading="lazy"></iframe>
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-<!-- 3 -->
-<iframe class="section" src="https://lavandaaudit.github.io/exebition_1/" loading="lazy"></iframe>
+  // дальні
+  stalks
+    .filter(s => s.z < 0.5)
+    .sort((a, b) => a.z - b.z)
+    .forEach(s => drawStalk(s, now));
 
-</body>
-</html>
+  // монументи (10–15)
+  stalks
+    .filter(s => s.z >= 0.5)
+    .sort((a, b) => a.z - b.z)
+    .forEach(s => drawStalk(s, now));
+
+  requestAnimationFrame(animate);
+}
+
+animate(performance.now());
+</script>
