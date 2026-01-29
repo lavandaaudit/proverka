@@ -31,11 +31,6 @@
       inset: 0;
     }
 
-    #stars {
-      z-index: 1;
-      opacity: 0.5;
-    }
-
     #galaxy-canvas {
       z-index: 2;
       cursor: grab;
@@ -47,35 +42,39 @@
 
     #hud {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       z-index: 10;
       pointer-events: none;
       padding: 20px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .hud-group {
-      font-size: 8px;
+      font-size: 9px;
       line-height: 1.5;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      opacity: 0.8;
+      max-width: 320px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 8px;
     }
 
-    .lab-title {
+    .hud-title {
       font-weight: 700;
-      font-size: 10px;
+      font-size: 11px;
       color: #00ffff;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
       border-bottom: 1px solid rgba(0, 255, 255, 0.2);
       padding-bottom: 4px;
-      margin-bottom: 10px;
     }
 
     .data-item {
-      margin-bottom: 2px;
+      margin-bottom: 3px;
+    }
+
+    .label {
+      color: #00ffff;
+      opacity: 0.7;
+      margin-right: 4px;
     }
 
     .val {
@@ -83,33 +82,13 @@
       font-weight: 700;
     }
 
-    .label {
+    .section-title {
       color: #00ffff;
-      opacity: 0.6;
-      margin-right: 5px;
-    }
-
-    .bottom-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-
-    .btn-save {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-family: inherit;
-      font-size: 8px;
-      padding: 4px 10px;
-      cursor: pointer;
-      pointer-events: auto;
-      transition: 0.3s;
-    }
-
-    .btn-save:hover {
-      background: #fff;
-      color: #000;
+      font-weight: 700;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-size: 10px;
+      text-decoration: underline;
     }
 
     .scanline {
@@ -125,55 +104,67 @@
     }
 
     @keyframes scan {
-      from {
-        top: 0;
-      }
+      from { top: 0; }
+      to { top: 100%; }
+    }
 
-      to {
-        top: 100%;
-      }
+    .btn-save {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: inherit;
+      font-size: 8px;
+      padding: 4px 10px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: 0.3s;
+      margin-top: 6px;
+    }
+
+    .btn-save:hover {
+      background: #fff;
+      color: #000;
     }
   </style>
 </head>
 
 <body>
-
   <div class="scanline"></div>
 
-  <canvas id="stars"></canvas>
   <canvas id="galaxy-canvas"></canvas>
 
   <div id="hud">
-    <div class="hud-group">
-      <div class="lab-title">IBONIRIUM_EXP_01</div>
-      <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase-idx">--</span>/26</div>
-      <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
-      <div class="data-item"><span class="label">AGE_EXPANSION:</span> <span class="val" id="cycle">--</span>%</div>
-      <div class="data-item"><span class="label">TARGET:</span> <span class="val">13_DEC_2026</span></div>
-    </div>
+    <div class="hud-title">IBONIRIUM · EXP_01 · Galactic Core</div>
 
-    <div class="hud-group" style="text-align: right;">
-      <div class="data-item"><span class="label">SOLAR_SSN:</span> <span class="val" id="ssn">--</span></div>
-      <div class="data-item"><span class="label">SOLAR_SF:</span> <span class="val" id="sf">--</span></div>
-      <div class="data-item"><span class="label">SOLAR_FLUX:</span> <span class="val" id="val-flux">--</span> Jy</div>
-      <div class="data-item"><span class="label">MAG_KP:</span> <span class="val" id="val-kp">--</span></div>
-    </div>
+    <div class="section-title">Система / Фаза експерименту</div>
+    <div class="data-item"><span class="label">PHASE:</span> <span class="val" id="phase-idx">--</span>/26</div>
+    <div class="data-item"><span class="label">DAY:</span> <span class="val" id="day">--</span></div>
+    <div class="data-item"><span class="label">AGE_EXPANSION:</span> <span class="val" id="cycle">--</span>%</div>
+    <div class="data-item"><span class="label">TARGET:</span> <span class="val">13_DEC_2026</span></div>
 
-    <div class="bottom-row">
-      <div class="hud-group">
-        <div class="data-item"><span class="label">AIR_T:</span> <span class="val" id="val-air">--</span>°C</div>
-        <div class="data-item"><span class="label">SOIL_T:</span> <span class="val" id="val-soil">--</span>°C</div>
-        <div class="data-item"><span class="label">HUMIDITY:</span> <span class="val" id="val-hum">--</span>%</div>
-        <div class="data-item"><span class="label">WIND_SPD:</span> <span class="val" id="val-wind">--</span> m/s</div>
-        <div class="data-item"><span class="label">SURFACE_P:</span> <span class="val" id="val-press">--</span> hPa
-        </div>
-      </div>
+    <div class="section-title">Космічні дані</div>
+    <div class="data-item"><span class="label">SOLAR_SSN:</span> <span class="val" id="ssn">--</span></div>
+    <div class="data-item"><span class="label">SOLAR_FLUX:</span> <span class="val" id="val-flux">--</span> Jy</div>
+    <div class="data-item"><span class="label">MAG_KP:</span> <span class="val" id="val-kp">--</span></div>
 
-      <div class="hud-group" style="text-align: right;">
-        <div class="data-item"><span class="label">STATUS:</span> <span class="val" style="color:#00ff00">LINK_STABLE</span></div>
-        <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
-      </div>
-    </div>
+    <div class="section-title">Погодні / Планетарні дані</div>
+    <div class="data-item"><span class="label">AIR_T:</span> <span class="val" id="val-air">--</span>°C</div>
+    <div class="data-item"><span class="label">SOIL_T:</span> <span class="val" id="val-soil">--</span>°C</div>
+    <div class="data-item"><span class="label">HUMIDITY:</span> <span class="val" id="val-hum">--</span>%</div>
+    <div class="data-item"><span class="label">WIND_SPD:</span> <span class="val" id="val-wind">--</span> m/s</div>
+    <div class="data-item"><span class="label">SURFACE_P:</span> <span class="val" id="val-press">--</span> hPa</div>
+
+    <div class="section-title">Опис дослідження</div>
+    <div class="data-item">Симуляція галактик у межах експерименту IBONIRIUM. Кожна галактика має ядро, орбіти та зірки, що реагують на сонячну активність і планетарні умови.</div>
+    <div class="data-item">Взаємодія галактик впливає на розподіл енергії та туманності, формуючи динамічні цикли росту та пульсації ядра.</div>
+
+    <div class="section-title">Очікувані події</div>
+    <div class="data-item">- Зміна кількості зірок і розмірів галактик відповідно до сонячної активності.</div>
+    <div class="data-item">- Пульсація ядер галактик, дихання туманностей.</div>
+    <div class="data-item">- Взаємодія та зміщення галактик при зближенні.</div>
+    <div class="data-item">- Реакція на зміни погодних умов (вітер, температура, вологість) для симуляції “планетарної атмосфери”.</div>
+
+    <button class="btn-save" onclick="takeSnapshot()">_INIT_SNAPSHOT</button>
   </div>
 
   <script type="module">
@@ -182,7 +173,6 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // --- Galaxy class ---
     class Galaxy {
       constructor(x, y, color, starsCount, rotationSpeed, influenceRadius) {
         this.x = x;
@@ -276,14 +266,12 @@
       }
     }
 
-    // --- Galaxies ---
     const galaxies = [
       new Galaxy(window.innerWidth * 0.3, window.innerHeight * 0.4, 'rgba(255,100,200,0.8)', 150, 0.002, 120),
       new Galaxy(window.innerWidth * 0.7, window.innerHeight * 0.5, 'rgba(100,200,255,0.8)', 120, -0.0015, 100),
       new Galaxy(window.innerWidth * 0.5, window.innerHeight * 0.75, 'rgba(200,255,100,0.8)', 180, 0.001, 140)
     ];
 
-    // --- Animation ---
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       galaxies.forEach(g => {
@@ -306,18 +294,14 @@
       link.click();
     }
 
-    // --- API Integration ---
+    // --- API ---
     const NOAA_API = 'https://services.swpc.noaa.gov/json/solar-cycle.json';
     const WEATHER_API_KEY = 'твій_ключ_OpenWeatherMap';
     const WEATHER_API = `https://api.openweathermap.org/data/2.5/weather?q=Earth&appid=${WEATHER_API_KEY}&units=metric`;
 
     async function fetchExternalData() {
       try {
-        const [solarRes, weatherRes] = await Promise.all([
-          fetch(NOAA_API),
-          fetch(WEATHER_API)
-        ]);
-
+        const [solarRes, weatherRes] = await Promise.all([fetch(NOAA_API), fetch(WEATHER_API)]);
         const solarData = await solarRes.json();
         const weatherData = await weatherRes.json();
 
@@ -330,24 +314,20 @@
         const wind = weatherData.wind.speed;
         const pressure = weatherData.main.pressure;
 
-        // --- Update HUD ---
         document.getElementById('ssn').textContent = ssn;
         document.getElementById('val-flux').textContent = solarFlux;
         document.getElementById('val-kp').textContent = kp;
-
         document.getElementById('val-air').textContent = temp;
         document.getElementById('val-hum').textContent = humidity;
         document.getElementById('val-wind').textContent = wind;
         document.getElementById('val-press').textContent = pressure;
 
-        // --- Apply to galaxies ---
         galaxies.forEach(g => {
           g.rotationSpeed = 0.001 + ssn * 0.00001 - kp * 0.00002;
           g.influenceRadius = 100 + solarFlux * 0.5 + wind * 2;
           g.starsCount = 100 + Math.floor(humidity + temp);
-          g.initStars(); // regenerate stars with new count
+          g.initStars();
         });
-
       } catch (e) {
         console.error('Failed to fetch API data:', e);
       }
@@ -355,7 +335,6 @@
 
     fetchExternalData();
     setInterval(fetchExternalData, 30000);
-
   </script>
 </body>
 </html>
