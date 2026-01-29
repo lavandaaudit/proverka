@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · EXP-03 · Galactic Terrarium</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBONIRIUM · EXP-03 · Resonant Galaxies</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{
@@ -17,7 +17,7 @@ canvas{position:fixed;inset:0}
   bottom:12px;left:12px;
   font-family:monospace;
   font-size:12px;
-  color:#caffef;
+  color:#d4fff0;
   opacity:.85;
 }
 </style>
@@ -28,9 +28,9 @@ canvas{position:fixed;inset:0}
 <canvas id="scene"></canvas>
 
 <div id="info">
-<b>IBONIRIUM · GALACTIC TERRARIUM</b><br>
-mode: orbital nebulae<br>
-state: compression / expansion
+<b>IBONIRIUM · GALACTIC FIELD</b><br>
+mode: resonant cores<br>
+dimension: pseudo-3D
 </div>
 
 <script>
@@ -46,22 +46,22 @@ function resize(){
 addEventListener('resize', resize);
 resize();
 
-/* ---------- BACKGROUND STARS (PARALLAX) ---------- */
-const stars = Array.from({length:420},()=>({
+/* ---------- STARS (DEPTH) ---------- */
+const stars = Array.from({length:460},()=>({
   x:Math.random(), y:Math.random(),
-  z:Math.random()*0.8+0.2
+  z:Math.random()*0.9+0.1
 }));
 
 function drawStars(){
   sctx.clearRect(0,0,starsC.width,starsC.height);
   stars.forEach(st=>{
-    sctx.globalAlpha = 0.15 + st.z*0.5;
+    sctx.globalAlpha = 0.1 + st.z*0.5;
     sctx.fillStyle="#fff";
     sctx.beginPath();
     sctx.arc(
       st.x*starsC.width,
       st.y*starsC.height,
-      st.z*1.6,
+      st.z*1.8,
       0,Math.PI*2
     );
     sctx.fill();
@@ -69,42 +69,40 @@ function drawStars(){
   sctx.globalAlpha = 1;
 }
 
-/* ---------- COSMIC BREATH ---------- */
-function cosmicBreath(){
-  return Math.sin(Date.now()*0.000025);
-}
+/* ---------- FIELD TIME ---------- */
+const T = ()=>Date.now()*0.0001;
 
-/* ---------- COLORS ---------- */
-const PALETTE = [
-  'rgba(255,200,140,',
-  'rgba(180,220,255,',
-  'rgba(200,180,255,',
-  'rgba(255,170,210,',
-  'rgba(170,255,210,'
+/* ---------- PALETTE ---------- */
+const PALETTE=[
+  'rgba(255,200,150,',
+  'rgba(180,230,255,',
+  'rgba(210,190,255,',
+  'rgba(255,180,220,',
+  'rgba(180,255,220,'
 ];
 
 /* ---------- NEBULA ---------- */
 class Nebula{
   constructor(radius){
-    this.angle = Math.random()*Math.PI*2;
-    this.dist = radius * (0.6 + Math.random()*0.8);
-    this.size = 18 + Math.random()*26;
-    this.speed = (Math.random()*0.5+0.2)*0.00025;
-    this.depth = Math.random()*0.8 + 0.2;
-    this.color = PALETTE[Math.floor(Math.random()*PALETTE.length)];
+    this.a=Math.random()*Math.PI*2;
+    this.r=radius*(0.7+Math.random()*0.9);
+    this.s=0.00015+Math.random()*0.0002;
+    this.z=Math.random()*0.7+0.3;
+    this.size=16+Math.random()*30;
+    this.col=PALETTE[Math.floor(Math.random()*PALETTE.length)];
   }
-  update(){
-    this.angle += this.speed * this.depth;
+  update(influence){
+    this.a += this.s*this.z*(1+influence*0.8);
   }
   draw(cx,cy,pulse){
-    const x = cx + Math.cos(this.angle)*this.dist*pulse;
-    const y = cy + Math.sin(this.angle)*this.dist*pulse;
-    ctx.globalAlpha = 0.08 + this.depth*0.25;
-    ctx.fillStyle = this.color + (0.35*this.depth)+')';
+    const x=cx+Math.cos(this.a)*this.r*pulse;
+    const y=cy+Math.sin(this.a)*this.r*pulse;
+    ctx.globalAlpha=0.06+this.z*0.25;
+    ctx.fillStyle=this.col+(0.4*this.z)+')';
     ctx.beginPath();
-    ctx.arc(x,y,this.size*this.depth,0,Math.PI*2);
+    ctx.arc(x,y,this.size*this.z,0,Math.PI*2);
     ctx.fill();
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha=1;
   }
 }
 
@@ -112,93 +110,96 @@ class Nebula{
 class Galaxy{
   constructor(x,y){
     this.baseX=x; this.baseY=y;
-    this.z = Math.random()*0.6+0.4;
-    this.radius = (70 + Math.random()*50)*this.z;
-    this.spin = (Math.random()*0.4+0.2)*0.00018;
-    this.angle = Math.random()*Math.PI*2;
-    this.color = PALETTE[Math.floor(Math.random()*PALETTE.length)]+'0.7)';
-    this.arms = 3 + Math.floor(Math.random()*3);
-    this.phase = Math.random()*Math.PI*2;
-    this.nebulae = Array.from({length:8+Math.floor(Math.random()*6)},
+    this.z=Math.random()*0.7+0.3;
+    this.mass=0.6+Math.random()*1.2;
+    this.radius=(90+Math.random()*70)*this.z;
+    this.spin=(0.00012+Math.random()*0.00018)*this.z;
+    this.angle=Math.random()*Math.PI*2;
+    this.phase=Math.random()*Math.PI*2;
+    this.col=PALETTE[Math.floor(Math.random()*PALETTE.length)]+'0.75)';
+    this.arms=3+Math.floor(Math.random()*3);
+
+    /* ядро */
+    this.coreAngle=Math.random()*Math.PI*2;
+    this.coreOrbit=6+Math.random()*10;
+    this.corePulse=Math.random()*Math.PI*2;
+
+    this.nebulae=Array.from(
+      {length:10+Math.floor(Math.random()*6)},
       ()=>new Nebula(this.radius*1.2)
     );
   }
 
-  position(){
-    const b = cosmicBreath();
-    const shift = b * 140 * this.z;
+  position(others){
+    let fx=0, fy=0;
+    others.forEach(o=>{
+      if(o===this) return;
+      const dx=o.baseX-this.baseX;
+      const dy=o.baseY-this.baseY;
+      const d=Math.hypot(dx,dy)+80;
+      const f=(o.mass*this.mass)/(d*d);
+      fx+=dx/d*f;
+      fy+=dy/d*f;
+    });
+    const breath=Math.sin(T()+this.phase);
     return {
-      x: this.baseX + Math.cos(this.phase)*shift,
-      y: this.baseY + Math.sin(this.phase)*shift
+      x:this.baseX+fx*120*this.z+Math.cos(this.phase)*breath*140*this.z,
+      y:this.baseY+fy*120*this.z+Math.sin(this.phase)*breath*140*this.z
     };
   }
 
   update(){
-    this.angle += this.spin;
-    this.nebulae.forEach(n=>n.update());
+    this.angle+=this.spin;
+    this.coreAngle+=this.spin*1.6;
+    this.corePulse+=0.02;
   }
 
-  draw(){
-    const pos = this.position();
-    const pulse = 1 + cosmicBreath()*0.22;
+  draw(pos,field){
+    const pulse=1+Math.sin(this.corePulse)*0.25+field*0.15;
 
-    /* nebulae first (depth) */
-    this.nebulae.forEach(n=>n.draw(pos.x,pos.y,pulse));
+    /* nebulae */
+    this.nebulae.forEach(n=>{
+      n.update(field);
+      n.draw(pos.x,pos.y,pulse);
+    });
 
-    /* spiral arms */
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = 0.9*this.z;
-    ctx.shadowColor = this.color;
-    ctx.shadowBlur = 14*this.z;
+    /* arms */
+    ctx.strokeStyle=this.col;
+    ctx.lineWidth=1*this.z;
+    ctx.shadowColor=this.col;
+    ctx.shadowBlur=16*this.z;
 
     for(let a=0;a<this.arms;a++){
       ctx.beginPath();
-      for(let i=0;i<160;i++){
-        const t=i/160;
+      for(let i=0;i<170;i++){
+        const t=i/170;
         const r=this.radius*t*pulse;
-        const ang=t*5*Math.PI + this.angle + a*(Math.PI*2/this.arms);
-        const x=pos.x + Math.cos(ang)*r;
-        const y=pos.y + Math.sin(ang)*r;
-        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+        const ang=t*5*Math.PI+this.angle+a*(Math.PI*2/this.arms);
+        const x=pos.x+Math.cos(ang)*r;
+        const y=pos.y+Math.sin(ang)*r;
+        i?ctx.lineTo(x,y):ctx.moveTo(x,y);
       }
       ctx.stroke();
     }
 
-    /* core */
-    ctx.shadowBlur = 24*this.z;
-    ctx.fillStyle = this.color;
+    /* ядро – орбітальне */
+    const cx=pos.x+Math.cos(this.coreAngle)*this.coreOrbit*pulse;
+    const cy=pos.y+Math.sin(this.coreAngle)*this.coreOrbit*pulse;
+
+    ctx.shadowBlur=28*this.z;
+    ctx.fillStyle=this.col;
     ctx.beginPath();
-    ctx.arc(pos.x,pos.y,6*this.z*pulse,0,Math.PI*2);
+    ctx.arc(cx,cy,7*this.z*pulse,0,Math.PI*2);
     ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur=0;
   }
 }
 
-/* ---------- GALAXY SET ---------- */
-const galaxies = Array.from({length:7},()=>new Galaxy(
-  innerWidth*0.25 + Math.random()*innerWidth*0.5,
-  innerHeight*0.25 + Math.random()*innerHeight*0.5
+/* ---------- SYSTEM ---------- */
+const galaxies=Array.from({length:6},()=>new Galaxy(
+  innerWidth*0.25+Math.random()*innerWidth*0.5,
+  innerHeight*0.25+Math.random()*innerHeight*0.5
 ));
-
-/* ---------- GRAVITY LINKS ---------- */
-function drawLinks(){
-  const b=Math.abs(cosmicBreath());
-  ctx.strokeStyle=`rgba(180,220,255,${0.05+0.18*b})`;
-  ctx.lineWidth=0.6;
-  for(let i=0;i<galaxies.length;i++){
-    for(let j=i+1;j<galaxies.length;j++){
-      const p1=galaxies[i].position();
-      const p2=galaxies[j].position();
-      const d=Math.hypot(p1.x-p2.x,p1.y-p2.y);
-      if(d<520){
-        ctx.beginPath();
-        ctx.moveTo(p1.x,p1.y);
-        ctx.lineTo(p2.x,p2.y);
-        ctx.stroke();
-      }
-    }
-  }
-}
 
 /* ---------- LOOP ---------- */
 function loop(){
@@ -206,10 +207,16 @@ function loop(){
   ctx.clearRect(0,0,sceneC.width,sceneC.height);
 
   galaxies.forEach(g=>{
+    const pos=g.position(galaxies);
+    const field=galaxies.reduce((a,o)=>{
+      if(o===g) return a;
+      const d=Math.hypot(o.baseX-g.baseX,o.baseY-g.baseY);
+      return a+o.mass/(d*d);
+    },0);
+
     g.update();
-    g.draw();
+    g.draw(pos,field);
   });
-  drawLinks();
 
   requestAnimationFrame(loop);
 }
