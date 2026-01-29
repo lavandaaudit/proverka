@@ -191,7 +191,7 @@ function takeSnapshot(){
 }
 
 // ---------------------------
-// NOAA API
+// NOAA API з Kp Index
 // ---------------------------
 async function fetchSpaceWeather(){
   try{
@@ -216,8 +216,8 @@ async function fetchSpaceWeather(){
     document.getElementById('mag-bz').textContent = latestBz.toFixed(2);
     document.getElementById('kp-index').textContent = latestKp.toFixed(1);
 
-    // Вплив NOAA на галактику
-    galaxy.kpEffect = 0.5 + latestKp*0.1; // Kp впливає на швидкість та пульсації
+    // Вплив NOAA на галактику через Kp Index
+    galaxy.kpEffect = 0.5 + latestKp*0.1; // Kp впливає на швидкість обертання та пульсації
     galaxy.rotationSpeed = 0.0005 + latestFlux*0.00001;
     galaxy.influenceRadius = 100 + latestWind*0.3 + latestKp*8;
     galaxy.starsCount = 100 + Math.floor(latestFlux*0.5);
@@ -257,7 +257,7 @@ function scheduleDailyPhase(){
 scheduleDailyPhase();
 
 // ---------------------------
-// Mouse / Touch Controls для збільшення та обертання
+// Mouse / Touch Controls
 // ---------------------------
 let isDragging = false;
 let lastX, lastY;
