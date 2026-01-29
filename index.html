@@ -30,7 +30,7 @@ Target: 13 December
 
 <div id="panel">
 <b>СТАН ЕКСПЕРИМЕНТУ</b><br>
-Вид зверху: поля культур ростуть і розповзаються.<br><br>
+Вид зверху: поля культур ростуть і розповзаються у вигляді п’ятен.<br><br>
 <b>Вплив сонячних явищ:</b><br>
 • Вища SSN → швидший ріст і розширення полів<br>
 • Геомагнітні бурі → пульсації окремих культур<br>
@@ -90,86 +90,74 @@ async function updateSolar(){
 updateSolar();
 setInterval(updateSolar,1800000);
 
-/* Геометричне поле з ростом і поширенням */
+/* Агросимулятор - поля культур */
 class AgroField {
-    constructor(x, y, crop, shape){
+    constructor(x, y, crop, color){
         this.cx = x;
         this.cy = y;
         this.crop = crop;
-        this.shape = shape;
+        this.color = color;
+        this.size = 20 + Math.random()*20;
         this.growth = 0;
-        this.maxGrowth = 20 + Math.random()*15;
-        this.radials = 16 + Math.floor(solarFactor*8);
-        this.maxRad = 50 + solarFactor*60;
-        this.spiralDensity = 0.18 + solarFactor*0.08;
+        this.maxGrowth = 30 + Math.random()*40;
         this.offset = Math.random();
         this.dir = Math.random()<0.5?1:-1;
-        this.speed = 0.0003 + Math.random()*0.0005;
+        this.speed = 0.0002 + Math.random()*0.0006;
+        this.shapeType = Math.floor(Math.random()*4); // 0-circle,1-ellipse,2-square,3-polygon
+        this.polygonSides = 3+Math.floor(Math.random()*5);
     }
 
     grow(){
-        if(this.growth<this.maxGrowth) this.growth += 0.03*solarFactor;
-        // розповзання поля
-        this.cx += (Math.random()-0.5)*0.4*solarFactor;
-        this.cy += (Math.random()-0.5)*0.4*solarFactor;
+        if(this.growth<this.maxGrowth) this.growth += 0.05*solarFactor;
+        // розповзання
+        this.cx += (Math.random()-0.5)*0.6*solarFactor;
+        this.cy += (Math.random()-0.5)*0.6*solarFactor;
         this.offset += this.dir*this.speed;
         if(this.offset>1) this.offset-=1;
         if(this.offset<0) this.offset+=1;
     }
 
     draw(){
-        let breath = 1 + Math.sin(Date.now()*0.0008 + this.offset*Math.PI)*0.015;
-        // Радіальні нитки (геометрія поля)
-        fctx.strokeStyle = "rgba(200,220,255,0.2)";
-        fctx.lineWidth=0.7;
-        for(let i=0;i<this.radials;i++){
-            const angle = i*(Math.PI*2/this.radials);
-            const ex = this.cx + Math.cos(angle)*this.maxRad*breath;
-            const ey = this.cy + Math.sin(angle)*this.maxRad*breath;
-            fctx.beginPath();
-            fctx.moveTo(this.cx,this.cy);
-            fctx.lineTo(ex,ey);
-            fctx.stroke();
-        }
-        // Спіраль
-        fctx.strokeStyle="rgba(220,240,255,0.35)";
-        fctx.lineWidth=0.6;
-        fctx.beginPath();
-        const steps = Math.min(this.growth,this.maxGrowth)*25;
+        let breath = 1 + Math.sin(Date.now()*0.0009 + this.offset*Math.PI)*0.02;
+
+        // Геометрична структура (лабіринт/павутиння)
+        const steps = Math.min(this.growth,this.maxGrowth)*20;
         for(let i=0;i<=steps;i++){
             const t = i/steps;
-            let radius = t*this.maxRad*breath;
-            const tDiff = Math.abs(t-this.offset);
-            if(tDiff<0.15) radius += Math.sin(Date.now()*0.015+t*20)*(0.5+activity);
-            const angle = t*Math.PI*2*(this.spiralDensity*15);
+            let radius = t*this.size*breath;
+            const angle = t*Math.PI*2*(0.1+Math.random()*0.2);
             const x = this.cx + Math.cos(angle)*radius;
             const y = this.cy + Math.sin(angle)*radius;
-            // культура
-            fctx.fillStyle="rgba(100,220,100,0.5)";
+
+            fctx.fillStyle=this.color+"55";
             fctx.beginPath();
-            switch(this.shape){
-                case "circle": fctx.arc(x,y,5,0,Math.PI*2); break;
-                case "square": fctx.rect(x-4,y-4,8,8); break;
-                case "triangle":
-                    fctx.moveTo(x,y-5);
-                    fctx.lineTo(x-4,y+4);
-                    fctx.lineTo(x+4,y+4);
+            switch(this.shapeType){
+                case 0: fctx.arc(x,y,4,0,Math.PI*2); break;
+                case 1: fctx.ellipse(x,y,6,3,0,0,Math.PI*2); break;
+                case 2: fctx.rect(x-3,y-3,6,6); break;
+                case 3:
+                    fctx.moveTo(x+radius*Math.cos(0),y+radius*Math.sin(0));
+                    for(let j=1;j<=this.polygonSides;j++){
+                        const a = j*2*Math.PI/this.polygonSides;
+                        fctx.lineTo(x+radius*Math.cos(a),y+radius*Math.sin(a));
+                    }
                     fctx.closePath();
                     break;
-                case "ellipse": fctx.ellipse(x,y,6,4,0,0,Math.PI*2); break;
             }
             fctx.fill();
         }
-        // трактор
-        const trRad = this.offset*this.maxRad*breath;
-        const trAngle = this.offset*Math.PI*2*12;
+
+        // Трактор
+        const trRad = this.offset*this.size*breath;
+        const trAngle = this.offset*Math.PI*2*8;
         const tx = this.cx + Math.cos(trAngle)*trRad;
         const ty = this.cy + Math.sin(trAngle)*trRad;
         fctx.fillStyle="rgba(255,200,100,0.9)";
         fctx.beginPath();
         fctx.rect(tx-3,ty-3,6,6);
         fctx.fill();
-        // підпис
+
+        // Підпис культури
         fctx.fillStyle="#fff";
         fctx.font="11px monospace";
         fctx.fillText(this.crop,this.cx-15,this.cy-15);
@@ -177,19 +165,19 @@ class AgroField {
 }
 
 const crops = [
-    {name:"Пшениця", shape:"circle"},
-    {name:"Кукурудза", shape:"square"},
-    {name:"Соя", shape:"triangle"},
-    {name:"Ячмінь", shape:"ellipse"},
-    {name:"Ріпак", shape:"circle"},
-    {name:"Гарбуз", shape:"square"}
+    {name:"Пшениця", color:"rgba(180,220,120,0.7)"},
+    {name:"Кукурудза", color:"rgba(220,200,100,0.7)"},
+    {name:"Соя", color:"rgba(120,200,180,0.7)"},
+    {name:"Ячмінь", color:"rgba(160,220,200,0.7)"},
+    {name:"Ріпак", color:"rgba(220,180,180,0.7)"},
+    {name:"Гарбуз", color:"rgba(200,160,220,0.7)"}
 ];
 
 const fields = crops.map(c=>new AgroField(
     Math.random()*fCanvas.width,
     Math.random()*fCanvas.height*0.85 + fCanvas.height*0.1,
     c.name,
-    c.shape
+    c.color
 ));
 
 /* SENSORS */
