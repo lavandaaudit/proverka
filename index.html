@@ -2,181 +2,133 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
+<title>IBONARIUM · FIELD LABYRINTH · 3D</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONIRIUM · AgroMap · EXP‑AGRO · Геометрична Павутина</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:#000; overflow:hidden; }
-canvas { position:fixed; inset:0; }
-#info { position:fixed; bottom:12px; left:12px; font-family:monospace; color:#88ffcc; font-size:12px; line-height:1.4; opacity:0.85; }
-#panel { position:fixed; bottom:12px; right:12px; max-width:360px; font-family:monospace; font-size:12px; color:#c7ffd9; line-height:1.45; background:linear-gradient(to left,rgba(0,0,0,0.65),transparent); padding:10px 14px; }
+html,body{
+  margin:0;
+  padding:0;
+  background:#000;
+  overflow:hidden;
+}
+canvas{
+  display:block;
+}
 </style>
 </head>
 <body>
-<canvas id="map"></canvas>
-
-<div id="info">
-<b>IBONIRIUM · LAB AGROSIM · EXP‑AGRO</b><br>
-Phase: <span id="phase">Growth</span><br>
-Day: <span id="day">–</span><br>
-Solar SSN: <span id="ssn">–</span><br>
-Solar Factor: <span id="sf">–</span><br>
-Field Activity: <span id="ge">–</span><br>
-Target: 13 December
-</div>
-
-<div id="panel">
-<b>СТАН ЕКСПЕРИМЕНТУ</b><br>
-Вид зверху: поля культур ростуть у межах геометричної павутини.<br><br>
-<b>Вплив сонячних явищ:</b><br>
-• Вища SSN → швидший ріст і більші поля<br>
-• Геомагнітні бурі → пульсації полів<br>
-• Спокійне сонце → рівні, симетричні форми<br>
-• Протонні події → деформації полів
-</div>
+<canvas id="c"></canvas>
 
 <script>
-const canvas = document.getElementById('map');
-const ctx = canvas.getContext('2d');
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+resize();
+window.addEventListener("resize", resize);
 
 function resize(){
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
-}
-addEventListener('resize', resize);
-resize();
-
-/* Сонячні дані */
-let solarFactor = 1, solarSSN = 0, activity = 0;
-async function updateSolar(){
-    try{
-        const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
-        const d = await r.json();
-        const l = d[d.length-1];
-        solarSSN = l.predicted_ssn;
-        solarFactor = Math.min(4,0.7+solarSSN/100);
-        activity = solarFactor*(0.6+Math.random()*0.4);
-        document.getElementById('ssn').textContent = solarSSN.toFixed(1);
-        document.getElementById('sf').textContent = solarFactor.toFixed(2);
-        document.getElementById('ge').textContent = activity.toFixed(2);
-    }catch(e){ solarFactor=1.2; }
-}
-updateSolar();
-setInterval(updateSolar,1800000);
-
-/* Геометрична павутина */
-const GRID_SIZE = 60;
-function drawWeb(){
-    ctx.strokeStyle='rgba(100,180,255,0.2)';
-    ctx.lineWidth=0.6;
-    for(let x=0;x<canvas.width;x+=GRID_SIZE){
-        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
-    }
-    for(let y=0;y<canvas.height;y+=GRID_SIZE){
-        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
-    }
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 }
 
-/* Поля культур */
-class Field {
-    constructor(x,y,crop,color){
-        this.cx=x;
-        this.cy=y;
-        this.crop=crop;
-        this.color=color;
-        this.size=20+Math.random()*20;
-        this.maxSize=60+Math.random()*40;
-        this.growth=0;
-        this.shapeType=Math.floor(Math.random()*3); // 0-circle,1-ellipse,2-polygon
-        this.polygonSides=3+Math.floor(Math.random()*5);
-        this.offset=Math.random();
-    }
+/* ===== CAMERA ===== */
+let camZ = 1.2;
+let targetZ = 1.2;
 
-    grow(){
-        if(this.growth<this.maxSize) this.growth+=0.2*solarFactor;
-        // плавне розповзання
-        this.cx += (Math.random()-0.5)*0.5*solarFactor;
-        this.cy += (Math.random()-0.5)*0.5*solarFactor;
-        this.offset += 0.001*solarFactor;
-        if(this.offset>1) this.offset-=1;
-    }
+canvas.addEventListener("wheel", e=>{
+  targetZ += e.deltaY * 0.0008;
+  targetZ = Math.max(0.4, Math.min(3, targetZ));
+});
 
-    draw(){
-        let breath=1+Math.sin(Date.now()*0.001+this.offset*Math.PI)*0.05;
-        const r=this.growth*breath;
-        ctx.fillStyle=this.color+'55';
-        ctx.strokeStyle=this.color+'aa';
-        ctx.lineWidth=1;
-        ctx.beginPath();
-        switch(this.shapeType){
-            case 0: ctx.arc(this.cx,this.cy,r,0,Math.PI*2); break;
-            case 1: ctx.ellipse(this.cx,this.cy,r,r*0.6,0,0,Math.PI*2); break;
-            case 2:
-                for(let i=0;i<=this.polygonSides;i++){
-                    const a=i*2*Math.PI/this.polygonSides;
-                    const x=this.cx+Math.cos(a)*r;
-                    const y=this.cy+Math.sin(a)*r;
-                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-                }
-                break;
-        }
-        ctx.fill();
-        ctx.stroke();
+/* ===== FIELD NODES ===== */
+const COUNT = 70;
+const nodes = [];
 
-        // внутрішній лабіринт-павутиння
-        ctx.strokeStyle='rgba(200,220,255,0.3)';
-        ctx.lineWidth=0.5;
-        for(let i=0;i<Math.floor(r/4);i++){
-            const angle= i* Math.PI*2 / Math.floor(r/4) + Date.now()*0.0005;
-            const rx = this.cx + Math.cos(angle)*(r-i*0.6);
-            const ry = this.cy + Math.sin(angle)*(r-i*0.6);
-            ctx.beginPath();
-            ctx.moveTo(this.cx,this.cy);
-            ctx.lineTo(rx,ry);
-            ctx.stroke();
-        }
-
-        // підпис
-        ctx.fillStyle="#fff";
-        ctx.font="11px monospace";
-        ctx.fillText(this.crop,this.cx-15,this.cy-10);
-    }
+for(let i=0;i<COUNT;i++){
+  nodes.push({
+    x: (Math.random()-0.5)*2000,
+    y: (Math.random()-0.5)*2000,
+    z: Math.random()*600,
+    r: 40 + Math.random()*60,
+    phase: Math.random()*Math.PI*2,
+    speed: 0.002 + Math.random()*0.004,
+    links:[]
+  });
 }
 
-const crops=[
-    {name:"Пшениця", color:"rgba(180,220,120,0.7)"},
-    {name:"Кукурудза", color:"rgba(220,200,100,0.7)"},
-    {name:"Соя", color:"rgba(120,200,180,0.7)"},
-    {name:"Ячмінь", color:"rgba(160,220,200,0.7)"},
-    {name:"Ріпак", color:"rgba(220,180,180,0.7)"},
-    {name:"Гарбуз", color:"rgba(200,160,220,0.7)"}
-];
-
-const fields=crops.map(c=>new Field(
-    Math.random()*canvas.width,
-    Math.random()*canvas.height,
-    c.name,
-    c.color
-));
-
-/* Дата та фаза */
-const START_DATE=new Date('2026-01-01');
-const STOP_DATE=new Date('2026-12-13');
-function updateDay(){
-    const now=new Date();
-    const day=Math.floor((now-START_DATE)/86400000);
-    document.getElementById('day').textContent=day>=0?day:'–';
-    document.getElementById('phase').textContent=now<STOP_DATE?'Growth':'Final';
+/* ===== LABYRINTH LINKS ===== */
+for(let i=0;i<nodes.length;i++){
+  for(let j=i+1;j<nodes.length;j++){
+    const dx = nodes[i].x-nodes[j].x;
+    const dy = nodes[i].y-nodes[j].y;
+    const d = Math.hypot(dx,dy);
+    if(d < 420 && Math.random() < 0.35){
+      nodes[i].links.push(nodes[j]);
+      nodes[j].links.push(nodes[i]);
+    }
+  }
 }
-setInterval(updateDay,60000);
-updateDay();
 
-/* Основний цикл */
-function loop(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    drawWeb();
-    fields.forEach(f=>{ f.grow(); f.draw(); });
-    requestAnimationFrame(loop);
+/* ===== ORGANIC SHAPE ===== */
+function drawField(n, sx, sy, scale){
+  ctx.beginPath();
+  const pts = 16;
+  for(let i=0;i<=pts;i++){
+    const a = i/pts * Math.PI*2;
+    const noise = Math.sin(a*3 + n.phase)*0.35
+                + Math.cos(a*2 - n.phase)*0.25;
+    const rr = n.r * (1+noise) * scale;
+    const x = sx + Math.cos(a)*rr;
+    const y = sy + Math.sin(a)*rr;
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+}
+
+/* ===== LOOP ===== */
+function loop(t){
+  requestAnimationFrame(loop);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  camZ += (targetZ-camZ)*0.05;
+
+  ctx.save();
+  ctx.translate(canvas.width/2, canvas.height/2);
+
+  nodes.forEach(n=>{
+    n.phase += n.speed;
+  });
+
+  /* draw links */
+  ctx.strokeStyle = "rgba(0,255,120,0.15)";
+  nodes.forEach(n=>{
+    n.links.forEach(o=>{
+      const dz = (n.z+o.z)*0.5;
+      const scale = camZ/(1+dz*0.002);
+
+      const x1 = n.x*scale;
+      const y1 = n.y*scale;
+      const x2 = o.x*scale;
+      const y2 = o.y*scale;
+
+      ctx.beginPath();
+      ctx.moveTo(x1,y1);
+      ctx.lineTo(x2,y2);
+      ctx.stroke();
+    });
+  });
+
+  /* draw fields */
+  nodes.forEach(n=>{
+    const scale = camZ/(1+n.z*0.002);
+    const sx = n.x*scale;
+    const sy = n.y*scale;
+
+    ctx.strokeStyle = `rgba(0,255,150,${0.25*scale})`;
+    drawField(n,sx,sy,scale);
+  });
+
+  ctx.restore();
 }
 loop();
 </script>
