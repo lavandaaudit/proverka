@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IBONIRIUM · AgroSim · EXP‑AGRO · Геометрія Поля</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -30,17 +30,15 @@ Target: 13 December
 
 <div id="panel">
 <b>СТАН ЕКСПЕРИМЕНТУ</b><br>
-Поле культур під впливом сонячних даних NOAA.<br><br>
-<b>Як сонячні явища впливають на поле:</b><br>
-• Вища SSN → швидший ріст, більше "витків" трактора<br>
-• Геомагнітні бурі / високий Kp → локальні пульсації культур<br>
-• Спокійне сонце → рівне поле, чиста геометрія<br>
-• Протонні події → випадкові "деформації" культур<br>
-До <b>13 грудня</b> — фаза росту. Потім фіксація.
+Вид зверху: поля культур ростуть і розповзаються.<br><br>
+<b>Вплив сонячних явищ:</b><br>
+• Вища SSN → швидший ріст і розширення полів<br>
+• Геомагнітні бурі → пульсації окремих культур<br>
+• Спокійне сонце → рівні, симетричні поля<br>
+• Протонні події → випадкові деформації полів
 </div>
 
 <script>
-/* CANVAS */
 const starCanvas = document.getElementById('stars');
 const fCanvas = document.getElementById('field');
 const sensorCanvas = document.getElementById('sensors');
@@ -61,9 +59,9 @@ const stars = Array.from({length:300},()=>({x:Math.random(),y:Math.random(),z:Ma
 function drawStars(){
     sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
     stars.forEach(st=>{
-        st.y += 0.00008 * st.z;
+        st.y += 0.00008*st.z;
         if(st.y>1) st.y=0;
-        sctx.globalAlpha = 0.25 + st.z*0.4;
+        sctx.globalAlpha = 0.25+st.z*0.4;
         sctx.fillStyle="#ddd";
         sctx.beginPath();
         sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.1, 0, Math.PI*2);
@@ -90,41 +88,40 @@ async function updateSolar(){
     }catch(e){ solarFactor = 1.2; }
 }
 updateSolar();
-setInterval(updateSolar, 1800000);
+setInterval(updateSolar,1800000);
 
-/* Поле з геометрією */
-class AgroWeb {
+/* Геометричне поле з ростом і поширенням */
+class AgroField {
     constructor(x, y, crop, shape){
         this.cx = x;
         this.cy = y;
+        this.crop = crop;
+        this.shape = shape;
         this.growth = 0;
-        this.maxGrowth = 18 + Math.random()*12;
+        this.maxGrowth = 20 + Math.random()*15;
+        this.radials = 16 + Math.floor(solarFactor*8);
+        this.maxRad = 50 + solarFactor*60;
+        this.spiralDensity = 0.18 + solarFactor*0.08;
         this.offset = Math.random();
         this.dir = Math.random()<0.5?1:-1;
         this.speed = 0.0003 + Math.random()*0.0005;
-        this.radials = 16 + Math.floor(solarFactor*8);
-        this.maxRad = 90 + solarFactor*60;
-        this.spiralDensity = 0.18 + solarFactor*0.08;
-        this.tractorSize = 2.5 + solarFactor*1.5;
-        this.crop = crop;
-        this.shape = shape; // форма культури
     }
+
     grow(){
-        if(this.growth < this.maxGrowth) this.growth += 0.028*solarFactor;
-        this.radials = 16 + Math.floor(solarFactor*8);
-        this.maxRad = 90 + solarFactor*60;
-        this.spiralDensity = 0.18 + solarFactor*0.08;
-        this.tractorSize = 2.5 + solarFactor*1.5;
-        this.speed = (0.0003 + Math.random()*0.0005)*solarFactor*1.3;
+        if(this.growth<this.maxGrowth) this.growth += 0.03*solarFactor;
+        // розповзання поля
+        this.cx += (Math.random()-0.5)*0.4*solarFactor;
+        this.cy += (Math.random()-0.5)*0.4*solarFactor;
         this.offset += this.dir*this.speed;
         if(this.offset>1) this.offset-=1;
         if(this.offset<0) this.offset+=1;
     }
+
     draw(){
-        let breath = 1 + Math.sin(Date.now()*0.0008 + this.offset*Math.PI)*0.012;
-        // Радіальні нитки
-        fctx.strokeStyle = "rgba(200,220,255,0.3)";
-        fctx.lineWidth = 0.7;
+        let breath = 1 + Math.sin(Date.now()*0.0008 + this.offset*Math.PI)*0.015;
+        // Радіальні нитки (геометрія поля)
+        fctx.strokeStyle = "rgba(200,220,255,0.2)";
+        fctx.lineWidth=0.7;
         for(let i=0;i<this.radials;i++){
             const angle = i*(Math.PI*2/this.radials);
             const ex = this.cx + Math.cos(angle)*this.maxRad*breath;
@@ -135,23 +132,20 @@ class AgroWeb {
             fctx.stroke();
         }
         // Спіраль
-        fctx.strokeStyle="rgba(220,240,255,0.45)";
+        fctx.strokeStyle="rgba(220,240,255,0.35)";
         fctx.lineWidth=0.6;
         fctx.beginPath();
         const steps = Math.min(this.growth,this.maxGrowth)*25;
         for(let i=0;i<=steps;i++){
             const t = i/steps;
             let radius = t*this.maxRad*breath;
-            const tDiff = Math.abs(t - this.offset);
-            if(tDiff<0.15){
-                const amp = (0.15 - tDiff)/0.15*(1.5+activity);
-                radius += Math.sin(Date.now()*0.015+t*20)*amp;
-            }
+            const tDiff = Math.abs(t-this.offset);
+            if(tDiff<0.15) radius += Math.sin(Date.now()*0.015+t*20)*(0.5+activity);
             const angle = t*Math.PI*2*(this.spiralDensity*15);
             const x = this.cx + Math.cos(angle)*radius;
             const y = this.cy + Math.sin(angle)*radius;
             // культура
-            fctx.fillStyle="rgba(100,220,100,0.55)";
+            fctx.fillStyle="rgba(100,220,100,0.5)";
             fctx.beginPath();
             switch(this.shape){
                 case "circle": fctx.arc(x,y,5,0,Math.PI*2); break;
@@ -173,12 +167,12 @@ class AgroWeb {
         const ty = this.cy + Math.sin(trAngle)*trRad;
         fctx.fillStyle="rgba(255,200,100,0.9)";
         fctx.beginPath();
-        fctx.rect(tx-3,ty-3,this.tractorSize*2,this.tractorSize*2);
+        fctx.rect(tx-3,ty-3,6,6);
         fctx.fill();
-        // підпис культури
+        // підпис
         fctx.fillStyle="#fff";
         fctx.font="11px monospace";
-        fctx.fillText(this.crop, this.cx-15,this.cy-15);
+        fctx.fillText(this.crop,this.cx-15,this.cy-15);
     }
 }
 
@@ -191,7 +185,7 @@ const crops = [
     {name:"Гарбуз", shape:"square"}
 ];
 
-const fields = crops.map(c=>new AgroWeb(
+const fields = crops.map(c=>new AgroField(
     Math.random()*fCanvas.width,
     Math.random()*fCanvas.height*0.85 + fCanvas.height*0.1,
     c.name,
@@ -206,7 +200,7 @@ function drawSensors(){
     scx.beginPath();
     scx.moveTo(0,baseY); scx.lineTo(sensorCanvas.width,baseY); scx.stroke();
     scx.fillStyle='rgba(255,220,140,0.75)';
-    scx.beginPath(); scx.arc(80,baseY-40,9 + solarFactor*4.5,0,Math.PI*2); scx.fill();
+    scx.beginPath(); scx.arc(80,baseY-40,9+solarFactor*4.5,0,Math.PI*2); scx.fill();
     scx.fillStyle="#fff"; scx.font="11px monospace"; scx.fillText('☀ SSN',55,baseY+20);
     scx.strokeStyle='rgba(160,220,255,0.75)';
     scx.beginPath(); scx.moveTo(160,baseY); scx.lineTo(160,baseY-activity*32); scx.stroke();
