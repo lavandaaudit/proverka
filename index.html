@@ -17,10 +17,9 @@ canvas { position:fixed; inset:0; }
   position:fixed;
   bottom:12px; left:12px;
   font-family:monospace;
-  color:#88ffcc;
+  color:#aaffdd;
   font-size:12px;
   line-height:1.4;
-  opacity:0.85;
 }
 #panel {
   position:fixed;
@@ -28,9 +27,9 @@ canvas { position:fixed; inset:0; }
   max-width:360px;
   font-family:monospace;
   font-size:12px;
-  color:#c7ffd9;
+  color:#e4fff0;
   line-height:1.45;
-  background:linear-gradient(to left,rgba(0,0,0,0.65),transparent);
+  background:linear-gradient(to left,rgba(0,0,0,0.7),transparent);
   padding:10px 14px;
 }
 </style>
@@ -47,18 +46,16 @@ Phase: <span id="phase">Growth</span><br>
 Day: <span id="day">–</span><br>
 Solar SSN: <span id="ssn">–</span><br>
 Solar Factor: <span id="sf">–</span><br>
-Activity: <span id="ge">–</span><br>
-Target: 13 December
+Activity: <span id="ge">–</span>
 </div>
 
 <div id="panel">
 <b>СТАН ЕКСПЕРИМЕНТУ</b><br>
-Поля культур з хаотичними формами та павутинням-зв’язками. З висоти утворюють лабіринт.<br><br>
-Геометрія пульсує повільно. Простір дихає.
+Яскраві поля культур формують пульсуючий лабіринт.  
+Геометрія світиться і рухається хвилями.
 </div>
 
 <script>
-/* CANVAS */
 const starCanvas = document.getElementById('stars');
 const tCanvas = document.getElementById('terrarium');
 const sensorCanvas = document.getElementById('sensors');
@@ -74,54 +71,53 @@ function resize(){
 addEventListener('resize', resize); resize();
 
 /* ЗІРКИ */
-const stars = Array.from({length:320},()=>({x:Math.random(),y:Math.random(),z:Math.random()*0.8+0.2}));
+const stars = Array.from({length:360},()=>({x:Math.random(),y:Math.random(),z:Math.random()*0.9+0.2}));
 function drawStars(){
   sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
   stars.forEach(st=>{
-    st.y += 0.00006 * st.z;
+    st.y += 0.00012 * st.z;
     if(st.y>1) st.y=0;
-    sctx.globalAlpha = 0.2 + st.z*0.4;
-    sctx.fillStyle="#ddd";
+    sctx.globalAlpha = 0.3 + st.z*0.5;
+    sctx.fillStyle="#fff";
     sctx.beginPath();
-    sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.2, 0, Math.PI*2);
+    sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.4, 0, Math.PI*2);
     sctx.fill();
   });
   sctx.globalAlpha=1;
 }
 
 /* NOAA */
-let solarFactor = 1;
-let solarSSN = 0;
-let activity = 0;
+let solarFactor=1, solarSSN=0, activity=0;
 async function updateSolar(){
   try{
-    const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
-    const d = await r.json();
-    const l = d[d.length-1];
-    solarSSN = l.predicted_ssn;
-    solarFactor = Math.min(4, 0.7 + solarSSN/100);
-    activity = solarFactor * (0.6 + Math.random()*0.4);
-    ssn.textContent = solarSSN.toFixed(1);
-    sf.textContent = solarFactor.toFixed(2);
-    ge.textContent = activity.toFixed(2);
-  }catch(e){ solarFactor = 1.2; }
+    const r=await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+    const d=await r.json();
+    const l=d[d.length-1];
+    solarSSN=l.predicted_ssn;
+    solarFactor=Math.min(4,0.8+solarSSN/90);
+    activity=solarFactor*(0.7+Math.random()*0.6);
+    ssn.textContent=solarSSN.toFixed(1);
+    sf.textContent=solarFactor.toFixed(2);
+    ge.textContent=activity.toFixed(2);
+  }catch{}
 }
-updateSolar(); setInterval(updateSolar, 1800000);
+updateSolar(); setInterval(updateSolar,1800000);
 
-/* КУЛЬТУРИ */
-const CULTURES = [
-  {name:'Пшениця', color:'rgba(255,200,80,0.5)'},
-  {name:'Ячмінь', color:'rgba(180,220,100,0.5)'},
-  {name:'Кукурудза', color:'rgba(255,230,150,0.5)'},
-  {name:'Рис', color:'rgba(150,200,255,0.5)'},
-  {name:'Соя', color:'rgba(180,150,255,0.5)'},
-  {name:'Овес', color:'rgba(200,180,255,0.5)'},
-  {name:'Гречка', color:'rgba(255,150,180,0.5)'}
+/* КУЛЬТУРИ — ЯСКРАВІШІ */
+const CULTURES=[
+ {name:'Пшениця',color:'rgba(255,220,90,0.75)'},
+ {name:'Ячмінь',color:'rgba(190,255,120,0.75)'},
+ {name:'Кукурудза',color:'rgba(255,240,160,0.75)'},
+ {name:'Рис',color:'rgba(160,220,255,0.75)'},
+ {name:'Соя',color:'rgba(200,170,255,0.75)'},
+ {name:'Овес',color:'rgba(220,200,255,0.75)'},
+ {name:'Гречка',color:'rgba(255,160,200,0.75)'}
 ];
 
-/* ПУЛЬС ПРОСТОРУ */
+/* ПУЛЬС */
 function spacePulse(){
-  return 1 + Math.sin(Date.now()*0.00015)*0.08;
+  return 1 + Math.sin(Date.now()*0.00035)*0.14
+           + Math.sin(Date.now()*0.00011)*0.08;
 }
 
 /* ПОЛЕ */
@@ -129,56 +125,62 @@ class Field{
   constructor(x,y){
     this.cx=x; this.cy=y;
     this.growth=0;
-    this.maxGrowth=22+Math.random()*22;
-    this.offset=Math.random();
-    this.speed=0.00025+Math.random()*0.0004;
+    this.maxGrowth=26+Math.random()*26;
+    this.offset=Math.random()*Math.PI*2;
+    this.speed=0.0006+Math.random()*0.0008;
     this.culture=CULTURES[Math.floor(Math.random()*CULTURES.length)];
-    this.chaos=Array.from({length:6},()=>Math.random()*Math.PI*2);
+    this.chaos=Array.from({length:7},()=>Math.random()*Math.PI*2);
   }
   grow(){
-    if(this.growth<this.maxGrowth) this.growth+=0.025*solarFactor;
+    if(this.growth<this.maxGrowth) this.growth+=0.04*solarFactor;
     this.offset+=this.speed;
   }
   draw(){
     const pulse=spacePulse();
-    const steps=Math.min(this.growth,this.maxGrowth)*28;
+    const steps=Math.min(this.growth,this.maxGrowth)*30;
     tctx.strokeStyle=this.culture.color;
-    tctx.lineWidth=0.8;
+    tctx.lineWidth=1;
+    tctx.shadowColor=this.culture.color;
+    tctx.shadowBlur=8+activity*6;
+
     tctx.beginPath();
     for(let i=0;i<=steps;i++){
       const t=i/steps;
-      let r=t*110*pulse*(1+activity*0.25);
-      this.chaos.forEach(c=>{ r+=Math.sin(c+i*0.4+Date.now()*0.0003)*4; });
-      const a=t*Math.PI*2*(3+Math.sin(this.offset*6));
+      let r=t*130*pulse*(1+activity*0.35);
+      this.chaos.forEach(c=>{
+        r+=Math.sin(c+i*0.6+Date.now()*0.001)*6;
+      });
+      const a=t*Math.PI*2*(4+Math.sin(this.offset*3));
       const x=this.cx+Math.cos(a)*r;
       const y=this.cy+Math.sin(a)*r;
-      i? tctx.lineTo(x,y):tctx.moveTo(x,y);
+      i?tctx.lineTo(x,y):tctx.moveTo(x,y);
     }
     tctx.stroke();
+    tctx.shadowBlur=0;
 
-    /* геометричний резонатор */
-    tctx.strokeStyle='rgba(200,220,255,0.08)';
+    /* резонансне кільце */
+    tctx.strokeStyle='rgba(220,240,255,0.18)';
     tctx.beginPath();
-    tctx.arc(this.cx,this.cy,this.growth*5*pulse,0,Math.PI*2);
+    tctx.arc(this.cx,this.cy,this.growth*6*pulse,0,Math.PI*2);
     tctx.stroke();
   }
 }
 
 /* ПОЛЯ */
-const fields=Array.from({length:22},()=>new Field(
+const fields=Array.from({length:24},()=>new Field(
   Math.random()*innerWidth,
   Math.random()*innerHeight*0.8+innerHeight*0.1
 ));
 
-/* ЛАБІРИНТ */
+/* ЛАБІРИНТ — РУХОМІШИЙ */
 function drawLinks(){
-  tctx.strokeStyle='rgba(180,180,255,0.08)';
-  tctx.lineWidth=0.5;
+  tctx.strokeStyle='rgba(200,220,255,0.14)';
+  tctx.lineWidth=0.6;
   fields.forEach((f,i)=>{
     fields.slice(i+1).forEach((g,j)=>{
       const d=Math.hypot(f.cx-g.cx,f.cy-g.cy);
-      if(d<420){
-        const w=Math.sin(Date.now()*0.0004+(i+j))*6;
+      if(d<460){
+        const w=Math.sin(Date.now()*0.0012+i*j)*10;
         tctx.beginPath();
         tctx.moveTo(f.cx+w,f.cy-w);
         tctx.lineTo(g.cx-w,g.cy+w);
@@ -186,14 +188,6 @@ function drawLinks(){
       }
     });
   });
-}
-
-/* SENSORS */
-function drawSensors(){
-  scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
-  const y=110;
-  scx.strokeStyle='rgba(120,255,180,0.15)';
-  scx.beginPath(); scx.moveTo(0,y); scx.lineTo(sensorCanvas.width,y); scx.stroke();
 }
 
 /* TIME */
@@ -209,10 +203,11 @@ setInterval(updateDay,60000); updateDay();
 /* LOOP */
 function loop(){
   drawStars();
-  drawSensors();
+  scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
+
   if(new Date()<STOP_DATE){
     tctx.clearRect(0,0,tCanvas.width,tCanvas.height);
-    fields.forEach(f=>{f.grow(); f.draw();});
+    fields.forEach(f=>{f.grow();f.draw();});
     drawLinks();
   }
   requestAnimationFrame(loop);
