@@ -1,124 +1,234 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · WHEAT MONUMENTS · EXP-04</title>
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  background:#000;
+  overflow:hidden;
+}
+canvas { position:fixed; inset:0; }
+
+#info {
+  position:fixed;
+  bottom:12px; left:12px;
+  font-family:monospace;
+  color:#f0ffd8;
+  font-size:12px;
+  line-height:1.4;
+}
+
+#panel {
+  position:fixed;
+  bottom:12px; right:12px;
+  max-width:360px;
+  font-family:monospace;
+  font-size:12px;
+  color:#f6ffd6;
+  line-height:1.45;
+  background:linear-gradient(to left,rgba(0,0,0,0.7),transparent);
+  padding:10px 14px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
 <canvas id="field"></canvas>
+<canvas id="sensors"></canvas>
+
+<div id="info">
+<b>IBONIRIUM · WHEAT MONUMENTS · EXP-04</b><br>
+Phase: <span id="phase">Vegetation</span><br>
+Day: <span id="day">–</span><br>
+Solar SSN: <span id="ssn">–</span><br>
+Solar Factor: <span id="sf">–</span><br>
+Growth Energy: <span id="ge">–</span>
+</div>
+
+<div id="panel">
+<b>СТАДІЇ ДОЗРІВАННЯ</b><br>
+Пшениця проходить повний цикл: зелена → жовта → золота.
+Колір є індикатором часу, сонця та накопиченої енергії.
+</div>
 
 <script>
-const canvas = document.getElementById("field");
-const ctx = canvas.getContext("2d");
+/* ===== CANVAS ===== */
+const starCanvas = document.getElementById('stars');
+const fieldCanvas = document.getElementById('field');
+const sensorCanvas = document.getElementById('sensors');
 
-function resize() {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+const sctx = starCanvas.getContext('2d');
+const fctx = fieldCanvas.getContext('2d');
+const scx = sensorCanvas.getContext('2d');
+
+function resize(){
+  starCanvas.width = fieldCanvas.width = sensorCanvas.width = innerWidth;
+  starCanvas.height = fieldCanvas.height = innerHeight;
+  sensorCanvas.height = 140;
 }
+addEventListener('resize', resize);
 resize();
-addEventListener("resize", resize);
 
-/* ====== ВІТЕР ПО ФАЗАХ ====== */
-let windPhase = 0;
-let windTimer = 0;
-let windPower = 0;
-
-function updateWind(dt) {
-  windTimer += dt;
-
-  if (windTimer > 600 + Math.random() * 800) {
-    windTimer = 0;
-    windPhase = (windPhase + 1) % 4;
-  }
-
-  if (windPhase === 0) windPower += (0 - windPower) * 0.01;        // тиша
-  if (windPhase === 1) windPower += (0.4 - windPower) * 0.02;      // наростає
-  if (windPhase === 2) windPower += (1.2 - windPower) * 0.03;      // порив
-  if (windPhase === 3) windPower += (0 - windPower) * 0.015;       // затухає
-}
-
-/* ====== КОЛОСКИ ====== */
-const stalks = [];
-
-for (let i = 0; i < 50; i++) {
-  const z = Math.random(); // глибина
-  stalks.push({
-    x: Math.random() * 2 - 1,
-    z,
-    height: 120 + z * 280,
-    age: Math.random(),
-    swaySeed: Math.random() * 10,
-  });
-}
-
-/* ====== КОЛІР ДОЗРІВАННЯ ====== */
-function grainColor(age) {
-  const g = Math.floor(120 + age * 80);
-  const r = Math.floor(90 + age * 120);
-  const b = Math.floor(40 - age * 30);
-  return `rgb(${r},${g},${b})`;
-}
-
-/* ====== МАЛЮВАННЯ КОЛОСКА ====== */
-function drawStalk(s, time) {
-  const perspective = 0.4 + s.z * 0.9;
-  const baseX = canvas.width / 2 + s.x * canvas.width * 0.4 * perspective;
-  const baseY = canvas.height * (0.9 - s.z * 0.35);
-
-  const stiffness = 0.4 + s.age * 0.6;
-  const sway =
-    Math.sin(time * 0.002 + s.swaySeed) *
-    windPower *
-    18 *
-    (1 - stiffness);
-
-  ctx.strokeStyle = grainColor(s.age);
-  ctx.lineWidth = 2 * perspective;
-  ctx.beginPath();
-  ctx.moveTo(baseX, baseY);
-  ctx.lineTo(
-    baseX + sway * perspective,
-    baseY - s.height * perspective
-  );
-  ctx.stroke();
-
-  // зерно
-  ctx.fillStyle = grainColor(s.age);
-  for (let i = 0; i < 6; i++) {
-    const t = i / 6;
-    ctx.beginPath();
-    ctx.ellipse(
-      baseX + sway * t * perspective,
-      baseY - s.height * t * perspective,
-      3 * perspective,
-      6 * perspective,
-      sway * 0.01,
-      0,
-      Math.PI * 2
+/* ===== STARS ===== */
+const stars = Array.from({length:120},()=>({x:Math.random(),y:Math.random(),z:Math.random()}));
+function drawStars(){
+  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  stars.forEach(st=>{
+    st.y+=0.00012*(1+st.z);
+    if(st.y>1) st.y=0;
+    sctx.globalAlpha=0.2+st.z*0.5;
+    sctx.fillStyle="#fff";
+    sctx.fillRect(
+      st.x*starCanvas.width,
+      st.y*starCanvas.height,
+      1+st.z,
+      1+st.z
     );
-    ctx.fill();
+  });
+  sctx.globalAlpha=1;
+}
+
+/* ===== ENV ===== */
+let solarSSN=0, solarFactor=1, growthEnergy=1;
+
+/* ===== COLOR UTILS ===== */
+function lerp(a,b,t){ return a+(b-a)*t; }
+function colorBlend(c1,c2,t){
+  return `rgb(
+    ${lerp(c1[0],c2[0],t)},
+    ${lerp(c1[1],c2[1],t)},
+    ${lerp(c1[2],c2[2],t)}
+  )`;
+}
+
+/* ===== WHEAT ===== */
+class Wheat {
+  constructor(){
+    this.x = Math.random()*2-1;
+    this.z = Math.random();
+    this.age = 0;
+    this.phase = Math.random()*Math.PI*2;
+  }
+
+  grow(){
+    this.age += 0.00035 * solarFactor;
+    if(this.age > 1) this.age = 1;
+  }
+
+  maturity(){
+    if(this.age < 0.4) return this.age/0.4;         // green
+    if(this.age < 0.7) return (this.age-0.4)/0.3;   // yellowing
+    return (this.age-0.7)/0.3;                       // gold
+  }
+
+  colors(){
+    if(this.age < 0.4){
+      return colorBlend([90,180,110],[150,200,120],this.maturity());
+    }
+    if(this.age < 0.7){
+      return colorBlend([150,200,120],[220,200,120],this.maturity());
+    }
+    return colorBlend([220,200,120],[240,210,140],this.maturity());
+  }
+
+  project(){
+    const depth = 0.35 + this.z*0.65;
+    const scale = 1.5 / depth;
+    return {
+      x: innerWidth/2 + this.x * innerWidth*0.28 * scale,
+      baseY: innerHeight*0.82 + depth*120,
+      scale
+    };
+  }
+
+  draw(){
+    const p = this.project();
+    const sway = Math.sin(Date.now()*0.00045 + this.phase) * 6 * p.scale;
+    const height = this.age * 260 * solarFactor * p.scale;
+    const stemColor = this.colors();
+
+    /* stem */
+    fctx.strokeStyle = stemColor;
+    fctx.lineWidth = 1.4 * p.scale;
+    fctx.beginPath();
+    fctx.moveTo(p.x, p.baseY);
+    fctx.lineTo(p.x+sway, p.baseY-height);
+    fctx.stroke();
+
+    /* ear */
+    if(this.age > 0.5){
+      const earLen = height*0.35;
+      const grains = 14;
+      for(let i=0;i<grains;i++){
+        const t = i/grains;
+        const y = p.baseY-height + t*earLen;
+        const w = (1-t)*8*p.scale;
+
+        fctx.fillStyle = stemColor;
+        fctx.beginPath();
+        fctx.ellipse(p.x+sway, y, w, w*0.55, 0, 0, Math.PI*2);
+        fctx.fill();
+
+        fctx.beginPath();
+        fctx.ellipse(p.x+sway-w*0.9,y,w*0.6,w*0.4,0,0,Math.PI*2);
+        fctx.ellipse(p.x+sway+w*0.9,y,w*0.6,w*0.4,0,0,Math.PI*2);
+        fctx.fill();
+      }
+    }
   }
 }
 
-/* ====== ЦИКЛ ====== */
-let last = performance.now();
+/* ===== FIELD ===== */
+const wheat = Array.from({length:50},()=>new Wheat()).sort((a,b)=>b.z-a.z);
 
-function animate(now) {
-  const dt = now - last;
-  last = now;
+/* ===== NOAA ===== */
+async function updateSolar(){
+  try{
+    const r = await fetch(
+      'https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json',
+      { cache:'no-store' }
+    );
+    const d = await r.json();
+    const l = d[d.length-1];
+    solarSSN = Number(l.predicted_ssn)||solarSSN;
+    solarFactor = Math.min(3,0.6+solarSSN/120);
+    growthEnergy = solarFactor*(0.7+Math.random()*0.3);
 
-  updateWind(dt);
-
-  ctx.fillStyle = "#000";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // дальні
-  stalks
-    .filter(s => s.z < 0.5)
-    .sort((a, b) => a.z - b.z)
-    .forEach(s => drawStalk(s, now));
-
-  // монументи (10–15)
-  stalks
-    .filter(s => s.z >= 0.5)
-    .sort((a, b) => a.z - b.z)
-    .forEach(s => drawStalk(s, now));
-
-  requestAnimationFrame(animate);
+    ssn.textContent=solarSSN.toFixed(1);
+    sf.textContent=solarFactor.toFixed(2);
+    ge.textContent=growthEnergy.toFixed(2);
+  }catch(e){}
 }
+updateSolar();
+setInterval(updateSolar,1800000);
 
-animate(performance.now());
+/* ===== TIME ===== */
+const START_DATE=new Date('2026-01-01');
+const STOP_DATE=new Date('2026-12-13');
+function updateDay(){
+  const now=new Date();
+  day.textContent=Math.max(0,Math.floor((now-START_DATE)/86400000));
+  phase.textContent=now<STOP_DATE?'Vegetation':'Final';
+}
+updateDay();
+setInterval(updateDay,60000);
+
+/* ===== LOOP ===== */
+function loop(){
+  drawStars();
+  if(new Date()<STOP_DATE){
+    fctx.clearRect(0,0,fieldCanvas.width,fieldCanvas.height);
+    wheat.forEach(w=>{ w.grow(); w.draw(); });
+  }
+  requestAnimationFrame(loop);
+}
+loop();
 </script>
+</body>
+</html>
