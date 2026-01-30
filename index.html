@@ -1,63 +1,217 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Galaktika + EXP-02</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · EXP‑01 · Cosmic Star</title>
 
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Контейнер для iframe */
-    .frame-container {
-      width: 100%;
-      /* висота по вмісту не фіксується, щоб скрол працював */
-      min-height: 100vh;
-      margin-bottom: 0;
-      border: none;
-    }
-
-    /* iframe адаптивний */
-    iframe {
-      width: 100%;
-      height: 100vh; /* Кожен iframe займає всю висоту екрану */
-      border: none;
-      display: block;
-    }
-
-    /* Мобільні стилі */
-    @media (max-width: 768px) {
-      iframe {
-        height: 80vh; /* трішки менше, щоб було видно частину наступного */
-      }
-    }
-  </style>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  background:#000;
+  overflow:hidden;
+  font-family: monospace;
+}
+canvas { position:fixed; inset:0; }
+#sensors{
+  position:fixed; left:20px; bottom:10px;
+  width:220px; height:100px; pointer-events:none;
+}
+#info {
+  position:fixed;
+  top:20px; left:20px;
+  color:#9affc2;
+  font-size:12px;
+  line-height:1.4;
+  opacity:0.9;
+  max-width:300px;
+  background:rgba(0,0,0,0.3);
+  padding:10px 12px;
+  border-radius:6px;
+}
+</style>
 </head>
-
 <body>
-  <!-- Перша сторінка -->
-  <div class="frame-container">
-    <iframe
-      src="https://lavandaaudit.github.io/galaktika/"
-      title="Galaktika"
-      scrolling="auto"
-      loading="lazy"
-    ></iframe>
-  </div>
 
-  <!-- Друга сторінка -->
-  <div class="frame-container">
-    <iframe
-      src="https://lavandaaudit.github.io/exp-02/"
-      title="EXP-02"
-      scrolling="auto"
-      loading="lazy"
-    ></iframe>
-  </div>
+<canvas id="stars"></canvas>
+<canvas id="terrarium"></canvas>
+<canvas id="sensors"></canvas>
+
+<div id="info">
+<b>IBONIRIUM · LAB TERRARIUM · EXP‑01</b><br>
+Мініатюрна космічна зірка з туманностями та мерехтливими частинками.<br><br>
+Phase: <span id="phase">Growth</span><br>
+Day: <span id="day">–</span><br>
+Solar SSN: <span id="ssn">–</span><br>
+Solar Factor: <span id="sf">–</span><br>
+Star Energy: <span id="ge">–</span><br>
+Target: 13 December
+</div>
+
+<script>
+/* ===== CANVAS ===== */
+const starCanvas = document.getElementById('stars');
+const tCanvas = document.getElementById('terrarium');
+const sctx = starCanvas.getContext('2d');
+const tctx = tCanvas.getContext('2d');
+const sensorCanvas = document.getElementById('sensors');
+const scx = sensorCanvas.getContext('2d');
+
+function resize(){
+  starCanvas.width = tCanvas.width = innerWidth;
+  starCanvas.height = tCanvas.height = innerHeight;
+  sensorCanvas.width = 220;
+  sensorCanvas.height = 100;
+}
+addEventListener('resize', resize); resize();
+
+/* ===== STAR FIELD ===== */
+const stars = Array.from({length:240},()=>({x:Math.random(),y:Math.random(),z:Math.random()}));
+function drawStars(){
+  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
+  stars.forEach(st=>{
+    st.y+=0.00025*(1+st.z);
+    if(st.y>1) st.y=0;
+    sctx.globalAlpha=0.3+st.z*0.6;
+    sctx.fillStyle="#fff";
+    sctx.beginPath();
+    sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.4, 0, Math.PI*2);
+    sctx.fill();
+  });
+  sctx.globalAlpha=1;
+}
+
+/* ===== ENV DATA ===== */
+let solarFactor = 1;
+let solarSSN = 0;
+let starEnergy = 0;
+
+/* ===== COSMIC STAR WITH NEBULA ===== */
+class CosmicStar{
+  constructor(x,y){
+    this.x = x;
+    this.y = y;
+    this.radius = 50;
+    this.particles = Array.from({length:120},()=>({
+      angle: Math.random()*Math.PI*2,
+      radius: Math.random()*100+60,
+      size: Math.random()*2+0.5,
+      speed: Math.random()*0.002+0.001,
+      colorOffset: Math.random()
+    }));
+  }
+  
+  update(){
+    const time = Date.now();
+    this.currentRadius = this.radius + Math.sin(time*0.002)*12*solarFactor + (Math.random()-0.5)*4*solarFactor;
+    this.particles.forEach(p=>{
+      p.angle += p.speed*solarFactor;
+      p.radius += Math.sin(time*0.001+p.colorOffset)*0.3;
+    });
+  }
+  
+  draw(){
+    const time = Date.now();
+    tctx.save();
+    tctx.translate(this.x,this.y);
+    
+    const gradient = tctx.createRadialGradient(0,0,this.currentRadius*0.3,0,0,this.currentRadius);
+    gradient.addColorStop(0,'rgba(255,255,180,'+(0.9*solarFactor)+')');
+    gradient.addColorStop(0.4,'rgba(255,200,100,'+(0.7*solarFactor)+')');
+    gradient.addColorStop(0.7,'rgba(255,140,60,'+(0.5*solarFactor)+')');
+    gradient.addColorStop(1,'rgba(255,80,30,0)');
+    
+    tctx.fillStyle = gradient;
+    tctx.beginPath();
+    tctx.arc(0,0,this.currentRadius,0,Math.PI*2);
+    tctx.fill();
+    
+    this.particles.forEach(p=>{
+      const px = Math.cos(p.angle)*p.radius;
+      const py = Math.sin(p.angle)*p.radius;
+      const glow = Math.sin(time*0.003+p.colorOffset)*0.5+0.5;
+      tctx.fillStyle = `rgba(${200+55*glow},${100+55*glow},${255*glow},${0.2+0.3*glow})`;
+      tctx.beginPath();
+      tctx.arc(px,py,p.size*solarFactor,0,Math.PI*2);
+      tctx.fill();
+    });
+    
+    tctx.restore();
+  }
+}
+
+const cosmicStar = new CosmicStar(120,100);
+
+/* ===== NOAA SOLAR API ===== */
+async function updateSolar(){
+  try{
+    const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+    const d = await r.json();
+    const l = d[d.length-1];
+    solarSSN = l.predicted_ssn;
+    solarFactor = Math.min(3,0.6+solarSSN/120);
+    starEnergy = solarFactor * (0.8+Math.random()*0.2);
+    document.getElementById('ssn').textContent = solarSSN.toFixed(1);
+    document.getElementById('sf').textContent = solarFactor.toFixed(2);
+    document.getElementById('ge').textContent = starEnergy.toFixed(2);
+  }catch(e){ solarFactor=1; starEnergy=1; }
+}
+updateSolar(); setInterval(updateSolar,1800000);
+
+/* ===== SENSORS ===== */
+function drawSensors(){
+  scx.clearRect(0,0,sensorCanvas.width,sensorCanvas.height);
+  const baseY = 70;
+
+  scx.strokeStyle='rgba(120,255,180,0.25)';
+  scx.beginPath(); scx.moveTo(0,baseY); scx.lineTo(sensorCanvas.width,baseY); scx.stroke();
+
+  scx.fillStyle='rgba(255,200,120,0.8)';
+  scx.beginPath();
+  scx.arc(40, baseY-25, 8+solarFactor*2, 0, Math.PI*2);
+  scx.fill();
+  scx.fillText('☀ сонце', 10, baseY+15);
+
+  scx.strokeStyle='rgba(255,220,100,0.8)';
+  scx.beginPath();
+  scx.moveTo(100, baseY);
+  scx.lineTo(100, baseY-starEnergy*20);
+  scx.stroke();
+  scx.fillText('⭐ енергія', 80, baseY+15);
+
+  const now = new Date();
+  const t = Math.min(1,(now-START_DATE)/(STOP_DATE-START_DATE));
+  scx.strokeStyle='rgba(180,180,255,0.7)';
+  scx.beginPath();
+  scx.arc(170, baseY, 25, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
+  scx.stroke();
+  scx.fillText('⏳ цикл', 150, baseY+15);
+}
+
+/* ===== LOOP ===== */
+const START_DATE = new Date('2026-01-01');
+const STOP_DATE = new Date('2026-12-13');
+function updateDay(){
+  const now = new Date();
+  const day = Math.floor((now-START_DATE)/(1000*60*60*24));
+  document.getElementById('day').textContent = day>=0?day:0;
+  document.getElementById('phase').textContent = now<STOP_DATE?'Growth':'Final';
+}
+setInterval(updateDay,60000);
+updateDay();
+
+function loop(){
+  drawStars();
+  drawSensors();
+  if(new Date()<STOP_DATE){
+    tctx.clearRect(0,0,tCanvas.width,tCanvas.height);
+    cosmicStar.update();
+    cosmicStar.draw();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
 </body>
 </html>
