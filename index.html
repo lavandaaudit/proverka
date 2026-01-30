@@ -21,7 +21,7 @@ body{
   top:16px;
   left:16px;
   width:280px;
-  height:220px;
+  height:320px;
   pointer-events:none;
 }
 
@@ -32,6 +32,7 @@ canvas{ position:absolute; inset:0; }
   position:absolute;
   top:8px;
   left:12px;
+  right:12px;
   font-size:11px;
   line-height:1.38;
   color:#c8ffdc;
@@ -49,18 +50,20 @@ canvas{ position:absolute; inset:0; }
 
 /* ================= CITY PANEL ================= */
 #cities{
-  position:fixed;
-  bottom:14px;
-  left:14px;
-  display:flex;
+  position:absolute;
+  top:188px;
+  left:12px;
+  right:12px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
   gap:6px;
-  flex-wrap:wrap;
+  pointer-events:auto;
 }
 
 .city-btn{
   font-family:monospace;
   font-size:11px;
-  padding:6px 10px;
+  padding:6px 0;
   background:rgba(20,40,35,0.75);
   color:#9affe0;
   border:1px solid rgba(120,255,200,0.25);
@@ -85,6 +88,7 @@ canvas{ position:absolute; inset:0; }
 
 <div id="device">
   <canvas id="cloud"></canvas>
+
   <div id="info">
     <div id="title">IBONIRIUM · CLOUD BAROMETER</div>
     <div>City: <b><span id="cityName">–</span></b></div>
@@ -95,25 +99,22 @@ canvas{ position:absolute; inset:0; }
     <div>Visibility: <b><span id="vis">–</span> km</b></div>
     <div>Cloud factor: <b><span id="cf">–</span></b></div>
   </div>
+
+  <!-- ================= CITY BUTTONS ================= -->
+  <div id="cities"></div>
 </div>
 
-<!-- ================= CITY BUTTONS ================= -->
-<div id="cities"></div>
-
 <script>
-/* ================= CANVAS ================= */
 const canvas = document.getElementById('cloud');
 const ctx = canvas.getContext('2d');
 canvas.width = 280;
-canvas.height = 220;
+canvas.height = 320;
 
-/* ================= STATE ================= */
 let cloudCover=0, humidity=50, weatherCode=0;
 let windSpeed=0, windDir=0, visibility=10;
 let cloudFactor=1, temperature=10;
 let baseColor={r:240,g:245,b:255};
 
-/* ================= CITIES ================= */
 const cities = [
   { name:"Kyiv", lat:50.45, lon:30.52 },
   { name:"Tokyo", lat:35.68, lon:139.69 },
@@ -127,10 +128,10 @@ const cities = [
 
 let currentCity = cities[0];
 
-/* ================= UI BUILD ================= */
-const citiesBox = document.getElementById('cities');
+/* ================= UI ================= */
+const citiesBox=document.getElementById('cities');
 cities.forEach((c,i)=>{
-  const b = document.createElement('button');
+  const b=document.createElement('button');
   b.className='city-btn'+(i===0?' active':'');
   b.textContent=c.name;
   b.onclick=()=>{
@@ -157,7 +158,7 @@ function getCloudColor(code){
 
 /* ================= CYCLONES ================= */
 function generateCyclones(){
-  const count = Math.max(1,Math.floor(windSpeed/2));
+  const count=Math.max(1,Math.floor(windSpeed/2));
   const cyclones=[];
   for(let i=0;i<count;i++){
     cyclones.push({
@@ -171,11 +172,11 @@ function generateCyclones(){
 }
 let cyclones=generateCyclones();
 
-/* ================= DRAW CLOUD ================= */
+/* ================= DRAW ================= */
 function drawCloud(){
-  const t = Date.now()*0.0005;
-  const w=canvas.width, h=canvas.height;
-  const cx=w*0.52, cy=h*0.5;
+  const t=Date.now()*0.0005;
+  const w=canvas.width,h=canvas.height;
+  const cx=w*0.52,cy=h*0.5;
   ctx.clearRect(0,0,w,h);
 
   const windX=Math.cos(windDir*Math.PI/180)*windSpeed*0.08;
@@ -183,9 +184,8 @@ function drawCloud(){
   const turbulence=Math.max(0,(windSpeed-6)/6);
   const fogFactor=Math.max(0,1-visibility/5);
   const baseSize=64+cloudCover*0.45;
-  const layers=5;
 
-  for(let i=0;i<layers;i++){
+  for(let i=0;i<5;i++){
     const scale=0.009+i*0.003;
     ctx.globalAlpha=(0.22+i*0.1)*(humidity/120+0.5);
     for(let y=0;y<h;y+=3){
@@ -197,25 +197,19 @@ function drawCloud(){
           ny+=noise(nx*2,t+10)*turbulence*0.8;
         }
         cyclones.forEach(c=>{
-          const dx=x-c.x, dy=y-c.y;
-          const d=Math.hypot(dx,dy);
+          const d=Math.hypot(x-c.x,y-c.y);
           if(d<c.radius){
-            const a=Math.atan2(dy,dx)+t*c.strength;
-            nx+=Math.cos(a)*d*0.02*c.strength;
-            ny+=Math.sin(a)*d*0.02*c.strength;
+            const a=Math.atan2(y-c.y,x-c.x)+t*c.strength;
+            nx+=Math.cos(a)*d*0.02;
+            ny+=Math.sin(a)*d*0.02;
           }
         });
-        let n=noise(nx+t,ny)*0.6+noise(nx*2.2,ny*2.2+t)*0.4;
+        let n=noise(nx+t,ny);
         const dist=Math.hypot(x-cx,y-cy)/baseSize;
         let falloff=Math.max(0,1-dist*dist*1.35);
         falloff*=Math.max(0.4,1-fogFactor*0.6);
-
-        if(weatherCode>=95 && Math.random()<0.001){
-          ctx.fillStyle='rgba(255,255,200,0.8)';
-          ctx.fillRect(x,y,3,3);
-        }else if(n*falloff>0.38){
-          const br=n*1.2;
-          ctx.fillStyle=`rgba(${Math.min(255,baseColor.r*br)},${Math.min(255,baseColor.g*br)},${Math.min(255,baseColor.b*br)},${falloff})`;
+        if(n*falloff>0.38){
+          ctx.fillStyle=`rgba(${baseColor.r},${baseColor.g},${baseColor.b},${falloff})`;
           ctx.fillRect(x,y,3,3);
         }
       }
@@ -227,7 +221,7 @@ function drawCloud(){
 /* ================= WEATHER ================= */
 async function updateWeather(){
   try{
-    const r = await fetch(
+    const r=await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${currentCity.lat}&longitude=${currentCity.lon}&current=`+
       'relative_humidity_2m,cloud_cover,weather_code,wind_speed_10m,wind_direction_10m,visibility,temperature_2m'
     );
@@ -235,12 +229,11 @@ async function updateWeather(){
     const c=d.current;
 
     weatherCode=c.weather_code;
-    cloudCover=c.cloud_cover??0;
-    humidity=c.relative_humidity_2m??50;
-    windSpeed=c.wind_speed_10m??0;
-    windDir=c.wind_direction_10m??0;
+    cloudCover=c.cloud_cover;
+    humidity=c.relative_humidity_2m;
+    windSpeed=c.wind_speed_10m;
+    windDir=c.wind_direction_10m;
     visibility=(c.visibility??10000)/1000;
-    temperature=c.temperature_2m??10;
 
     cloudFactor=0.6+cloudCover/45+humidity/200+windSpeed/16;
     getCloudColor(weatherCode);
@@ -253,13 +246,12 @@ async function updateWeather(){
     wind.textContent=windSpeed.toFixed(1);
     vis.textContent=visibility.toFixed(1);
     cf.textContent=cloudFactor.toFixed(2);
-  }catch(e){ console.warn(e); }
+  }catch(e){console.warn(e);}
 }
 
 updateWeather();
 setInterval(updateWeather,15*60*1000);
 
-/* ================= LOOP ================= */
 function loop(){
   drawCloud();
   requestAnimationFrame(loop);
