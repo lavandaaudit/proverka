@@ -1,196 +1,186 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · EXP‑01 · Realistic Star</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBONIRIUM · 3D Cloud Storm</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; background:#000; overflow:hidden; font-family: monospace; }
-canvas { position:fixed; inset:0; }
-#sensors{ position:fixed; left:20px; bottom:10px; width:220px; height:100px; pointer-events:none; }
-#info {
-  position:fixed; top:20px; left:20px; color:#9affc2; font-size:12px; line-height:1.4;
-  opacity:0.9; max-width:300px; background:rgba(0,0,0,0.3); padding:10px 12px; border-radius:6px;
-}
+  body { margin: 0; overflow: hidden; background: #0a0e14; }
+  #info{
+    position:absolute; top:16px; left:16px; font-family: monospace;
+    color:#aaffcc; font-size:12px; line-height:1.4; text-shadow:0 0 4px #000;
+  }
+  #info b{ color:#6fffa0; }
 </style>
 </head>
 <body>
-
-<canvas id="stars"></canvas>
-<canvas id="terrarium"></canvas>
-<canvas id="sensors"></canvas>
-
 <div id="info">
-<b>IBONIRIUM · LAB TERRARIUM · EXP‑01</b><br>
-Мініатюрна космічна зірка з реалістичною туманністю та мерехтливими частинками.<br><br>
-Phase: <span id="phase">Growth</span><br>
-Day: <span id="day">–</span><br>
-Solar SSN: <span id="ssn">–</span><br>
-Solar Factor: <span id="sf">–</span><br>
-Star Energy: <span id="ge">–</span><br>
-Target: 13 December
+  <div>Weather: <b><span id="wcode">–</span></b></div>
+  <div>Cloud cover: <b><span id="cc">–</span>%</b></div>
+  <div>Humidity: <b><span id="hum">–</span>%</b></div>
+  <div>Wind: <b><span id="wind">–</span> m/s</b></div>
+  <div>Visibility: <b><span id="vis">–</span> km</b></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r150/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
+
 <script>
-/* ===== CANVAS SETUP ===== */
-const starCanvas = document.getElementById('stars');
-const tCanvas = document.getElementById('terrarium');
-const sctx = starCanvas.getContext('2d');
-const tctx = tCanvas.getContext('2d');
-const scx = document.getElementById('sensors').getContext('2d');
+let scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0e14, 0.035);
 
-function resize(){
-  starCanvas.width = tCanvas.width = innerWidth;
-  starCanvas.height = tCanvas.height = innerHeight;
+let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 2000);
+camera.position.set(0, 80, 200);
+
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x0a0e14);
+document.body.appendChild(renderer.domElement);
+
+let controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.1;
+controls.minDistance = 50;
+controls.maxDistance = 500;
+
+// ==================================================
+// Частинки хмари
+const particleCount = 12000;
+let particles = new THREE.BufferGeometry();
+let positions = new Float32Array(particleCount*3);
+let velocities = new Float32Array(particleCount*3);
+let colors = new Float32Array(particleCount*3);
+
+for(let i=0;i<particleCount;i++){
+  positions[i*3] = (Math.random()-0.5)*200;
+  positions[i*3+1] = (Math.random()-0.5)*100;
+  positions[i*3+2] = (Math.random()-0.5)*200;
+
+  velocities[i*3] = (Math.random()-0.5)*0.1;
+  velocities[i*3+1] = (Math.random()-0.5)*0.05;
+  velocities[i*3+2] = (Math.random()-0.5)*0.1;
+
+  colors[i*3] = 0.9 + Math.random()*0.1;
+  colors[i*3+1] = 0.9 + Math.random()*0.1;
+  colors[i*3+2] = 1.0;
 }
-addEventListener('resize', resize); resize();
 
-/* ===== STAR FIELD ===== */
-const stars = Array.from({length:240},()=>({x:Math.random(),y:Math.random(),z:Math.random()}));
-function drawStars(){
-  sctx.clearRect(0,0,starCanvas.width,starCanvas.height);
-  stars.forEach(st=>{
-    st.y+=0.00025*(1+st.z);
-    if(st.y>1) st.y=0;
-    sctx.globalAlpha=0.3+st.z*0.6;
-    sctx.fillStyle="#fff";
-    sctx.beginPath();
-    sctx.arc(st.x*starCanvas.width, st.y*starCanvas.height, st.z*1.4, 0, Math.PI*2);
-    sctx.fill();
-  });
-  sctx.globalAlpha=1;
-}
+particles.setAttribute('position', new THREE.BufferAttribute(positions,3));
+particles.setAttribute('color', new THREE.BufferAttribute(colors,3));
 
-/* ===== ENV DATA ===== */
-let solarFactor = 1;
-let solarSSN = 0;
-let starEnergy = 0;
+let material = new THREE.PointsMaterial({
+  size: 2.0,
+  vertexColors:true,
+  transparent:true,
+  opacity:0.7,
+  depthWrite:false,
+  blending:THREE.AdditiveBlending
+});
 
-/* ===== REALISTIC COSMIC STAR ===== */
-class CosmicStar{
-  constructor(x,y){
-    this.x = x;
-    this.y = y;
-    this.baseRadius = 50;
-    this.particles = Array.from({length:140},()=>({
-      angle: Math.random()*Math.PI*2,
-      radius: Math.random()*100+50,
-      size: Math.random()*2+0.5,
-      speed: Math.random()*0.003+0.001,
-      glow: Math.random()
-    }));
-  }
+let cloud = new THREE.Points(particles, material);
+scene.add(cloud);
 
-  update(){
-    const time = Date.now();
-    this.currentRadius = this.baseRadius + Math.sin(time*0.002)*12*solarFactor + (Math.random()-0.5)*4*solarFactor;
-    this.particles.forEach(p=>{
-      p.angle += p.speed*solarFactor;
-      p.radius += Math.sin(time*0.001+p.glow)*0.2;
-    });
-  }
+// ==================================================
+// Блискавки
+let flash = new THREE.PointLight(0xffffff,0,400);
+scene.add(flash);
 
-  draw(){
-    const time = Date.now();
-    tctx.save();
-    tctx.translate(this.x,this.y);
+// ==================================================
+let windSpeed=0, windDir=0, cloudCover=50, humidity=50, visibility=10, weatherCode=0;
 
-    // CORE GRADIENT
-    const coreGrad = tctx.createRadialGradient(0,0,0,0,0,this.currentRadius);
-    coreGrad.addColorStop(0, `rgba(255,255,200,${0.9*solarFactor})`);
-    coreGrad.addColorStop(0.3, `rgba(255,220,120,${0.6*solarFactor})`);
-    coreGrad.addColorStop(0.6, `rgba(255,140,60,${0.4*solarFactor})`);
-    coreGrad.addColorStop(1, 'rgba(255,80,30,0)');
-    tctx.fillStyle = coreGrad;
-    tctx.beginPath();
-    tctx.arc(0,0,this.currentRadius,0,Math.PI*2);
-    tctx.fill();
-
-    // NEBULA PARTICLES
-    this.particles.forEach(p=>{
-      const px = Math.cos(p.angle)*p.radius;
-      const py = Math.sin(p.angle)*p.radius;
-      const glow = Math.sin(time*0.002 + p.glow)*0.5 + 0.5;
-      tctx.fillStyle = `rgba(${200+55*glow},${100+55*glow},${255*glow},${0.15+0.3*glow})`;
-      tctx.beginPath();
-      tctx.arc(px,py,p.size*solarFactor,0,Math.PI*2);
-      tctx.fill();
-    });
-
-    tctx.restore();
+// ==================================================
+// Турбулентні локальні вихори
+function applyCyclones(t){
+  const count = Math.max(1, Math.floor(windSpeed/2));
+  for(let c=0;c<count;c++){
+    const cx = (Math.random()-0.5)*100;
+    const cy = (Math.random()-0.5)*50;
+    const cz = (Math.random()-0.5)*100;
+    const strength = 0.5 + Math.random()*0.5;
+    for(let i=0;i<particleCount;i++){
+      let dx = positions[i*3]-cx;
+      let dy = positions[i*3+1]-cy;
+      let dz = positions[i*3+2]-cz;
+      let d = Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(d<20){
+        positions[i*3] += -dy*0.01*strength;
+        positions[i*3+1] += dx*0.01*strength;
+      }
+    }
   }
 }
 
-const cosmicStar = new CosmicStar(120,100);
-
-/* ===== NOAA SOLAR API ===== */
-async function updateSolar(){
+// ==================================================
+// Оновлення погоди
+async function updateWeather(){
   try{
-    const r = await fetch('https://services.swpc.noaa.gov/json/solar-cycle/predicted-solar-cycle.json');
+    const r = await fetch(
+      'https://api.open-meteo.com/v1/forecast?latitude=50.45&longitude=30.52&current='+
+      'relative_humidity_2m,cloud_cover,weather_code,wind_speed_10m,wind_direction_10m,visibility,temperature_2m'
+    );
     const d = await r.json();
-    const l = d[d.length-1];
-    solarSSN = l.predicted_ssn;
-    solarFactor = Math.min(3,0.6+solarSSN/120);
-    starEnergy = solarFactor*(0.8+Math.random()*0.2);
-    document.getElementById('ssn').textContent = solarSSN.toFixed(1);
-    document.getElementById('sf').textContent = solarFactor.toFixed(2);
-    document.getElementById('ge').textContent = starEnergy.toFixed(2);
-  }catch(e){ solarFactor=1; starEnergy=1; }
-}
-updateSolar(); setInterval(updateSolar,1800000);
+    const c = d.current;
 
-/* ===== SENSORS ===== */
-function drawSensors(){
-  scx.clearRect(0,0,220,100);
-  const baseY = 70;
+    weatherCode=c.weather_code;
+    cloudCover=c.cloud_cover??50;
+    humidity=c.relative_humidity_2m??50;
+    windSpeed=c.wind_speed_10m??0;
+    windDir=c.wind_direction_10m??0;
+    visibility=(c.visibility??10000)/1000;
 
-  scx.strokeStyle='rgba(120,255,180,0.25)';
-  scx.beginPath(); scx.moveTo(0,baseY); scx.lineTo(220,baseY); scx.stroke();
-
-  scx.fillStyle='rgba(255,200,120,0.8)';
-  scx.beginPath();
-  scx.arc(40, baseY-25, 8+solarFactor*2, 0, Math.PI*2);
-  scx.fill();
-  scx.fillText('☀ сонце', 10, baseY+15);
-
-  scx.strokeStyle='rgba(255,220,100,0.8)';
-  scx.beginPath();
-  scx.moveTo(100, baseY);
-  scx.lineTo(100, baseY-starEnergy*20);
-  scx.stroke();
-  scx.fillText('⭐ енергія', 80, baseY+15);
-
-  const now = new Date();
-  const t = Math.min(1,(now-START_DATE)/(STOP_DATE-START_DATE));
-  scx.strokeStyle='rgba(180,180,255,0.7)';
-  scx.beginPath();
-  scx.arc(170, baseY, 25, -Math.PI/2, -Math.PI/2 + t*Math.PI*2);
-  scx.stroke();
-  scx.fillText('⏳ цикл', 150, baseY+15);
+    // оновлення UI
+    wcode.textContent = weatherCode;
+    cc.textContent = cloudCover;
+    hum.textContent = humidity;
+    wind.textContent = windSpeed.toFixed(1);
+    vis.textContent = visibility.toFixed(1);
+  }catch(e){ console.warn(e); }
 }
 
-/* ===== LOOP ===== */
-const START_DATE = new Date('2026-01-01');
-const STOP_DATE = new Date('2026-12-13');
-function updateDay(){
-  const now = new Date();
-  const day = Math.floor((now-START_DATE)/(1000*60*60*24));
-  document.getElementById('day').textContent = day>=0?day:0;
-  document.getElementById('phase').textContent = now<STOP_DATE?'Growth':'Final';
-}
-setInterval(updateDay,60000);
-updateDay();
+updateWeather();
+setInterval(updateWeather,15*60*1000);
 
-function loop(){
-  drawStars();
-  drawSensors();
-  tctx.clearRect(0,0,tCanvas.width,tCanvas.height);
-  cosmicStar.update();
-  cosmicStar.draw();
-  requestAnimationFrame(loop);
+// ==================================================
+function animate(){
+  requestAnimationFrame(animate);
+
+  const t = Date.now()*0.002;
+
+  // дихання хмари
+  for(let i=0;i<particleCount;i++){
+    positions[i*3+1] += Math.sin(t+i*0.1)*0.002;
+    positions[i*3] += velocities[i*3]*0.5;
+    positions[i*3+2] += velocities[i*3+2]*0.5;
+  }
+
+  // локальні вихори
+  applyCyclones(t);
+
+  particles.attributes.position.needsUpdate=true;
+
+  // блискавки
+  if(weatherCode>=95 && Math.random()<0.003){
+    flash.position.set(
+      (Math.random()-0.5)*150,
+      (Math.random()-0.5)*80,
+      (Math.random()-0.5)*150
+    );
+    flash.intensity=3+Math.random()*2;
+  }else{
+    flash.intensity*=0.95;
+  }
+
+  controls.update();
+  renderer.render(scene,camera);
 }
-loop();
+animate();
+
+// ==================================================
+window.addEventListener('resize',()=>{
+  camera.aspect=window.innerWidth/window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth,window.innerHeight);
+});
 </script>
 </body>
 </html>
