@@ -1,262 +1,233 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · Cloud Barometer · Storm Edition</title>
+<meta charset="UTF-8">
+<title>IBONARIUM · AGRO-FIELD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body{
-  margin:0;
-  height:100vh;
-  background:#0a0e14;
-  font-family: monospace;
-  color:#aaffcc;
-  overflow:hidden;
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #0b0f14, #000);
+  color: #e6e6e6;
+  font-family: "Segoe UI", monospace;
 }
 
-/* ================= DEVICE ================= */
-#device{
-  position:fixed;
-  top:16px;
-  left:16px;
-  width:280px;
-  height:320px;
-  pointer-events:none;
+header {
+  padding: 20px;
+  border-bottom: 1px solid #222;
 }
 
-canvas{ position:absolute; inset:0; }
-
-/* ================= INFO ================= */
-#info{
-  position:absolute;
-  top:8px;
-  left:12px;
-  right:12px;
-  font-size:11px;
-  line-height:1.38;
-  color:#c8ffdc;
-  text-shadow:0 0 4px rgba(0,0,0,0.85);
+h1 {
+  font-size: 24px;
+  letter-spacing: 2px;
 }
 
-#info b{ color:#6fffa0; }
-
-#title{
-  font-size:13px;
-  color:#9affe0;
-  margin-bottom:4px;
-  letter-spacing:0.6px;
+h1 span {
+  color: #4cff9b;
 }
 
-/* ================= CITY PANEL ================= */
-#cities{
-  position:absolute;
-  top:188px;
-  left:12px;
-  right:12px;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:6px;
-  pointer-events:auto;
+.controls {
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
-.city-btn{
-  font-family:monospace;
-  font-size:11px;
-  padding:6px 0;
-  background:rgba(20,40,35,0.75);
-  color:#9affe0;
-  border:1px solid rgba(120,255,200,0.25);
-  border-radius:6px;
-  cursor:pointer;
-  transition:all .2s ease;
+select {
+  background: #000;
+  color: #4cff9b;
+  border: 1px solid #333;
+  padding: 10px;
 }
 
-.city-btn:hover{
-  background:rgba(40,80,65,0.9);
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 20px;
 }
 
-.city-btn.active{
-  background:rgba(90,180,140,0.85);
-  color:#052018;
-  border-color:#bfffe6;
+.card {
+  background: rgba(10, 15, 20, 0.85);
+  border: 1px solid #1f2a33;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 40px rgba(76,255,155,0.05);
+}
+
+.card h2 {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: #4cff9b;
+  margin-bottom: 10px;
+}
+
+footer {
+  padding: 20px;
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
 }
 </style>
 </head>
 
 <body>
 
-<div id="device">
-  <canvas id="cloud"></canvas>
-
-  <div id="info">
-    <div id="title">IBONIRIUM · CLOUD BAROMETER</div>
-    <div>City: <b><span id="cityName">–</span></b></div>
-    <div>Weather: <b><span id="wcode">–</span></b></div>
-    <div>Cloud cover: <b><span id="cc">–</span>%</b></div>
-    <div>Humidity: <b><span id="hum">–</span>%</b></div>
-    <div>Wind: <b><span id="wind">–</span> m/s</b></div>
-    <div>Visibility: <b><span id="vis">–</span> km</b></div>
-    <div>Cloud factor: <b><span id="cf">–</span></b></div>
+<header>
+  <h1>IBONARIUM <span>AGRO-FIELD</span></h1>
+  <div style="font-size:12px;opacity:0.7">
+    Продовольство · Калорії · Земля · Викиди · Час
   </div>
+</header>
 
-  <!-- ================= CITY BUTTONS ================= -->
-  <div id="cities"></div>
+<div class="controls">
+  <label>
+    Країна:
+    <select id="country">
+      <option value="840">USA</option>
+      <option value="804">Ukraine</option>
+      <option value="156">China</option>
+      <option value="356">India</option>
+      <option value="250">France</option>
+    </select>
+  </label>
 </div>
 
+<div class="dashboard">
+  <div class="card">
+    <h2>🌾 Виробництво зерна (тонни)</h2>
+    <canvas id="productionChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>🍞 Калорії на душу (ккал/день)</h2>
+    <canvas id="caloriesChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>🌡 Агровикиди CO₂eq</h2>
+    <canvas id="emissionsChart"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>🌀 Ібонаріум-інтерпретація</h2>
+    <div id="analysis" style="font-size:13px;line-height:1.5;"></div>
+  </div>
+</div>
+
+<footer>
+  Дані: FAOSTAT (FAO UN) · IBONARIUM EXP-AGRO-01
+</footer>
+
 <script>
-const canvas = document.getElementById('cloud');
-const ctx = canvas.getContext('2d');
-canvas.width = 280;
-canvas.height = 320;
+const YEARS = [2010,2012,2014,2016,2018,2020];
 
-let cloudCover=0, humidity=50, weatherCode=0;
-let windSpeed=0, windDir=0, visibility=10;
-let cloudFactor=1, temperature=10;
-let baseColor={r:240,g:245,b:255};
-
-const cities = [
-  { name:"Kyiv", lat:50.45, lon:30.52 },
-  { name:"Tokyo", lat:35.68, lon:139.69 },
-  { name:"New York", lat:40.71, lon:-74.01 },
-  { name:"London", lat:51.51, lon:-0.13 },
-  { name:"Berlin", lat:52.52, lon:13.41 },
-  { name:"Sydney", lat:-33.87, lon:151.21 },
-  { name:"Reykjavík", lat:64.13, lon:-21.9 },
-  { name:"Buenos Aires", lat:-34.61, lon:-58.38 }
-];
-
-let currentCity = cities[0];
-
-/* ================= UI ================= */
-const citiesBox=document.getElementById('cities');
-cities.forEach((c,i)=>{
-  const b=document.createElement('button');
-  b.className='city-btn'+(i===0?' active':'');
-  b.textContent=c.name;
-  b.onclick=()=>{
-    document.querySelectorAll('.city-btn').forEach(x=>x.classList.remove('active'));
-    b.classList.add('active');
-    currentCity=c;
-    updateWeather();
-  };
-  citiesBox.appendChild(b);
-});
-
-/* ================= NOISE ================= */
-function noise(x,y){
-  return Math.sin(x*17.13+y*91.77+Math.sin(y*4))*0.5+0.5;
-}
-
-/* ================= COLOR ================= */
-function getCloudColor(code){
-  if(code===0) baseColor={r:252,g:252,b:255};
-  else if(code<=3) baseColor={r:235,g:240,b:255};
-  else if(code<50) baseColor={r:220,g:225,b:255};
-  else baseColor={r:200,g:215,b:255};
-}
-
-/* ================= CYCLONES ================= */
-function generateCyclones(){
-  const count=Math.max(1,Math.floor(windSpeed/2));
-  const cyclones=[];
-  for(let i=0;i<count;i++){
-    cyclones.push({
-      x:Math.random()*canvas.width,
-      y:Math.random()*canvas.height,
-      strength:0.6+Math.random()*0.7,
-      radius:18+Math.random()*20
-    });
-  }
-  return cyclones;
-}
-let cyclones=generateCyclones();
-
-/* ================= DRAW ================= */
-function drawCloud(){
-  const t=Date.now()*0.0005;
-  const w=canvas.width,h=canvas.height;
-  const cx=w*0.52,cy=h*0.5;
-  ctx.clearRect(0,0,w,h);
-
-  const windX=Math.cos(windDir*Math.PI/180)*windSpeed*0.08;
-  const windY=Math.sin(windDir*Math.PI/180)*windSpeed*0.05;
-  const turbulence=Math.max(0,(windSpeed-6)/6);
-  const fogFactor=Math.max(0,1-visibility/5);
-  const baseSize=64+cloudCover*0.45;
-
-  for(let i=0;i<5;i++){
-    const scale=0.009+i*0.003;
-    ctx.globalAlpha=(0.22+i*0.1)*(humidity/120+0.5);
-    for(let y=0;y<h;y+=3){
-      for(let x=0;x<w;x+=3){
-        let nx=(x-cx)*scale+windX*t;
-        let ny=(y-cy)*scale+windY*t;
-        if(turbulence>0){
-          nx+=noise(ny*2,t)*turbulence*0.8;
-          ny+=noise(nx*2,t+10)*turbulence*0.8;
-        }
-        cyclones.forEach(c=>{
-          const d=Math.hypot(x-c.x,y-c.y);
-          if(d<c.radius){
-            const a=Math.atan2(y-c.y,x-c.x)+t*c.strength;
-            nx+=Math.cos(a)*d*0.02;
-            ny+=Math.sin(a)*d*0.02;
-          }
-        });
-        let n=noise(nx+t,ny);
-        const dist=Math.hypot(x-cx,y-cy)/baseSize;
-        let falloff=Math.max(0,1-dist*dist*1.35);
-        falloff*=Math.max(0.4,1-fogFactor*0.6);
-        if(n*falloff>0.38){
-          ctx.fillStyle=`rgba(${baseColor.r},${baseColor.g},${baseColor.b},${falloff})`;
-          ctx.fillRect(x,y,3,3);
-        }
-      }
+const productionChart = new Chart(
+  document.getElementById('productionChart'),
+  {
+    type: 'line',
+    data: { labels: YEARS, datasets: [] },
+    options: {
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#4cff9b'},x:{ticks:{color:'#4cff9b'}}}}
     }
   }
-  ctx.globalAlpha=1;
+);
+
+const caloriesChart = new Chart(
+  document.getElementById('caloriesChart'),
+  {
+    type: 'line',
+    data: { labels: YEARS, datasets: [] },
+    options: {
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#ffd479'},x:{ticks:{color:'#ffd479'}}}}
+    }
+  }
+);
+
+const emissionsChart = new Chart(
+  document.getElementById('emissionsChart'),
+  {
+    type: 'bar',
+    data: { labels: YEARS, datasets: [] },
+    options: {
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{color:'#ff6b6b'},x:{ticks:{color:'#ff6b6b'}}}}
+    }
+  }
+);
+
+async function fetchFAO(dataset, item, element, area) {
+  const url = `https://fenixservices.fao.org/faostat/api/v1/en/${dataset}?item=${item}&element=${element}&area=${area}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  const values = {};
+  data.data.forEach(d => values[d.year] = d.value);
+  return YEARS.map(y => values[y] || null);
 }
 
-/* ================= WEATHER ================= */
-async function updateWeather(){
-  try{
-    const r=await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${currentCity.lat}&longitude=${currentCity.lon}&current=`+
-      'relative_humidity_2m,cloud_cover,weather_code,wind_speed_10m,wind_direction_10m,visibility,temperature_2m'
-    );
-    const d=await r.json();
-    const c=d.current;
+async function update() {
+  const area = document.getElementById('country').value;
 
-    weatherCode=c.weather_code;
-    cloudCover=c.cloud_cover;
-    humidity=c.relative_humidity_2m;
-    windSpeed=c.wind_speed_10m;
-    windDir=c.wind_direction_10m;
-    visibility=(c.visibility??10000)/1000;
+  const production = await fetchFAO(
+    'Production_Crops_Livestock',
+    15, // Wheat
+    5510,
+    area
+  );
 
-    cloudFactor=0.6+cloudCover/45+humidity/200+windSpeed/16;
-    getCloudColor(weatherCode);
-    cyclones=generateCyclones();
+  const calories = await fetchFAO(
+    'Food_Balances',
+    2901,
+    664,
+    area
+  );
 
-    cityName.textContent=currentCity.name;
-    wcode.textContent=weatherCode;
-    cc.textContent=cloudCover;
-    hum.textContent=humidity;
-    wind.textContent=windSpeed.toFixed(1);
-    vis.textContent=visibility.toFixed(1);
-    cf.textContent=cloudFactor.toFixed(2);
-  }catch(e){console.warn(e);}
+  const emissions = await fetchFAO(
+    'Emissions_Agriculture',
+    699,
+    7225,
+    area
+  );
+
+  productionChart.data.datasets = [{
+    data: production,
+    borderColor: '#4cff9b',
+    tension: 0.4
+  }];
+  productionChart.update();
+
+  caloriesChart.data.datasets = [{
+    data: calories,
+    borderColor: '#ffd479',
+    tension: 0.4
+  }];
+  caloriesChart.update();
+
+  emissionsChart.data.datasets = [{
+    data: emissions,
+    backgroundColor: '#ff6b6b'
+  }];
+  emissionsChart.update();
+
+  document.getElementById('analysis').innerHTML = `
+  Ця країна формує <b>аграрне поле напруги</b>, де:
+  <ul>
+    <li>🌾 виробництво = стабілізація</li>
+    <li>🍞 калорії = енергетична насиченість</li>
+    <li>🌡 викиди = тиск на біосферу</li>
+  </ul>
+  Ібонаріум показує: зростання їжі не дорівнює зменшенню хаосу.
+  `;
 }
 
-updateWeather();
-setInterval(updateWeather,15*60*1000);
-
-function loop(){
-  drawCloud();
-  requestAnimationFrame(loop);
-}
-loop();
+document.getElementById('country').addEventListener('change', update);
+update();
 </script>
 
 </body>
