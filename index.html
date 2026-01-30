@@ -1,186 +1,271 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONIRIUM · 3D Cloud Storm</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONIRIUM · Cloud Barometer · Storm Edition</title>
+
 <style>
-  body { margin: 0; overflow: hidden; background: #0a0e14; }
-  #info{
-    position:absolute; top:16px; left:16px; font-family: monospace;
-    color:#aaffcc; font-size:12px; line-height:1.4; text-shadow:0 0 4px #000;
-  }
-  #info b{ color:#6fffa0; }
-</style>
-</head>
-<body>
-<div id="info">
-  <div>Weather: <b><span id="wcode">–</span></b></div>
-  <div>Cloud cover: <b><span id="cc">–</span>%</b></div>
-  <div>Humidity: <b><span id="hum">–</span>%</b></div>
-  <div>Wind: <b><span id="wind">–</span> m/s</b></div>
-  <div>Visibility: <b><span id="vis">–</span> km</b></div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r150/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/controls/OrbitControls.js"></script>
-
-<script>
-let scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x0a0e14, 0.035);
-
-let camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 2000);
-camera.position.set(0, 80, 200);
-
-let renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x0a0e14);
-document.body.appendChild(renderer.domElement);
-
-let controls = new THREE.OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true;
-controls.dampingFactor = 0.1;
-controls.minDistance = 50;
-controls.maxDistance = 500;
-
-// ==================================================
-// Частинки хмари
-const particleCount = 12000;
-let particles = new THREE.BufferGeometry();
-let positions = new Float32Array(particleCount*3);
-let velocities = new Float32Array(particleCount*3);
-let colors = new Float32Array(particleCount*3);
-
-for(let i=0;i<particleCount;i++){
-  positions[i*3] = (Math.random()-0.5)*200;
-  positions[i*3+1] = (Math.random()-0.5)*100;
-  positions[i*3+2] = (Math.random()-0.5)*200;
-
-  velocities[i*3] = (Math.random()-0.5)*0.1;
-  velocities[i*3+1] = (Math.random()-0.5)*0.05;
-  velocities[i*3+2] = (Math.random()-0.5)*0.1;
-
-  colors[i*3] = 0.9 + Math.random()*0.1;
-  colors[i*3+1] = 0.9 + Math.random()*0.1;
-  colors[i*3+2] = 1.0;
+body{
+  margin:0;
+  height:100vh;
+  background:#0a0e14;
+  font-family: monospace;
+  color:#aaffcc;
+  overflow:hidden;
 }
 
-particles.setAttribute('position', new THREE.BufferAttribute(positions,3));
-particles.setAttribute('color', new THREE.BufferAttribute(colors,3));
+/* ================= DEVICE ================= */
+#device{
+  position:fixed;
+  top:16px;
+  left:16px;
+  width:280px;
+  height:220px;
+  pointer-events:none;
+}
 
-let material = new THREE.PointsMaterial({
-  size: 2.0,
-  vertexColors:true,
-  transparent:true,
-  opacity:0.7,
-  depthWrite:false,
-  blending:THREE.AdditiveBlending
+canvas{ position:absolute; inset:0; }
+
+/* ================= INFO ================= */
+#info{
+  position:absolute;
+  top:8px;
+  left:12px;
+  font-size:11px;
+  line-height:1.38;
+  color:#c8ffdc;
+  text-shadow:0 0 4px rgba(0,0,0,0.85);
+}
+
+#info b{ color:#6fffa0; }
+
+#title{
+  font-size:13px;
+  color:#9affe0;
+  margin-bottom:4px;
+  letter-spacing:0.6px;
+}
+
+/* ================= CITY PANEL ================= */
+#cities{
+  position:fixed;
+  bottom:14px;
+  left:14px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.city-btn{
+  font-family:monospace;
+  font-size:11px;
+  padding:6px 10px;
+  background:rgba(20,40,35,0.75);
+  color:#9affe0;
+  border:1px solid rgba(120,255,200,0.25);
+  border-radius:6px;
+  cursor:pointer;
+  transition:all .2s ease;
+}
+
+.city-btn:hover{
+  background:rgba(40,80,65,0.9);
+}
+
+.city-btn.active{
+  background:rgba(90,180,140,0.85);
+  color:#052018;
+  border-color:#bfffe6;
+}
+</style>
+</head>
+
+<body>
+
+<div id="device">
+  <canvas id="cloud"></canvas>
+  <div id="info">
+    <div id="title">IBONIRIUM · CLOUD BAROMETER</div>
+    <div>City: <b><span id="cityName">–</span></b></div>
+    <div>Weather: <b><span id="wcode">–</span></b></div>
+    <div>Cloud cover: <b><span id="cc">–</span>%</b></div>
+    <div>Humidity: <b><span id="hum">–</span>%</b></div>
+    <div>Wind: <b><span id="wind">–</span> m/s</b></div>
+    <div>Visibility: <b><span id="vis">–</span> km</b></div>
+    <div>Cloud factor: <b><span id="cf">–</span></b></div>
+  </div>
+</div>
+
+<!-- ================= CITY BUTTONS ================= -->
+<div id="cities"></div>
+
+<script>
+/* ================= CANVAS ================= */
+const canvas = document.getElementById('cloud');
+const ctx = canvas.getContext('2d');
+canvas.width = 280;
+canvas.height = 220;
+
+/* ================= STATE ================= */
+let cloudCover=0, humidity=50, weatherCode=0;
+let windSpeed=0, windDir=0, visibility=10;
+let cloudFactor=1, temperature=10;
+let baseColor={r:240,g:245,b:255};
+
+/* ================= CITIES ================= */
+const cities = [
+  { name:"Kyiv", lat:50.45, lon:30.52 },
+  { name:"Tokyo", lat:35.68, lon:139.69 },
+  { name:"New York", lat:40.71, lon:-74.01 },
+  { name:"London", lat:51.51, lon:-0.13 },
+  { name:"Berlin", lat:52.52, lon:13.41 },
+  { name:"Sydney", lat:-33.87, lon:151.21 },
+  { name:"Reykjavík", lat:64.13, lon:-21.9 },
+  { name:"Buenos Aires", lat:-34.61, lon:-58.38 }
+];
+
+let currentCity = cities[0];
+
+/* ================= UI BUILD ================= */
+const citiesBox = document.getElementById('cities');
+cities.forEach((c,i)=>{
+  const b = document.createElement('button');
+  b.className='city-btn'+(i===0?' active':'');
+  b.textContent=c.name;
+  b.onclick=()=>{
+    document.querySelectorAll('.city-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    currentCity=c;
+    updateWeather();
+  };
+  citiesBox.appendChild(b);
 });
 
-let cloud = new THREE.Points(particles, material);
-scene.add(cloud);
+/* ================= NOISE ================= */
+function noise(x,y){
+  return Math.sin(x*17.13+y*91.77+Math.sin(y*4))*0.5+0.5;
+}
 
-// ==================================================
-// Блискавки
-let flash = new THREE.PointLight(0xffffff,0,400);
-scene.add(flash);
+/* ================= COLOR ================= */
+function getCloudColor(code){
+  if(code===0) baseColor={r:252,g:252,b:255};
+  else if(code<=3) baseColor={r:235,g:240,b:255};
+  else if(code<50) baseColor={r:220,g:225,b:255};
+  else baseColor={r:200,g:215,b:255};
+}
 
-// ==================================================
-let windSpeed=0, windDir=0, cloudCover=50, humidity=50, visibility=10, weatherCode=0;
+/* ================= CYCLONES ================= */
+function generateCyclones(){
+  const count = Math.max(1,Math.floor(windSpeed/2));
+  const cyclones=[];
+  for(let i=0;i<count;i++){
+    cyclones.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height,
+      strength:0.6+Math.random()*0.7,
+      radius:18+Math.random()*20
+    });
+  }
+  return cyclones;
+}
+let cyclones=generateCyclones();
 
-// ==================================================
-// Турбулентні локальні вихори
-function applyCyclones(t){
-  const count = Math.max(1, Math.floor(windSpeed/2));
-  for(let c=0;c<count;c++){
-    const cx = (Math.random()-0.5)*100;
-    const cy = (Math.random()-0.5)*50;
-    const cz = (Math.random()-0.5)*100;
-    const strength = 0.5 + Math.random()*0.5;
-    for(let i=0;i<particleCount;i++){
-      let dx = positions[i*3]-cx;
-      let dy = positions[i*3+1]-cy;
-      let dz = positions[i*3+2]-cz;
-      let d = Math.sqrt(dx*dx+dy*dy+dz*dz);
-      if(d<20){
-        positions[i*3] += -dy*0.01*strength;
-        positions[i*3+1] += dx*0.01*strength;
+/* ================= DRAW CLOUD ================= */
+function drawCloud(){
+  const t = Date.now()*0.0005;
+  const w=canvas.width, h=canvas.height;
+  const cx=w*0.52, cy=h*0.5;
+  ctx.clearRect(0,0,w,h);
+
+  const windX=Math.cos(windDir*Math.PI/180)*windSpeed*0.08;
+  const windY=Math.sin(windDir*Math.PI/180)*windSpeed*0.05;
+  const turbulence=Math.max(0,(windSpeed-6)/6);
+  const fogFactor=Math.max(0,1-visibility/5);
+  const baseSize=64+cloudCover*0.45;
+  const layers=5;
+
+  for(let i=0;i<layers;i++){
+    const scale=0.009+i*0.003;
+    ctx.globalAlpha=(0.22+i*0.1)*(humidity/120+0.5);
+    for(let y=0;y<h;y+=3){
+      for(let x=0;x<w;x+=3){
+        let nx=(x-cx)*scale+windX*t;
+        let ny=(y-cy)*scale+windY*t;
+        if(turbulence>0){
+          nx+=noise(ny*2,t)*turbulence*0.8;
+          ny+=noise(nx*2,t+10)*turbulence*0.8;
+        }
+        cyclones.forEach(c=>{
+          const dx=x-c.x, dy=y-c.y;
+          const d=Math.hypot(dx,dy);
+          if(d<c.radius){
+            const a=Math.atan2(dy,dx)+t*c.strength;
+            nx+=Math.cos(a)*d*0.02*c.strength;
+            ny+=Math.sin(a)*d*0.02*c.strength;
+          }
+        });
+        let n=noise(nx+t,ny)*0.6+noise(nx*2.2,ny*2.2+t)*0.4;
+        const dist=Math.hypot(x-cx,y-cy)/baseSize;
+        let falloff=Math.max(0,1-dist*dist*1.35);
+        falloff*=Math.max(0.4,1-fogFactor*0.6);
+
+        if(weatherCode>=95 && Math.random()<0.001){
+          ctx.fillStyle='rgba(255,255,200,0.8)';
+          ctx.fillRect(x,y,3,3);
+        }else if(n*falloff>0.38){
+          const br=n*1.2;
+          ctx.fillStyle=`rgba(${Math.min(255,baseColor.r*br)},${Math.min(255,baseColor.g*br)},${Math.min(255,baseColor.b*br)},${falloff})`;
+          ctx.fillRect(x,y,3,3);
+        }
       }
     }
   }
+  ctx.globalAlpha=1;
 }
 
-// ==================================================
-// Оновлення погоди
+/* ================= WEATHER ================= */
 async function updateWeather(){
   try{
     const r = await fetch(
-      'https://api.open-meteo.com/v1/forecast?latitude=50.45&longitude=30.52&current='+
+      `https://api.open-meteo.com/v1/forecast?latitude=${currentCity.lat}&longitude=${currentCity.lon}&current=`+
       'relative_humidity_2m,cloud_cover,weather_code,wind_speed_10m,wind_direction_10m,visibility,temperature_2m'
     );
-    const d = await r.json();
-    const c = d.current;
+    const d=await r.json();
+    const c=d.current;
 
     weatherCode=c.weather_code;
-    cloudCover=c.cloud_cover??50;
+    cloudCover=c.cloud_cover??0;
     humidity=c.relative_humidity_2m??50;
     windSpeed=c.wind_speed_10m??0;
     windDir=c.wind_direction_10m??0;
     visibility=(c.visibility??10000)/1000;
+    temperature=c.temperature_2m??10;
 
-    // оновлення UI
-    wcode.textContent = weatherCode;
-    cc.textContent = cloudCover;
-    hum.textContent = humidity;
-    wind.textContent = windSpeed.toFixed(1);
-    vis.textContent = visibility.toFixed(1);
+    cloudFactor=0.6+cloudCover/45+humidity/200+windSpeed/16;
+    getCloudColor(weatherCode);
+    cyclones=generateCyclones();
+
+    cityName.textContent=currentCity.name;
+    wcode.textContent=weatherCode;
+    cc.textContent=cloudCover;
+    hum.textContent=humidity;
+    wind.textContent=windSpeed.toFixed(1);
+    vis.textContent=visibility.toFixed(1);
+    cf.textContent=cloudFactor.toFixed(2);
   }catch(e){ console.warn(e); }
 }
 
 updateWeather();
 setInterval(updateWeather,15*60*1000);
 
-// ==================================================
-function animate(){
-  requestAnimationFrame(animate);
-
-  const t = Date.now()*0.002;
-
-  // дихання хмари
-  for(let i=0;i<particleCount;i++){
-    positions[i*3+1] += Math.sin(t+i*0.1)*0.002;
-    positions[i*3] += velocities[i*3]*0.5;
-    positions[i*3+2] += velocities[i*3+2]*0.5;
-  }
-
-  // локальні вихори
-  applyCyclones(t);
-
-  particles.attributes.position.needsUpdate=true;
-
-  // блискавки
-  if(weatherCode>=95 && Math.random()<0.003){
-    flash.position.set(
-      (Math.random()-0.5)*150,
-      (Math.random()-0.5)*80,
-      (Math.random()-0.5)*150
-    );
-    flash.intensity=3+Math.random()*2;
-  }else{
-    flash.intensity*=0.95;
-  }
-
-  controls.update();
-  renderer.render(scene,camera);
+/* ================= LOOP ================= */
+function loop(){
+  drawCloud();
+  requestAnimationFrame(loop);
 }
-animate();
-
-// ==================================================
-window.addEventListener('resize',()=>{
-  camera.aspect=window.innerWidth/window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth,window.innerHeight);
-});
+loop();
 </script>
+
 </body>
 </html>
