@@ -9,6 +9,7 @@ resize();addEventListener('resize',resize);
 const NODES=520,MAX_DIST=168;
 const nodes=[],edges=[];
 
+/* ---------- ВУЗОЛ ---------- */
 class Node{
  constructor(x,y){
   this.x=x;this.y=y;
@@ -25,20 +26,31 @@ class Node{
  }
 }
 
-for(let i=0;i<NODES;i++){
+for(let i=0;i<NODES;i++)
  nodes.push(new Node(Math.random()*w,Math.random()*h));
-}
 
 for(let i=0;i<NODES;i++){
  for(let j=i+1;j<NODES;j++){
   const d=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y);
-  if(d<MAX_DIST)edges.push({a:i,b:j,baseAlpha:.1});
+  if(d<MAX_DIST)edges.push({a:i,b:j});
  }
 }
 
 nodes[0].owner='A';
 nodes[1].owner='B';
 
+/* ---------- ТУМАННІ ЧАСТИНКИ ---------- */
+const fog=[];
+for(let i=0;i<180;i++){
+ fog.push({
+  x:Math.random()*w,
+  y:Math.random()*h,
+  r:80+Math.random()*220,
+  phase:Math.random()*6.28
+ });
+}
+
+/* ---------- SPACE DATA ---------- */
 let space={kp:2.3,wind:380,bz:1};
 
 async function updateSpace(){
@@ -46,52 +58,35 @@ async function updateSpace(){
   const r=await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json');
   const d=await r.json();
   space.kp=parseFloat(d[d.length-1][1])||space.kp;
-
-  const w=await fetch('https://services.swpc.noaa.gov/products/solar-wind/plasma-1-minute.json');
-  const wd=await w.json();
-  const L=wd[wd.length-1];
-  space.wind=parseFloat(L[2])||space.wind;
-  space.bz=parseFloat(L[3])||space.bz;
-
-  kp.textContent=space.kp.toFixed(1);
-  wind.textContent=Math.round(space.wind);
-  bz.textContent=space.bz.toFixed(1);
  }catch{}
 }
 setInterval(updateSpace,60000);
 updateSpace();
 
-/* --- РІСТ --- */
+/* ---------- РІСТ ---------- */
 function growFrom(i,civ,r){
  const o=nodes[i];
  nodes.forEach(n=>{
   if(n.owner)return;
-  if(Math.hypot(n.x-o.x,n.y-o.y)<MAX_DIST*r){
+  if(Math.hypot(n.x-o.x,n.y-o.y)<MAX_DIST*r)
    if(Math.random()<0.2)n.owner=civ;
-  }
  });
 }
 
-/* --- СИМУЛЯЦІЯ --- */
+/* ---------- СИМУЛЯЦІЯ ---------- */
 function simulate(){
  const t=Date.now()*0.001;
 
  nodes.forEach((n,i)=>{
-  /* ДИХАННЯ */
   n.breath=(Math.sin(t*0.6+n.phase)+1)/2;
 
-  /* ПОВІЛЬНИЙ КРУГОВИЙ РУХ */
-  n.angle+=0.0004;
+  n.angle+=0.00035;
   n.x=n.baseX+Math.cos(n.angle)*6;
   n.y=n.baseY+Math.sin(n.angle)*6;
 
-  /* СПАЛАХИ */
-  if(Math.random()<0.002){
-   n.flash=1;
-  }
+  if(Math.random()<0.002)n.flash=1;
   n.flash*=0.92;
 
-  /* ЦИВІЛІЗАЦІЇ */
   if(n.owner==='A'&&Math.random()<0.006*(1-space.kp/9))
     growFrom(i,'A',1.2);
 
@@ -99,9 +94,8 @@ function simulate(){
     growFrom(i,'B',2);
  });
 
- /* --- ТУМАННІСТЬ --- */
- const nebulaPower=(space.kp/9)+(space.bz<0?Math.abs(space.bz)/10:0);
-
+ /* Туманність */
+ const nebulaPower=(space.kp/9);
  if(nebulaPower>0.6){
   nodes.forEach((n,i)=>{
    if(Math.random()<0.01*nebulaPower){
@@ -111,7 +105,7 @@ function simulate(){
   });
  }
 
- /* --- ПЕРЕДАЧА ЕНЕРГІЇ --- */
+ /* Передача енергії */
  edges.forEach(e=>{
   const a=nodes[e.a],b=nodes[e.b];
   if(!a.owner||!b.owner)return;
@@ -122,10 +116,50 @@ function simulate(){
  });
 }
 
-/* --- МАЛЮВАННЯ --- */
+/* ---------- ТУМАННИЙ ШАР ---------- */
+function drawFog(){
+ const t=Date.now()*0.00015;
+
+ ctx.globalCompositeOperation="lighter";
+
+ fog.forEach(f=>{
+  const pulse=(Math.sin(t+f.phase)+1)/2;
+
+  const g=ctx.createRadialGradient(
+    f.x,f.y,0,
+    f.x,f.y,f.r*(0.8+pulse*0.4)
+  );
+
+  g.addColorStop(0,"rgba(120,90,255,0.06)");
+  g.addColorStop(1,"transparent");
+
+  ctx.fillStyle=g;
+  ctx.fillRect(0,0,w,h);
+ });
+
+ ctx.globalCompositeOperation="source-over";
+}
+
+/* ---------- ПЕРЕРИВАНА ТІНЬ ---------- */
+function drawShadowVeil(){
+ const t=Date.now()*0.0002;
+ const alpha=0.25+Math.sin(t)*0.08;
+
+ ctx.fillStyle=`rgba(0,0,20,${alpha})`;
+
+ for(let i=0;i<5;i++){
+  const y=(h/5)*i + Math.sin(t*2+i)*40;
+  ctx.fillRect(0,y,w,120);
+ }
+}
+
+/* ---------- МАЛЮВАННЯ ---------- */
 function draw(){
- ctx.fillStyle='rgba(0,0,10,0.25)';
+ /* приглушене очищення */
+ ctx.fillStyle='rgba(0,0,10,0.35)';
  ctx.fillRect(0,0,w,h);
+
+ drawFog();
 
  /* ЛІНІЇ */
  edges.forEach(e=>{
@@ -135,14 +169,14 @@ function draw(){
   let col='#888';
   const o=n1.owner||n2.owner;
 
-  if(o==='A')col='rgba(160,140,255,.5)';
-  if(o==='B')col='rgba(255,90,190,.5)';
-  if(o==='N')col='rgba(90,255,255,.5)';
+  if(o==='A')col='rgba(160,140,255,.45)';
+  if(o==='B')col='rgba(255,90,190,.45)';
+  if(o==='N')col='rgba(90,255,255,.45)';
 
-  const energyGlow=(n1.energy+n2.energy)/2;
+  const glow=(n1.energy+n2.energy)/2;
 
   ctx.strokeStyle=col;
-  ctx.globalAlpha=0.15+energyGlow*0.6;
+  ctx.globalAlpha=0.1+glow*0.5;
 
   ctx.beginPath();
   ctx.moveTo(n1.x,n1.y);
@@ -153,18 +187,16 @@ function draw(){
  ctx.globalAlpha=1;
 
  /* ВУЗЛИ */
- let ca=0,cb=0,cn=0;
-
  nodes.forEach(n=>{
   if(!n.owner)return;
 
-  const size=2+n.breath*2+n.flash*6;
+  const size=2+n.breath*2+n.flash*5;
 
-  if(n.owner==='A')ctx.fillStyle='#c4b8ff',ca++;
-  if(n.owner==='B')ctx.fillStyle='#ff9edc',cb++;
-  if(n.owner==='N')ctx.fillStyle='#7fffff',cn++;
+  if(n.owner==='A')ctx.fillStyle='#c4b8ff';
+  if(n.owner==='B')ctx.fillStyle='#ff9edc';
+  if(n.owner==='N')ctx.fillStyle='#7fffff';
 
-  ctx.shadowBlur=10+n.flash*25;
+  ctx.shadowBlur=8+n.flash*20;
   ctx.shadowColor=ctx.fillStyle;
 
   ctx.beginPath();
@@ -174,22 +206,10 @@ function draw(){
   ctx.shadowBlur=0;
  });
 
- const t=ca+cb+cn||1;
- pct('pct-a',ca,t);
- pct('pct-b',cb,t);
- pct('pct-n',cn,t);
-
- edgesEl.textContent=
- edges.filter(e=>nodes[e.a].owner||nodes[e.b].owner).length;
+ drawShadowVeil();
 }
 
-/* UI helpers */
-function pct(id,v,t){
- document.getElementById(id).textContent=(v/t*100).toFixed(1)+'%';
-}
-const edgesEl=document.getElementById('edges');
-
-/* LOOP */
+/* ---------- LOOP ---------- */
 function loop(){
  simulate();
  draw();
