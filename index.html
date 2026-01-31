@@ -1,96 +1,64 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<title>IBONARIUM · STACK · 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <title>IBONARIUM · STACK · 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        /* База */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            height: 100%;
+            overflow-y: scroll;
+            -webkit-overflow-scrolling: touch; /* Плавність */
+            scroll-behavior: smooth; /* М'яке притягання секцій */
+            scroll-snap-type: y proximity;
+        }
 
-<style>
+        /* Секції */
+        .section {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            display: block;
+            background: #000;
+            /* Точка snap */
+            scroll-snap-align: start;
+        }
 
-/* База */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  height: 100%;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
+        /* Мобільна оптимізація */
+        @media (max-width: 768px) {
+            .section {
+                height: 100vh;
+            }
+        }
 
-  /* Плавність */
-  scroll-behavior: smooth;
-
-  /* М'яке притягання секцій */
-  scroll-snap-type: y proximity;
-}
-
-/* Секції */
-.section {
-  width: 100%;
-  height: 100vh;
-  border: none;
-  display: block;
-  background: #000;
-
-  /* Точка snap */
-  scroll-snap-align: start;
-}
-
-/* Мобільна оптимізація */
-@media (max-width: 768px) {
-  .section {
-    height: 100vh;
-  }
-}
-
-/* Трохи інерції та м'якості */
-body::-webkit-scrollbar {
-  width: 6px;
-}
-body::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 10px;
-}
-
-</style>
+        /* Трохи інерції та м'якості */
+        body::-webkit-scrollbar {
+            width: 6px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 10px;
+        }
+    </style>
 </head>
-
 <body>
+    <!-- ПЕРША · ДУХ СУПЕРНИЦТВА -->
+    <iframe class="section" src="https://lavandaaudit.github.io/duh_sopernicestva/" loading="lazy"> </iframe>
 
-<!-- ПЕРША · ДУХ СУПЕРНИЦТВА -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/duh_sopernicestva/"
-  loading="lazy">
-</iframe>
+    <!-- 0 · LIS -->
+    <iframe class="section" src="https://lavandaaudit.github.io/lis2/" loading="lazy"> </iframe>
 
-<!-- 0 · LIS -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/lis2/"
-  loading="lazy">
-</iframe>
+    <!-- 1 · ЛАБОРАНТ -->
+    <iframe class="section" src="https://lavandaaudit.github.io/laborant2/" loading="lazy"> </iframe>
 
-<!-- 1 · ЛАБОРАНТ -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/laborant2/"
-  loading="lazy">
-</iframe>
+    <!-- Тераріум -->
+    <iframe class="section" src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/" loading="lazy"> </iframe>
 
-<!-- Тераріум -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
-  loading="lazy">
-</iframe>
-
-<!-- 2 -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/new13/"
-  loading="lazy">
-</iframe>
-
-<!-- VULYK -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/spider/"
-  loading="lazy">
-</iframe>
-
+    <!-- VULYK -->
+    <iframe class="section" src="https://lavandaaudit.github.io/spider/" loading="lazy"> </iframe>
 </body>
 </html>
