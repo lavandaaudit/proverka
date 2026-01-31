@@ -6,36 +6,51 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <style>
-/* Загальні стилі */
+
+/* База */
 html, body {
   margin: 0;
   padding: 0;
   background: #000;
   height: 100%;
-  overflow-y: scroll; /* вертикальний скрол */
-  -webkit-overflow-scrolling: touch; /* плавний скрол на iOS */
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+
+  /* Плавність */
+  scroll-behavior: smooth;
+
+  /* М'яке притягання секцій */
+  scroll-snap-type: y proximity;
 }
 
-/* Контейнер для iframe */
+/* Секції */
 .section {
   width: 100%;
-  height: 100vh; /* завжди займає весь екран */
+  height: 100vh;
   border: none;
   display: block;
   background: #000;
+
+  /* Точка snap */
+  scroll-snap-align: start;
 }
 
-/* Плавний скрол між iframe */
-body {
-  scroll-behavior: smooth;
-}
-
-/* Додатково: мобільні оптимізації */
+/* Мобільна оптимізація */
 @media (max-width: 768px) {
   .section {
-    height: 100vh; /* для мобільних повна висота екрану */
+    height: 100vh;
   }
 }
+
+/* Трохи інерції та м'якості */
+body::-webkit-scrollbar {
+  width: 6px;
+}
+body::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 10px;
+}
+
 </style>
 </head>
 
@@ -59,7 +74,7 @@ body {
   loading="lazy">
 </iframe>
 
-<!-- Тераріум після лаборанта -->
+<!-- Тераріум -->
 <iframe class="section"
   src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
   loading="lazy">
@@ -71,7 +86,7 @@ body {
   loading="lazy">
 </iframe>
 
-<!-- VULYK (вставлено після new13) -->
+<!-- VULYK -->
 <iframe class="section"
   src="https://lavandaaudit.github.io/spider/"
   loading="lazy">
