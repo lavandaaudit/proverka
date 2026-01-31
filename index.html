@@ -6,26 +6,24 @@
 <title>IBONIRIUM · Cloud Barometer + Cosmic Star</title>
 <style>
 body {
-  margin:0;
-  height:100vh;
-  background:#0a0e14;
+  margin: 0;
+  height: 100vh;
+  background: #000;
   font-family: monospace;
-  color:#aaffcc;
-  overflow:hidden;
+  color: #aaffcc;
+  overflow: hidden;
 }
 
-/* ================= DEVICE ================= */
+/* ================= DEVICE (без рамки) ================= */
 #device {
   position: fixed;
   top: 16px;
   left: 16px;
   width: 280px;
-  height: 640px;          /* 320 + 320 */
+  height: 640px;
   pointer-events: none;
-  border: 1px solid rgba(120,255,200,0.18);
-  border-radius: 12px;
   overflow: hidden;
-  background: rgba(5,12,18,0.4);
+  background: transparent;
 }
 
 canvas {
@@ -75,20 +73,20 @@ canvas {
   font-family: monospace;
   font-size: 11px;
   padding: 6px 0;
-  background: rgba(20,40,35,0.75);
+  background: rgba(20,40,35,0.65);
   color: #9affe0;
-  border: 1px solid rgba(120,255,200,0.25);
+  border: 1px solid rgba(120,255,200,0.18);
   border-radius: 6px;
   cursor: pointer;
   transition: all .2s ease;
 }
 .city-btn:hover {
-  background: rgba(40,80,65,0.9);
+  background: rgba(40,80,65,0.85);
 }
 .city-btn.active {
-  background: rgba(90,180,140,0.85);
+  background: rgba(90,180,140,0.8);
   color: #052018;
-  border-color: #bfffe6;
+  border-color: rgba(191,255,230,0.7);
 }
 
 /* ================= STAR INFO ================= */
@@ -106,9 +104,19 @@ canvas {
 #star-info b {
   color: #ffe080;
 }
+
+/* ================= FULL-SCREEN STARS ================= */
+#bg-stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
 </style>
 </head>
 <body>
+
+<canvas id="bg-stars"></canvas>
 
 <div id="device">
 
@@ -147,13 +155,58 @@ canvas {
 
 <script>
 // ────────────────────────────────────────────────
+//             FULL-SCREEN BACKGROUND STARS
+// ────────────────────────────────────────────────
+
+const bgCanvas = document.getElementById('bg-stars');
+const bgCtx = bgCanvas.getContext('2d');
+
+function resizeCanvases() {
+  bgCanvas.width = innerWidth;
+  bgCanvas.height = innerHeight;
+  cloudCanvas.width = 280;
+  cloudCanvas.height = 320;
+  starCanvas.width = 280;
+  starCanvas.height = 320;
+}
+addEventListener('resize', resizeCanvases);
+resizeCanvases();
+
+const bgStars = Array.from({length: 380}, () => ({
+  x: Math.random(),
+  y: Math.random(),
+  z: Math.random() * 0.8 + 0.2,
+  speed: 0.0001 + Math.random() * 0.0003
+}));
+
+function drawBackgroundStars() {
+  bgCtx.fillStyle = '#000';
+  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+  bgStars.forEach(st => {
+    st.y += st.speed * (1 + st.z * 3);
+    if (st.y > 1) st.y = -0.02;
+
+    const x = st.x * bgCanvas.width;
+    const y = st.y * bgCanvas.height;
+    const size = st.z * 1.6;
+    const alpha = 0.3 + st.z * 0.7;
+
+    bgCtx.globalAlpha = alpha;
+    bgCtx.fillStyle = '#fff';
+    bgCtx.beginPath();
+    bgCtx.arc(x, y, size, 0, Math.PI * 2);
+    bgCtx.fill();
+  });
+  bgCtx.globalAlpha = 1;
+}
+
+// ────────────────────────────────────────────────
 //                  CLOUD BAROMETER
 // ────────────────────────────────────────────────
 
 const cloudCanvas = document.getElementById('cloud');
 const ctx = cloudCanvas.getContext('2d');
-cloudCanvas.width = 280;
-cloudCanvas.height = 320;
 
 let cloudCover = 0, humidity = 50, weatherCode = 0;
 let windSpeed = 0, windDir = 0, visibility = 10;
@@ -268,8 +321,6 @@ function drawCloud() {
 
 const starCanvas = document.getElementById('star');
 const tctx = starCanvas.getContext('2d');
-starCanvas.width = 280;
-starCanvas.height = 320;
 
 let solarFactor = 1;
 let solarSSN = 0;
@@ -328,7 +379,7 @@ class CosmicStar {
   }
 }
 
-const cosmicStar = new CosmicStar(140, 160);   // центр нижнього полотна
+const cosmicStar = new CosmicStar(140, 160);
 
 async function updateSolar() {
   try {
@@ -406,6 +457,7 @@ setInterval(updateWeather, 15 * 60 * 1000);
 // ────────────────────────────────────────────────
 
 function loop() {
+  drawBackgroundStars();
   drawCloud();
   tctx.clearRect(0, 0, starCanvas.width, starCanvas.height);
 
