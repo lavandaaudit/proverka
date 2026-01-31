@@ -2,101 +2,207 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
-<title>IBONARIUM · STACK · 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IBONARIUM — Solar Bird Feeder</title>
 
 <style>
-
-/* База */
-html, body {
-  margin: 0;
-  padding: 0;
-  background: #000;
-  height: 100%;
-  overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-
-  /* Плавність */
-  scroll-behavior: smooth;
-
-  /* М'яке притягання секцій */
-  scroll-snap-type: y proximity;
+body{
+    margin:0;
+    background: radial-gradient(circle at center,#0b1020,#000);
+    overflow:hidden;
+    font-family:Segoe UI, sans-serif;
+    color:#dcd6ff;
 }
 
-/* Секції */
-.section {
-  width: 100%;
-  height: 100vh;
-  border: none;
-  display: block;
-  background: #000;
+canvas{display:block;}
 
-  /* Точка snap */
-  scroll-snap-align: start;
+#ui{
+    position:absolute;
+    top:12px;
+    left:14px;
+    font-size:14px;
+    opacity:.9;
 }
 
-/* Мобільна оптимізація */
-@media (max-width: 768px) {
-  .section {
-    height: 100vh;
-  }
+h1{
+    margin:0 0 6px 0;
+    font-size:18px;
+    background:linear-gradient(90deg,#ffe27a,#ff9ad6);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
 }
-
-/* Трохи інерції та м'якості */
-body::-webkit-scrollbar {
-  width: 6px;
-}
-body::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 10px;
-}
-
 </style>
 </head>
 
 <body>
 
-<!-- ПЕРША · ДУХ СУПЕРНИЦТВА -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/duh_sopernicestva/"
-  loading="lazy">
-</iframe>
+<canvas id="c"></canvas>
 
-<!-- 0 · LIS -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/lis2/"
-  loading="lazy">
-</iframe>
+<div id="ui">
+<h1>🐦 IBONARIUM FEEDER</h1>
+<div>Kp index: <span id="kp"></span></div>
+<div>Solar Wind: <span id="wind"></span></div>
+<div>Flares: <span id="flare"></span></div>
+<div>Птахів: <span id="count"></span></div>
+</div>
 
-<!-- 1 · ЛАБОРАНТ -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/laborant2/"
-  loading="lazy">
-</iframe>
+<script>
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
 
-<!-- Тераріум -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
-  loading="lazy">
-</iframe>
+let w,h;
+function resize(){
+    w=canvas.width=innerWidth;
+    h=canvas.height=innerHeight;
+}
+resize();
+addEventListener("resize",resize);
 
-<!-- 2 -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/new13/"
-  loading="lazy">
-</iframe>
+/////////////////////
+// СОНЯЧНІ ДАНІ (симуляція)
+/////////////////////
 
-<!-- VULYK -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/spider/"
-  loading="lazy">
-</iframe>
+let sun={
+    kp:2,
+    wind:400,
+    flare:false
+};
 
-<!-- 3 -->
-<iframe class="section"
-  src="https://lavandaaudit.github.io/exebition_1/"
-  loading="lazy">
-</iframe>
+function updateSun(){
+    sun.kp=Math.max(0,Math.min(9,sun.kp+(Math.random()-.5)*1));
+    sun.wind=300+Math.random()*500;
+    sun.flare=Math.random()<0.15;
+
+    kp.textContent=sun.kp.toFixed(1);
+    wind.textContent=Math.round(sun.wind)+" km/s";
+    flare.textContent=sun.flare?"ACTIVE":"quiet";
+}
+setInterval(updateSun,8000);
+updateSun();
+
+/////////////////////
+// КОРМУШКА
+/////////////////////
+
+const feeder={
+    x:()=>w/2,
+    y:()=>h/2+40,
+    r:28
+};
+
+/////////////////////
+// ПТАХИ
+/////////////////////
+
+class Bird{
+    constructor(){
+        this.angle=Math.random()*Math.PI*2;
+        this.dist=200+Math.random()*300;
+        this.speed=.002+Math.random()*0.003;
+        this.size=3+Math.random()*3;
+        this.energy=1;
+    }
+
+    update(){
+        // вплив сонця
+        let solarBoost=1+(sun.wind/800);
+
+        this.angle+=this.speed*solarBoost;
+
+        // при спалаху більше шансів сісти
+        if(sun.flare && Math.random()<0.01){
+            this.dist*=0.92;
+        }
+
+        // притягування до кормушки
+        this.dist+= (120-this.dist)*0.002;
+
+        this.x=feeder.x()+Math.cos(this.angle)*this.dist;
+        this.y=feeder.y()+Math.sin(this.angle)*this.dist;
+    }
+
+    draw(){
+        ctx.beginPath();
+        ctx.fillStyle="white";
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+    }
+}
+
+let birds=[];
+
+function spawnBirds(){
+    let target=10+sun.kp*5+(sun.flare?20:0);
+
+    while(birds.length<target){
+        birds.push(new Bird());
+    }
+
+    while(birds.length>target){
+        birds.pop();
+    }
+}
+
+/////////////////////
+// МАЛЮВАННЯ
+/////////////////////
+
+function drawFeeder(){
+    let x=feeder.x();
+    let y=feeder.y();
+
+    ctx.fillStyle="#8a5a2b";
+    ctx.beginPath();
+    ctx.arc(x,y,feeder.r,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle="#c89b6d";
+    ctx.beginPath();
+    ctx.arc(x,y,feeder.r-6,0,Math.PI*2);
+    ctx.fill();
+}
+
+function drawSunAura(){
+    let g=ctx.createRadialGradient(
+        feeder.x(),feeder.y(),50,
+        feeder.x(),feeder.y(),500
+    );
+
+    let intensity=sun.kp/9;
+
+    g.addColorStop(0,"rgba(255,220,120,"+(0.15+intensity*0.25)+")");
+    g.addColorStop(1,"transparent");
+
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,w,h);
+}
+
+/////////////////////
+// LOOP
+/////////////////////
+
+function loop(){
+    ctx.fillStyle="rgba(0,0,20,0.35)";
+    ctx.fillRect(0,0,w,h);
+
+    drawSunAura();
+
+    spawnBirds();
+
+    birds.forEach(b=>{
+        b.update();
+        b.draw();
+    });
+
+    drawFeeder();
+
+    count.textContent=birds.length;
+
+    requestAnimationFrame(loop);
+}
+
+loop();
+</script>
 
 </body>
 </html>
