@@ -1,219 +1,96 @@
-<script>
-const canvas=document.getElementById('c');
-const ctx=canvas.getContext('2d');
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<title>IBONARIUM · STACK · 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-let w,h;
-function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
-resize();addEventListener('resize',resize);
+<style>
 
-const NODES=520,MAX_DIST=168;
-const nodes=[],edges=[];
+/* База */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  height: 100%;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 
-/* ---------- ВУЗОЛ ---------- */
-class Node{
- constructor(x,y){
-  this.x=x;this.y=y;
-  this.baseX=x;this.baseY=y;
+  /* Плавність */
+  scroll-behavior: smooth;
 
-  this.owner=null;
-  this.phase=Math.random()*6.28;
-
-  this.energy=Math.random()*0.5+0.5;
-  this.breath=0;
-
-  this.angle=Math.random()*6.28;
-  this.flash=0;
- }
+  /* М'яке притягання секцій */
+  scroll-snap-type: y proximity;
 }
 
-for(let i=0;i<NODES;i++)
- nodes.push(new Node(Math.random()*w,Math.random()*h));
+/* Секції */
+.section {
+  width: 100%;
+  height: 100vh;
+  border: none;
+  display: block;
+  background: #000;
 
-for(let i=0;i<NODES;i++){
- for(let j=i+1;j<NODES;j++){
-  const d=Math.hypot(nodes[i].x-nodes[j].x,nodes[i].y-nodes[j].y);
-  if(d<MAX_DIST)edges.push({a:i,b:j});
- }
+  /* Точка snap */
+  scroll-snap-align: start;
 }
 
-nodes[0].owner='A';
-nodes[1].owner='B';
-
-/* ---------- ТУМАННІ ЧАСТИНКИ ---------- */
-const fog=[];
-for(let i=0;i<180;i++){
- fog.push({
-  x:Math.random()*w,
-  y:Math.random()*h,
-  r:80+Math.random()*220,
-  phase:Math.random()*6.28
- });
+/* Мобільна оптимізація */
+@media (max-width: 768px) {
+  .section {
+    height: 100vh;
+  }
 }
 
-/* ---------- SPACE DATA ---------- */
-let space={kp:2.3,wind:380,bz:1};
-
-async function updateSpace(){
- try{
-  const r=await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json');
-  const d=await r.json();
-  space.kp=parseFloat(d[d.length-1][1])||space.kp;
- }catch{}
+/* Трохи інерції та м'якості */
+body::-webkit-scrollbar {
+  width: 6px;
 }
-setInterval(updateSpace,60000);
-updateSpace();
-
-/* ---------- РІСТ ---------- */
-function growFrom(i,civ,r){
- const o=nodes[i];
- nodes.forEach(n=>{
-  if(n.owner)return;
-  if(Math.hypot(n.x-o.x,n.y-o.y)<MAX_DIST*r)
-   if(Math.random()<0.2)n.owner=civ;
- });
+body::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 10px;
 }
 
-/* ---------- СИМУЛЯЦІЯ ---------- */
-function simulate(){
- const t=Date.now()*0.001;
+</style>
+</head>
 
- nodes.forEach((n,i)=>{
-  n.breath=(Math.sin(t*0.6+n.phase)+1)/2;
+<body>
 
-  n.angle+=0.00035;
-  n.x=n.baseX+Math.cos(n.angle)*6;
-  n.y=n.baseY+Math.sin(n.angle)*6;
+<!-- ПЕРША · ДУХ СУПЕРНИЦТВА -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/duh_sopernicestva/"
+  loading="lazy">
+</iframe>
 
-  if(Math.random()<0.002)n.flash=1;
-  n.flash*=0.92;
+<!-- 0 · LIS -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/lis2/"
+  loading="lazy">
+</iframe>
 
-  if(n.owner==='A'&&Math.random()<0.006*(1-space.kp/9))
-    growFrom(i,'A',1.2);
+<!-- 1 · ЛАБОРАНТ -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/laborant2/"
+  loading="lazy">
+</iframe>
 
-  if(n.owner==='B'&&Math.random()<0.015)
-    growFrom(i,'B',2);
- });
+<!-- Тераріум -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/terrarium.ibonarium.lab/"
+  loading="lazy">
+</iframe>
 
- /* Туманність */
- const nebulaPower=(space.kp/9);
- if(nebulaPower>0.6){
-  nodes.forEach((n,i)=>{
-   if(Math.random()<0.01*nebulaPower){
-    n.owner='N';
-    growFrom(i,'N',2.5);
-   }
-  });
- }
+<!-- 2 -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/new13/"
+  loading="lazy">
+</iframe>
 
- /* Передача енергії */
- edges.forEach(e=>{
-  const a=nodes[e.a],b=nodes[e.b];
-  if(!a.owner||!b.owner)return;
+<!-- VULYK -->
+<iframe class="section"
+  src="https://lavandaaudit.github.io/spider/"
+  loading="lazy">
+</iframe>
 
-  const diff=(a.energy-b.energy)*0.02;
-  a.energy-=diff;
-  b.energy+=diff;
- });
-}
-
-/* ---------- ТУМАННИЙ ШАР ---------- */
-function drawFog(){
- const t=Date.now()*0.00015;
-
- ctx.globalCompositeOperation="lighter";
-
- fog.forEach(f=>{
-  const pulse=(Math.sin(t+f.phase)+1)/2;
-
-  const g=ctx.createRadialGradient(
-    f.x,f.y,0,
-    f.x,f.y,f.r*(0.8+pulse*0.4)
-  );
-
-  g.addColorStop(0,"rgba(120,90,255,0.06)");
-  g.addColorStop(1,"transparent");
-
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,w,h);
- });
-
- ctx.globalCompositeOperation="source-over";
-}
-
-/* ---------- ПЕРЕРИВАНА ТІНЬ ---------- */
-function drawShadowVeil(){
- const t=Date.now()*0.0002;
- const alpha=0.25+Math.sin(t)*0.08;
-
- ctx.fillStyle=`rgba(0,0,20,${alpha})`;
-
- for(let i=0;i<5;i++){
-  const y=(h/5)*i + Math.sin(t*2+i)*40;
-  ctx.fillRect(0,y,w,120);
- }
-}
-
-/* ---------- МАЛЮВАННЯ ---------- */
-function draw(){
- /* приглушене очищення */
- ctx.fillStyle='rgba(0,0,10,0.35)';
- ctx.fillRect(0,0,w,h);
-
- drawFog();
-
- /* ЛІНІЇ */
- edges.forEach(e=>{
-  const n1=nodes[e.a],n2=nodes[e.b];
-  if(!n1.owner&&!n2.owner)return;
-
-  let col='#888';
-  const o=n1.owner||n2.owner;
-
-  if(o==='A')col='rgba(160,140,255,.45)';
-  if(o==='B')col='rgba(255,90,190,.45)';
-  if(o==='N')col='rgba(90,255,255,.45)';
-
-  const glow=(n1.energy+n2.energy)/2;
-
-  ctx.strokeStyle=col;
-  ctx.globalAlpha=0.1+glow*0.5;
-
-  ctx.beginPath();
-  ctx.moveTo(n1.x,n1.y);
-  ctx.lineTo(n2.x,n2.y);
-  ctx.stroke();
- });
-
- ctx.globalAlpha=1;
-
- /* ВУЗЛИ */
- nodes.forEach(n=>{
-  if(!n.owner)return;
-
-  const size=2+n.breath*2+n.flash*5;
-
-  if(n.owner==='A')ctx.fillStyle='#c4b8ff';
-  if(n.owner==='B')ctx.fillStyle='#ff9edc';
-  if(n.owner==='N')ctx.fillStyle='#7fffff';
-
-  ctx.shadowBlur=8+n.flash*20;
-  ctx.shadowColor=ctx.fillStyle;
-
-  ctx.beginPath();
-  ctx.arc(n.x,n.y,size,0,6.28);
-  ctx.fill();
-
-  ctx.shadowBlur=0;
- });
-
- drawShadowVeil();
-}
-
-/* ---------- LOOP ---------- */
-function loop(){
- simulate();
- draw();
- requestAnimationFrame(loop);
-}
-loop();
-</script>
+</body>
+</html>
