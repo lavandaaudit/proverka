@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONIRIUM · Cloud Barometer + Cosmic Star</title>
+<title>IBONIRIUM · Cosmic Star + Cloud Barometer</title>
 <style>
 body {
   margin: 0;
   height: 100vh;
-  background: #000;
+  background: #000814;          /* темний космічний фон */
   font-family: monospace;
   color: #aaffcc;
   overflow: hidden;
 }
 
-/* ================= DEVICE (без рамки) ================= */
+/* ================= DEVICE (без рамок) ================= */
 #device {
   position: fixed;
   top: 16px;
@@ -23,23 +23,23 @@ body {
   height: 640px;
   pointer-events: none;
   overflow: hidden;
-  background: transparent;
+  background: transparent;      /* без фону та рамок */
 }
 
+/* canvases */
 canvas {
   position: absolute;
   width: 280px;
   height: 320px;
   left: 0;
 }
+#star  { top: 0;       }
+#cloud { top: 320px;   }
 
-#cloud { top: 0; }
-#star  { top: 320px; }
-
-/* ================= INFO (верхня частина) ================= */
+/* ================= INFO (верх – тепер зірка) ================= */
 #info {
   position: absolute;
-  top: 8px;
+  top: 340px;                   /* під зіркою */
   left: 12px;
   right: 12px;
   font-size: 11px;
@@ -60,7 +60,7 @@ canvas {
 /* ================= CITY PANEL ================= */
 #cities {
   position: absolute;
-  top: 188px;
+  top: 520px;                   /* нижче хмар */
   left: 12px;
   right: 12px;
   display: grid;
@@ -73,60 +73,60 @@ canvas {
   font-family: monospace;
   font-size: 11px;
   padding: 6px 0;
-  background: rgba(20,40,35,0.65);
+  background: rgba(20,40,35,0.75);
   color: #9affe0;
-  border: 1px solid rgba(120,255,200,0.18);
+  border: 1px solid rgba(120,255,200,0.25);
   border-radius: 6px;
   cursor: pointer;
   transition: all .2s ease;
 }
 .city-btn:hover {
-  background: rgba(40,80,65,0.85);
+  background: rgba(40,80,65,0.9);
 }
 .city-btn.active {
-  background: rgba(90,180,140,0.8);
+  background: rgba(90,180,140,0.85);
   color: #052018;
-  border-color: rgba(191,255,230,0.7);
+  border-color: #bfffe6;
 }
 
-/* ================= STAR INFO ================= */
+/* ================= STAR INFO (тепер зверху) ================= */
 #star-info {
   position: absolute;
-  top: 340px;              /* 320 + 20 */
+  top: 8px;
   left: 12px;
   right: 12px;
   color: #9affc2;
   font-size: 11px;
   line-height: 1.4;
   pointer-events: none;
-  z-index: 5;
+  z-index: 10;
+  text-shadow: 0 0 6px rgba(0,0,0,0.9);
 }
 #star-info b {
   color: #ffe080;
 }
-
-/* ================= FULL-SCREEN STARS ================= */
-#bg-stars {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-}
 </style>
 </head>
 <body>
-
-<canvas id="bg-stars"></canvas>
-
 <div id="device">
 
-  <!-- Верхня половина – хмари -->
-  <canvas id="cloud"></canvas>
-
-  <!-- Нижня половина – зірка -->
+  <!-- Верхня половина – зірка -->
   <canvas id="star"></canvas>
 
-  <!-- Інформація про погоду (верх) -->
+  <!-- Нижня половина – хмари -->
+  <canvas id="cloud"></canvas>
+
+  <!-- Інформація про зірку (зверху) -->
+  <div id="star-info">
+    <b>IBONIRIUM · EXP-01 · Cosmic Star</b><br>
+    Phase: <b><span id="phase">–</span></b><br>
+    Day: <b><span id="day">–</span></b><br>
+    Solar SSN: <b><span id="ssn">–</span></b><br>
+    Solar Factor: <b><span id="sf">–</span></b><br>
+    Star Energy: <b><span id="ge">–</span></b>
+  </div>
+
+  <!-- Інформація про погоду (під хмарами) -->
   <div id="info">
     <div id="title">IBONIRIUM · CLOUD BAROMETER · Storm Edition</div>
     <div>City: <b><span id="cityName">–</span></b></div>
@@ -138,75 +138,19 @@ canvas {
     <div>Cloud factor: <b><span id="cf">–</span></b></div>
   </div>
 
-  <!-- Кнопки міст -->
+  <!-- Кнопки міст (внизу) -->
   <div id="cities"></div>
-
-  <!-- Інформація про зірку (низ) -->
-  <div id="star-info">
-    <b>IBONIRIUM · EXP-01 · Cosmic Star</b><br>
-    Phase: <b><span id="phase">–</span></b><br>
-    Day: <b><span id="day">–</span></b><br>
-    Solar SSN: <b><span id="ssn">–</span></b><br>
-    Solar Factor: <b><span id="sf">–</span></b><br>
-    Star Energy: <b><span id="ge">–</span></b>
-  </div>
 
 </div>
 
 <script>
 // ────────────────────────────────────────────────
-//             FULL-SCREEN BACKGROUND STARS
+// CLOUD BAROMETER (нижня частина)
 // ────────────────────────────────────────────────
-
-const bgCanvas = document.getElementById('bg-stars');
-const bgCtx = bgCanvas.getContext('2d');
-
-function resizeCanvases() {
-  bgCanvas.width = innerWidth;
-  bgCanvas.height = innerHeight;
-  cloudCanvas.width = 280;
-  cloudCanvas.height = 320;
-  starCanvas.width = 280;
-  starCanvas.height = 320;
-}
-addEventListener('resize', resizeCanvases);
-resizeCanvases();
-
-const bgStars = Array.from({length: 380}, () => ({
-  x: Math.random(),
-  y: Math.random(),
-  z: Math.random() * 0.8 + 0.2,
-  speed: 0.0001 + Math.random() * 0.0003
-}));
-
-function drawBackgroundStars() {
-  bgCtx.fillStyle = '#000';
-  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-
-  bgStars.forEach(st => {
-    st.y += st.speed * (1 + st.z * 3);
-    if (st.y > 1) st.y = -0.02;
-
-    const x = st.x * bgCanvas.width;
-    const y = st.y * bgCanvas.height;
-    const size = st.z * 1.6;
-    const alpha = 0.3 + st.z * 0.7;
-
-    bgCtx.globalAlpha = alpha;
-    bgCtx.fillStyle = '#fff';
-    bgCtx.beginPath();
-    bgCtx.arc(x, y, size, 0, Math.PI * 2);
-    bgCtx.fill();
-  });
-  bgCtx.globalAlpha = 1;
-}
-
-// ────────────────────────────────────────────────
-//                  CLOUD BAROMETER
-// ────────────────────────────────────────────────
-
 const cloudCanvas = document.getElementById('cloud');
 const ctx = cloudCanvas.getContext('2d');
+cloudCanvas.width = 280;
+cloudCanvas.height = 320;
 
 let cloudCover = 0, humidity = 50, weatherCode = 0;
 let windSpeed = 0, windDir = 0, visibility = 10;
@@ -220,9 +164,10 @@ const cities = [
   { name:"London",      lat:51.51, lon:-0.13 },
   { name:"Berlin",      lat:52.52, lon:13.41 },
   { name:"Sydney",      lat:-33.87,lon:151.21 },
-  { name:"Reykjavík",   lat:64.13, lon:-21.9  },
+  { name:"Reykjavík",   lat:64.13, lon:-21.9 },
   { name:"Buenos Aires",lat:-34.61,lon:-58.38 }
 ];
+
 let currentCity = cities[0];
 
 const citiesBox = document.getElementById('cities');
@@ -244,10 +189,10 @@ function noise(x, y) {
 }
 
 function getCloudColor(code) {
-  if (code === 0)      baseColor = {r:252,g:252,b:255};
-  else if (code <= 3)  baseColor = {r:235,g:240,b:255};
-  else if (code < 50)  baseColor = {r:220,g:225,b:255};
-  else                 baseColor = {r:200,g:215,b:255};
+  if (code === 0) baseColor = {r:252,g:252,b:255};
+  else if (code <= 3) baseColor = {r:235,g:240,b:255};
+  else if (code < 50) baseColor = {r:220,g:225,b:255};
+  else baseColor = {r:200,g:215,b:255};
 }
 
 function generateCyclones() {
@@ -280,17 +225,14 @@ function drawCloud() {
   for (let i = 0; i < 5; i++) {
     const scale = 0.009 + i * 0.003;
     ctx.globalAlpha = (0.22 + i * 0.1) * (humidity / 120 + 0.5);
-
     for (let y = 0; y < h; y += 3) {
       for (let x = 0; x < w; x += 3) {
         let nx = (x - cx) * scale + windX * t;
         let ny = (y - cy) * scale + windY * t;
-
         if (turbulence > 0) {
-          nx += noise(ny*2, t)       * turbulence * 0.8;
-          ny += noise(nx*2, t + 10)  * turbulence * 0.8;
+          nx += noise(ny*2, t) * turbulence * 0.8;
+          ny += noise(nx*2, t + 10) * turbulence * 0.8;
         }
-
         cyclones.forEach(c => {
           const d = Math.hypot(x - c.x, y - c.y);
           if (d < c.radius) {
@@ -299,12 +241,10 @@ function drawCloud() {
             ny += Math.sin(a) * d * 0.02;
           }
         });
-
         let n = noise(nx + t, ny);
         const dist = Math.hypot(x - cx, y - cy) / baseSize;
         let falloff = Math.max(0, 1 - dist * dist * 1.35);
         falloff *= Math.max(0.4, 1 - fogFactor * 0.6);
-
         if (n * falloff > 0.38) {
           ctx.fillStyle = `rgba(${baseColor.r},${baseColor.g},${baseColor.b},${falloff})`;
           ctx.fillRect(x, y, 3, 3);
@@ -316,11 +256,12 @@ function drawCloud() {
 }
 
 // ────────────────────────────────────────────────
-//                  COSMIC STAR (нижня частина)
+// COSMIC STAR (верхня частина — повільніша)
 // ────────────────────────────────────────────────
-
 const starCanvas = document.getElementById('star');
 const tctx = starCanvas.getContext('2d');
+starCanvas.width = 280;
+starCanvas.height = 320;
 
 let solarFactor = 1;
 let solarSSN = 0;
@@ -335,31 +276,27 @@ class CosmicStar {
       angle: Math.random() * Math.PI * 2,
       radius: Math.random() * 100 + 60,
       size: Math.random() * 2 + 0.5,
-      speed: Math.random() * 0.002 + 0.001,
+      speed: Math.random() * 0.0006 + 0.0003,     // значно повільніше
       colorOffset: Math.random()
     }));
   }
-
   update() {
     const time = Date.now();
-    this.currentRadius = this.radius + Math.sin(time * 0.002) * 12 * solarFactor + (Math.random() - 0.5) * 4 * solarFactor;
+    this.currentRadius = this.radius + Math.sin(time * 0.0008) * 12 * solarFactor + (Math.random() - 0.5) * 3 * solarFactor;
     this.particles.forEach(p => {
       p.angle += p.speed * solarFactor;
-      p.radius += Math.sin(time * 0.001 + p.colorOffset) * 0.3;
+      p.radius += Math.sin(time * 0.0004 + p.colorOffset) * 0.15;  // теж повільніше
     });
   }
-
   draw() {
     const time = Date.now();
     tctx.save();
     tctx.translate(this.x, this.y);
-
     const gradient = tctx.createRadialGradient(0,0,this.currentRadius*0.3, 0,0,this.currentRadius);
-    gradient.addColorStop(0,   `rgba(255,255,180,${0.9 * solarFactor})`);
+    gradient.addColorStop(0, `rgba(255,255,180,${0.9 * solarFactor})`);
     gradient.addColorStop(0.4, `rgba(255,200,100,${0.7 * solarFactor})`);
     gradient.addColorStop(0.7, `rgba(255,140,60,${0.5 * solarFactor})`);
-    gradient.addColorStop(1,   `rgba(255,80,30,0)`);
-
+    gradient.addColorStop(1, `rgba(255,80,30,0)`);
     tctx.fillStyle = gradient;
     tctx.beginPath();
     tctx.arc(0, 0, this.currentRadius, 0, Math.PI * 2);
@@ -368,13 +305,12 @@ class CosmicStar {
     this.particles.forEach(p => {
       const px = Math.cos(p.angle) * p.radius;
       const py = Math.sin(p.angle) * p.radius;
-      const glow = Math.sin(time * 0.003 + p.colorOffset) * 0.5 + 0.5;
+      const glow = Math.sin(time * 0.0012 + p.colorOffset) * 0.5 + 0.5;
       tctx.fillStyle = `rgba(${200 + 55*glow},${100 + 55*glow},${255*glow},${0.2 + 0.3*glow})`;
       tctx.beginPath();
       tctx.arc(px, py, p.size * solarFactor, 0, Math.PI * 2);
       tctx.fill();
     });
-
     tctx.restore();
   }
 }
@@ -389,10 +325,9 @@ async function updateSolar() {
     solarSSN = l.predicted_ssn;
     solarFactor = Math.min(3, 0.6 + solarSSN / 120);
     starEnergy = solarFactor * (0.8 + Math.random() * 0.2);
-
     document.getElementById('ssn').textContent = solarSSN.toFixed(1);
-    document.getElementById('sf').textContent  = solarFactor.toFixed(2);
-    document.getElementById('ge').textContent  = starEnergy.toFixed(2);
+    document.getElementById('sf').textContent = solarFactor.toFixed(2);
+    document.getElementById('ge').textContent = starEnergy.toFixed(2);
   } catch(e) {
     solarFactor = 1;
     starEnergy = 1;
@@ -402,7 +337,7 @@ updateSolar();
 setInterval(updateSolar, 1800_000);
 
 const START_DATE = new Date('2026-01-01');
-const STOP_DATE  = new Date('2026-12-13');
+const STOP_DATE = new Date('2026-12-13');
 
 function updateDay() {
   const now = new Date();
@@ -414,9 +349,8 @@ setInterval(updateDay, 60000);
 updateDay();
 
 // ────────────────────────────────────────────────
-//                  WEATHER API
+// WEATHER API
 // ────────────────────────────────────────────────
-
 async function updateWeather() {
   try {
     const r = await fetch(
@@ -425,14 +359,12 @@ async function updateWeather() {
     );
     const d = await r.json();
     const c = d.current;
-
     weatherCode = c.weather_code;
-    cloudCover  = c.cloud_cover;
-    humidity    = c.relative_humidity_2m;
-    windSpeed   = c.wind_speed_10m;
-    windDir     = c.wind_direction_10m;
-    visibility  = (c.visibility ?? 10000) / 1000;
-
+    cloudCover = c.cloud_cover;
+    humidity = c.relative_humidity_2m;
+    windSpeed = c.wind_speed_10m;
+    windDir = c.wind_direction_10m;
+    visibility = (c.visibility ?? 10000) / 1000;
     cloudFactor = 0.6 + cloudCover/45 + humidity/200 + windSpeed/16;
 
     getCloudColor(weatherCode);
@@ -453,23 +385,20 @@ updateWeather();
 setInterval(updateWeather, 15 * 60 * 1000);
 
 // ────────────────────────────────────────────────
-//                  MAIN LOOP
+// MAIN LOOP
 // ────────────────────────────────────────────────
-
 function loop() {
-  drawBackgroundStars();
-  drawCloud();
   tctx.clearRect(0, 0, starCanvas.width, starCanvas.height);
-
   if (new Date() < STOP_DATE) {
     cosmicStar.update();
     cosmicStar.draw();
   }
 
+  drawCloud();
+
   requestAnimationFrame(loop);
 }
 loop();
-
 </script>
 </body>
 </html>
