@@ -3,91 +3,50 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONARIUM LAB DASHBOARD</title>
+<title>IBONARIUM Mini Lab</title>
 
 <style>
 
 body{
     margin:0;
     background:#03060b;
-    color:#e6edf3;
-    font-family:Arial, Helvetica, sans-serif;
+    height:200vh; /* щоб було видно overlay */
 }
 
-/* HEADER */
+/* ===== MINI PANEL ===== */
 
-.header{
-    padding:15px;
-    background:#070d18;
-    text-align:center;
-    border-bottom:1px solid #0f1a2b;
-}
-
-.header h1{
-    margin:0;
-    font-size:20px;
-    letter-spacing:2px;
-}
-
-/* DASHBOARD */
-
-.dashboard{
-    display:grid;
-    grid-template-columns: 1fr 300px;
-    height: calc(100vh - 60px);
-}
-
-@media(max-width:900px){
-    .dashboard{
-        grid-template-columns: 1fr;
-    }
+#ibonMini{
+    position:fixed;
+    left:10px;
+    bottom:10px;
+    width:160px;
+    height:160px;
+    z-index:9999;
+    pointer-events:none;
 }
 
 /* CANVAS */
 
-.canvasWrap{
-    position:relative;
-}
-
-canvas{
+#ibonCanvas{
     width:100%;
     height:100%;
     display:block;
+    border-radius:12px;
+    background:rgba(5,10,18,0.45);
+    backdrop-filter: blur(6px);
 }
 
-/* SIDE PANEL */
+/* METRICS TEXT */
 
-.panel{
-    background:#050b16;
-    border-left:1px solid #0f1a2b;
-    padding:15px;
-}
-
-.metric{
-    background:#081224;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
-}
-
-.metric h3{
-    margin:0 0 5px 0;
-    font-size:14px;
-    color:#58a6ff;
-}
-
-.metric div{
-    font-size:18px;
-}
-
-/* FOOTER */
-
-.footer{
+#ibonText{
     position:absolute;
-    bottom:10px;
-    left:10px;
-    font-size:12px;
-    opacity:0.4;
+    left:8px;
+    top:6px;
+    font-size:10px;
+    color:#9fb7ff;
+    font-family:monospace;
+    line-height:1.2;
+    opacity:0.85;
 }
 
 </style>
@@ -95,89 +54,67 @@ canvas{
 
 <body>
 
-<div class="header">
-<h1>IBONARIUM · LIVE GEOMETRIC LAB</h1>
-</div>
-
-<div class="dashboard">
-
-<div class="canvasWrap">
-<canvas id="simCanvas"></canvas>
-<div class="footer">IBONARIUM Geometric Engine · Live State Trajectory</div>
-</div>
-
-<div class="panel">
-
-<div class="metric">
-<h3>Geometric Energy</h3>
-<div id="energy">0</div>
-</div>
-
-<div class="metric">
-<h3>Curvature</h3>
-<div id="curvature">0</div>
-</div>
-
-<div class="metric">
-<h3>Phase Risk</h3>
-<div id="risk">0</div>
-</div>
-
-<div class="metric">
-<h3>Trajectory Speed</h3>
-<div id="speed">0</div>
-</div>
-
-</div>
-
+<div id="ibonMini">
+    <canvas id="ibonCanvas"></canvas>
+    <div id="ibonText">
+        E:0<br>
+        C:0<br>
+        R:0<br>
+        V:0
+    </div>
 </div>
 
 <script>
 
-const canvas = document.getElementById("simCanvas");
+/* ===== CANVAS ===== */
+
+const canvas = document.getElementById("ibonCanvas");
 const ctx = canvas.getContext("2d");
 
 function resize(){
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
 }
-window.addEventListener("resize", resize);
 resize();
+window.addEventListener("resize", resize);
 
-/* ===== STATE MODEL ===== */
+/* ===== STATE ===== */
 
 let state = {x:0, y:0};
 let prevState = {x:0, y:0};
-
 let trajectory = [];
-
 let t = 0;
 
-/* ===== METRIC MATRIX (SIMPLIFIED) ===== */
+/* ===== METRIC ===== */
 
 let metric = [
-    [1, 0.2],
-    [0.2, 1]
+    [1, 0.25],
+    [0.25, 1]
 ];
 
-/* ===== UPDATE STATE ===== */
+/* ===== UPDATE ===== */
 
 function updateState(){
 
     prevState = {...state};
 
-    state.x = Math.sin(t*0.7) + Math.sin(t*0.2)*0.5;
-    state.y = Math.cos(t*0.5) + Math.sin(t*0.9)*0.3;
+    state.x =
+        Math.sin(t*0.6) +
+        Math.sin(t*0.18)*0.6;
+
+    state.y =
+        Math.cos(t*0.5) +
+        Math.sin(t*0.9)*0.3;
 
     trajectory.push({...state});
-    if(trajectory.length > 200) trajectory.shift();
+    if(trajectory.length > 120) trajectory.shift();
 
-    t += 0.02;
+    t += 0.025;
 }
 
 /* ===== METRICS ===== */
 
-function geometricEnergy(){
+function energy(){
     return (
         metric[0][0]*state.x*state.x +
         metric[1][1]*state.y*state.y +
@@ -185,7 +122,7 @@ function geometricEnergy(){
     );
 }
 
-function curvatureIndicator(){
+function curvature(){
     return Math.abs(metric[0][1]);
 }
 
@@ -196,8 +133,8 @@ function speed(){
     );
 }
 
-function phaseRisk(){
-    return curvatureIndicator()*0.6 + speed()*0.4;
+function risk(){
+    return curvature()*0.6 + speed()*0.4;
 }
 
 /* ===== DRAW ===== */
@@ -209,7 +146,7 @@ function draw(){
 
     let cx = canvas.width/2;
     let cy = canvas.height/2;
-    let scale = Math.min(cx,cy)*0.6;
+    let scale = canvas.width*0.28;
 
     /* TRAJECTORY */
 
@@ -221,40 +158,36 @@ function draw(){
         if(i===0) ctx.moveTo(x,y);
         else ctx.lineTo(x,y);
     });
-    ctx.strokeStyle="rgba(88,166,255,0.6)";
-    ctx.lineWidth=2;
+    ctx.strokeStyle="rgba(120,160,255,0.6)";
+    ctx.lineWidth=1.4;
     ctx.stroke();
 
-    /* CURRENT POINT */
+    /* POINT */
 
     ctx.beginPath();
     ctx.arc(
         cx + state.x*scale,
         cy + state.y*scale,
-        6,0,Math.PI*2
+        2.5,0,Math.PI*2
     );
-    ctx.fillStyle="#58a6ff";
+    ctx.fillStyle="#9fb7ff";
     ctx.fill();
 }
 
 /* ===== LOOP ===== */
+
+const text = document.getElementById("ibonText");
 
 function loop(){
 
     updateState();
     draw();
 
-    document.getElementById("energy").innerText =
-        geometricEnergy().toFixed(3);
-
-    document.getElementById("curvature").innerText =
-        curvatureIndicator().toFixed(3);
-
-    document.getElementById("risk").innerText =
-        phaseRisk().toFixed(3);
-
-    document.getElementById("speed").innerText =
-        speed().toFixed(3);
+    text.innerHTML =
+        "E:" + energy().toFixed(2) + "<br>" +
+        "C:" + curvature().toFixed(2) + "<br>" +
+        "R:" + risk().toFixed(2) + "<br>" +
+        "V:" + speed().toFixed(2);
 
     requestAnimationFrame(loop);
 }
