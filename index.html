@@ -3,238 +3,164 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONARIUM Fog Mini</title>
+<title>IBONARIUM — NOAA LIVE DASHBOARD</title>
 
 <style>
-
 body{
-    margin:0;
-    background:#03060b;
-    height:200vh;
+margin:0;
+background:black;
+overflow:hidden;
+font-family:Arial;
 }
 
-/* ===== PANEL TOP LEFT ===== */
-
-#ibonMini{
-    position:fixed;
-    left:10px;
-    top:10px;
-    width:170px;
-    height:170px;
-    z-index:9999;
-    pointer-events:none;
+#panel{
+position:fixed;
+top:10px;
+left:10px;
+font-size:10px;
+color:#9ff;
+opacity:0.8;
 }
 
-/* CANVAS */
-
-#ibonCanvas{
-    width:100%;
-    height:100%;
-    display:block;
-    border-radius:14px;
-    background:rgba(6,12,22,0.35);
-    backdrop-filter: blur(8px);
+canvas{
+position:fixed;
+top:0;
+left:0;
 }
-
-/* TEXT */
-
-#ibonText{
-    position:absolute;
-    left:8px;
-    top:6px;
-    font-size:10px;
-    color:#a8c0ff;
-    font-family:monospace;
-    opacity:0.75;
-    line-height:1.25;
-}
-
 </style>
 </head>
 
 <body>
 
-<div id="ibonMini">
-    <canvas id="ibonCanvas"></canvas>
-    <div id="ibonText">
-        E:0<br>
-        C:0<br>
-        R:0<br>
-        V:0
-    </div>
+<canvas id="c"></canvas>
+
+<div id="panel">
+IBONARIUM LIVE<br>
+Kp: <span id="kp">--</span><br>
+Wind: <span id="wind">--</span><br>
+Bz: <span id="bz">--</span><br>
+Flux: <span id="flux">--</span>
 </div>
 
 <script>
 
-/* ===== CANVAS ===== */
-
-const canvas = document.getElementById("ibonCanvas");
+const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
 function resize(){
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 }
 resize();
 window.addEventListener("resize", resize);
 
-/* ===== STATE ===== */
+// ================= STATE =================
 
-let state = {x:0, y:0};
-let prevState = {x:0, y:0};
-let trajectory = [];
+let state = {
+kp: 2,
+wind: 400,
+bz: 0,
+flux: 120
+};
 
-let fogParticles = [];
+// ================= NOAA FETCH =================
 
-let t = 0;
+async function loadNOAA(){
 
-/* ===== METRIC ===== */
+try{
 
-let metric = [
-    [1, 0.28],
-    [0.28, 1]
-];
+// Kp
+let kpRes = await fetch("https://services.swpc.noaa.gov/json/planetary_k_index_1m.json");
+let kpData = await kpRes.json();
+state.kp = kpData[kpData.length-1].kp;
 
-/* ===== INIT FOG ===== */
+// WIND
+let windRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json");
+let windData = await windRes.json();
+state.wind = windData[windData.length-1].speed;
 
-for(let i=0;i<35;i++){
-    fogParticles.push({
-        x: Math.random(),
-        y: Math.random(),
-        vx: (Math.random()-0.5)*0.001,
-        vy: (Math.random()-0.5)*0.001,
-        size: Math.random()*2+1
-    });
+// MAG Bz
+let magRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json");
+let magData = await magRes.json();
+state.bz = magData[magData.length-1].bz;
+
+// FLUX
+let fluxRes = await fetch("https://services.swpc.noaa.gov/json/f107_cm_flux.json");
+let fluxData = await fluxRes.json();
+state.flux = fluxData[fluxData.length-1].flux;
+
+updatePanel();
+
+}catch(e){
+console.log("NOAA error", e);
 }
 
-/* ===== UPDATE ===== */
-
-function updateState(){
-
-    prevState = {...state};
-
-    /* ПОВІЛЬНІШИЙ ЖИВИЙ РУХ */
-
-    state.x =
-        Math.sin(t*0.35) +
-        Math.sin(t*0.08)*0.7;
-
-    state.y =
-        Math.cos(t*0.28) +
-        Math.sin(t*0.6)*0.35;
-
-    trajectory.push({...state});
-    if(trajectory.length > 220) trajectory.shift();
-
-    t += 0.01;
 }
 
-/* ===== METRICS ===== */
-
-function energy(){
-    return (
-        metric[0][0]*state.x*state.x +
-        metric[1][1]*state.y*state.y +
-        metric[0][1]*state.x*state.y
-    );
+function updatePanel(){
+kp.textContent = state.kp.toFixed(2);
+wind.textContent = state.wind.toFixed(0);
+bz.textContent = state.bz.toFixed(2);
+flux.textContent = state.flux.toFixed(1);
 }
 
-function curvature(){
-    return Math.abs(metric[0][1]);
+loadNOAA();
+setInterval(loadNOAA, 60000); // 1 хв
+
+// ================= PARTICLES =================
+
+let particles = [];
+
+function spawn(){
+
+let chaos = state.kp / 9;
+let speedBase = state.wind / 800;
+
+particles.push({
+x: Math.random()*canvas.width,
+y: Math.random()*canvas.height*0.3,
+vx:(Math.random()-0.5)*speedBase*4,
+vy:(Math.random()-0.5)*speedBase*4,
+life:200+Math.random()*200,
+size:1+chaos*2
+});
+
+if(particles.length>600) particles.shift();
+
 }
 
-function speed(){
-    return Math.sqrt(
-        (state.x-prevState.x)**2 +
-        (state.y-prevState.y)**2
-    );
-}
+setInterval(spawn, 40);
 
-function risk(){
-    return curvature()*0.6 + speed()*0.4;
-}
-
-/* ===== DRAW ===== */
+// ================= DRAW =================
 
 function draw(){
 
-    /* ТУМАННИЙ СЛІД */
+ctx.fillStyle="rgba(0,0,0,0.25)";
+ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    ctx.fillStyle="rgba(3,6,11,0.12)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+let chaos = state.kp/9;
+let glow = state.flux/200;
 
-    let cx = canvas.width/2;
-    let cy = canvas.height/2;
-    let scale = canvas.width*0.30;
+for(let p of particles){
 
-    /* FOG PARTICLES */
+p.x += p.vx + Math.sin(Date.now()*0.001+p.y)*chaos;
+p.y += p.vy + Math.cos(Date.now()*0.001+p.x)*chaos;
 
-    fogParticles.forEach(p=>{
-        p.x += p.vx;
-        p.y += p.vy;
+p.life--;
 
-        if(p.x<0||p.x>1) p.vx*=-1;
-        if(p.y<0||p.y>1) p.vy*=-1;
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.size+glow,0,Math.PI*2);
+ctx.fillStyle=`rgba(150,255,255,${0.2+glow*0.3})`;
+ctx.fill();
 
-        ctx.beginPath();
-        ctx.arc(
-            p.x*canvas.width,
-            p.y*canvas.height,
-            p.size,
-            0,
-            Math.PI*2
-        );
-        ctx.fillStyle="rgba(140,170,255,0.06)";
-        ctx.fill();
-    });
-
-    /* TRAJECTORY */
-
-    ctx.beginPath();
-    trajectory.forEach((p,i)=>{
-        let x = cx + p.x*scale;
-        let y = cy + p.y*scale;
-
-        if(i===0) ctx.moveTo(x,y);
-        else ctx.lineTo(x,y);
-    });
-    ctx.strokeStyle="rgba(150,180,255,0.35)";
-    ctx.lineWidth=1.6;
-    ctx.stroke();
-
-    /* CORE POINT */
-
-    ctx.beginPath();
-    ctx.arc(
-        cx + state.x*scale,
-        cy + state.y*scale,
-        3,
-        0,
-        Math.PI*2
-    );
-    ctx.fillStyle="rgba(180,200,255,0.9)";
-    ctx.fill();
 }
 
-/* ===== LOOP ===== */
+particles = particles.filter(p=>p.life>0);
 
-const text = document.getElementById("ibonText");
-
-function loop(){
-
-    updateState();
-    draw();
-
-    text.innerHTML =
-        "E:" + energy().toFixed(2) + "<br>" +
-        "C:" + curvature().toFixed(2) + "<br>" +
-        "R:" + risk().toFixed(2) + "<br>" +
-        "V:" + speed().toFixed(2);
-
-    requestAnimationFrame(loop);
+requestAnimationFrame(draw);
 }
 
-loop();
+draw();
 
 </script>
 
