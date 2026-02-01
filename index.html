@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONARIUM Mini Lab</title>
+<title>IBONARIUM Fog Mini</title>
 
 <style>
 
 body{
     margin:0;
     background:#03060b;
-    height:200vh; /* щоб було видно overlay */
+    height:200vh;
 }
 
-/* ===== MINI PANEL ===== */
+/* ===== PANEL TOP LEFT ===== */
 
 #ibonMini{
     position:fixed;
     left:10px;
-    bottom:10px;
-    width:160px;
-    height:160px;
+    top:10px;
+    width:170px;
+    height:170px;
     z-index:9999;
     pointer-events:none;
 }
@@ -31,22 +31,22 @@ body{
     width:100%;
     height:100%;
     display:block;
-    border-radius:12px;
-    background:rgba(5,10,18,0.45);
-    backdrop-filter: blur(6px);
+    border-radius:14px;
+    background:rgba(6,12,22,0.35);
+    backdrop-filter: blur(8px);
 }
 
-/* METRICS TEXT */
+/* TEXT */
 
 #ibonText{
     position:absolute;
     left:8px;
     top:6px;
     font-size:10px;
-    color:#9fb7ff;
+    color:#a8c0ff;
     font-family:monospace;
-    line-height:1.2;
-    opacity:0.85;
+    opacity:0.75;
+    line-height:1.25;
 }
 
 </style>
@@ -83,14 +83,29 @@ window.addEventListener("resize", resize);
 let state = {x:0, y:0};
 let prevState = {x:0, y:0};
 let trajectory = [];
+
+let fogParticles = [];
+
 let t = 0;
 
 /* ===== METRIC ===== */
 
 let metric = [
-    [1, 0.25],
-    [0.25, 1]
+    [1, 0.28],
+    [0.28, 1]
 ];
+
+/* ===== INIT FOG ===== */
+
+for(let i=0;i<35;i++){
+    fogParticles.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random()-0.5)*0.001,
+        vy: (Math.random()-0.5)*0.001,
+        size: Math.random()*2+1
+    });
+}
 
 /* ===== UPDATE ===== */
 
@@ -98,18 +113,20 @@ function updateState(){
 
     prevState = {...state};
 
+    /* ПОВІЛЬНІШИЙ ЖИВИЙ РУХ */
+
     state.x =
-        Math.sin(t*0.6) +
-        Math.sin(t*0.18)*0.6;
+        Math.sin(t*0.35) +
+        Math.sin(t*0.08)*0.7;
 
     state.y =
-        Math.cos(t*0.5) +
-        Math.sin(t*0.9)*0.3;
+        Math.cos(t*0.28) +
+        Math.sin(t*0.6)*0.35;
 
     trajectory.push({...state});
-    if(trajectory.length > 120) trajectory.shift();
+    if(trajectory.length > 220) trajectory.shift();
 
-    t += 0.025;
+    t += 0.01;
 }
 
 /* ===== METRICS ===== */
@@ -141,12 +158,35 @@ function risk(){
 
 function draw(){
 
-    ctx.fillStyle="rgba(3,6,11,0.25)";
+    /* ТУМАННИЙ СЛІД */
+
+    ctx.fillStyle="rgba(3,6,11,0.12)";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     let cx = canvas.width/2;
     let cy = canvas.height/2;
-    let scale = canvas.width*0.28;
+    let scale = canvas.width*0.30;
+
+    /* FOG PARTICLES */
+
+    fogParticles.forEach(p=>{
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if(p.x<0||p.x>1) p.vx*=-1;
+        if(p.y<0||p.y>1) p.vy*=-1;
+
+        ctx.beginPath();
+        ctx.arc(
+            p.x*canvas.width,
+            p.y*canvas.height,
+            p.size,
+            0,
+            Math.PI*2
+        );
+        ctx.fillStyle="rgba(140,170,255,0.06)";
+        ctx.fill();
+    });
 
     /* TRAJECTORY */
 
@@ -158,19 +198,21 @@ function draw(){
         if(i===0) ctx.moveTo(x,y);
         else ctx.lineTo(x,y);
     });
-    ctx.strokeStyle="rgba(120,160,255,0.6)";
-    ctx.lineWidth=1.4;
+    ctx.strokeStyle="rgba(150,180,255,0.35)";
+    ctx.lineWidth=1.6;
     ctx.stroke();
 
-    /* POINT */
+    /* CORE POINT */
 
     ctx.beginPath();
     ctx.arc(
         cx + state.x*scale,
         cy + state.y*scale,
-        2.5,0,Math.PI*2
+        3,
+        0,
+        Math.PI*2
     );
-    ctx.fillStyle="#9fb7ff";
+    ctx.fillStyle="rgba(180,200,255,0.9)";
     ctx.fill();
 }
 
