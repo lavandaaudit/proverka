@@ -6,161 +6,166 @@
 <title>IBONARIUM — NOAA LIVE DASHBOARD</title>
 
 <style>
-body{
-margin:0;
-background:black;
-overflow:hidden;
-font-family:Arial;
+html, body {
+    margin:0;
+    padding:0;
+    background:black;
+    overflow:hidden;
+    font-family:Arial;
 }
 
+/* Панель */
 #panel{
-position:fixed;
-top:10px;
-left:10px;
-font-size:10px;
-color:#9ff;
-opacity:0.8;
+    position:fixed;
+    top:10px;
+    left:50%;
+    transform:translateX(-50%);
+    color:#9fdcff;
+    font-size:12px;
+    text-align:center;
+    backdrop-filter: blur(6px);
+    padding:6px 10px;
+    border-radius:10px;
+    opacity:0.85;
+    z-index:5;
 }
 
+/* Canvas */
 canvas{
-position:fixed;
-top:0;
-left:0;
+    position:fixed;
+    top:0;
+    left:0;
+}
+
+/* туман */
+#fog{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 30% 40%, rgba(0,80,120,0.25), transparent 60%),
+      radial-gradient(circle at 70% 60%, rgba(0,40,80,0.35), transparent 70%),
+      radial-gradient(circle at 50% 20%, rgba(0,120,180,0.15), transparent 60%);
+    animation:fogMove 120s linear infinite alternate;
+}
+
+@keyframes fogMove{
+    from{ transform:translateY(-20px) }
+    to{ transform:translateY(20px) }
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="c"></canvas>
-
 <div id="panel">
 IBONARIUM LIVE<br>
-Kp: <span id="kp">--</span><br>
-Wind: <span id="wind">--</span><br>
-Bz: <span id="bz">--</span><br>
-Flux: <span id="flux">--</span>
+Solar Wind: <span id="wind">--</span> km/s<br>
+Kp Index: <span id="kp">--</span><br>
+Bz Field: <span id="bz">--</span> nT
 </div>
 
-<script>
+<canvas id="c"></canvas>
+<div id="fog"></div>
 
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
+<script>
+const canvas=document.getElementById("c");
+const ctx=canvas.getContext("2d");
 
 function resize(){
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+ canvas.width=window.innerWidth;
+ canvas.height=window.innerHeight;
 }
 resize();
-window.addEventListener("resize", resize);
+window.addEventListener("resize",resize);
 
-// ================= STATE =================
+/* ---------- НОДИ ---------- */
 
-let state = {
-kp: 2,
-wind: 400,
-bz: 0,
-flux: 120
-};
+let nodes=[];
+for(let i=0;i<35;i++){
+ nodes.push({
+   a:Math.random()*Math.PI*2,
+   r:80+Math.random()*200,
+   speed:0.0005+Math.random()*0.001
+ });
+}
 
-// ================= NOAA FETCH =================
+/* ---------- СТАН СИСТЕМИ ---------- */
+
+let solarFactor=1;
+
+function draw(t){
+
+ ctx.fillStyle="rgba(0,0,0,0.25)";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+
+ let cx=canvas.width/2;
+ let cy=canvas.height/2;
+
+ nodes.forEach(n=>{
+
+   n.a+=n.speed*solarFactor;
+
+   let x=cx+Math.cos(n.a)*n.r;
+   let y=cy+Math.sin(n.a)*n.r;
+
+   ctx.beginPath();
+   ctx.arc(x,y,2+solarFactor*2,0,Math.PI*2);
+   ctx.fillStyle="rgba(150,220,255,0.8)";
+   ctx.fill();
+
+ });
+
+ requestAnimationFrame(draw);
+}
+
+requestAnimationFrame(draw);
+
+/* ---------- NOAA DATA ---------- */
 
 async function loadNOAA(){
 
-try{
+ try{
 
-// Kp
-let kpRes = await fetch("https://services.swpc.noaa.gov/json/planetary_k_index_1m.json");
-let kpData = await kpRes.json();
-state.kp = kpData[kpData.length-1].kp;
+   const wind = await fetch(
+   "https://services.swpc.noaa.gov/products/summary/solar-wind-speed.json"
+   ).then(r=>r.json());
 
-// WIND
-let windRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json");
-let windData = await windRes.json();
-state.wind = windData[windData.length-1].speed;
+   const kp = await fetch(
+   "https://services.swpc.noaa.gov/products/summary/planetary-k-index.json"
+   ).then(r=>r.json());
 
-// MAG Bz
-let magRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json");
-let magData = await magRes.json();
-state.bz = magData[magData.length-1].bz;
+   const mag = await fetch(
+   "https://services.swpc.noaa.gov/products/summary/solar-wind-mag-field.json"
+   ).then(r=>r.json());
 
-// FLUX
-let fluxRes = await fetch("https://services.swpc.noaa.gov/json/f107_cm_flux.json");
-let fluxData = await fluxRes.json();
-state.flux = fluxData[fluxData.length-1].flux;
+   let windVal = wind?.WindSpeed || wind?.WindSpeed_km_s || 400;
+   let kpVal = kp?.Kp || kp?.KP || 2;
+   let bzVal = mag?.Bz || 0;
 
-updatePanel();
+   document.getElementById("wind").textContent = windVal;
+   document.getElementById("kp").textContent = kpVal;
+   document.getElementById("bz").textContent = bzVal;
 
-}catch(e){
-console.log("NOAA error", e);
+   /* вплив на симуляцію */
+   solarFactor =
+       0.5 +
+       (windVal/800)*0.7 +
+       (Math.abs(bzVal)/20)*0.3 +
+       (kpVal/9)*0.5;
+
+ }catch(e){
+   console.log("NOAA offline",e);
+ }
+
 }
 
-}
-
-function updatePanel(){
-kp.textContent = state.kp.toFixed(2);
-wind.textContent = state.wind.toFixed(0);
-bz.textContent = state.bz.toFixed(2);
-flux.textContent = state.flux.toFixed(1);
-}
-
+/* запуск */
 loadNOAA();
-setInterval(loadNOAA, 60000); // 1 хв
-
-// ================= PARTICLES =================
-
-let particles = [];
-
-function spawn(){
-
-let chaos = state.kp / 9;
-let speedBase = state.wind / 800;
-
-particles.push({
-x: Math.random()*canvas.width,
-y: Math.random()*canvas.height*0.3,
-vx:(Math.random()-0.5)*speedBase*4,
-vy:(Math.random()-0.5)*speedBase*4,
-life:200+Math.random()*200,
-size:1+chaos*2
-});
-
-if(particles.length>600) particles.shift();
-
-}
-
-setInterval(spawn, 40);
-
-// ================= DRAW =================
-
-function draw(){
-
-ctx.fillStyle="rgba(0,0,0,0.25)";
-ctx.fillRect(0,0,canvas.width,canvas.height);
-
-let chaos = state.kp/9;
-let glow = state.flux/200;
-
-for(let p of particles){
-
-p.x += p.vx + Math.sin(Date.now()*0.001+p.y)*chaos;
-p.y += p.vy + Math.cos(Date.now()*0.001+p.x)*chaos;
-
-p.life--;
-
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.size+glow,0,Math.PI*2);
-ctx.fillStyle=`rgba(150,255,255,${0.2+glow*0.3})`;
-ctx.fill();
-
-}
-
-particles = particles.filter(p=>p.life>0);
-
-requestAnimationFrame(draw);
-}
-
-draw();
+setInterval(loadNOAA,60000);
 
 </script>
 
