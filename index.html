@@ -1,167 +1,80 @@
-<script>
-// ===== STARS BACKGROUND =====
-const starCanvas = document.getElementById('starCanvas');
-const starCtx = starCanvas.getContext('2d');
-let stars = [];
-function resizeStars() {
-    starCanvas.width = window.innerWidth;
-    starCanvas.height = window.innerHeight;
-    stars = Array(150).fill().map(() => ({
-        x: Math.random()*starCanvas.width,
-        y: Math.random()*starCanvas.height,
-        z: Math.random()*1.5+0.5,
-        color: `hsl(${Math.random()*360}, 80%, 70%)`
+// ===== TEMPORAL FLUX ANALYZER =====
+const fluxCanvas = document.getElementById("fluxCanvas");
+const fluxCtx = fluxCanvas.getContext("2d");
+let fluxParticles = [];
+
+function resizeFlux() {
+    fluxCanvas.width = fluxCanvas.clientWidth;
+    fluxCanvas.height = fluxCanvas.clientHeight;
+    fluxParticles = Array(50).fill().map(() => ({
+        x: Math.random()*fluxCanvas.width,
+        y: Math.random()*fluxCanvas.height,
+        vx: (Math.random()-0.5)*2,
+        vy: (Math.random()-0.5)*2,
+        size: Math.random()*3+1
     }));
 }
-window.addEventListener('resize', resizeStars);
-resizeStars();
-function drawStars() {
-    starCtx.fillStyle='black';
-    starCtx.fillRect(0,0,starCanvas.width,starCanvas.height);
-    stars.forEach(s=>{
-        s.y -= 0.2*s.z;
-        if(s.y<0) { s.y=starCanvas.height; s.x=Math.random()*starCanvas.width; s.color=`hsl(${Math.random()*360},80%,70%)`; }
-        starCtx.fillStyle = s.color;
-        starCtx.beginPath();
-        starCtx.arc(s.x,s.y, s.z*1.5,0,Math.PI*2);
-        starCtx.fill();
+window.addEventListener('resize', resizeFlux);
+resizeFlux();
+
+function updateFlux(gps, latency, drift) {
+    // Новий параметр – комбінація (можна назвати flux)
+    return ((gps/50) + (latency/250) + drift) / 3;
+}
+
+function drawFlux(fluxValue){
+    fluxCtx.fillStyle = "rgba(0,0,0,0.1)";
+    fluxCtx.fillRect(0,0,fluxCanvas.width,fluxCanvas.height);
+
+    fluxParticles.forEach(p=>{
+        // рух частинок залежно від fluxValue
+        p.x += p.vx*fluxValue*5;
+        p.y += p.vy*fluxValue*5;
+
+        if(p.x<0) p.x=fluxCanvas.width;
+        if(p.x>fluxCanvas.width) p.x=0;
+        if(p.y<0) p.y=fluxCanvas.height;
+        if(p.y>fluxCanvas.height) p.y=0;
+
+        fluxCtx.fillStyle = `rgba(${Math.floor(255*fluxValue)}, ${255-Math.floor(255*fluxValue)}, 150, 0.8)`;
+        fluxCtx.beginPath();
+        fluxCtx.arc(p.x, p.y, p.size,0,Math.PI*2);
+        fluxCtx.fill();
     });
-    requestAnimationFrame(drawStars);
-}
-drawStars();
 
-// ===== METRICS =====
-function updateAtomicTime() { 
-    const now = new Date(); 
-    const el = document.getElementById("atomicTime");
-    if(el) el.textContent = now.toISOString(); 
-}
-
-function updateGpsOffset() { 
-    const el = document.getElementById("gpsOffset");
-    const base = 38; 
-    const noise = (Math.random()-0.5)*3; 
-    const value = base+noise; 
-    if(el) el.textContent = value.toFixed(3)+" μs"; 
-    return value; 
-}
-
-async function measureLatency() { 
-    const el = document.getElementById("latency");
-    try { 
-        const start = performance.now(); 
-        await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC", {cache:"no-store"}); 
-        const end = performance.now(); 
-        const latency = end-start; 
-        if(el) el.textContent = latency.toFixed(1)+" ms"; 
-        return latency; 
-    } catch { 
-        if(el) el.textContent="offline"; 
-        return 0; 
-    } 
-}
-
-function calcDrift(gps, latency){
-    return Math.abs(gps / 40 - latency / 200);
-}
-
-function calcTimeIbonariumIndex(gps, latency, drift){
-    return (gps / 40) * 0.45 + (latency / 200) * 0.35 + drift * 0.2;
-}
-
-function updateAlert(index){
-    const box=document.getElementById("alertBox");
-    if(!box) return;
-    if(index<0.4){
-        box.innerHTML="🟢 СИНХРОНІЯ · Стабільний простір-час";
-        box.style.borderColor="#00ff9c";
-    } else if(index<0.7){
-        box.innerHTML="🟡 ФАЗОВИЙ ЗСУВ · Часові системи розходяться";
-        box.style.borderColor="#ffaa00";
-    } else {
-        box.innerHTML="🔴 TEMPORAL TURBULENCE · Ймовірні фазові переходи";
-        box.style.borderColor="#ff3366";
+    // Алерти
+    const alertBox = document.getElementById("fluxAlert");
+    if(fluxValue<0.35){
+        alertBox.textContent = "🟢 STABLE FLUX · Часові потоки гармонійні";
+        alertBox.style.color="#00ff9c";
+    } else if(fluxValue<0.65){
+        alertBox.textContent = "🟡 MODERATE FLUX · Легкі коливання";
+        alertBox.style.color="#ffaa00";
+    } else{
+        alertBox.textContent = "🔴 HIGH FLUX · Потік нестабільний";
+        alertBox.style.color="#ff3366";
     }
+
+    document.getElementById("fluxValue").textContent = fluxValue.toFixed(3);
+
+    requestAnimationFrame(()=>drawFlux(fluxValue));
 }
 
-// ===== MATRIX TIME RAIN =====
-const canvas=document.getElementById("matrixCanvas"); 
-const ctx=canvas.getContext("2d"); 
-let drops=[]; 
-let fontSize=12; 
-let columns; 
-let matrixSpeed=1; 
-let matrixDensity=1; 
-let matrixColor="#00ff9c"; 
-
-function resizeMatrix(){
-    canvas.width=canvas.clientWidth; 
-    canvas.height=canvas.clientHeight; 
-    columns=Math.floor(canvas.width/fontSize); 
-    drops=Array(columns).fill(1); 
-} 
-window.addEventListener("resize", resizeMatrix); 
-resizeMatrix(); 
-
-function updateMatrixFromIndex(index,drift){
-    matrixSpeed=0.5+index*2; 
-    matrixDensity=0.5+drift; 
-    if(index<0.4) matrixColor="#00ff9c"; 
-    else if(index<0.7) matrixColor="#ffaa00"; 
-    else matrixColor="#ff3366"; 
-} 
-
-function drawMatrix(){
-    ctx.fillStyle="rgba(0,0,0,0.08)"; 
-    ctx.fillRect(0,0,canvas.width,canvas.height); 
-    ctx.fillStyle=matrixColor; 
-    ctx.font=fontSize+"px monospace"; 
-    for(let i=0;i<drops.length;i++){
-        if(Math.random()<matrixDensity){ 
-            const text=Math.random()>0.5?"1":"0"; 
-            ctx.fillText(text,i*fontSize,drops[i]*fontSize); 
-        } 
-        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0; 
-        drops[i]+=matrixSpeed; 
-    } 
-    requestAnimationFrame(drawMatrix); 
-} 
-drawMatrix();
-
-// ===== MAIN LOOP =====
+// ===== ІНТЕГРАЦІЯ У ГОЛОВНИЙ ЦИКЛ =====
 async function mainLoop(){
     updateAtomicTime();
     const gps = updateGpsOffset();
     const latency = await measureLatency();
     const drift = calcDrift(gps, latency);
-    const driftEl = document.getElementById("drift");
-    if(driftEl) driftEl.textContent = drift.toFixed(3);
+    document.getElementById("drift").textContent = drift.toFixed(3);
     const index = calcTimeIbonariumIndex(gps, latency, drift);
-    const indexEl = document.getElementById("timeIndex");
-    if(indexEl) indexEl.textContent = index.toFixed(3);
+    document.getElementById("timeIndex").textContent = index.toFixed(3);
     updateAlert(index);
     updateMatrixFromIndex(index, drift);
-}
 
-// ===== INITIALIZATION =====
-window.onload = () => {
-    mainLoop();
-    setInterval(mainLoop,500); 
-};
-
-// ===== MOBILE ADAPTATION =====
-const mediaQuery = window.matchMedia('(max-width: 500px)'); 
-function handleMobile(e) { 
-    const grid = document.querySelector('.grid');
-    if(!grid) return;
-    if(e.matches){ 
-        grid.style.gridTemplateColumns='1fr'; 
-        canvas.height=140; 
-    } else { 
-        grid.style.gridTemplateColumns='1fr 1fr 1fr'; 
-        canvas.height=180; 
-    } 
+    // Flux
+    const flux = updateFlux(gps, latency, drift);
+    drawFlux(flux);
 }
-mediaQuery.addEventListener('change', handleMobile); 
-handleMobile(mediaQuery);
-</script>
+setInterval(mainLoop, 500);
+mainLoop();
