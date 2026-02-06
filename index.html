@@ -182,25 +182,25 @@ function updateAlert(index){
 const canvas=document.getElementById("matrixCanvas"); 
 const ctx=canvas.getContext("2d"); 
 let drops=[]; 
-let fontSize=12; 
+let fontSize=10; // трохи менший шрифт для ширшої матриці
 let columns; 
 let matrixSpeed=1; 
 let matrixDensity=1; 
 let matrixColor="#00ff9c"; 
 
 function resizeMatrix(){
-    canvas.width=canvas.clientWidth; 
-    canvas.height=canvas.clientHeight; 
-    columns=Math.floor(canvas.width/fontSize); 
-    drops=Array(columns).fill(1); 
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight; 
+    columns = Math.floor(canvas.width / fontSize); // більше колонок
+    drops = Array(columns).fill(1); 
 } 
 
 window.addEventListener("resize", resizeMatrix); 
 resizeMatrix(); 
 
 function updateMatrixFromIndex(index,drift){
-    matrixSpeed=0.5+index*2; 
-    matrixDensity=0.5+drift; 
+    matrixSpeed = 0.5 + index*2; 
+    matrixDensity = 0.5 + drift; 
     if(index<0.4) matrixColor="#00ff9c"; 
     else if(index<0.7) matrixColor="#ffaa00"; 
     else matrixColor="#ff3366"; 
