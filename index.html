@@ -1,180 +1,257 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IBONARIUM — Геометральна карта</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IBONARIUM · TIME RELATIVITY REALTIME</title>
 
 <style>
-body{
-  margin:0;
-  background:#05020a;
-  overflow:hidden;
-  font-family:monospace;
+body {
+    margin: 0;
+    background: #000;
+    color: #00ff9c;
+    font-family: monospace;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
 }
 
-/* Панель зверху */
-#panel{
-  position:fixed;
-  top:10px;
-  left:50%;
-  transform:translateX(-50%);
-  color:#c0b18a;
-  font-size:12px;
-  text-align:center;
-  backdrop-filter: blur(6px);
-  padding:6px 12px;
-  border-radius:10px;
-  opacity:0.9;
-  z-index:5;
-  background:rgba(0,0,0,0.2);
+.container {
+    padding: 10px;
+    max-width: 480px;
+    margin: auto;
+    z-index: 2;
+    position: relative;
 }
 
-/* Canvas для карти */
-canvas{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
+h1 { font-size: 16px; margin-bottom: 6px; }
+.subtitle { font-size: 9px; opacity: 0.6; margin-bottom: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.card { border: 1px solid rgba(0,255,150,0.35); padding: 10px; border-radius: 12px; background: rgba(0,255,150,0.03); backdrop-filter: blur(6px); }
+.label { font-size: 9px; opacity: 0.7; }
+.value { font-size: 16px; margin-top: 4px; }
+.desc { font-size: 9px; margin-top: 6px; opacity: 0.65; line-height: 1.3; }
+.matrixCard { position: relative; overflow: hidden; }
+#matrixCanvas { width: 100%; height: 180px; display: block; z-index: 2; position: relative; }
+.bigIndex { margin-top: 14px; border: 1px solid rgba(0,255,200,0.6); border-radius: 16px; padding: 14px; background: rgba(0,255,200,0.04); }
+.indexValue { font-size: 28px; margin-top: 4px; }
+.alertBox { margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); font-size: 10px; }
+.footer { margin-top: 12px; font-size: 8px; opacity: 0.5; }
+
+#starCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
 }
 </style>
 </head>
-<body>
 
-<div id="panel">
-IBONARIUM<br>
-Solar Wind: <span id="wind">--</span> km/s<br>
-Kp Index: <span id="kp">--</span><br>
-Bz Field: <span id="bz">--</span> nT
+<body>
+<canvas id="starCanvas"></canvas>
+<div class="container">
+
+<h1>IBONARIUM · REALTIME TIME RELATIVITY MONITOR</h1>
+<div class="subtitle">Realtime оцінка відносності часу через техно, мережеві та релятивістські проксі-метрики</div>
+
+<div class="grid">
+    <div class="card">
+        <div class="label">LOCAL ATOMIC TIME (SIM)</div>
+        <div class="value" id="atomicTime">--</div>
+        <div class="desc">Базовий еталон часу системи. Використовується як локальна референсна точка.</div>
+    </div>
+    <div class="card">
+        <div class="label">GPS RELATIVITY OFFSET (SIM)</div>
+        <div class="value" id="gpsOffset">--</div>
+        <div class="desc">Релятивістська поправка між супутниковим та земним часом.</div>
+    </div>
+    <div class="card">
+        <div class="label">NETWORK LATENCY</div>
+        <div class="value" id="latency">--</div>
+        <div class="desc">Проксі швидкості передачі інформації — інформаційний час цивілізації.</div>
+    </div>
+    <div class="card">
+        <div class="label">TEMPORAL DRIFT (DERIVED)</div>
+        <div class="value" id="drift">--</div>
+        <div class="desc">Похідне відхилення часових систем між собою.</div>
+    </div>
+    <div class="card matrixCard">
+        <div class="label">TIME MATRIX STREAM</div>
+        <canvas id="matrixCanvas"></canvas>
+        <div class="desc">Матриця часу реагує на всі 4 метрики + Time Index (швидкість, щільність, колір).</div>
+    </div>
 </div>
 
-<canvas id="map"></canvas>
+<div class="bigIndex">
+    <div class="label">TIME IBONARIUM INDEX</div>
+    <div class="indexValue" id="timeIndex">--</div>
+    <div class="alertBox" id="alertBox">Очікування даних...</div>
+</div>
+<div class="footer">IBONARIUM LAB · UPDATE 500ms · TEMPORAL MATRIX ACTIVE</div>
+</div>
 
 <script>
-const canvas = document.getElementById("map");
-const ctx = canvas.getContext("2d");
-
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize",resize);
-
-// ===== LIVE DATA STATE =====
-let state = {wind:400,kp:2,bz:0};
-
-// ===== NODES / SUN SPIRALS =====
-let sunNodes = [];
-for(let i=0;i<40;i++){
-  sunNodes.push({
-    a: Math.random()*Math.PI*2,
-    r: 50+Math.random()*150,
-    speed:0.001+Math.random()*0.001
-  });
-}
-
-// ===== CONSTELLATIONS / COSMOS =====
+// ===== STARS BACKGROUND =====
+const starCanvas = document.getElementById('starCanvas');
+const starCtx = starCanvas.getContext('2d');
 let stars = [];
-for(let i=0;i<120;i++){
-  stars.push({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height*0.6,
-    size: 1+Math.random()*2,
-    dx: (Math.random()-0.5)*0.1,
-    dy: (Math.random()-0.5)*0.1
-  });
+function resizeStars() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+    stars = Array(150).fill().map(() => ({
+        x: Math.random()*starCanvas.width,
+        y: Math.random()*starCanvas.height,
+        z: Math.random()*1.5+0.5,
+        color: `hsl(${Math.random()*360}, 80%, 70%)`
+    }));
 }
-
-// ===== EARTH CONTOURS (simple polygon for prototype) =====
-let earthContours = [
-  [{x:100,y:300},{x:300,y:280},{x:400,y:400},{x:250,y:450},{x:120,y:420}],
-  [{x:500,y:150},{x:600,y:200},{x:650,y:300},{x:550,y:250}]
-];
-
-// ===== DRAW LOOP =====
-function draw(t){
-  ctx.fillStyle="rgba(5,2,10,0.25)";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  // ----- SUN SPIRALS -----
-  let cx = canvas.width*0.7;
-  let cy = canvas.height*0.3;
-  sunNodes.forEach(n=>{
-    n.a += n.speed*state.wind/400;
-    let x = cx + Math.cos(n.a)*n.r;
-    let y = cy + Math.sin(n.a)*n.r;
-    ctx.beginPath();
-    ctx.arc(x,y,2+state.kp/2,0,Math.PI*2);
-    ctx.fillStyle="rgba(255,220,120,0.7)";
-    ctx.fill();
-  });
-
-  // ----- STARS / COSMOS -----
-  stars.forEach(s=>{
-    s.x += s.dx;
-    s.y += s.dy;
-    if(s.x<0 || s.x>canvas.width) s.dx*=-1;
-    if(s.y<0 || s.y>canvas.height*0.6) s.dy*=-1;
-    ctx.beginPath();
-    ctx.arc(s.x,s.y,s.size,0,Math.PI*2);
-    ctx.fillStyle="rgba(180,220,255,0.6)";
-    ctx.fill();
-  });
-
-  // ----- EARTH CONTOURS -----
-  earthContours.forEach(polygon=>{
-    ctx.beginPath();
-    polygon.forEach((pt,i)=>{
-      if(i===0) ctx.moveTo(pt.x,pt.y);
-      else ctx.lineTo(pt.x,pt.y);
+window.addEventListener('resize', resizeStars);
+resizeStars();
+function drawStars() {
+    starCtx.fillStyle='black';
+    starCtx.fillRect(0,0,starCanvas.width,starCanvas.height);
+    stars.forEach(s=>{
+        s.y -= 0.2*s.z;
+        if(s.y<0) { s.y=starCanvas.height; s.x=Math.random()*starCanvas.width; s.color=`hsl(${Math.random()*360},80%,70%)`; }
+        starCtx.fillStyle = s.color;
+        starCtx.beginPath();
+        starCtx.arc(s.x,s.y, s.z*1.5,0,Math.PI*2);
+        starCtx.fill();
     });
-    ctx.closePath();
-    ctx.strokeStyle="rgba(200,180,150,0.7)";
-    ctx.lineWidth=2;
-    ctx.stroke();
-  });
+    requestAnimationFrame(drawStars);
+}
+drawStars();
 
-  // ----- TUMBLING FOG -----
-  for(let i=0;i<60;i++){
-    ctx.beginPath();
-    let px = Math.random()*canvas.width;
-    let py = Math.random()*canvas.height;
-    ctx.arc(px,py,Math.random()*20,0,Math.PI*2);
-    ctx.fillStyle=`rgba(50,80,100,0.02)`;
-    ctx.fill();
-  }
-
-  requestAnimationFrame(draw);
+// ===== METRICS =====
+function updateAtomicTime() { 
+    const now = new Date(); 
+    document.getElementById("atomicTime").textContent = now.toISOString(); 
 }
 
-requestAnimationFrame(draw);
-
-// ===== LIVE NOAA DATA FETCH =====
-async function loadNOAA(){
-  try{
-    const windRes = await fetch("https://services.swpc.noaa.gov/json/planetary_k_index_1m.json");
-    const windData = await windRes.json();
-    state.kp = windData[windData.length-1].kp;
-
-    const windSpdRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json");
-    const windSpdData = await windSpdRes.json();
-    state.wind = windSpdData[windSpdData.length-1].speed;
-
-    const magRes = await fetch("https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json");
-    const magData = await magRes.json();
-    state.bz = magData[magData.length-1].bz;
-
-    document.getElementById("wind").textContent = state.wind.toFixed(0);
-    document.getElementById("kp").textContent = state.kp.toFixed(1);
-    document.getElementById("bz").textContent = state.bz.toFixed(1);
-
-  }catch(e){ console.log("NOAA error",e); }
+function updateGpsOffset() { 
+    const base = 38; 
+    const noise = (Math.random()-0.5)*3; 
+    const value = base+noise; 
+    document.getElementById("gpsOffset").textContent = value.toFixed(3)+" μs"; 
+    return value; 
 }
 
-loadNOAA();
-setInterval(loadNOAA,60000);
+async function measureLatency() { 
+    try { 
+        const start = performance.now(); 
+        await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC", {cache:"no-store"}); 
+        const end = performance.now(); 
+        const latency = end-start; 
+        document.getElementById("latency").textContent = latency.toFixed(1)+" ms"; 
+        return latency; 
+    } catch { 
+        document.getElementById("latency").textContent="offline"; 
+        return 0; 
+    } 
+}
+
+function calcDrift(gps, latency){
+    return Math.abs(gps / 40 - latency / 200);
+}
+
+function calcTimeIbonariumIndex(gps, latency, drift){
+    return (gps / 40) * 0.45 + (latency / 200) * 0.35 + drift * 0.2;
+}
+
+function updateAlert(index){
+    const box=document.getElementById("alertBox");
+    if(index<0.4){
+        box.innerHTML="🟢 СИНХРОНІЯ · Стабільний простір-час";
+        box.style.borderColor="#00ff9c";
+    } else if(index<0.7){
+        box.innerHTML="🟡 ФАЗОВИЙ ЗСУВ · Часові системи розходяться";
+        box.style.borderColor="#ffaa00";
+    } else {
+        box.innerHTML="🔴 TEMPORAL TURBULENCE · Ймовірні фазові переходи";
+        box.style.borderColor="#ff3366";
+    }
+}
+
+// ===== MATRIX TIME RAIN =====
+const canvas=document.getElementById("matrixCanvas"); 
+const ctx=canvas.getContext("2d"); 
+let drops=[]; 
+let fontSize=12; 
+let columns; 
+let matrixSpeed=1; 
+let matrixDensity=1; 
+let matrixColor="#00ff9c"; 
+
+function resizeMatrix(){
+    canvas.width=canvas.clientWidth; 
+    canvas.height=canvas.clientHeight; 
+    columns=Math.floor(canvas.width/fontSize); 
+    drops=Array(columns).fill(1); 
+} 
+
+window.addEventListener("resize", resizeMatrix); 
+resizeMatrix(); 
+
+function updateMatrixFromIndex(index,drift){
+    matrixSpeed=0.5+index*2; 
+    matrixDensity=0.5+drift; 
+    if(index<0.4) matrixColor="#00ff9c"; 
+    else if(index<0.7) matrixColor="#ffaa00"; 
+    else matrixColor="#ff3366"; 
+} 
+
+function drawMatrix(){
+    ctx.fillStyle="rgba(0,0,0,0.08)"; 
+    ctx.fillRect(0,0,canvas.width,canvas.height); 
+    ctx.fillStyle=matrixColor; 
+    ctx.font=fontSize+"px monospace"; 
+    for(let i=0;i<drops.length;i++){
+        if(Math.random()<matrixDensity){ 
+            const text=Math.random()>0.5?"1":"0"; 
+            ctx.fillText(text,i*fontSize,drops[i]*fontSize); 
+        } 
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0; 
+        drops[i]+=matrixSpeed; 
+    } 
+    requestAnimationFrame(drawMatrix); 
+} 
+drawMatrix();
+
+// ===== MAIN LOOP =====
+async function mainLoop(){
+    updateAtomicTime();
+    const gps = updateGpsOffset();
+    const latency = await measureLatency();
+    const drift = calcDrift(gps, latency);
+    document.getElementById("drift").textContent = drift.toFixed(3);
+    const index = calcTimeIbonariumIndex(gps, latency, drift);
+    document.getElementById("timeIndex").textContent = index.toFixed(3);
+    updateAlert(index);
+    updateMatrixFromIndex(index, drift);
+}
+
+setInterval(mainLoop,500); 
+mainLoop();
+
+// ===== MOBILE ADAPTATION =====
+const mediaQuery = window.matchMedia('(max-width: 500px)'); 
+function handleMobile(e) { 
+    if(e.matches){ 
+        document.querySelector('.grid').style.gridTemplateColumns='1fr'; 
+        canvas.height=140; 
+    } else { 
+        document.querySelector('.grid').style.gridTemplateColumns='1fr 1fr'; 
+        canvas.height=180; 
+    } 
+}
+mediaQuery.addEventListener('change', handleMobile); 
+handleMobile(mediaQuery);
 </script>
 
 </body>
