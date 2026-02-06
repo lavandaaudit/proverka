@@ -1,126 +1,167 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONARIUM · TIME RELATIVITY REALTIME</title>
-
-<style>
-body {
-    margin: 0;
-    background: #000;
-    color: #00ff9c;
-    font-family: monospace;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
-    overflow-x: hidden;
-    padding: 20px 0;
-}
-
-.container {
-    width: 95%;
-    max-width: 520px;
-    margin: auto;
-    z-index: 2;
-    position: relative;
-}
-
-h1 { font-size: 18px; margin-bottom: 4px; text-align:center; }
-.subtitle { font-size: 10px; opacity: 0.6; margin-bottom: 12px; text-align:center; }
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-}
-
-.card {
-    border: 1px solid rgba(0,255,150,0.35);
-    padding: 10px;
-    border-radius: 12px;
-    background: rgba(0,255,150,0.03);
-    backdrop-filter: blur(6px);
-}
-
-.label { font-size: 9px; opacity: 0.7; }
-.value { font-size: 16px; margin-top: 4px; }
-.desc { font-size: 9px; margin-top: 6px; opacity: 0.65; line-height: 1.3; }
-
-.matrixCard { grid-column: span 3; position: relative; overflow: hidden; }
-#matrixCanvas { width: 100%; height: 180px; display: block; z-index: 2; position: relative; }
-
-.bigIndex { margin-top: 12px; border: 1px solid rgba(0,255,200,0.6); border-radius: 16px; padding: 14px; background: rgba(0,255,200,0.04); }
-.indexValue { font-size: 28px; margin-top: 4px; }
-.alertBox { margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); font-size: 10px; }
-.footer { margin-top: 12px; font-size: 8px; opacity: 0.5; text-align:center; }
-
-#starCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* MOBILE */
-@media (max-width: 500px){
-    .grid { grid-template-columns: 1fr; }
-    #matrixCanvas { height: 140px; }
-}
-</style>
-</head>
-
-<body>
-<canvas id="starCanvas"></canvas>
-<div class="container">
-
-<h1>IBONARIUM · REALTIME TIME RELATIVITY MONITOR</h1>
-<div class="subtitle">Realtime оцінка відносності часу через техно, мережеві та релятивістські проксі-метрики</div>
-
-<div class="grid">
-    <div class="card">
-        <div class="label">LOCAL ATOMIC TIME (SIM)</div>
-        <div class="value" id="atomicTime">--</div>
-        <div class="desc">Базовий еталон часу системи. Використовується як локальна референсна точка.</div>
-    </div>
-    <div class="card">
-        <div class="label">GPS RELATIVITY OFFSET (SIM)</div>
-        <div class="value" id="gpsOffset">--</div>
-        <div class="desc">Релятивістська поправка між супутниковим та земним часом.</div>
-    </div>
-    <div class="card">
-        <div class="label">NETWORK LATENCY</div>
-        <div class="value" id="latency">--</div>
-        <div class="desc">Проксі швидкості передачі інформації — інформаційний час цивілізації.</div>
-    </div>
-    <div class="card">
-        <div class="label">TEMPORAL DRIFT (DERIVED)</div>
-        <div class="value" id="drift">--</div>
-        <div class="desc">Похідне відхилення часових систем між собою.</div>
-    </div>
-    <div class="card matrixCard">
-        <div class="label">TIME MATRIX STREAM</div>
-        <canvas id="matrixCanvas"></canvas>
-        <div class="desc">Матриця часу реагує на всі 4 метрики + Time Index (швидкість, щільність, колір).</div>
-    </div>
-</div>
-
-<div class="bigIndex">
-    <div class="label">TIME IBONARIUM INDEX</div>
-    <div class="indexValue" id="timeIndex">--</div>
-    <div class="alertBox" id="alertBox">Очікування даних...</div>
-</div>
-
-<div class="footer">IBONARIUM LAB · UPDATE 500ms · TEMPORAL MATRIX ACTIVE</div>
-</div>
-
 <script>
-// ----- SCRIPT ЗАЛИШАЄМО БЕЗ ЗМІН -----
-</script>
+// ===== STARS BACKGROUND =====
+const starCanvas = document.getElementById('starCanvas');
+const starCtx = starCanvas.getContext('2d');
+let stars = [];
+function resizeStars() {
+    starCanvas.width = window.innerWidth;
+    starCanvas.height = window.innerHeight;
+    stars = Array(150).fill().map(() => ({
+        x: Math.random()*starCanvas.width,
+        y: Math.random()*starCanvas.height,
+        z: Math.random()*1.5+0.5,
+        color: `hsl(${Math.random()*360}, 80%, 70%)`
+    }));
+}
+window.addEventListener('resize', resizeStars);
+resizeStars();
+function drawStars() {
+    starCtx.fillStyle='black';
+    starCtx.fillRect(0,0,starCanvas.width,starCanvas.height);
+    stars.forEach(s=>{
+        s.y -= 0.2*s.z;
+        if(s.y<0) { s.y=starCanvas.height; s.x=Math.random()*starCanvas.width; s.color=`hsl(${Math.random()*360},80%,70%)`; }
+        starCtx.fillStyle = s.color;
+        starCtx.beginPath();
+        starCtx.arc(s.x,s.y, s.z*1.5,0,Math.PI*2);
+        starCtx.fill();
+    });
+    requestAnimationFrame(drawStars);
+}
+drawStars();
 
-</body>
-</html>
+// ===== METRICS =====
+function updateAtomicTime() { 
+    const now = new Date(); 
+    const el = document.getElementById("atomicTime");
+    if(el) el.textContent = now.toISOString(); 
+}
+
+function updateGpsOffset() { 
+    const el = document.getElementById("gpsOffset");
+    const base = 38; 
+    const noise = (Math.random()-0.5)*3; 
+    const value = base+noise; 
+    if(el) el.textContent = value.toFixed(3)+" μs"; 
+    return value; 
+}
+
+async function measureLatency() { 
+    const el = document.getElementById("latency");
+    try { 
+        const start = performance.now(); 
+        await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC", {cache:"no-store"}); 
+        const end = performance.now(); 
+        const latency = end-start; 
+        if(el) el.textContent = latency.toFixed(1)+" ms"; 
+        return latency; 
+    } catch { 
+        if(el) el.textContent="offline"; 
+        return 0; 
+    } 
+}
+
+function calcDrift(gps, latency){
+    return Math.abs(gps / 40 - latency / 200);
+}
+
+function calcTimeIbonariumIndex(gps, latency, drift){
+    return (gps / 40) * 0.45 + (latency / 200) * 0.35 + drift * 0.2;
+}
+
+function updateAlert(index){
+    const box=document.getElementById("alertBox");
+    if(!box) return;
+    if(index<0.4){
+        box.innerHTML="🟢 СИНХРОНІЯ · Стабільний простір-час";
+        box.style.borderColor="#00ff9c";
+    } else if(index<0.7){
+        box.innerHTML="🟡 ФАЗОВИЙ ЗСУВ · Часові системи розходяться";
+        box.style.borderColor="#ffaa00";
+    } else {
+        box.innerHTML="🔴 TEMPORAL TURBULENCE · Ймовірні фазові переходи";
+        box.style.borderColor="#ff3366";
+    }
+}
+
+// ===== MATRIX TIME RAIN =====
+const canvas=document.getElementById("matrixCanvas"); 
+const ctx=canvas.getContext("2d"); 
+let drops=[]; 
+let fontSize=12; 
+let columns; 
+let matrixSpeed=1; 
+let matrixDensity=1; 
+let matrixColor="#00ff9c"; 
+
+function resizeMatrix(){
+    canvas.width=canvas.clientWidth; 
+    canvas.height=canvas.clientHeight; 
+    columns=Math.floor(canvas.width/fontSize); 
+    drops=Array(columns).fill(1); 
+} 
+window.addEventListener("resize", resizeMatrix); 
+resizeMatrix(); 
+
+function updateMatrixFromIndex(index,drift){
+    matrixSpeed=0.5+index*2; 
+    matrixDensity=0.5+drift; 
+    if(index<0.4) matrixColor="#00ff9c"; 
+    else if(index<0.7) matrixColor="#ffaa00"; 
+    else matrixColor="#ff3366"; 
+} 
+
+function drawMatrix(){
+    ctx.fillStyle="rgba(0,0,0,0.08)"; 
+    ctx.fillRect(0,0,canvas.width,canvas.height); 
+    ctx.fillStyle=matrixColor; 
+    ctx.font=fontSize+"px monospace"; 
+    for(let i=0;i<drops.length;i++){
+        if(Math.random()<matrixDensity){ 
+            const text=Math.random()>0.5?"1":"0"; 
+            ctx.fillText(text,i*fontSize,drops[i]*fontSize); 
+        } 
+        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0; 
+        drops[i]+=matrixSpeed; 
+    } 
+    requestAnimationFrame(drawMatrix); 
+} 
+drawMatrix();
+
+// ===== MAIN LOOP =====
+async function mainLoop(){
+    updateAtomicTime();
+    const gps = updateGpsOffset();
+    const latency = await measureLatency();
+    const drift = calcDrift(gps, latency);
+    const driftEl = document.getElementById("drift");
+    if(driftEl) driftEl.textContent = drift.toFixed(3);
+    const index = calcTimeIbonariumIndex(gps, latency, drift);
+    const indexEl = document.getElementById("timeIndex");
+    if(indexEl) indexEl.textContent = index.toFixed(3);
+    updateAlert(index);
+    updateMatrixFromIndex(index, drift);
+}
+
+// ===== INITIALIZATION =====
+window.onload = () => {
+    mainLoop();
+    setInterval(mainLoop,500); 
+};
+
+// ===== MOBILE ADAPTATION =====
+const mediaQuery = window.matchMedia('(max-width: 500px)'); 
+function handleMobile(e) { 
+    const grid = document.querySelector('.grid');
+    if(!grid) return;
+    if(e.matches){ 
+        grid.style.gridTemplateColumns='1fr'; 
+        canvas.height=140; 
+    } else { 
+        grid.style.gridTemplateColumns='1fr 1fr 1fr'; 
+        canvas.height=180; 
+    } 
+}
+mediaQuery.addEventListener('change', handleMobile); 
+handleMobile(mediaQuery);
+</script>
