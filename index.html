@@ -20,7 +20,7 @@ body {
 
 .container {
     padding: 10px;
-    max-width: 800px;
+    max-width: 480px;
     margin: auto;
     z-index: 2;
     position: relative;
@@ -50,21 +50,20 @@ h1 { font-size: 16px; margin-bottom: 6px; }
 .matrixCard {
     position: relative;
     overflow: hidden;
-    display: flex;
-    gap: 10px;
+    height: 180px;
 }
 
 #matrixCanvas {
-    flex: 1;
-    height: 180px;
+    width: 100%;
+    height: 100%;
     display: block;
 }
 
-.systemReport {
-    flex: 0 0 160px;
+.systemReportCard {
+    margin-top: 10px;
     border: 1px solid rgba(0,255,150,0.35);
     border-radius: 12px;
-    padding: 8px;
+    padding: 10px;
     background: rgba(0,255,150,0.03);
     backdrop-filter: blur(6px);
     font-size: 9px;
@@ -135,20 +134,19 @@ h1 { font-size: 16px; margin-bottom: 6px; }
   <div class="desc">Похідне відхилення часових систем між собою.</div>
 </div>
 
-<!-- Матриця часу з правою панеллю -->
+<!-- Матриця часу -->
 <div class="matrixCard">
   <canvas id="matrixCanvas"></canvas>
-  <div class="systemReport">
-    <div class="label">SYSTEM REPORT</div>
-    <div class="desc" id="systemReportText">
-      Поточний стан системи часу IBONARIUM.<br>
-      Метрики синхронізації: атомний час, GPS, латентність мережі.<br>
-      Показник часу: TIME IBONARIUM INDEX.<br>
-      Статус: очікування даних.<br>
-      Оновлення кожні 500 мс.
-    </div>
-  </div>
 </div>
+</div>
+
+<!-- Система звіту як окремий блок -->
+<div class="systemReportCard" id="systemReportText">
+  Поточний стан системи часу IBONARIUM.<br>
+  Метрики синхронізації: атомний час, GPS, латентність мережі.<br>
+  Показник часу: TIME IBONARIUM INDEX.<br>
+  Статус: очікування даних.<br>
+  Оновлення кожні 500 мс.
 </div>
 
 <div class="bigIndex">
