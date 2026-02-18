@@ -1,317 +1,164 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>IBONARIUM · TIME RELATIVITY REALTIME</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CITY.BIRD | Universal Hub</title>
+    <style>
+        :root {
+            --bg: #000;
+            --accent: #ff9800;
+        }
 
-<style>
-body {
-    margin: 0;
-    background: #000;
-    color: #00ff9c;
-    font-family: monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    overflow: hidden;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-.container {
-    padding: 10px;
-    max-width: 480px;
-    margin: auto;
-    z-index: 2;
-    position: relative;
-}
+        body,
+        html {
+            background: var(--bg);
+            height: 100%;
+            overflow-y: scroll;
+            /* Scroll Snapping */
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
 
-h1 { font-size: 16px; margin-bottom: 6px; }
-.subtitle { font-size: 9px; opacity: 0.6; margin-bottom: 14px; }
+        /* Стилізація скролбару */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
 
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
 
-.card {
-    border: 1px solid rgba(0,255,150,0.35);
-    padding: 10px;
-    border-radius: 12px;
-    background: rgba(0,255,150,0.03);
-    backdrop-filter: blur(6px);
-}
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
 
-.label { font-size: 9px; opacity: 0.7; }
-.value { font-size: 16px; margin-top: 4px; }
-.desc { font-size: 9px; margin-top: 6px; opacity: 0.65; line-height: 1.3; }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
 
-.matrixCard {
-    position: relative;
-    overflow: hidden;
-    height: 180px;
-}
+        .section {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            scroll-snap-align: start;
+            position: relative;
+        }
 
-#matrixCanvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
+        .frame-wrap {
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+            background: #0a0a0a;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+            transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+        }
 
-.systemReportCard {
-    margin-top: 10px;
-    border: 1px solid rgba(0,255,150,0.35);
-    border-radius: 12px;
-    padding: 10px;
-    background: rgba(0,255,150,0.03);
-    backdrop-filter: blur(6px);
-    font-size: 9px;
-    line-height: 1.3;
-}
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            /* Важливо для мобільних */
+            -webkit-overflow-scrolling: touch;
+        }
 
-.bigIndex {
-    margin-top: 14px;
-    border: 1px solid rgba(0,255,200,0.6);
-    border-radius: 16px;
-    padding: 14px;
-    background: rgba(0,255,200,0.04);
-}
-.indexValue { font-size: 28px; margin-top: 4px; }
+        /* Захисний шар, щоб скрол не "залипав" при переході */
+        .scroll-catcher {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            /* за замовчуванням прозорий */
+        }
 
-.alertBox {
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(255,255,255,0.2);
-    font-size: 10px;
-}
+        /* Коли фіксуємо скрол - блокуємо iframe */
+        body.is-scrolling iframe {
+            pointer-events: none;
+        }
 
-.footer {
-    margin-top: 12px;
-    font-size: 8px;
-    opacity: 0.5;
-}
-
-#starCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    pointer-events: none;
-}
-</style>
+        .label {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 20;
+        }
+    </style>
 </head>
 
 <body>
-<canvas id="starCanvas"></canvas>
-<div class="container">
 
-<h1>IBONARIUM · REALTIME TIME RELATIVITY MONITOR</h1>
-<div class="subtitle">Realtime оцінка відносності часу через техно, мережеві та релятивістські проксі-метрики</div>
+    <div class="section">
+        <div class="label">ORNITHOLOGICAL RADAR</div>
+        <div class="frame-wrap">
+            <iframe src="https://lavandaaudit.github.io/city.birds/"></iframe>
+        </div>
+    </div>
 
-<div class="grid">
-<div class="card">
-  <div class="label">LOCAL ATOMIC TIME (SIM)</div>
-  <div class="value" id="atomicTime">--</div>
-  <div class="desc">Базовий еталон часу системи. Використовується як локальна референсна точка.</div>
-</div>
-<div class="card">
-  <div class="label">GPS RELATIVITY OFFSET (SIM)</div>
-  <div class="value" id="gpsOffset">--</div>
-  <div class="desc">Релятивістська поправка між супутниковим та земним часом.</div>
-</div>
-<div class="card">
-  <div class="label">NETWORK LATENCY</div>
-  <div class="value" id="latency">--</div>
-  <div class="desc">Проксі швидкості передачі інформації — інформаційний час цивілізації.</div>
-</div>
-<div class="card">
-  <div class="label">TEMPORAL DRIFT (DERIVED)</div>
-  <div class="value" id="drift">--</div>
-  <div class="desc">Похідне відхилення часових систем між собою.</div>
-</div>
+    <div class="section">
+        <div class="label">IRPIN MONITORING HUB</div>
+        <div class="frame-wrap">
+            <iframe src="https://lavandaaudit.github.io/Irpin.city.birds/"></iframe>
+        </div>
+    </div>
 
-<!-- Матриця часу -->
-<div class="matrixCard">
-  <canvas id="matrixCanvas"></canvas>
-</div>
-</div>
+    <div class="section">
+        <div class="label">PREMIUM FAN SHOP</div>
+        <div class="frame-wrap">
+            <iframe src="https://lavandaaudit.github.io/shop.birds/"></iframe>
+        </div>
+    </div>
 
-<!-- Система звіту як окремий блок -->
-<div class="systemReportCard" id="systemReportText">
-  Поточний стан системи часу IBONARIUM.<br>
-  Метрики синхронізації: атомний час, GPS, латентність мережі.<br>
-  Показник часу: TIME IBONARIUM INDEX.<br>
-  Статус: очікування даних.<br>
-  Оновлення кожні 500 мс.
-</div>
+    <script>
+        // JS для того, щоб під час основного скролу іфрейми не перехоплювали курсор
+        let isScrolling;
+        window.addEventListener('scroll', function () {
+            document.body.classList.add('is-scrolling');
 
-<div class="bigIndex">
-  <div class="label">TIME IBONARIUM INDEX</div>
-  <div class="indexValue" id="timeIndex">--</div>
-  <div class="alertBox" id="alertBox">Очікування даних...</div>
-</div>
+            window.clearTimeout(isScrolling);
 
-<div class="footer">IBONARIUM LAB · UPDATE 500ms · TEMPORAL MATRIX ACTIVE</div>
-</div>
+            isScrolling = setTimeout(function () {
+                document.body.classList.remove('is-scrolling');
+            }, 150);
+        }, false);
 
-<script>
-// ===== STARS BACKGROUND =====
-const starCanvas = document.getElementById('starCanvas');
-const starCtx = starCanvas.getContext('2d');
-let stars = [];
-function resizeStars() {
-    starCanvas.width = window.innerWidth;
-    starCanvas.height = window.innerHeight;
-    stars = Array(150).fill().map(() => ({
-        x: Math.random()*starCanvas.width,
-        y: Math.random()*starCanvas.height,
-        z: Math.random()*1.5+0.5,
-        color: `hsl(${Math.random()*360}, 80%, 70%)`
-    }));
-}
-window.addEventListener('resize', resizeStars);
-resizeStars();
-function drawStars() {
-    starCtx.fillStyle='black';
-    starCtx.fillRect(0,0,starCanvas.width,starCanvas.height);
-    stars.forEach(s=>{
-        s.y -= 0.2*s.z;
-        if(s.y<0) { 
-            s.y=starCanvas.height; 
-            s.x=Math.random()*starCanvas.width; 
-            s.color=`hsl(${Math.random()*360},80%,70%)`; 
-        }
-        starCtx.fillStyle = s.color;
-        starCtx.beginPath();
-        starCtx.arc(s.x,s.y, s.z*1.5,0,Math.PI*2);
-        starCtx.fill();
-    });
-    requestAnimationFrame(drawStars);
-}
-drawStars();
-
-// ===== METRICS =====
-function updateAtomicTime() { 
-    const now = new Date(); 
-    document.getElementById("atomicTime").textContent = now.toISOString(); 
-}
-function updateGpsOffset() { 
-    const base = 38; 
-    const noise = (Math.random()-0.5)*3; 
-    const value = base+noise; 
-    document.getElementById("gpsOffset").textContent = value.toFixed(3)+" μs"; 
-    return value; 
-}
-async function measureLatency() { 
-    try { 
-        const start = performance.now(); 
-        await fetch("https://worldtimeapi.org/api/timezone/Etc/UTC", {cache:"no-store"}); 
-        const end = performance.now(); 
-        const latency = end-start; 
-        document.getElementById("latency").textContent = latency.toFixed(1)+" ms"; 
-        return latency; 
-    } catch { 
-        document.getElementById("latency").textContent="offline"; 
-        return 0; 
-    } 
-}
-function calcDrift(gps,latency){ return Math.abs(gps/40-latency/200); }
-function calcTimeIbonariumIndex(gps,latency,drift){ return (gps/40)*0.45+(latency/200)*0.35+drift*0.2; }
-function updateAlert(index){
-    const box=document.getElementById("alertBox"); 
-    const reportText=document.getElementById("systemReportText");
-    if(index<0.4){ 
-        box.innerHTML="🟢 СИНХРОНІЯ · Стабільний простір-час"; 
-        box.style.borderColor="#00ff9c"; 
-        reportText.innerHTML = "Система стабільна.<br>Всі часові метрики в нормі.<br>TIME IBONARIUM INDEX: "+index.toFixed(3);
-    } else if(index<0.7){ 
-        box.innerHTML="🟡 ФАЗОВИЙ ЗСУВ · Часові системи розходяться"; 
-        box.style.borderColor="#ffaa00"; 
-        reportText.innerHTML = "Помітні зсуви між часовими системами.<br>Перевірка мережі та GPS.<br>TIME IBONARIUM INDEX: "+index.toFixed(3);
-    } else { 
-        box.innerHTML="🔴 TEMPORAL TURBULENCE · Ймовірні фазові переходи"; 
-        box.style.borderColor="#ff3366"; 
-        reportText.innerHTML = "Нестабільність простору-часу!<br>Рекомендовано моніторинг та синхронізація.<br>TIME IBONARIUM INDEX: "+index.toFixed(3);
-    } 
-}
-
-// ===== MATRIX TIME RAIN =====
-const canvas=document.getElementById("matrixCanvas"); 
-const ctx=canvas.getContext("2d"); 
-let drops=[]; 
-let fontSize=12; 
-let columns; 
-let matrixSpeed=1; 
-let matrixDensity=1; 
-let matrixColor="#00ff9c"; 
-
-function resizeMatrix(){
-    canvas.width=canvas.clientWidth;
-    canvas.height=canvas.clientHeight;
-    columns=Math.floor(canvas.width/fontSize);
-    drops=Array(columns).fill(1);
-}
-window.addEventListener("resize", resizeMatrix); 
-resizeMatrix(); 
-
-function updateMatrixFromIndex(index,drift){
-    matrixSpeed=0.5+index*2;
-    matrixDensity=0.5+drift;
-    if(index<0.4) matrixColor="#00ff9c";
-    else if(index<0.7) matrixColor="#ffaa00";
-    else matrixColor="#ff3366";
-}
-
-function drawMatrix(){
-    ctx.fillStyle="rgba(0,0,0,0.08)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle=matrixColor;
-    ctx.font=fontSize+"px monospace";
-    for(let i=0;i<drops.length;i++){
-        if(Math.random()<matrixDensity){
-            const text=Math.random()>0.5?"1":"0";
-            ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-        }
-        if(drops[i]*fontSize>canvas.height && Math.random()>0.975) drops[i]=0;
-        drops[i]+=matrixSpeed;
-    }
-    requestAnimationFrame(drawMatrix);
-}
-drawMatrix();
-
-// ===== MAIN LOOP =====
-async function mainLoop(){ 
-    updateAtomicTime(); 
-    const gps=updateGpsOffset(); 
-    const latency=await measureLatency(); 
-    const drift=calcDrift(gps,latency); 
-    document.getElementById("drift").textContent=drift.toFixed(3); 
-    const index=calcTimeIbonariumIndex(gps,latency,drift); 
-    document.getElementById("timeIndex").textContent=index.toFixed(3); 
-    updateAlert(index); 
-    updateMatrixFromIndex(index,drift); 
-} 
-setInterval(mainLoop,500); 
-mainLoop();
-
-// ===== MOBILE ADAPTATION =====
-const mediaQuery = window.matchMedia('(max-width: 500px)'); 
-function handleMobile(e) { 
-    if(e.matches){ 
-        document.querySelector('.grid').style.gridTemplateColumns='1fr'; 
-        canvas.height=140; 
-    } else { 
-        document.querySelector('.grid').style.gridTemplateColumns='1fr 1fr'; 
-        canvas.height=180; 
-    } 
-}
-mediaQuery.addEventListener('change', handleMobile); 
-handleMobile(mediaQuery);
-</script>
-
+        // Також додаємо невеличкий зум при скролі для ефекту
+        const wraps = document.querySelectorAll('.frame-wrap');
+        window.addEventListener('scroll', () => {
+            wraps.forEach(wrap => {
+                const rect = wrap.getBoundingClientRect();
+                const visible = rect.top < window.innerHeight && rect.bottom > 0;
+                if (visible) {
+                    const scale = 1 - Math.abs(rect.top) / 3000;
+                    // wrap.style.transform = `scale(${Math.max(0.95, scale)})`;
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>
