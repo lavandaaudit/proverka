@@ -22,7 +22,8 @@
     .block img, .block video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
     .red-gif img { filter: hue-rotate(0deg) saturate(1.6) brightness(1.1); }
     .blue-gif img { filter: hue-rotate(200deg) saturate(1.6) brightness(1.1); }
-    .fallback-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px; text-align: center; padding: 10px; background: rgba(0,0,0,0.6); pointer-events: none; }
+    .fallback-text { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: #888; font-size: 11px; text-align: center; padding: 6px; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+    .block:hover .fallback-text { opacity: 1; }
     .footer { text-align: center; padding: 8px 0; font-size: clamp(10px, 2vw, 12px); opacity: 0.8; letter-spacing: 0.05em; margin-top: 20px; }
     @media (max-width: 768px) { .row { grid-template-columns: 1fr; } }
   </style>
@@ -36,89 +37,70 @@
   </div>
 
   <div class="content">
-    <!-- Ряд 1 (Оновлені на HTTPS) -->
+    <!-- СТАТИЧНІ ОНОВЛЮВАНІ ДАНІ (РЯД 1-4) -->
     <div class="row">
       <div class="block red-gif"><img src="https://soho.nascom.nasa.gov/data/LATEST/current_c2.gif?t=init" alt="LASCO C2" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg?t=init" alt="AIA 171" loading="lazy"></div>
     </div>
-    <!-- Ряд 2 -->
     <div class="row">
       <div class="block blue-gif"><img src="https://soho.nascom.nasa.gov/data/LATEST/current_c3.gif?t=init" alt="LASCO C3" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0193.jpg?t=init" alt="AIA 193" loading="lazy"></div>
     </div>
-    <!-- Ряд 3 -->
     <div class="row">
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0304.jpg?t=init" alt="AIA 304" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0211.jpg?t=init" alt="AIA 211" loading="lazy"></div>
     </div>
-    <!-- Ряд 4 -->
     <div class="row">
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0131.jpg?t=init" alt="AIA 131" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg?t=init" alt="AIA 094" loading="lazy"></div>
     </div>
 
-    <!-- Нижні блоки — ВІДЕО-ПЛЕЄРИ MP4 З HTTPS-ДЖЕРЕЛ ТА ПОСТЕРОМ (РОЗМІР 512) -->
+    <!-- АНІМАЦІЇ (ПЕРЕВЕДЕНІ В GIF ФОРМАТ) -->
     <div class="row">
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0171.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 171 (завантаження...)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0171.gif?t=init" alt="AIA 171 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 171 (GIF Анімація 48h)</div>
       </div>
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0193.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0193.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 193 (завантаження...)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0193.gif?t=init" alt="AIA 193 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 193 (GIF Анімація 48h)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0211.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0211.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 211 (завантаження...)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0211.gif?t=init" alt="AIA 211 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 211 (GIF Анімація 48h)</div>
       </div>
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0304.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0304.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 304 (завантаження...)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0304.gif?t=init" alt="AIA 304 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 304 (GIF Анімація 48h)</div>
       </div>
     </div>
 
-    <!-- МАКСИМАЛЬНИЙ РІВЕНЬ МОНІТОРИНГУ (НОВІ КОМПОЗИТИ ТА МАГНІТОГРАМА) -->
+    <!-- ДОДАТКОВІ GIF АНІМАЦІЇ СПАЛАХІВ І АКТИВНОСТІ -->
     <div class="row">
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0094.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 094 (Спалахи)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0094.gif?t=init" alt="AIA 094 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 094 (Спалахи / Flare)</div>
       </div>
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0335.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_0335.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Анімація AIA 335 (Активні зони)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0335.gif?t=init" alt="AIA 335 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 335 (Активні зони)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_211193171.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_211193171.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Композит 211-193-171 (Об'єднаний)</div>
-        </video>
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0131.gif?t=init" alt="AIA 131 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 131 (Критичні температури)</div>
       </div>
       <div class="block">
-        <video controls autoplay loop muted playsinline poster="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIBC.jpg">
-          <source src="https://sdo.gsfc.nasa.gov/assets/img/latest/mpeg/latest_512_HMIBC.mp4?t=init" type="video/mp4">
-          <div class="fallback-text">Магнітограма HMI (Сонячні плями)</div>
-        </video>
+        <!-- HMIBC це магнітограма -->
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIBC.gif?t=init" alt="Магнітограма Анімація" loading="lazy">
+        <div class="fallback-text">HMI (Магнітограма та плями)</div>
       </div>
     </div>
-
   </div>
 
   <div class="footer">sun.sun.sun / live / cosmodynamics.lab.live</div>
@@ -146,19 +128,12 @@ function render() {
 }
 render();
 
-// Автооновлення медіа кожні 5 хв
+// Автооновлення медіа кожні 5 хв (JS тепер ідеально оновлюватиме всі <img> автоматично)
 setInterval(() => {
   const t = Date.now();
-  document.querySelectorAll('img[src*="?t="], source[src*="?t="]').forEach(el => {
+  document.querySelectorAll('img[src*="?t="]').forEach(el => {
     const base = el.src.split('?t=')[0];
-    if(el.tagName === 'SOURCE') {
-        const video = el.parentElement;
-        el.src = base + '?t=' + t;
-        video.load();
-        video.play().catch(e => console.log(e));
-    } else {
-        el.src = base + '?t=' + t;
-    }
+    el.src = base + '?t=' + t;
   });
 }, 300000);
 </script>
