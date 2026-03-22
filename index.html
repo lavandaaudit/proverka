@@ -37,7 +37,7 @@
   </div>
 
   <div class="content">
-    <!-- СТАТИЧНІ ОНОВЛЮВАНІ ДАНІ (Оновлюються кожні 5 хв - є маркер ?t=init) -->
+    <!-- СТАТИЧНІ ОНОВЛЮВАНІ ДАНІ (РЯД 1-4) -->
     <div class="row">
       <div class="block red-gif"><img src="https://soho.nascom.nasa.gov/data/LATEST/current_c2.gif?t=init" alt="LASCO C2" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg?t=init" alt="AIA 171" loading="lazy"></div>
@@ -55,48 +55,38 @@
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg?t=init" alt="AIA 094" loading="lazy"></div>
     </div>
 
-    <!-- ВАЖКІ 48-ГОДИННІ АНІМАЦІЇ (без маркера ?t=init для стабільної роботи без краху пам'яті) -->
+    <!-- SOHO/SDO НАДІЙНІ ДЗЕРКАЛА АНІМАЦІЙ -->
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0171.gif" alt="AIA 171 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 171 (GIF Анімація 48h)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_171.gif" alt="AIA 171 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 171 (SDO/SOHO 48h loop)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0193.gif" alt="AIA 193 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 193 (GIF Анімація 48h)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_195.gif" alt="AIA 193/195 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 193 (SDO/SOHO 48h loop)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0211.gif" alt="AIA 211 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 211 (GIF Анімація 48h)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_284.gif" alt="AIA 211/284 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 211 (SDO/SOHO 48h loop)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0304.gif" alt="AIA 304 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 304 (GIF Анімація 48h)</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0094.gif" alt="AIA 094 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 094 (Спалахи / Flare)</div>
-      </div>
-      <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0335.gif" alt="AIA 335 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 335 (Активні зони)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_304.gif" alt="AIA 304 Анімація" loading="lazy">
+        <div class="fallback-text">AIA 304 (SDO/SOHO 48h loop)</div>
       </div>
     </div>
 
+    <!-- SOHO/SDO МАГНІТНІ ТА ВИДИМІ ДАНІ (Замість 094/335) -->
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0131.gif" alt="AIA 131 Анімація" loading="lazy">
-        <div class="fallback-text">AIA 131 (Гаряча плазма)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_mdi_igr.gif" alt="Світло Фотосфери" loading="lazy">
+        <div class="fallback-text">Видима поверхня (Фотосфера)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_HMIBC.gif" alt="Магнітограма Анімація" loading="lazy">
-        <div class="fallback-text">HMI (Магнітограма та плями)</div>
+        <img src="https://soho.nascom.nasa.gov/data/LATEST/current_mdi_mag.gif" alt="Магнітограма" loading="lazy">
+        <div class="fallback-text">Магнітограма (Сонячні плями)</div>
       </div>
     </div>
   </div>
