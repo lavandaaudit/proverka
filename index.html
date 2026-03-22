@@ -3,162 +3,884 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CITY.BIRD | Universal Hub</title>
+    <title>IBONARIUM · DUAL ENGINE PULSE · 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        :root {
-            --bg: #000;
-            --accent: #ff9800;
-        }
-
+        /* ------------------------------------------------------------------
+           CORE INTERFACE - PURE BLACK
+           ------------------------------------------------------------------ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body,
-        html {
-            background: var(--bg);
-            height: 100%;
-            overflow-y: scroll;
-            /* Scroll Snapping */
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-        }
-
-        /* Стилізація скролбару */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 0px;
         }
 
-        ::-webkit-scrollbar-track {
+        body {
             background: #000;
+            color: #dff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            min-height: 100vh;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 10px;
+        canvas#bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent);
-        }
-
-        .section {
-            width: 100%;
-            height: 100vh;
+        .app-container {
+            position: relative;
+            z-index: 10;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px 20px;
-            scroll-snap-align: start;
-            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        .frame-wrap {
+        .brand-header {
+            font-size: 8px;
+            color: #0af;
+            text-transform: lowercase;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+            position: relative;
+            z-index: 50;
+        }
+
+        /* ------------------------------------------------------------------
+           MASTER HUB LAYOUT
+           ------------------------------------------------------------------ */
+        .master-hub {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 20px;
             width: 100%;
-            height: 100%;
-            max-width: 1400px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            max-width: 1700px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        /* LEFT SIDE */
+        .left-hub {
+            width: 405px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+            position: relative;
+            z-index: 50;
+        }
+
+        #cosmic-status-line {
+            font-size: 9px;
+            color: #0f4;
+            opacity: 0.8;
+            letter-spacing: 1px;
+        }
+
+        #solar-hud {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px 12px;
+            width: 100%;
+        }
+
+        .hud-item {
+            font-size: 8px;
+            text-transform: lowercase;
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .status-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        .status-green {
+            background: #0f4;
+            box-shadow: 0 0 5px #0f4;
+        }
+
+        .status-yellow {
+            background: #fa0;
+            box-shadow: 0 0 5px #fa0;
+        }
+
+        .status-red {
+            background: #f22;
+            box-shadow: 0 0 10px #f22;
+        }
+
+        #heatmap {
+            display: grid;
+            grid-template-columns: repeat(12, 12px);
+            gap: 2px;
+            margin: 5px 0;
+        }
+
+        .h-cell {
+            width: 12px;
+            height: 12px;
+            border: 1px solid #111;
+            transition: background 0.3s ease;
+        }
+
+        .sun-box {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            align-self: center;
+            border: 1px solid rgba(0, 170, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .sun-disk {
+            width: 95%;
+            height: 95%;
+            border-radius: 50%;
+            opacity: 1;
+            z-index: 1;
+            pointer-events: none;
+            filter: contrast(1.2) brightness(1.1);
+            box-shadow: 0 0 30px rgba(255, 100, 0, 0.2);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sun-disk.zoomed {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 95vh;
+            height: 95vh;
+            transform: translate(-50%, -50%) scale(var(--sun-zoom, 1));
+            z-index: 5;
+            box-shadow: 0 0 100px rgba(255, 100, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 8px;
+            align-self: center;
+            align-items: center;
+            position: relative;
+            z-index: 1010;
+        }
+
+        .btn-lite {
+            background: transparent;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            color: #0af;
+            font-size: 7px;
+            padding: 2px 6px;
+            cursor: pointer;
+            text-transform: lowercase;
+        }
+
+        .btn-lite.active {
+            border-color: #fa0;
+            color: #fa0;
+        }
+
+        .btn-zoom {
+            font-weight: bold;
+            font-size: 10px;
+            padding: 1px 8px;
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        #data-list-grid {
+            font-size: 9px;
+            color: #0f0;
+            line-height: 1.1;
+            width: 100%;
+            border-top: 1px solid rgba(0, 170, 255, 0.1);
+            padding-top: 10px;
+            margin-top: 5px;
+            column-count: 2;
+        }
+
+        .cat-title {
+            margin: 8px 0 4px 0;
+            font-size: 10px;
+            color: #0af;
+            font-weight: bold;
+            text-transform: uppercase;
+            column-span: all;
+            border-bottom: 1px solid #003344;
+        }
+
+        .data-entry {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1px;
+        }
+
+        .d-lbl {
+            color: #6cf;
+        }
+
+        .d-val-safe {
+            color: #0f0;
+        }
+
+        .d-val-watch {
+            color: #ffd700;
+        }
+
+        .d-val-warn {
+            color: #ff8c00;
+        }
+
+        .d-val-danger {
+            color: #f00;
+        }
+
+        .sys-terminal {
+            width: 100%;
+            height: 50px;
+            font-size: 7px;
+            color: #0af;
+            opacity: 0.4;
             overflow: hidden;
-            background: #0a0a0a;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 2px;
+            border-left: 2px solid rgba(0, 170, 255, 0.1);
+            padding-left: 8px;
+            margin-top: 10px;
+        }
+
+        /* RIGHT SIDE */
+        .right-hub {
+            width: 810px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 0;
             position: relative;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
-            transition: transform 0.6s cubic-bezier(0.2, 0, 0.2, 1);
+            z-index: 50;
         }
 
-        iframe {
+        .viz-box {
             width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            /* Важливо для мобільних */
-            -webkit-overflow-scrolling: touch;
+            height: 585px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Захисний шар, щоб скрол не "залипав" при переході */
-        .scroll-catcher {
+        .compass-box {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 720px;
+            height: 720px;
             z-index: 10;
             pointer-events: none;
-            /* за замовчуванням прозорий */
+            opacity: 0.8;
         }
 
-        /* Коли фіксуємо скрол - блокуємо iframe */
-        body.is-scrolling iframe {
+        canvas#viz-canvas,
+        canvas#compass-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* OVERLAYS */
+        #alert-hub {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 1000;
             pointer-events: none;
         }
 
-        .label {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.3);
-            font-family: 'Inter', sans-serif;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            z-index: 20;
+        .f-msg {
+            background: rgba(0, 0, 0, 0.95);
+            border-right: 3px solid #f22;
+            padding: 8px 12px;
+            color: #f22;
+            font-size: 8px;
+            animation: slide-in 0.3s ease-out;
+        }
+
+        @keyframes slide-in {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        #clock-overlay {
+            position: fixed;
+            bottom: 8px;
+            right: 10px;
+            font-size: 8px;
+            color: #6cf;
+            opacity: 0.5;
+            text-align: right;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1300px) {
+            .master-hub {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .left-hub,
+            .right-hub {
+                width: 100%;
+                max-width: 450px;
+            }
+
+            .right-hub {
+                padding-top: 0;
+            }
+
+            .viz-box {
+                height: 900px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <canvas id="bg-layer"></canvas>
+    <div id="alert-hub"></div>
 
-    <div class="section">
-        <div class="label">ORNITHOLOGICAL RADAR</div>
-        <div class="frame-wrap">
-            <iframe src="https://lavandaaudit.github.io/city.birds/"></iframe>
+    <div class="app-container">
+        <div class="brand-header">ibonarium.pulse.terminal.v2026.plasma</div>
+
+        <div class="master-hub">
+
+            <!-- LEFT COLUMN -->
+            <div class="left-hub">
+                <div id="cosmic-status-line">СИСТЕМА IO ОНЛАЙН :: СИНХРОНІЗАЦІЯ...</div>
+
+                <div id="solar-hud">
+                    <div class="hud-item" onclick="solo(0)"><span class="status-dot status-green"
+                            id="d0"></span>wind:<span id="v0">---</span></div>
+                    <div class="hud-item" onclick="solo(1)"><span class="status-dot status-green"
+                            id="d1"></span>dens:<span id="v1">---</span></div>
+                    <div class="hud-item" onclick="solo(2)"><span class="status-dot status-green"
+                            id="d2"></span>bt:<span id="v2">---</span></div>
+                    <div class="hud-item" onclick="solo(3)"><span class="status-dot status-green"
+                            id="d3"></span>temp:<span id="v3">---</span></div>
+                    <div class="hud-item" onclick="solo(4)"><span class="status-dot status-green"
+                            id="d4"></span>bz:<span id="v4">---</span></div>
+                    <div class="hud-item" onclick="solo(5)"><span class="status-dot status-green"
+                            id="d5"></span>phi:<span id="v5">---</span></div>
+                    <div class="hud-item" onclick="solo(6)"><span class="status-dot status-green"
+                            id="d6"></span>bx:<span id="v6">---</span></div>
+                    <div class="hud-item" onclick="solo(7)"><span class="status-dot status-green"
+                            id="d7"></span>by:<span id="v7">---</span></div>
+                </div>
+
+                <div id="heatmap"></div>
+
+                <div class="sun-box">
+                    <img id="sun-img" class="sun-disk"
+                        src="https://services.swpc.noaa.gov/images/animations/suvi/primary/171/latest.png" alt="AIA">
+                </div>
+
+                <div class="controls-row">
+                    <button class="btn-lite active" onclick="spec('171', this)">171</button>
+                    <button class="btn-lite" onclick="spec('195', this)">193</button>
+                    <button class="btn-lite" onclick="spec('304', this)">304</button>
+                    <button class="btn-lite" onclick="spec('131', this)">131</button>
+                    <span style="width:10px"></span>
+                    <button class="btn-lite btn-zoom" onclick="zoom(0.2)">+</button>
+                    <button class="btn-lite btn-zoom" onclick="zoom(-0.2)">-</button>
+                </div>
+
+                <div id="data-list-grid"></div>
+                <div class="diag-row" id="diag-out"
+                    style="font-size:7px; color:#fa0; opacity:0.8; height:10px; width:100%; text-align:center;">
+                    моніторинг корони...</div>
+                <div class="sys-terminal" id="sys-out"></div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-hub">
+                <div class="viz-box">
+                    <canvas id="viz-canvas"></canvas>
+                </div>
+                <div class="compass-box">
+                    <canvas id="compass-canvas"></canvas>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <div class="section">
-        <div class="label">IRPIN MONITORING HUB</div>
-        <div class="frame-wrap">
-            <iframe src="https://lavandaaudit.github.io/Irpin.city.birds/"></iframe>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="label">PREMIUM FAN SHOP</div>
-        <div class="frame-wrap">
-            <iframe src="https://lavandaaudit.github.io/shop.birds/"></iframe>
-        </div>
-    </div>
+    <div id="clock-overlay">—</div>
 
     <script>
-        // JS для того, щоб під час основного скролу іфрейми не перехоплювали курсор
-        let isScrolling;
-        window.addEventListener('scroll', function () {
-            document.body.classList.add('is-scrolling');
+        const proxy = 'https://corsproxy.io/?';
 
-            window.clearTimeout(isScrolling);
+        // ------------------------------------------------------------------
+        // STATE STORAGE
+        // ------------------------------------------------------------------
+        const S = {
+            wind: 420, dens: 5, bt: 5, bz: 0, temp: 100000, phi: 0, bx: 0, by: 0,
+            press: 1.2, kp: 0, dst: -5, f107: 150, sunspots: 80, convi: 0
+        };
+        const PEAKS = {};
+        const HIST = { wind: [], dens: [], bt: [], bz: [], kp: [], convi: [] };
+        const LIMIT = 60;
+        const startTime = Date.now();
+        let sunZoom = 1.0;
 
-            isScrolling = setTimeout(function () {
-                document.body.classList.remove('is-scrolling');
-            }, 150);
-        }, false);
+        const configs = [
+            { l: 'швидкість вітру', k: 'wind', m: 1000, c: '#00f2ff', thr: 650 },
+            { l: 'щільність протонів', k: 'dens', m: 50, c: '#ffcc00', thr: 15 },
+            { l: 'магн.поле bt', k: 'bt', m: 50, c: '#ff0055', thr: 18 },
+            { l: 'темп.плазми', k: 'temp', m: 1000000, c: '#33ff00', thr: 500000 },
+            { l: 'комп.bz', k: 'bz', m: 25, c: '#9d00ff', thr: 12 },
+            { l: 'кут phi', k: 'phi', m: 360, c: '#00ffea', thr: 300 },
+            { l: 'комп.bx', k: 'bx', m: 25, c: '#ff6a00', thr: 15 },
+            { l: 'комп.by', k: 'by', m: 25, c: '#ffffff', thr: 15 }
+        ];
 
-        // Також додаємо невеличкий зум при скролі для ефекту
-        const wraps = document.querySelectorAll('.frame-wrap');
-        window.addEventListener('scroll', () => {
-            wraps.forEach(wrap => {
-                const rect = wrap.getBoundingClientRect();
-                const visible = rect.top < window.innerHeight && rect.bottom > 0;
-                if (visible) {
-                    const scale = 1 - Math.abs(rect.top) / 3000;
-                    // wrap.style.transform = `scale(${Math.max(0.95, scale)})`;
+        // ------------------------------------------------------------------
+        // RENDERING PIPELINES - ОПТИМІЗОВАНО
+        // ------------------------------------------------------------------
+        const bgC = document.getElementById('bg-layer');
+        const bgCtx = bgC.getContext('2d');
+        const vzC = document.getElementById('viz-canvas');
+        const vizCtx = vzC.getContext('2d');
+        const cpC = document.getElementById('compass-canvas');
+        const cpCtx = cpC.getContext('2d');
+
+        function resize() {
+            const ratio = window.devicePixelRatio || 1;
+            bgC.width = innerWidth * ratio;
+            bgC.height = innerHeight * ratio;
+            vzC.width = 810 * ratio;
+            vzC.height = 585 * ratio;
+            cpC.width = 720 * ratio;
+            cpC.height = 720 * ratio;
+            bgCtx.scale(ratio, ratio);
+            vizCtx.scale(ratio, ratio);
+            cpCtx.scale(ratio, ratio);
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // СПРОЩЕНІ ЗІРКИ - менше зірок, без складних обчислень
+        const stars = [...Array(150)].map(() => ({
+            x: Math.random() * innerWidth,
+            y: Math.random() * innerHeight,
+            s: Math.random() * 1.5 + 0.5
+        }));
+
+        // ------------------------------------------------------------------
+        // CORE FUNCTIONS
+        // ------------------------------------------------------------------
+        let activeSolo = -1, curSpec = '171';
+
+        function solo(i) {
+            activeSolo = (activeSolo === i) ? -1 : i;
+            log(`Соло синхр.: ${activeSolo === -1 ? 'ВИМК' : configs[i].l}`);
+        }
+
+        function spec(c, btn) {
+            curSpec = c;
+            document.querySelectorAll('.btn-lite').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('sun-img').src = `https://services.swpc.noaa.gov/images/animations/suvi/primary/${c}/latest.png?t=` + Date.now();
+        }
+
+        function zoom(delta) {
+            sunZoom = Math.max(1.0, Math.min(8.0, sunZoom + delta));
+            const img = document.getElementById('sun-img');
+            if (sunZoom > 1.0) {
+                img.classList.add('zoomed');
+                img.style.setProperty('--sun-zoom', sunZoom);
+            } else {
+                img.classList.remove('zoomed');
+                img.style.removeProperty('--sun-zoom');
+            }
+            log(`Зум сонця: ${Math.round(sunZoom * 100)}%`);
+        }
+
+        function log(m) {
+            const l = document.getElementById('sys-out');
+            const e = document.createElement('div');
+            e.innerText = `${new Date().toLocaleTimeString()} :: ${m}`;
+            l.prepend(e);
+            if (l.childNodes.length > 15) l.removeChild(l.lastChild);
+        }
+
+        async function fetchAll() {
+            try {
+                // Спроба прямого запиту до NOAA API
+                const [p, m, k] = await Promise.all([
+                    fetch('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json')
+                        .then(r => r.json())
+                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json')).then(r => r.json())),
+                    fetch('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')
+                        .then(r => r.json())
+                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')).then(r => r.json())),
+                    fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')
+                        .then(r => r.json())
+                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')).then(r => r.json()))
+                ]);
+
+                if (p && p.length > 1) {
+                    const l = p[p.length - 1];
+                    S.dens = parseFloat(l[1]) || 5;
+                    S.wind = parseFloat(l[2]) || 400;
+                    S.temp = parseFloat(l[3]) || 100000;
+                    log(`✓ Плазма: ${S.wind.toFixed(0)} км/с`);
+                }
+                if (m && m.length > 1) {
+                    const l = m[m.length - 1];
+                    S.bx = parseFloat(l[1]) || 0;
+                    S.by = parseFloat(l[2]) || 0;
+                    S.bz = parseFloat(l[3]) || 0;
+                    S.phi = parseFloat(l[5]) || 0;
+                    S.bt = parseFloat(l[6]) || 5;
+                    log(`✓ Магнітне поле: BZ=${S.bz.toFixed(1)} nT`);
+                }
+                if (k && k.length > 1) {
+                    S.kp = parseFloat(k[k.length - 1][1]) || 0;
+                    log(`✓ Kp індекс: ${S.kp}`);
+                }
+
+                S.convi = (((S.wind / 1000) + (S.kp / 9) + (Math.abs(S.bz) / 20)) / 3 * 100).toFixed(1);
+
+                const upH = (k, v) => {
+                    HIST[k].push(v);
+                    if (HIST[k].length > LIMIT) HIST[k].shift();
+                };
+                upH('wind', S.wind);
+                upH('dens', S.dens);
+                upH('bt', S.bt);
+                upH('bz', S.bz);
+                upH('kp', S.kp);
+                upH('convi', S.convi);
+                updateUI();
+            } catch (e) {
+                log("⚠ Втрата зв'язку з NOAA");
+                console.error('Fetch error:', e);
+            }
+        }
+
+        function updateUI() {
+            let html = '<div class="cat-title">Сонячна іоносфера</div>';
+            const heatmapColors = [];
+
+            configs.forEach((c, i) => {
+                const v = S[c.k];
+                if (!PEAKS[c.k] || Math.abs(v) > PEAKS[c.k]) PEAKS[c.k] = Math.abs(v);
+
+                const n = Math.min(1, Math.abs(v) / c.m);
+                const statusClass = n > 0.8 ? 'status-red' : (n > 0.5 ? 'status-yellow' : 'status-green');
+                const statusHex = n > 0.8 ? '#f22' : (n > 0.5 ? '#fa0' : '#0f4');
+
+                document.getElementById(`v${i}`).innerText = v.toFixed(c.k === 'temp' ? 0 : 1);
+                document.getElementById(`d${i}`).className = 'status-dot ' + statusClass;
+
+                if (i === 4) html += '<div class="cat-title">Магнітосфера</div>';
+                html += `<div class="data-entry"><span class="d-lbl">${c.l}</span><span class="d-val ${n > 0.8 ? 'd-val-danger' : (n > 0.5 ? 'd-val-watch' : 'd-val-safe')}">${v.toPrecision(4)}</span></div>`;
+
+                for (let j = 0; j < 6; j++) heatmapColors.push(statusHex);
+            });
+
+            document.getElementById('data-list-grid').innerHTML = html;
+            document.getElementById('cosmic-status-line').innerText = `Ibonarium_NEW.13.ГОЛОВНА СИНХРОНІЗАЦІЯ :: ${new Date().toLocaleTimeString()} :: KP ${S.kp}`;
+
+            const hm = document.getElementById('heatmap');
+            hm.innerHTML = '';
+            heatmapColors.forEach(color => {
+                const cl = document.createElement('div');
+                cl.className = 'h-cell';
+                cl.style.background = color;
+                cl.style.boxShadow = `0 0 4px ${color}`;
+                hm.appendChild(cl);
+            });
+        }
+
+        // СПРОЩЕНИЙ ФОН - статичні зірки без руху
+        function drawBackground() {
+            bgCtx.fillStyle = '#000';
+            bgCtx.fillRect(0, 0, innerWidth, innerHeight);
+
+            stars.forEach(s => {
+                bgCtx.fillStyle = `rgba(180,240,255,0.6)`;
+                bgCtx.beginPath();
+                bgCtx.arc(s.x, s.y, s.s, 0, 6.28);
+                bgCtx.fill();
+            });
+        }
+
+        function drawViz(t) {
+            vizCtx.clearRect(0, 0, 810, 585);
+
+            const drawG = (lbl, hist, x, y, cw, ch, col, max, thr) => {
+                vizCtx.save();
+                vizCtx.translate(x, y);
+                vizCtx.strokeStyle = 'rgba(0,180,255,0.15)';
+                vizCtx.lineWidth = 1;
+                for (let i = 0; i <= 3; i++) {
+                    vizCtx.beginPath();
+                    vizCtx.moveTo(0, i * ch / 3);
+                    vizCtx.lineTo(cw, i * ch / 3);
+                    vizCtx.stroke();
+                }
+                vizCtx.strokeStyle = 'rgba(0,180,255,0.05)';
+                for (let i = 0; i <= 4; i++) {
+                    vizCtx.beginPath();
+                    vizCtx.moveTo(i * cw / 4, 0);
+                    vizCtx.lineTo(i * cw / 4, ch);
+                    vizCtx.stroke();
+                }
+
+                if (hist.length > 0) {
+                    const last = hist[hist.length - 1] || 0;
+                    const isAlert = Math.abs(last) > thr;
+                    vizCtx.beginPath();
+                    hist.forEach((v, i) => {
+                        const gx = i * (cw / (LIMIT - 1));
+                        const gy = ch - (Math.abs(v) / max) * ch;
+                        i === 0 ? vizCtx.moveTo(gx, gy) : vizCtx.lineTo(gx, gy);
+                    });
+                    vizCtx.strokeStyle = isAlert ? '#f22' : col;
+                    vizCtx.lineWidth = 1.8;
+                    vizCtx.stroke();
+
+                    hist.forEach((v, i) => {
+                        if (i % 5 === 0 || i === hist.length - 1) {
+                            const gx = i * (cw / (LIMIT - 1));
+                            const gy = ch - (Math.abs(v) / max) * ch;
+                            vizCtx.beginPath();
+                            vizCtx.arc(gx, gy, 2, 0, 6.28);
+                            vizCtx.fillStyle = isAlert ? '#f22' : col;
+                            vizCtx.fill();
+                            if (i === hist.length - 1) {
+                                vizCtx.fillStyle = '#fff';
+                                vizCtx.font = 'bold 8px Courier New';
+                                vizCtx.fillText(parseFloat(v).toFixed(1), gx + 4, gy + 3);
+                            }
+                        }
+                    });
+                }
+                vizCtx.fillStyle = col;
+                vizCtx.font = '8px Courier New';
+                vizCtx.fillText(lbl, 0, -6);
+                vizCtx.restore();
+            };
+
+            const gw = 234, gh = 135, gapX = 270, gapY = 198;
+            drawG('АНАЛІТИКА.ШВИДКОСТІ', HIST.wind, 20, 60, gw, gh, '#0af', 1000, 650);
+            drawG('АНАЛІТИКА.ПРОТОНІВ', HIST.dens, 20 + gapX, 60, gw, gh, '#ff0', 50, 15);
+            drawG('АНАЛІТИКА.MAG_BT', HIST.bt, 20 + gapX * 2, 60, gw, gh, '#f05', 50, 18);
+            drawG('ІНДЕКС.KP', HIST.kp, 20, 60 + gapY, gw, gh, '#f80', 9, 5);
+            drawG('АНАЛІТИКА.MAG_BZ', HIST.bz, 20 + gapX, 60 + gapY, gw, gh, '#44f', 25, 12);
+            drawG('ІНДЕКС.ХАОСУ', HIST.convi, 20 + gapX * 2, 60 + gapY, gw, gh, '#0ff', 100, 70);
+        }
+
+        function drawCompass(t) {
+            cpCtx.clearRect(0, 0, 720, 720);
+            const cx = 360, cy = 360;
+            const radius = 288;
+            const chaos = S.convi / 100;
+
+            // --- REAL-TIME STATE ANALYZER ---
+            let status = { label: "ШТИЛЬ_00", color: "#0f4", level: 1, desc: "МАГНІТОСФЕРА СТАБІЛЬНА" };
+            if (S.kp >= 3 || S.wind > 450 || S.bz < -3) {
+                status = { label: "КВАНТОВИЙ_ДРЕЙФ", color: "#0af", level: 2, desc: "ПЕРЕХІДНИЙ ПОТІК ПЛАЗМИ" };
+            }
+            if (S.kp >= 4 || S.wind > 550 || S.bz < -8) {
+                status = { label: "ГЕО_ЗБУДЖЕННЯ", color: "#fa0", level: 3, desc: "ПОСИЛЕННЯ СОНЯЧНОГО ВІТРУ" };
+            }
+            if (S.kp >= 5 || S.wind > 650 || S.bz < -15) {
+                status = { label: "МАГНІТНИЙ_ШТОРМ", color: "#f55", level: 4, desc: "АКТИВНА ГЕОМАГНІТНА ПОДІЯ" };
+            }
+            if (S.kp >= 7 || chaos > 0.8) {
+                status = { label: "КРИТИЧНИЙ_ВИКИД", color: "#f0f", level: 5, desc: "ЕКСТРЕМАЛЬНИЙ РІВЕНЬ ЗАГРОЗИ" };
+            }
+
+            // --- СТАТИЧНІ КІЛЬЦЯ БЕЗ ОБЕРТАННЯ ---
+            for (let i = 1; i <= 6; i++) {
+                const r = (radius / 6) * i;
+                cpCtx.strokeStyle = status.level > 3 ? status.color : `rgba(0, 255, 255, ${0.04 + (i / 30)})`;
+
+                if (i % 2 === 0) {
+                    cpCtx.setLineDash([8, 20]);
+                    cpCtx.lineWidth = 2.5;
+                } else {
+                    cpCtx.setLineDash([30, 15]);
+                    cpCtx.lineWidth = 1;
+                }
+                cpCtx.beginPath();
+                cpCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                cpCtx.stroke();
+            }
+            cpCtx.setLineDash([]);
+
+            // --- ANALYTIC SIDEBARS (STATE DATA) ---
+            cpCtx.fillStyle = status.color;
+            cpCtx.font = 'bold 8px Space Mono';
+            cpCtx.textAlign = 'left';
+            const telemetry = [
+                `SYST_PHASE: ${status.label}`,
+                `THREAT_LVL: ${status.level}/5`,
+                `CHAOS_IDX: ${(chaos * 100).toFixed(2)}%`,
+                `BZ_VECTOR: ${S.bz.toFixed(2)} nT`,
+                `K_INDEX: ${S.kp}`
+            ];
+            telemetry.forEach((txt, i) => cpCtx.fillText(`> ${txt}`, cx - radius - 50, cy - radius + 40 + i * 14));
+
+            // THREAT METER BAR
+            cpCtx.strokeStyle = 'rgba(255,255,255,0.1)';
+            cpCtx.strokeRect(cx - radius - 50, cy - radius + 110, 100, 4);
+            cpCtx.fillStyle = status.color;
+            cpCtx.fillRect(cx - radius - 50, cy - radius + 110, status.level * 20, 4);
+
+            // --- DATA POINTS ---
+            const points = configs.map((c, i) => {
+                const angle = (i * Math.PI * 2 / 8);
+                const val = S[c.k] || 0;
+                const n = Math.min(1, Math.abs(val) / c.m);
+                const r = (n * radius * 0.7) + (radius * 0.3);
+                return {
+                    x: cx + Math.cos(angle) * r,
+                    y: cy + Math.sin(angle) * r,
+                    color: c.c,
+                    norm: n,
+                    label: c.k.toUpperCase(),
+                    val: val
+                };
+            });
+
+            // Energy Web
+            cpCtx.beginPath();
+            cpCtx.setLineDash([2, 4]);
+            cpCtx.lineWidth = 1;
+            cpCtx.strokeStyle = status.level > 3 ? status.color : `rgba(0, 255, 255, ${0.15 + chaos * 0.4})`;
+            points.forEach((p, i) => {
+                i === 0 ? cpCtx.moveTo(p.x, p.y) : cpCtx.lineTo(p.x, p.y);
+            });
+            cpCtx.closePath();
+            cpCtx.stroke();
+            cpCtx.setLineDash([]);
+
+            // DATA NODES
+            points.forEach((p, i) => {
+                const s = 4 + (p.norm * 2);
+                cpCtx.strokeStyle = p.color;
+                cpCtx.lineWidth = 2;
+                cpCtx.beginPath();
+                cpCtx.moveTo(p.x - s, p.y);
+                cpCtx.lineTo(p.x + s, p.y);
+                cpCtx.moveTo(p.x, p.y - s);
+                cpCtx.lineTo(p.x, p.y + s);
+                cpCtx.stroke();
+
+                cpCtx.fillStyle = '#fff';
+                cpCtx.font = 'bold 7px Space Mono';
+                cpCtx.textAlign = 'left';
+                cpCtx.fillText(`[${p.label}]`, p.x + 8, p.y - 12);
+                cpCtx.fillText(`${Math.round(p.norm * 100)}%`, p.x + 8, p.y - 4);
+
+                if (p.norm > 0.8 || status.level >= 4) {
+                    cpCtx.strokeStyle = '#f22';
+                    const b = 15;
+                    cpCtx.strokeRect(p.x - b / 2, p.y - b / 2, b, b);
                 }
             });
-        });
+
+            // --- ALERT OVERLAY ---
+            if (status.level >= 4) {
+                cpCtx.fillStyle = '#f22';
+                cpCtx.font = 'bold 12px Space Mono';
+                cpCtx.textAlign = 'center';
+                cpCtx.fillText('!! УВАГА: КРИТИЧНЕ ЗБУДЖЕННЯ !!', cx, cy + radius + 40);
+            }
+
+            // HEADER INFO
+            cpCtx.fillStyle = status.color;
+            cpCtx.font = 'bold 11px Space Mono';
+            cpCtx.textAlign = 'center';
+            cpCtx.fillText(`${status.label} // ${status.desc}`, cx, cy - radius - 60);
+        }
+
+        // ОПТИМІЗОВАНИЙ LOOP - фон малюється раз, графіки рідше
+        let frameCount = 0;
+        let bgDrawn = false;
+
+        function loop() {
+            try {
+                const t = performance.now() * 0.001;
+
+                // Фон малюємо тільки один раз
+                if (!bgDrawn) {
+                    drawBackground();
+                    bgDrawn = true;
+                }
+
+                // Графіки оновлюємо кожен кадр
+                drawViz(t);
+
+                // Компас оновлюємо кожні 2 кадри
+                if (frameCount % 2 === 0) {
+                    drawCompass(t);
+                }
+
+                // Годинник оновлюємо кожні 30 кадрів (~0.5 сек)
+                if (frameCount % 30 === 0) {
+                    const now = new Date();
+                    document.getElementById('clock-overlay').innerHTML = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}<br>ТЕРМІНАЛ АКТИВНИЙ: +${Math.floor((Date.now() - startTime) / 1000)}с`;
+                }
+
+                frameCount++;
+            } catch (e) { }
+            requestAnimationFrame(loop);
+        }
+
+        fetchAll();
+        setInterval(fetchAll, 5000);
+        setInterval(() => {
+            document.getElementById('sun-img').src = `https://services.swpc.noaa.gov/images/animations/suvi/primary/${curSpec}/latest.png?t=` + Date.now();
+        }, 600000);
+        loop();
     </script>
 </body>
 
 </html>
+
