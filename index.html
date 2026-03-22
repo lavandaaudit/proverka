@@ -39,66 +39,79 @@
   <div class="content">
     <!-- СТАТИЧНІ ОНОВЛЮВАНІ ДАНІ (РЯД 1-4) -->
     <div class="row">
-      <div class="block red-gif"><video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;"><source src="https://soho.nascom.nasa.gov/data/LATEST/current_c2.mp4" type="video/mp4"></video><div class="fallback-text">LASCO C2 (Повільно)</div></div>
+      <div class="block red-gif">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_c2small.mp4" type="video/mp4">
+        </video>
+        <div class="fallback-text">LASCO C2 (Швидкість x0.1)</div>
+      </div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg?t=init" alt="AIA 171" loading="lazy"></div>
     </div>
+    
     <div class="row">
-      <div class="block blue-gif"><video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;"><source src="https://soho.nascom.nasa.gov/data/LATEST/current_c3.mp4" type="video/mp4"></video><div class="fallback-text">LASCO C3 (Повільно)</div></div>
+      <div class="block blue-gif">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_c3small.mp4" type="video/mp4">
+        </video>
+        <div class="fallback-text">LASCO C3 (Швидкість x0.1)</div>
+      </div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0193.jpg?t=init" alt="AIA 193" loading="lazy"></div>
     </div>
+    
     <div class="row">
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0304.jpg?t=init" alt="AIA 304" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0211.jpg?t=init" alt="AIA 211" loading="lazy"></div>
     </div>
+    
     <div class="row">
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0131.jpg?t=init" alt="AIA 131" loading="lazy"></div>
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg?t=init" alt="AIA 094" loading="lazy"></div>
     </div>
 
-    <!-- SOHO/SDO НАДІЙНІ ВІДЕОПЛЕЄРИ З КОНТРОЛЕМ ШВИДКОСТІ -->
+    <!-- SOHO/SDO ВІДЕОПЛЕЄРИ (ПОЛЕГШЕНІ small.mp4 З ПЛАВНОЮ ХОДОЮ 0.1x) -->
     <div class="row">
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_171.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_171small.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">AIA 171 (Швидкість x0.25)</div>
+        <div class="fallback-text">AIA 171 (48h | Швидкість x0.1)</div>
       </div>
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_195.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_195small.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">AIA 193 (Швидкість x0.25)</div>
+        <div class="fallback-text">AIA 193 (48h | Швидкість x0.1)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_284.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_284small.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">AIA 211 (Швидкість x0.25)</div>
+        <div class="fallback-text">AIA 211 (48h | Швидкість x0.1)</div>
       </div>
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_304.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_304small.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">AIA 304 (Швидкість x0.25)</div>
+        <div class="fallback-text">AIA 304 (48h | Швидкість x0.1)</div>
       </div>
     </div>
 
-    <!-- SOHO/SDO МАГНІТНІ ТА ВИДИМІ ДАНІ (ВІДЕОПЛЕЄРИ) -->
+    <!-- SOHO HMI МАГНІТНІ ТА ВИДИМІ ДАНІ (ПОЛЕГШЕНІ -512.mp4) -->
     <div class="row">
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_mdi_igr.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_hmi_igr-512.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">Фотосфера (Швидкість x0.25)</div>
+        <div class="fallback-text">Фотосфера (48h | Швидкість x0.1)</div>
       </div>
       <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.25;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_mdi_mag.mp4" type="video/mp4">
+        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
+          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_hmi_mag-512.mp4" type="video/mp4">
         </video>
-        <div class="fallback-text">Магнітограма (Швидкість x0.25)</div>
+        <div class="fallback-text">Магнітограма (48h | Швидкість x0.1)</div>
       </div>
     </div>
   </div>
@@ -128,7 +141,7 @@ function render() {
 }
 render();
 
-// Автооновлення спрацює ТІЛЬКИ для свіжих фото LHSMAL (де є маркер "?t=")
+// Автооновлення спрацює ТІЛЬКИ для статичних зображень LMSAL (маркер "?t=")
 setInterval(() => {
   const t = Date.now();
   document.querySelectorAll('img[src*="?t="]').forEach(el => {
