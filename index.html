@@ -55,49 +55,48 @@
       <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg?t=init" alt="AIA 094" loading="lazy"></div>
     </div>
 
-    <!-- АНІМАЦІЇ (ПЕРЕВЕДЕНІ В GIF ФОРМАТ) -->
+    <!-- АНІМАЦІЇ (ОПТИМІЗОВАНІ ДО 256px ДЛЯ МИТТЄВОГО ЗАВАНТАЖЕННЯ) -->
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0171.gif?t=init" alt="AIA 171 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0171.gif?t=init" alt="AIA 171 Анімація" loading="lazy">
         <div class="fallback-text">AIA 171 (GIF Анімація 48h)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0193.gif?t=init" alt="AIA 193 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0193.gif?t=init" alt="AIA 193 Анімація" loading="lazy">
         <div class="fallback-text">AIA 193 (GIF Анімація 48h)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0211.gif?t=init" alt="AIA 211 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0211.gif?t=init" alt="AIA 211 Анімація" loading="lazy">
         <div class="fallback-text">AIA 211 (GIF Анімація 48h)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0304.gif?t=init" alt="AIA 304 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0304.gif?t=init" alt="AIA 304 Анімація" loading="lazy">
         <div class="fallback-text">AIA 304 (GIF Анімація 48h)</div>
       </div>
     </div>
 
-    <!-- ДОДАТКОВІ GIF АНІМАЦІЇ СПАЛАХІВ І АКТИВНОСТІ -->
+    <!-- ДОДАТКОВІ GIF АНІМАЦІЇ СПАЛАХІВ І АКТИВНОСТІ (256px) -->
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0094.gif?t=init" alt="AIA 094 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0094.gif?t=init" alt="AIA 094 Анімація" loading="lazy">
         <div class="fallback-text">AIA 094 (Спалахи / Flare)</div>
       </div>
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0335.gif?t=init" alt="AIA 335 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0335.gif?t=init" alt="AIA 335 Анімація" loading="lazy">
         <div class="fallback-text">AIA 335 (Активні зони)</div>
       </div>
     </div>
 
     <div class="row">
       <div class="block">
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_0131.gif?t=init" alt="AIA 131 Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_0131.gif?t=init" alt="AIA 131 Анімація" loading="lazy">
         <div class="fallback-text">AIA 131 (Критичні температури)</div>
       </div>
       <div class="block">
-        <!-- HMIBC це магнітограма -->
-        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_512_HMIBC.gif?t=init" alt="Магнітограма Анімація" loading="lazy">
+        <img src="https://sdo.gsfc.nasa.gov/assets/img/latest/latest_256_HMIBC.gif?t=init" alt="Магнітограма Анімація" loading="lazy">
         <div class="fallback-text">HMI (Магнітограма та плями)</div>
       </div>
     </div>
@@ -128,7 +127,7 @@ function render() {
 }
 render();
 
-// Автооновлення медіа кожні 5 хв (JS тепер ідеально оновлюватиме всі <img> автоматично)
+// Автооновлення медіа кожні 5 хв (ідеально для GIF і зображень)
 setInterval(() => {
   const t = Date.now();
   document.querySelectorAll('img[src*="?t="]').forEach(el => {
