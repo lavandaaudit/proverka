@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ibonarium • Resonator Core</title>
+<title>Ibonarium • Resonator Core v2.0</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
+/* ===== БАЗОВИЙ СТИЛЬ ===== */
 * {margin:0; padding:0; box-sizing:border-box;}
 html, body {
   width:100%; height:100%;
-  background:#000; 
+  background:#020202; 
   font-family:'Space Grotesk', sans-serif; 
   color:#9fe7ff; 
   overflow-x:hidden;
@@ -21,63 +22,111 @@ canvas {position:fixed; inset:0; z-index:0;}
   position:relative; z-index:2; 
   display:flex; flex-direction:column; 
   align-items:center; 
-  padding:20px; gap:6px; 
+  padding:20px; gap:10px; 
   text-align:center; 
-  font-size:13px; line-height:1.3;
+  font-size:13px; line-height:1.4;
 }
 
 #header-title {
   font-family:'Cinzel', serif; 
-  font-size:24px; 
-  font-weight:bold; 
-  margin-bottom:5px;
+  font-size:28px; 
+  font-weight:700; 
+  margin-bottom:0px;
   color:#0ff;
-  text-shadow: 0 0 15px #0ff;
-}
-
-#subheader {
-  font-size:12px;
-  opacity: 0.8;
-  margin-bottom:20px;
+  text-shadow: 0 0 20px #0ff;
   letter-spacing: 2px;
 }
 
+#subheader {
+  font-size:11px;
+  color:#aaa;
+  margin-bottom:20px;
+  letter-spacing: 4px;
+}
+
+/* ===== ЗАГОЛОВКИ БЛОКІВ ===== */
 .category-header {
-  width:90%; max-width:800px;
-  margin:40px 0 10px 0;
+  width:90%; max-width:850px;
+  margin:50px 0 10px 0;
   padding-bottom:10px;
-  border-bottom:1px solid rgba(0, 255, 255, 0.4);
+  border-bottom:2px solid rgba(0, 255, 255, 0.5);
   font-family:'Cinzel', serif;
-  font-size:20px;
+  font-size:22px;
   font-weight:bold;
   text-align:left;
   color:#fff;
-  text-shadow:0 0 12px rgba(0, 255, 255, 0.5);
+  text-shadow:0 0 15px rgba(0, 255, 255, 0.6);
 }
 
-.resonator-desc {
-  width:90%; max-width:800px;
-  background: rgba(0, 255, 255, 0.04);
-  border-left: 3px solid #0ff;
-  padding: 12px 18px;
+/* ===== МАТРИЦЯ АНАЛІТИКИ ТА АЛЕРТІВ ===== */
+.alert-matrix {
+  width:90%; max-width:850px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #222;
+  border-left: 4px solid #0ff;
+  padding: 20px;
   margin: 5px 0 20px 0;
   text-align: left;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 13px;
-  color: #cceeff;
-  line-height: 1.5;
+  backdrop-filter: blur(5px);
 }
 
-.resonator-desc span { color: #fff; font-weight: bold; }
+.matrix-title {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: #fff;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 5px;
+}
 
+.alert-item { margin-bottom: 10px; display:flex; flex-direction:column; gap:4px; }
+
+.alert-box {
+  display: inline-block;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+/* Кольори Алерів */
+.bg-danger { background: rgba(255, 0, 0, 0.2); border: 1px solid #f00; text-shadow: 0 0 8px #f00; box-shadow: 0 0 10px rgba(255,0,0,0.2); }
+.bg-warning { background: rgba(255, 165, 0, 0.2); border: 1px solid #ffa500; text-shadow: 0 0 8px #ffa500; box-shadow: 0 0 10px rgba(255,165,0,0.2); }
+.bg-success { background: rgba(0, 255, 0, 0.2); border: 1px solid #0f0; text-shadow: 0 0 8px #0f0; box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+.bg-info { background: rgba(0, 255, 255, 0.1); border: 1px solid #0ff; text-shadow: 0 0 8px #0ff; }
+
+.alert-desc { color: #ccc; font-size: 13px; line-height: 1.5; padding-left: 4px; }
+
+/* Блок онлайн розшифровки */
+.status-online {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 0, 255, 0.05);
+  border-left: 3px dashed #f0f;
+  color: #ddd;
+}
+.live-badge {
+  color: #f0f;
+  font-weight: bold;
+  animation: pulse 1.5s infinite;
+  margin-right: 5px;
+}
+
+@keyframes pulse { 0% {opacity:1;} 50% {opacity:0.3;} 100% {opacity:1;} }
+
+/* ===== ВІДЖЕТИ ===== */
 .tv-widget {
-  width:92vw; max-width:800px; 
+  width:92vw; max-width:850px; 
   margin:10px 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 255, 255, 0.15);
   background: #050505;
+  box-shadow: 0 0 20px rgba(0,255,255,0.05);
 }
 
-#footer {font-size:10px; opacity:0.4; margin:30px 0; font-family:'Space Grotesk', sans-serif;}
+#footer {font-size:10px; opacity:0.3; margin:40px 0; font-family:'Space Grotesk', sans-serif;}
 </style>
 </head>
 <body>
@@ -85,24 +134,45 @@ canvas {position:fixed; inset:0; z-index:0;}
 
 <div class="wrapper">
   <div id="header-title">IBONARIUM • RESONATOR</div>
-  <div id="subheader">MACRO-CORRELATION MATRIX</div>
+  <div id="subheader">Аналіз Макро-Кореляцій та Перетікання Ліквідності</div>
 
   <!-- РЕЗОНАТОР 1 -->
-  <div class="category-header">I. ГЛОБАЛЬНИЙ АПЕТИТ ДО РИЗИКУ</div>
-  <div class="resonator-desc">
-    <span>Логіка:</span> Порівняння Біткоїна (Крайній ризик) та S&P 500 з Золотом (Захист) та Індексом Долара DXY.<br>
-    <span>Сигнал:</span> Якщо жовта (Золото) та фіолетова (DXY) лінії йдуть різко вгору, а Біткоїн падає — ринок у паніці. Перехрещення ліній вказує на розворот макротренду.
+  <div class="category-header">I. ГЛОБАЛЬНА ЛІКВІДНІСТЬ & РИЗИК</div>
+  
+  <div class="alert-matrix">
+    <div class="matrix-title">АНАЛІТИКА КОРЕЛЯЦІЇ: RISK-ON vs RISK-OFF</div>
+    
+    <div class="alert-item">
+      <div class="alert-box bg-success">🟢 АЛЕРТ: ФАЗА ЗРОСТАННЯ (RISK-ON)</div>
+      <div class="alert-desc">Якщо лінія Біткоїна (BTC) та S&P 500 розходяться вгору, а Долар (UUP) падає або стоїть на місці. Це ідеальний час для інвестування в крипту, гроші дешевшають і течуть у ризикові активи.</div>
+    </div>
+
+    <div class="alert-item">
+      <div class="alert-box bg-danger">🔴 АЛЕРТ: ВТЕЧА В ДОЛАР (КРАШ)</div>
+      <div class="alert-desc">Якщо Долар (UUP - зелена/біла лінія) та Золото різко стріляють вгору, великий капітал відчуває кризу. Ринок згортається, Біткоїн скоро почне різке падіння.</div>
+    </div>
+
+    <div class="alert-item">
+      <div class="alert-box bg-warning">⚠️ АЛЕРТ: ДИВЕРГЕНЦІЯ S&P 500</div>
+      <div class="alert-desc">Якщо S&P 500 (Фондовий ринок) зростає, а Біткоїн падає — крипта тимчасово втратила наратив. Уолл-стріт забирає ліквідність назад в акції компаній.</div>
+    </div>
+
+    <div class="status-online">
+      <span class="live-badge">● ОНЛАЙН СТАТУС ГРАФІКА:</span> 
+      Подивіться на правий край графіка нижче. Хто зараз у лідерах у відсотках (%)? Якщо лінія BTC вище всіх — крипта домінує над світом. Якщо UUP (Долар) повзе вгору, перетинаючи інші лінії — очікуйте важкого тижня для альткоїнів.
+    </div>
   </div>
-  <div class="tv-widget" style="height:450px;">
+
+  <div class="tv-widget" style="height:480px;">
     <div class="tradingview-widget-container">
       <div class="tradingview-widget-container__widget"></div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
       {
         "symbols": [
           [ "BTC (Крипта / Ризик)", "BINANCE:BTCUSDT|1D" ],
-          [ "S&P 500 (Ринок США)", "SP:SPX|1D" ],
+          [ "S&P 500 (ETF SPY)", "AMEX:SPY|1D" ],
           [ "Золото (Захист)", "OANDA:XAUUSD|1D" ],
-          [ "DXY (Тиск Долара)", "TVC:DXY|1D" ]
+          [ "DXY ETF (Тиск Долара)", "AMEX:UUP|1D" ]
         ],
         "chartOnly": false,
         "width": "100%",
@@ -126,11 +196,27 @@ canvas {position:fixed; inset:0; z-index:0;}
 
   <!-- РЕЗОНАТОР 2 -->
   <div class="category-header">II. ІНФЛЯЦІЙНО-ПРОМИСЛОВИЙ ТИСК</div>
-  <div class="resonator-desc">
-    <span>Логіка:</span> Нафта WTI (Інфляція) vs. Газ vs. Мідь (Індикатор здоров'я промисловості).<br>
-    <span>Сигнал:</span> Зростання Нафти витягує гроші з ринку та стимулює підвищення ставок (смерть для ризику). Якщо Мідь йде вгору — заводи працюють, індустрія зростає. 
+  
+  <div class="alert-matrix">
+    <div class="matrix-title">АНАЛІТИКА КОРЕЛЯЦІЇ: ІНФЛЯЦІЯ vs ІНДУСТРІЯ</div>
+    
+    <div class="alert-item">
+      <div class="alert-box bg-danger">🔴 АЛЕРТ: ІНФЛЯЦІЙНИЙ ШОК</div>
+      <div class="alert-desc">Якщо Нафта (WTI) та Природний Газ стрімко йдуть вгору (+10% за короткий час) — це сигнал тривоги. Світова інфляція зросте, і ФРС не надрукує нових грошей. Для крипти це "смерть ліквідності".</div>
+    </div>
+
+    <div class="alert-item">
+      <div class="alert-box bg-success">🟢 АЛЕРТ: ПРОМИСЛОВИЙ ЗРІСТ</div>
+      <div class="alert-desc">Якщо Мідь стабільно обганяє Срібло та Енергоносії — заводи працюють на повну потужність, загрози глобальної рецесії немає. Сприятливі умови для високомаржинальних ризикових активів (DeFi, AI токени).</div>
+    </div>
+
+    <div class="status-online">
+      <span class="live-badge">● ОНЛАЙН СТАТУС ГРАФІКА:</span> 
+      Слідкуйте за Нафтою WTI (синя лінія). Поки вона залишається внизу або йде вбік (флет), ринок "дихає" спокійно. Різкий вистріл нафти вгору — готуйтеся ставити стоп-лоси на крипті.
+    </div>
   </div>
-  <div class="tv-widget" style="height:450px;">
+
+  <div class="tv-widget" style="height:480px;">
     <div class="tradingview-widget-container">
       <div class="tradingview-widget-container__widget"></div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
@@ -138,8 +224,8 @@ canvas {position:fixed; inset:0; z-index:0;}
         "symbols": [
           [ "Нафта WTI (Інфляція)", "OANDA:WTICOUSD|1D" ],
           [ "Природний газ", "OANDA:NATGASUSD|1D" ],
-          [ "Мідь (Виробництво)", "OANDA:XCUUSD|1D" ],
-          [ "Срібло (Мікс)", "OANDA:XAGUSD|1D" ]
+          [ "Мідь (Промисловість)", "OANDA:XCUUSD|1D" ],
+          [ "Срібло", "OANDA:XAGUSD|1D" ]
         ],
         "chartOnly": false,
         "width": "100%",
@@ -163,11 +249,27 @@ canvas {position:fixed; inset:0; z-index:0;}
 
   <!-- РЕЗОНАТОР 3 -->
   <div class="category-header">III. ВНУТРІШНЬО-КРИПТОВИЙ ПЕРЕЛИВ</div>
-  <div class="resonator-desc">
-    <span>Логіка:</span> Перетікання ліквідності всередині криптовалютної екосистеми.<br>
-    <span>Сигнал:</span> Спочатку росте Біткоїн (тягне за собою усіх), далі гроші перетікають у Ефір, а потім стріляють інші активи. Спостерігаємо, чия лінія відривається вище.
+  
+  <div class="alert-matrix">
+    <div class="matrix-title">АНАЛІТИКА КОРЕЛЯЦІЇ: ПОШУК АЛЬТСЕЗОНУ</div>
+    
+    <div class="alert-item">
+      <div class="alert-box bg-warning">⚠️ АЛЕРТ: ВАКУУМ БІТКОЇНА</div>
+      <div class="alert-desc">Якщо Біткоїн росте як ракета, а Ефір (ETH) і Солана (SOL) стоять на місці або падають — Біткоїн "п'є" всю ліквідність. Не купуйте альти в цей момент, дочекайтеся зупинки домінації BTC.</div>
+    </div>
+
+    <div class="alert-item">
+      <div class="alert-box bg-info">🔵 АЛЕРТ: АЛЬТСЕЗОН РОЗПОЧАТО</div>
+      <div class="alert-desc">Якщо лінія BTC вирівнюється (флет), а ETH та SOL різко пробивають її знизу-вгору — великі гравці фіксують прибуток з Біткоїна і переливають його в альткоїни. Час купувати альти.</div>
+    </div>
+
+    <div class="status-online">
+      <span class="live-badge">● ОНЛАЙН СТАТУС ГРАФІКА:</span> 
+      Подивіться, хто зараз лідер. Якщо DOGE (світло-зелена лінія) злетів у небеса відносно інших — ринок перегрітий ритейлом (хомяками). Найчастіше після стрибка мем-коїнів настає жорстка корекція усього ринку.
+    </div>
   </div>
-  <div class="tv-widget" style="height:450px;">
+
+  <div class="tv-widget" style="height:480px;">
     <div class="tradingview-widget-container">
       <div class="tradingview-widget-container__widget"></div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
@@ -176,7 +278,7 @@ canvas {position:fixed; inset:0; z-index:0;}
           [ "Bitcoin (База Баз)", "BINANCE:BTCUSDT|1D" ],
           [ "Ethereum (Екосистема)", "BINANCE:ETHUSDT|1D" ],
           [ "Solana (Швидкість)", "BINANCE:SOLUSDT|1D" ],
-          [ "Litecoin", "BINANCE:LTCUSDT|1D" ]
+          [ "Dogecoin (Індикатор натовпу)", "BINANCE:DOGEUSDT|1D" ]
         ],
         "chartOnly": false,
         "width": "100%",
@@ -198,9 +300,13 @@ canvas {position:fixed; inset:0; z-index:0;}
     </div>
   </div>
 
-  <!-- ТЕПЛОВА КАРТА МАКРО -->
-  <div class="category-header">IV. КРИПТОВАЛЮТНА ТЕПЛОВА КАРТА</div>
-  <div class="tv-widget" style="height:550px;">
+  <!-- ТЕПЛОВА КАРТА -->
+  <div class="category-header">IV. ТЕПЛОВА МАТРИЦА (КРИПТА)</div>
+  <div class="alert-matrix">
+    <div class="matrix-title">АНАЛІТИКА КОРЕЛЯЦІЇ: МИТТЄВИЙ ЗРІЗ КАПІТАЛУ</div>
+    <div class="alert-desc">Ця карта дозволяє побачити, куди маркетмейкер вливає гроші РЯМО ЗАРАЗ в реальному часі. Чим яскравіше зелений квадрат, тим агресивніші покупки. Величезні червоні квадрати вказують на масовий вихід капіталу в USD (Стейблкоїни).</div>
+  </div>
+  <div class="tv-widget" style="height:600px;">
     <div class="tradingview-widget-container">
       <div class="tradingview-widget-container__widget"></div>
       <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
@@ -222,20 +328,21 @@ canvas {position:fixed; inset:0; z-index:0;}
     </div>
   </div>
 
-  <div id="footer">© IBONARIUM RESONATOR CORE</div>
+  <div id="footer">© IBONARIUM RESONATOR CORE • ADVANCED MACRO MATRICES</div>
 </div>
 
 <script>
-// ===== STARS BACKGROUND =====
+// ===== ВІЗУАЛІЗАЦІЯ ФОНУ (ЗОРЯНИЙ ПРОСТІР) =====
 const s=document.getElementById("stars"); const ctx=s.getContext("2d");
 let W,H,stars=[];
-function resize(){W=s.width=window.innerWidth; H=s.height=window.innerHeight; stars=Array.from({length:160},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*W}));}
+function resize(){W=s.width=window.innerWidth; H=s.height=window.innerHeight; stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*W}));}
 resize(); window.addEventListener("resize",resize);
 function draw(){
-  ctx.fillStyle="#000"; ctx.fillRect(0,0,W,H); 
-  ctx.fillStyle="#9fe7ff"; 
+  ctx.fillStyle="rgba(0, 0, 0, 0.8)"; // Легкий шлейф
+  ctx.fillRect(0,0,W,H); 
+  ctx.fillStyle="#0ff"; 
   stars.forEach(st=>{
-    st.z-=0.2; if(st.z<=0) st.z=W; 
+    st.z-=0.4; if(st.z<=0) st.z=W; 
     const k=128/st.z; 
     const x=(st.x-W/2)*k+W/2; 
     const y=(st.y-H/2)*k+H/2; 
@@ -250,4 +357,3 @@ draw();
 </script>
 </body>
 </html>
-
