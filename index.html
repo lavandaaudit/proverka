@@ -1,154 +1,253 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta name="referrer" content="no-referrer">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Ibonarium Cosmo Dynamics LAB LIVE</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; min-height: 100%; background: #000; color: #cfefff; font-family: 'Cinzel', serif; overflow-y: auto; }
-    canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
-    .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 40px auto; padding: 20px; background: #000; border-radius: 12px; }
-    .header { text-align: center; padding: 8px 4px; }
-    .main-title { font-size: clamp(14px, 3vw, 20px); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer; text-shadow: 0 0 10px #ffcc00; color: #fff; transition: all 0.3s ease; }
-    .main-title:hover { text-shadow: 0 0 25px #ffcc00; transform: scale(1.02); }
-    .content { display: flex; flex-direction: column; gap: 16px; }
-    .row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .block { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 12px; position: relative; cursor: pointer; transition: transform 0.3s ease; background: #111; }
-    .block:hover { transform: scale(1.01); }
-    .block img, .block video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
-    .red-gif img, .red-gif video { filter: hue-rotate(0deg) saturate(1.6) brightness(1.1); }
-    .blue-gif img, .blue-gif video { filter: hue-rotate(200deg) saturate(1.6) brightness(1.1); }
-    .fallback-text { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: #888; font-size: 11px; text-align: center; padding: 6px; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
-    .block:hover .fallback-text { opacity: 1; }
-    .footer { text-align: center; padding: 8px 0; font-size: clamp(10px, 2vw, 12px); opacity: 0.8; letter-spacing: 0.05em; margin-top: 20px; }
-    @media (max-width: 768px) { .row { grid-template-columns: 1fr; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ibonarium • Resonator Core</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+* {margin:0; padding:0; box-sizing:border-box;}
+html, body {
+  width:100%; height:100%;
+  background:#000; 
+  font-family:'Space Grotesk', sans-serif; 
+  color:#9fe7ff; 
+  overflow-x:hidden;
+}
+canvas {position:fixed; inset:0; z-index:0;}
+.wrapper {
+  position:relative; z-index:2; 
+  display:flex; flex-direction:column; 
+  align-items:center; 
+  padding:20px; gap:6px; 
+  text-align:center; 
+  font-size:13px; line-height:1.3;
+}
+
+#header-title {
+  font-family:'Cinzel', serif; 
+  font-size:24px; 
+  font-weight:bold; 
+  margin-bottom:5px;
+  color:#0ff;
+  text-shadow: 0 0 15px #0ff;
+}
+
+#subheader {
+  font-size:12px;
+  opacity: 0.8;
+  margin-bottom:20px;
+  letter-spacing: 2px;
+}
+
+.category-header {
+  width:90%; max-width:800px;
+  margin:40px 0 10px 0;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(0, 255, 255, 0.4);
+  font-family:'Cinzel', serif;
+  font-size:20px;
+  font-weight:bold;
+  text-align:left;
+  color:#fff;
+  text-shadow:0 0 12px rgba(0, 255, 255, 0.5);
+}
+
+.resonator-desc {
+  width:90%; max-width:800px;
+  background: rgba(0, 255, 255, 0.04);
+  border-left: 3px solid #0ff;
+  padding: 12px 18px;
+  margin: 5px 0 20px 0;
+  text-align: left;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  color: #cceeff;
+  line-height: 1.5;
+}
+
+.resonator-desc span { color: #fff; font-weight: bold; }
+
+.tv-widget {
+  width:92vw; max-width:800px; 
+  margin:10px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #050505;
+}
+
+#footer {font-size:10px; opacity:0.4; margin:30px 0; font-family:'Space Grotesk', sans-serif;}
+</style>
 </head>
 <body>
 <canvas id="stars"></canvas>
 
 <div class="wrapper">
-  <div class="header">
-    <div class="main-title" onclick="window.open('https://t.me/ibonariumcosmodynamicslablive', '_blank')">Ibonarium Cosmo Dynamics LAB LIVE</div>
+  <div id="header-title">IBONARIUM • RESONATOR</div>
+  <div id="subheader">MACRO-CORRELATION MATRIX</div>
+
+  <!-- РЕЗОНАТОР 1 -->
+  <div class="category-header">I. ГЛОБАЛЬНИЙ АПЕТИТ ДО РИЗИКУ</div>
+  <div class="resonator-desc">
+    <span>Логіка:</span> Порівняння Біткоїна (Крайній ризик) та S&P 500 з Золотом (Захист) та Індексом Долара DXY.<br>
+    <span>Сигнал:</span> Якщо жовта (Золото) та фіолетова (DXY) лінії йдуть різко вгору, а Біткоїн падає — ринок у паніці. Перехрещення ліній вказує на розворот макротренду.
   </div>
-
-  <div class="content">
-    <!-- СТАТИЧНІ ОНОВЛЮВАНІ ДАНІ (РЯД 1-4) -->
-    <div class="row">
-      <div class="block red-gif">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_c2small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">LASCO C2 (Швидкість x0.1)</div>
-      </div>
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg?t=init" alt="AIA 171" loading="lazy"></div>
-    </div>
-    
-    <div class="row">
-      <div class="block blue-gif">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_c3small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">LASCO C3 (Швидкість x0.1)</div>
-      </div>
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0193.jpg?t=init" alt="AIA 193" loading="lazy"></div>
-    </div>
-    
-    <div class="row">
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0304.jpg?t=init" alt="AIA 304" loading="lazy"></div>
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0211.jpg?t=init" alt="AIA 211" loading="lazy"></div>
-    </div>
-    
-    <div class="row">
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0131.jpg?t=init" alt="AIA 131" loading="lazy"></div>
-      <div class="block"><img src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0094.jpg?t=init" alt="AIA 094" loading="lazy"></div>
-    </div>
-
-    <!-- SOHO/SDO ВІДЕОПЛЕЄРИ (ПОЛЕГШЕНІ small.mp4 З ПЛАВНОЮ ХОДОЮ 0.1x) -->
-    <div class="row">
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_171small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">AIA 171 (48h | Швидкість x0.1)</div>
-      </div>
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_195small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">AIA 193 (48h | Швидкість x0.1)</div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_284small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">AIA 211 (48h | Швидкість x0.1)</div>
-      </div>
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_eit_304small.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">AIA 304 (48h | Швидкість x0.1)</div>
-      </div>
-    </div>
-
-    <!-- SOHO HMI МАГНІТНІ ТА ВИДИМІ ДАНІ (ПОЛЕГШЕНІ -512.mp4) -->
-    <div class="row">
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_hmi_igr-512.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">Фотосфера (48h | Швидкість x0.1)</div>
-      </div>
-      <div class="block">
-        <video autoplay loop muted playsinline oncanplay="this.playbackRate = 0.1;">
-          <source src="https://soho.nascom.nasa.gov/data/LATEST/current_hmi_mag-512.mp4" type="video/mp4">
-        </video>
-        <div class="fallback-text">Магнітограма (48h | Швидкість x0.1)</div>
-      </div>
+  <div class="tv-widget" style="height:450px;">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+      {
+        "symbols": [
+          [ "BTC (Крипта / Ризик)", "BINANCE:BTCUSDT|1D" ],
+          [ "S&P 500 (Ринок США)", "SP:SPX|1D" ],
+          [ "Золото (Захист)", "OANDA:XAUUSD|1D" ],
+          [ "DXY (Тиск Долара)", "TVC:DXY|1D" ]
+        ],
+        "chartOnly": false,
+        "width": "100%",
+        "height": "100%",
+        "locale": "uk",
+        "colorTheme": "dark",
+        "gridLineColor": "rgba(255, 255, 255, 0.05)",
+        "showVolume": false,
+        "showMA": false,
+        "hideDateRanges": false,
+        "scalePosition": "right",
+        "scaleMode": "Percentage",
+        "fontFamily": "inherit",
+        "fontColor": "#9fe7ff",
+        "isTransparent": true,
+        "lineType": 0
+      }
+      </script>
     </div>
   </div>
 
-  <div class="footer">sun.sun.sun / live / cosmodynamics.lab.live</div>
+  <!-- РЕЗОНАТОР 2 -->
+  <div class="category-header">II. ІНФЛЯЦІЙНО-ПРОМИСЛОВИЙ ТИСК</div>
+  <div class="resonator-desc">
+    <span>Логіка:</span> Нафта WTI (Інфляція) vs. Газ vs. Мідь (Індикатор здоров'я промисловості).<br>
+    <span>Сигнал:</span> Зростання Нафти витягує гроші з ринку та стимулює підвищення ставок (смерть для ризику). Якщо Мідь йде вгору — заводи працюють, індустрія зростає. 
+  </div>
+  <div class="tv-widget" style="height:450px;">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+      {
+        "symbols": [
+          [ "Нафта WTI (Інфляція)", "OANDA:WTICOUSD|1D" ],
+          [ "Природний газ", "OANDA:NATGASUSD|1D" ],
+          [ "Мідь (Виробництво)", "OANDA:XCUUSD|1D" ],
+          [ "Срібло (Мікс)", "OANDA:XAGUSD|1D" ]
+        ],
+        "chartOnly": false,
+        "width": "100%",
+        "height": "100%",
+        "locale": "uk",
+        "colorTheme": "dark",
+        "gridLineColor": "rgba(255, 255, 255, 0.05)",
+        "showVolume": false,
+        "showMA": false,
+        "hideDateRanges": false,
+        "scalePosition": "right",
+        "scaleMode": "Percentage",
+        "fontFamily": "inherit",
+        "fontColor": "#9fe7ff",
+        "isTransparent": true,
+        "lineType": 0
+      }
+      </script>
+    </div>
+  </div>
+
+  <!-- РЕЗОНАТОР 3 -->
+  <div class="category-header">III. ВНУТРІШНЬО-КРИПТОВИЙ ПЕРЕЛИВ</div>
+  <div class="resonator-desc">
+    <span>Логіка:</span> Перетікання ліквідності всередині криптовалютної екосистеми.<br>
+    <span>Сигнал:</span> Спочатку росте Біткоїн (тягне за собою усіх), далі гроші перетікають у Ефір, а потім стріляють інші активи. Спостерігаємо, чия лінія відривається вище.
+  </div>
+  <div class="tv-widget" style="height:450px;">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+      {
+        "symbols": [
+          [ "Bitcoin (База Баз)", "BINANCE:BTCUSDT|1D" ],
+          [ "Ethereum (Екосистема)", "BINANCE:ETHUSDT|1D" ],
+          [ "Solana (Швидкість)", "BINANCE:SOLUSDT|1D" ],
+          [ "Litecoin", "BINANCE:LTCUSDT|1D" ]
+        ],
+        "chartOnly": false,
+        "width": "100%",
+        "height": "100%",
+        "locale": "uk",
+        "colorTheme": "dark",
+        "gridLineColor": "rgba(255, 255, 255, 0.05)",
+        "showVolume": false,
+        "showMA": false,
+        "hideDateRanges": false,
+        "scalePosition": "right",
+        "scaleMode": "Percentage",
+        "fontFamily": "inherit",
+        "fontColor": "#9fe7ff",
+        "isTransparent": true,
+        "lineType": 0
+      }
+      </script>
+    </div>
+  </div>
+
+  <!-- ТЕПЛОВА КАРТА МАКРО -->
+  <div class="category-header">IV. КРИПТОВАЛЮТНА ТЕПЛОВА КАРТА</div>
+  <div class="tv-widget" style="height:550px;">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
+      {
+        "dataSource": "Crypto",
+        "blockSize": "market_cap_calc",
+        "blockColor": "change",
+        "locale": "uk",
+        "symbolUrl": "",
+        "colorTheme": "dark",
+        "hasTopBar": true,
+        "isDataSetEnabled": false,
+        "isZoomEnabled": true,
+        "hasSymbolTooltip": true,
+        "width": "100%",
+        "height": "100%"
+      }
+      </script>
+    </div>
+  </div>
+
+  <div id="footer">© IBONARIUM RESONATOR CORE</div>
 </div>
 
 <script>
-// STARFIELD
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
-let W, H, stars = [];
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; stars = Array.from({length: 180}, () => ({ x: Math.random()*W, y: Math.random()*H, z: Math.random()*W })); }
-resize();
-window.addEventListener("resize", resize);
-function render() {
-  ctx.fillStyle = "#000"; ctx.fillRect(0,0,W,H);
-  ctx.fillStyle = "#4dd2ff";
-  stars.forEach(s => {
-    s.z -= 0.25; if (s.z <= 0) s.z = W;
-    const k = 128 / s.z;
-    const x = (s.x - W/2) * k + W/2;
-    const y = (s.y - H/2) * k + H/2;
-    if (x>0 && x<W && y>0 && y<H) { const size = (1 - s.z/W)*3; ctx.fillRect(x,y,size,size); }
-  });
-  requestAnimationFrame(render);
+// ===== STARS BACKGROUND =====
+const s=document.getElementById("stars"); const ctx=s.getContext("2d");
+let W,H,stars=[];
+function resize(){W=s.width=window.innerWidth; H=s.height=window.innerHeight; stars=Array.from({length:160},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*W}));}
+resize(); window.addEventListener("resize",resize);
+function draw(){
+  ctx.fillStyle="#000"; ctx.fillRect(0,0,W,H); 
+  ctx.fillStyle="#9fe7ff"; 
+  stars.forEach(st=>{
+    st.z-=0.2; if(st.z<=0) st.z=W; 
+    const k=128/st.z; 
+    const x=(st.x-W/2)*k+W/2; 
+    const y=(st.y-H/2)*k+H/2; 
+    if(x>0&&x<W&&y>0&&y<H){
+      const size=(1-st.z/W)*2; 
+      ctx.fillRect(x,y,size,size);
+    }
+  }); 
+  requestAnimationFrame(draw);
 }
-render();
-
-// Автооновлення спрацює ТІЛЬКИ для статичних зображень LMSAL (маркер "?t=")
-setInterval(() => {
-  const t = Date.now();
-  document.querySelectorAll('img[src*="?t="]').forEach(el => {
-    const base = el.src.split('?t=')[0];
-    el.src = base + '?t=' + t;
-  });
-}, 300000);
+draw();
 </script>
 </body>
 </html>
+
