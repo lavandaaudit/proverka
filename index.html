@@ -447,20 +447,6 @@ async function loadFX() {
           <div><b>1 PLN</b> = ${(uah / pln).toFixed(2)} UAH</div>
           <div><b>1 GBP</b> = ${(uah / gbp).toFixed(2)} UAH</div>
         </div>
-        <table class="data-table" style="text-align:center;">
-          <tr>
-            <th>USD / UAH</th>
-            <th>EUR / UAH</th>
-            <th>PLN / UAH</th>
-            <th>GBP / UAH</th>
-          </tr>
-          <tr>
-            <td style="font-weight:bold; font-size:15px;">${uah.toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(uah / eur).toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(uah / pln).toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(uah / gbp).toFixed(2)}</td>
-          </tr>
-        </table>
       `;
     } else {
       console.warn("FX API returned non-success result", fx);
