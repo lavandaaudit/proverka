@@ -103,7 +103,23 @@ canvas {position:fixed; inset:0; z-index:0;}
 #systemButton span.warning {color:#f0f;}
 @keyframes glowFade {0% {box-shadow:0 0 12px #0ff,0 0 24px #0ff inset;} 50% {box-shadow:0 0 24px #0ff,0 0 48px #0ff inset;} 100% {box-shadow:0 0 12px #0ff,0 0 24px #0ff inset;}}
 
-#analytics {width:90%; max-width:900px; text-align:left; font-size:11px; line-height:1.2; margin:10px 0; border-top:1px solid #111; border-bottom:1px solid #111; padding:6px 4px; display:flex; flex-direction:column; gap:2px;}
+#analytics {width:100%; max-width:900px; margin:10px 0; padding:6px 0;}
+
+/* Таблиці Аналітики */
+.data-table {
+  width: 100%; border-collapse: collapse; margin: 10px 0;
+  font-family: 'Space Grotesk', sans-serif; font-size: 13px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+.data-table th {
+  background: rgba(0, 255, 255, 0.1); color: #0ff;
+  padding: 10px; text-align: left;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  font-family: 'Cinzel', serif; letter-spacing: 1px; font-weight: bold;
+}
+.data-table td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #fff; }
+.data-table tr:hover td { background: rgba(0, 255, 255, 0.05); }
 
 /* ===== МАТРИЦІ АНАЛІТИКИ (RESONATOR) ===== */
 .alert-matrix {
@@ -119,69 +135,36 @@ canvas {position:fixed; inset:0; z-index:0;}
   box-shadow: 0 0 30px rgba(0,255,255,0.03);
 }
 
-.ai-matrix {
-  border-left: 4px solid #f0f;
-  box-shadow: 0 0 35px rgba(255,0,255,0.05);
-}
+.ai-matrix { border-left: 4px solid #f0f; box-shadow: 0 0 35px rgba(255,0,255,0.05); }
 .ai-matrix::after {
   content: "◉ NEURAL REPORT COMPILED";
-  position: absolute;
-  top: -10px;
-  right: 15px;
-  background: #000;
-  padding: 3px 10px;
-  font-size: 10px;
-  font-weight: bold;
-  color: #f0f;
-  border: 1px solid #f0f;
-  animation: pulse 2s infinite;
+  position: absolute; top: -10px; right: 15px; background: #000;
+  padding: 3px 10px; font-size: 10px; font-weight: bold;
+  color: #f0f; border: 1px solid #f0f; animation: pulse 2s infinite;
 }
 
-.matrix-title {
-  font-family: 'Cinzel', serif;
-  font-size: 16px;
-  color: #fff;
-  margin-bottom: 12px;
-  font-weight: bold;
-}
+.matrix-title { font-family: 'Cinzel', serif; font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: bold; }
 .pink-title { color: #f0f; border-bottom: 1px dashed #f0f; padding-bottom: 8px;}
 
 .alert-desc {
   background: rgba(255, 255, 255, 0.02);
-  padding: 15px;
-  border-left: 2px dashed #0ff;
-  margin-bottom: 20px;
-  line-height: 1.6;
+  padding: 15px; border-left: 2px dashed #0ff;
+  margin-bottom: 20px; line-height: 1.6;
 }
 .alert-desc ul { list-style: none; padding-left: 5px; }
 .alert-desc li { margin-bottom: 8px; color: #cceeff; }
 .alert-desc li b { color: #fff; font-weight: bold; }
 
-.algo-section {
-  position: relative;
-  border-top: 1px solid #444;
-  padding-top: 20px;
-  margin-top: 10px;
-}
+.algo-section { position: relative; border-top: 1px solid #444; padding-top: 20px; margin-top: 10px; }
 .algo-section::before {
   content: "◉ АВТОМАТИЧНИЙ ВИСНОВОК АЛГОРИТМУ:";
-  display: block;
-  font-size: 11px;
-  color: #f0f;
-  margin-bottom: 10px;
-  letter-spacing: 1px;
+  display: block; font-size: 11px; color: #f0f; margin-bottom: 10px; letter-spacing: 1px;
 }
 
 .alert-box {
-  display: inline-block;
-  padding: 14px 18px;
-  border-radius: 4px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-weight: bold;
-  font-size: 15px;
-  color: #fff;
-  line-height: 1.5;
-  width: 100%;
+  display: inline-block; padding: 14px 18px; border-radius: 4px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: bold; font-size: 15px;
+  color: #fff; line-height: 1.5; width: 100%;
 }
 
 .bg-danger { background: linear-gradient(90deg, rgba(255,0,0,0.2), rgba(0,0,0,0)); border-left: 4px solid #f0f; text-shadow: 0 0 5px #f00; border-color: #f00;}
@@ -189,14 +172,7 @@ canvas {position:fixed; inset:0; z-index:0;}
 .bg-success { background: linear-gradient(90deg, rgba(0,255,0,0.2), rgba(0,0,0,0)); border-left: 4px solid #0f0; text-shadow: 0 0 5px #0f0; }
 .bg-info { background: linear-gradient(90deg, rgba(0,255,255,0.1), rgba(0,0,0,0)); border-left: 4px solid #0ff; text-shadow: 0 0 5px #0ff; }
 
-.status-subtitle {
-  display: block;
-  font-weight: normal;
-  font-size: 13px;
-  color: #ddd;
-  margin-top: 8px;
-  text-shadow: none;
-}
+.status-subtitle { display: block; font-weight: normal; font-size: 13px; color: #ddd; margin-top: 8px; text-shadow: none; }
 
 .report-p { font-size: 14.5px; color: #d1f2ff; line-height: 1.7; padding-top: 15px; border-top: 1px solid #333; }
 .report-p span.head { color: #f0f; font-weight: bold; letter-spacing: 1px;}
@@ -205,12 +181,7 @@ canvas {position:fixed; inset:0; z-index:0;}
 
 /* ===== ГРАФІКИ ТА ВІДЖЕТИ ===== */
 .chart {width:92vw; max-width:900px; height:320px; margin:14px 0; border:1px solid #111;}
-.tv-widget {
-  width:92vw; max-width:900px; 
-  margin:15px 0;
-  border: 1px solid rgba(0, 255, 255, 0.15);
-  background: #050505;
-}
+.tv-widget { width:92vw; max-width:900px; margin:15px 0; border: 1px solid rgba(0, 255, 255, 0.15); background: #050505; }
 @media(max-width:600px){.chart {height:250px;}}
 
 #footer {font-size:10px; opacity:0.3; margin:40px 0; font-family:'Space Grotesk', sans-serif;}
@@ -222,18 +193,14 @@ canvas {position:fixed; inset:0; z-index:0;}
 
 <div class="wrapper">
   
-  <!-- ============================================================== -->
-  <!-- ЧАСТИНА 1: IBONARIUM ECONOMY SIGNAL (ОПЕРАЦІЙНИЙ ТЕРМІНАЛ) -->
-  <!-- ============================================================== -->
-  
   <div class="main-title">IBONARIUM • ECONOMY SIGNAL</div>
   
   <div id="ticker"><span id="tickerText">LOADING CRYPTO DATA...</span></div>
-  <div class="section" id="fx"></div>
-  <div id="systemButton"><span id="systemState">Завантаження...</span></div>
+  <div class="section" id="fx" style="width:100%; display:block;"></div>
+  <div id="analytics" style="width:90%;"></div>
   
+  <div id="systemButton"><span id="systemState">Завантаження...</span></div>
   <div id="alerts"></div>
-  <div id="analytics"></div>
 
   <!-- Графіки Криптовалют -->
   <div id="chartBTC" class="chart"></div>
@@ -296,10 +263,6 @@ canvas {position:fixed; inset:0; z-index:0;}
     </div>
   </div>
 
-  <!-- ============================================================== -->
-  <!-- ЧАСТИНА 2: IBONARIUM RESONATOR CORE (АНАЛІТИКА ТА ШІ) -->
-  <!-- ============================================================== -->
-  
   <div class="main-title" style="margin-top:60px;">IBONARIUM • RESONATOR</div>
   <div class="subheader">AUTONOMOUS MACRO ANALYSIS ENGINE v4</div>
 
@@ -432,6 +395,15 @@ canvas {position:fixed; inset:0; z-index:0;}
     </div>
   </div>
 
+  <!-- IBONARIUM TRADE ON SIGNAL -->
+  <div class="category-header category-header-pink" style="border-bottom:2px solid rgba(0, 255, 0, 0.5); color: #0f0; text-shadow:0 0 15px rgba(0, 255, 0, 0.6); margin-top:40px;">VI. IBONARIUM TRADE ON SIGNAL</div>
+  <div class="alert-matrix" style="border-left: 4px solid #0f0; box-shadow: 0 0 35px rgba(0,255,0,0.05);">
+    <div class="matrix-title" style="color: #0f0; border-bottom: 1px dashed #0f0; padding-bottom: 8px;">РЕКОМЕНДАЦІЇ ДЛЯ ТОРГІВЛІ (BTC)</div>
+    <div id="trade-signal">
+      <div class="alert-box bg-info">⏳ Аналізую поточний стан ринку для отримання сигналу...</div>
+    </div>
+  </div>
+
   <div id="footer">© IBONARIUM ECONOMY & RESONATOR CORE • UNIFIED DASHBOARD</div>
 </div>
 
@@ -462,10 +434,20 @@ async function loadFX() {
     const fx = await res.json();
     if (fx.result === "success") {
       document.getElementById("fx").innerHTML = `
-        <div>1 USD = ${(fx.rates.UAH).toFixed(2)} UAH</div>
-        <div>1 EUR = ${(fx.rates.UAH / fx.rates.EUR).toFixed(2)} UAH</div>
-        <div>1 PLN = ${(fx.rates.UAH / fx.rates.PLN).toFixed(2)} UAH</div>
-        <div>1 GBP = ${(fx.rates.UAH / fx.rates.GBP).toFixed(2)} UAH</div>
+        <table class="data-table" style="text-align:center;">
+          <tr>
+            <th>USD / UAH</th>
+            <th>EUR / UAH</th>
+            <th>PLN / UAH</th>
+            <th>GBP / UAH</th>
+          </tr>
+          <tr>
+            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.EUR).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.PLN).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.GBP).toFixed(2)}</td>
+          </tr>
+        </table>
       `;
     }
   } catch(e) { console.log("FX error"); }
@@ -476,14 +458,41 @@ async function loadCryptoEconomy() {
     const symbols = ["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","LTCUSDT","DASHUSDT"];
     const responses = await Promise.all(symbols.map(sym => fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`).then(r => r.json())));
     
+    // TICKER STRING
     const tickerStr = responses.map(c=>`${c.symbol.replace("USDT","")} ${parseFloat(c.lastPrice).toLocaleString()} USD (${parseFloat(c.priceChangePercent).toFixed(2)}%)`).join(" • ");
     document.getElementById("tickerText").innerText = tickerStr;
 
-    const analytics = responses.map(c=>{
-      return `<div><strong>${c.symbol.replace("USDT","")}</strong> | Ціна: ${parseFloat(c.lastPrice).toLocaleString()} USD | Δ 24h: ${parseFloat(c.priceChange).toFixed(2)} USD (${parseFloat(c.priceChangePercent).toFixed(2)}%) | High: ${parseFloat(c.highPrice).toLocaleString()} | Low: ${parseFloat(c.lowPrice).toLocaleString()} | Об’єм: ${parseFloat(c.volume).toLocaleString()}</div>`;
-    }).join("");
-    const cryptoVol = Math.max(...responses.map(c=>Math.abs(parseFloat(c.priceChangePercent)))).toFixed(2);
+    // ВІДСЛІДКОВУВАННЯ ЗМІН І ЇХ ВІЗУАЛІЗАЦІЯ В ТАБЛИЦІ
+    let analyticsTable = `
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>АКТИВ</th>
+          <th>ЦІНА (USD)</th>
+          <th>ЗМІНА (24H)</th>
+          <th>HIGH / LOW</th>
+          <th>ОБ'ЄМ</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+    
+    responses.forEach(c => {
+      let pc = parseFloat(c.priceChangePercent);
+      let changeClass = pc >= 0 ? 'color:#0f0' : 'color:#f00';
+      analyticsTable += `
+        <tr>
+          <td style="font-weight:bold; color:#0ff;">${c.symbol.replace("USDT","")}</td>
+          <td>${parseFloat(c.lastPrice).toLocaleString()}</td>
+          <td style="${changeClass}; font-weight:bold;">${parseFloat(c.priceChange).toFixed(2)} (${pc.toFixed(2)}%)</td>
+          <td style="color:#aaa;">${parseFloat(c.highPrice).toLocaleString()} / ${parseFloat(c.lowPrice).toLocaleString()}</td>
+          <td style="color:#ddd;">${parseFloat(c.volume).toLocaleString()}</td>
+        </tr>
+      `;
+    });
+    analyticsTable += `</tbody></table>`;
 
+    const cryptoVol = Math.max(...responses.map(c=>Math.abs(parseFloat(c.priceChangePercent)))).toFixed(2);
     const fngRes = await fetch("https://api.alternative.me/fng/?limit=1");
     const fngData = await fngRes.json();
     const fngIndex = parseInt(fngData.data[0].value);
@@ -491,11 +500,14 @@ async function loadCryptoEconomy() {
 
     const h = new Date().getUTCHours();
     let session = h>=0&&h<9 ? "Азійська сесія" : h>=7&&h<16 ? "Європейська сесія" : "Американська сесія";
+    let fngColor = fngIndex >= 60 ? '#0f0' : fngIndex <= 40 ? '#f00' : '#ffa500';
 
-    document.getElementById("analytics").innerHTML = analytics + 
-      `<div style="margin-top:10px">- Волатильність ТОП: ${cryptoVol}%</div>
-      <div>- Індекс страху та жадібності: ${fngIndex} (${fngText})</div>
-      <div>- Поточна сесія: ${session}</div>`;
+    document.getElementById("analytics").innerHTML = analyticsTable + 
+      `<div style="margin-top:15px; background:rgba(255,255,255,0.02); padding:12px; border-radius:5px; display:flex; justify-content:space-around; align-items:center; font-size:12px; color:#aaa; border-left:2px solid #0ff;">
+         <span>Волатильність ТОП: <b style="color:#fff">${cryptoVol}%</b></span>
+         <span>Індекс Страху та Жадібності: <b style="color:${fngColor}; font-size:14px;">${fngIndex} (${fngText})</b></span>
+         <span>Поточна сесія: <b style="color:#0ff">${session}</b></span>
+       </div>`;
 
     const btn = document.getElementById("systemButton");
     const span = document.getElementById("systemState");
@@ -622,8 +634,44 @@ async function runAutoAnalyzer() {
       <div class="report-c"><span class="head">⛓ КРИПТО-СЕКТОР:</span> ${cryptoText || "Ринок залишається у площині зниженої волатильності без спекулятивних загострень."}</div>
     `;
 
+    // --- МОДУЛЬ 6: IBONARIUM TRADE ON SIGNAL ---
+    let tradeScore = btc + (eth * 0.5) + (dxyProxy * -2.5) + (oilVal * -0.5);
+    let tradeHtml = "";
+    
+    if (tradeScore >= 3 && btc >= -0.5) {
+      // LONG
+      tradeHtml = \`
+      <div class="alert-box bg-success" style="margin-bottom: 15px; font-size:16px;">
+        🟢 СИГНАЛ: LONG (ЛОНГ)<br><span style="font-weight:normal; font-size:14px;">Ринок демонструє силу та впевненість. Розумні гроші заходять в активи.</span>
+      </div>
+      <div class="report-c"><span class="head" style="color:#0f0;">ЗВЕРНІТЬ УВАГУ:</span> DXY ($DXY) не створює тиску, а ліквідність активно заливається в цифрові активи. Інституційний фон сприятливий для відкриття та утримання лонгових (Бичих) позицій по Біткоїну.</div>
+      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Очікується пробиття найближчих ключових опорів вгору. Стоп-лосс рекомендується розмістити під рівнем останнього проторгованого дна. Слідкуйте за об'ємами — якщо ріст перестане підтримуватися об'ємами на годинних свічках, це пастка.</div>
+      \`;
+    } else if (tradeScore <= -3 || btc <= -2 || dxyProxy >= 0.8) {
+      // SHORT
+      tradeHtml = \`
+      <div class="alert-box bg-danger" style="margin-bottom: 15px; font-size:16px;">
+        🔴 СИГНАЛ: SHORT (ШОРТ / ХЕДЖ)<br><span style="font-weight:normal; font-size:14px;">Жорсткий тиск на ризикові активи. Триває корекція або спадний тренд.</span>
+      </div>
+      <div class="report-c"><span class="head" style="color:#f00;">ЗВЕРНІТЬ УВАГУ:</span> Долар стрімко зростає або інфляційні маркери дуже напружені. Спостерігається вихід капіталу з Біткоїна в захисні активи (фіат). Ринок мегавразливий до каскадних ліквідацій лонгів.</div>
+      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Ймовірність тестування нижніх рівнів підтримки надзвичайно висока. Якщо відкриваєте шорт — ставте короткий стоп за найближчу зону консолідації зверху. Будьте готові до 'відскоків мертвої кішки' (маніпуляції).</div>
+      \`;
+    } else {
+      // WAIT
+      tradeHtml = \`
+      <div class="alert-box bg-warning" style="margin-bottom: 15px; font-size:16px;">
+        ⚠️ СИГНАЛ: WAIT (НЕ В УГОДІ / БОКОВИК)<br><span style="font-weight:normal; font-size:14px;">Ситуація абсолютно невизначена. Ліквідність балансує в діапазоні.</span>
+      </div>
+      <div class="report-c"><span class="head" style="color:#ffa500;">ЗВЕРНІТЬ УВАГУ:</span> Індикатори не показують чіткої переваги ні биків, ні ведмедів. Торгівля в такій зоні ('піла') несе підвищений ризик вибивання стопів в обидві сторони. Найкраща позиція зараз — сидіти на паркані (поза ринком).</div>
+      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Рекомендація: розглядати лонг тільки при імпульсному закріпленні вище поточного діапазону опори; розглядати шорт тільки при пробитті нижньої підтримки. Чекаємо на вихід китів з великим об'ємом для формування істинного тренду.</div>
+      \`;
+    }
+    
+    document.getElementById("trade-signal").innerHTML = tradeHtml;
+
   } catch (error) {
     document.getElementById("algo-summary").innerHTML = `<div class="alert-box bg-warning">Помилка генерації звіту через відсутність доступу до макро-даних.</div>`;
+    document.getElementById("trade-signal").innerHTML = `<div class="alert-box bg-warning">Сигнал недоступний.</div>`;
   }
 }
 runAutoAnalyzer(); setInterval(runAutoAnalyzer, 30000);
