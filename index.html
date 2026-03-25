@@ -429,10 +429,17 @@ draw();
    2. ЕКОНОМІЧНИЙ СИГНАЛ (БЛОКИ КРИПТИ І ВАЛЮТ)
    ============================================== */
 async function loadFX() {
+  console.log("Starting loadFX...");
   try {
     const res = await fetch('https://open.er-api.com/v6/latest/USD');
     const fx = await res.json();
     if (fx.result === "success") {
+      console.log("FX data loaded successfully");
+      const uah = fx.rates.UAH || 0;
+      const eur = fx.rates.EUR || 1;
+      const pln = fx.rates.PLN || 1;
+      const gbp = fx.rates.GBP || 1;
+      
       document.getElementById("fx").innerHTML = `
         <table class="data-table" style="text-align:center;">
           <tr>
@@ -442,24 +449,43 @@ async function loadFX() {
             <th>GBP / UAH</th>
           </tr>
           <tr>
-            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH).toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.EUR).toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.PLN).toFixed(2)}</td>
-            <td style="font-weight:bold; font-size:15px;">${(fx.rates.UAH / fx.rates.GBP).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${uah.toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(uah / eur).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(uah / pln).toFixed(2)}</td>
+            <td style="font-weight:bold; font-size:15px;">${(uah / gbp).toFixed(2)}</td>
           </tr>
         </table>
       `;
+    } else {
+      console.warn("FX API returned non-success result", fx);
     }
-  } catch(e) { console.log("FX error"); }
+  } catch(e) { 
+    console.error("FX loading error:", e);
+    document.getElementById("fx").innerHTML = "<div style='color:red; padding:10px;'>Помилка завантаження валют</div>";
+  }
 }
 
 async function loadCryptoEconomy() {
+  console.log("Starting loadCryptoEconomy...");
   try {
     const symbols = ["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","LTCUSDT","DASHUSDT"];
-    const responses = await Promise.all(symbols.map(sym => fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`).then(r => r.json())));
+    const responses = await Promise.all(symbols.map(sym => 
+      fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`)
+      .then(r => r.json())
+      .catch(err => {
+        console.error(`Error fetching ${sym}:`, err);
+        return { symbol: sym, lastPrice: "0", priceChangePercent: "0", priceChange: "0", highPrice: "0", lowPrice: "0", volume: "0" };
+      })
+    ));
     
+    console.log("Crypto data received:", responses.length, "items");
+
     // TICKER STRING
-    const tickerStr = responses.map(c=>`${c.symbol.replace("USDT","")} ${parseFloat(c.lastPrice).toLocaleString()} USD (${parseFloat(c.priceChangePercent).toFixed(2)}%)`).join(" • ");
+    const tickerStr = responses.map(c => {
+      const price = parseFloat(c.lastPrice || 0);
+      const pct = parseFloat(c.priceChangePercent || 0);
+      return `${c.symbol.replace("USDT","")} ${price.toLocaleString()} USD (${pct.toFixed(2)}%)`;
+    }).join(" • ");
     document.getElementById("tickerText").innerText = tickerStr;
 
     // ВІДСЛІДКОВУВАННЯ ЗМІН І ЇХ ВІЗУАЛІЗАЦІЯ В ТАБЛИЦІ
@@ -478,28 +504,37 @@ async function loadCryptoEconomy() {
     `;
     
     responses.forEach(c => {
-      let pc = parseFloat(c.priceChangePercent);
+      let pc = parseFloat(c.priceChangePercent || 0);
+      let price = parseFloat(c.lastPrice || 0);
+      let change = parseFloat(c.priceChange || 0);
+      let hi = parseFloat(c.highPrice || 0);
+      let lo = parseFloat(c.lowPrice || 0);
+      let vol = parseFloat(c.volume || 0);
+      
       let changeClass = pc >= 0 ? 'color:#0f0' : 'color:#f00';
       analyticsTable += `
         <tr>
-          <td style="font-weight:bold; color:#0ff;">${c.symbol.replace("USDT","")}</td>
-          <td>${parseFloat(c.lastPrice).toLocaleString()}</td>
-          <td style="${changeClass}; font-weight:bold;">${parseFloat(c.priceChange).toFixed(2)} (${pc.toFixed(2)}%)</td>
-          <td style="color:#aaa;">${parseFloat(c.highPrice).toLocaleString()} / ${parseFloat(c.lowPrice).toLocaleString()}</td>
-          <td style="color:#ddd;">${parseFloat(c.volume).toLocaleString()}</td>
+          <td style="font-weight:bold; color:#0ff;">${(c.symbol || "UNKNOWN").replace("USDT","")}</td>
+          <td>${price.toLocaleString()}</td>
+          <td style="${changeClass}; font-weight:bold;">${change.toFixed(2)} (${pc.toFixed(2)}%)</td>
+          <td style="color:#aaa;">${hi.toLocaleString()} / ${lo.toLocaleString()}</td>
+          <td style="color:#ddd;">${vol.toLocaleString()}</td>
         </tr>
       `;
     });
     analyticsTable += `</tbody></table>`;
 
-    const cryptoVol = Math.max(...responses.map(c=>Math.abs(parseFloat(c.priceChangePercent)))).toFixed(2);
-    const fngRes = await fetch("https://api.alternative.me/fng/?limit=1");
-    const fngData = await fngRes.json();
-    const fngIndex = parseInt(fngData.data[0].value);
-    const fngText = fngData.data[0].value_classification;
+    let fngIndex = 50, fngText = "Neutral";
+    try {
+      const fngRes = await fetch("https://api.alternative.me/fng/?limit=1");
+      const fngData = await fngRes.json();
+      fngIndex = parseInt(fngData.data[0].value);
+      fngText = fngData.data[0].value_classification;
+    } catch(e) { console.warn("FNG error, using default"); }
 
+    const cryptoVol = Math.max(...responses.map(c=>Math.abs(parseFloat(c.priceChangePercent || 0)))).toFixed(2);
     const h = new Date().getUTCHours();
-    let session = h>=0&&h<9 ? "Азійська сесія" : h>=7&&h<16 ? "Європейська сесія" : "Американська сесія";
+    let session = h>=0&&h<9 ? "Азійська сесія" : h>=9&&h<17 ? "Європейська сесія" : "Американська сесія";
     let fngColor = fngIndex >= 60 ? '#0f0' : fngIndex <= 40 ? '#f00' : '#ffa500';
 
     document.getElementById("analytics").innerHTML = analyticsTable + 
@@ -509,7 +544,6 @@ async function loadCryptoEconomy() {
          <span>Поточна сесія: <b style="color:#0ff">${session}</b></span>
        </div>`;
 
-    const btn = document.getElementById("systemButton");
     const span = document.getElementById("systemState");
     let stateText = "Норма"; span.className="normalState";
     if (fngIndex >= 80) {stateText="Екстремальний страх"; span.className="downState";}
@@ -521,16 +555,19 @@ async function loadCryptoEconomy() {
     const alertsContainer = document.getElementById("alerts");
     alertsContainer.innerHTML = "";
     responses.forEach(c=>{
-      const change = parseFloat(c.priceChangePercent);
+      const change = parseFloat(c.priceChangePercent || 0);
       if(Math.abs(change) > 5) {
         const div = document.createElement("div");
         div.className = "alert " + (change>0 ? "up" : "down");
-        div.innerText = `${c.symbol.replace("USDT","")} ${change>0 ? '↑' : '↓'} ${change.toFixed(2)}%`;
+        div.innerText = `${(c.symbol || "").replace("USDT","")} ${change>0 ? '↑' : '↓'} ${change.toFixed(2)}%`;
         alertsContainer.appendChild(div);
         setTimeout(()=>{div.style.opacity=0; setTimeout(()=>div.remove(),1000)},10000);
       }
     });
-  } catch(e) { console.log(e); }
+  } catch(e) { 
+    console.error("loadCryptoEconomy error:", e);
+    document.getElementById("analytics").innerHTML = "<div style='color:red; padding:10px;'>Помилка завантаження крипто-даних</div>";
+  }
 }
 
 loadFX(); setInterval(loadFX, 300000);
@@ -640,31 +677,31 @@ async function runAutoAnalyzer() {
     
     if (tradeScore >= 3 && btc >= -0.5) {
       // LONG
-      tradeHtml = \`
+      tradeHtml = `
       <div class="alert-box bg-success" style="margin-bottom: 15px; font-size:16px;">
         🟢 СИГНАЛ: LONG (ЛОНГ)<br><span style="font-weight:normal; font-size:14px;">Ринок демонструє силу та впевненість. Розумні гроші заходять в активи.</span>
       </div>
       <div class="report-c"><span class="head" style="color:#0f0;">ЗВЕРНІТЬ УВАГУ:</span> DXY ($DXY) не створює тиску, а ліквідність активно заливається в цифрові активи. Інституційний фон сприятливий для відкриття та утримання лонгових (Бичих) позицій по Біткоїну.</div>
       <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Очікується пробиття найближчих ключових опорів вгору. Стоп-лосс рекомендується розмістити під рівнем останнього проторгованого дна. Слідкуйте за об'ємами — якщо ріст перестане підтримуватися об'ємами на годинних свічках, це пастка.</div>
-      \`;
+      `;
     } else if (tradeScore <= -3 || btc <= -2 || dxyProxy >= 0.8) {
       // SHORT
-      tradeHtml = \`
+      tradeHtml = `
       <div class="alert-box bg-danger" style="margin-bottom: 15px; font-size:16px;">
         🔴 СИГНАЛ: SHORT (ШОРТ / ХЕДЖ)<br><span style="font-weight:normal; font-size:14px;">Жорсткий тиск на ризикові активи. Триває корекція або спадний тренд.</span>
       </div>
       <div class="report-c"><span class="head" style="color:#f00;">ЗВЕРНІТЬ УВАГУ:</span> Долар стрімко зростає або інфляційні маркери дуже напружені. Спостерігається вихід капіталу з Біткоїна в захисні активи (фіат). Ринок мегавразливий до каскадних ліквідацій лонгів.</div>
       <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Ймовірність тестування нижніх рівнів підтримки надзвичайно висока. Якщо відкриваєте шорт — ставте короткий стоп за найближчу зону консолідації зверху. Будьте готові до 'відскоків мертвої кішки' (маніпуляції).</div>
-      \`;
+      `;
     } else {
       // WAIT
-      tradeHtml = \`
+      tradeHtml = `
       <div class="alert-box bg-warning" style="margin-bottom: 15px; font-size:16px;">
         ⚠️ СИГНАЛ: WAIT (НЕ В УГОДІ / БОКОВИК)<br><span style="font-weight:normal; font-size:14px;">Ситуація абсолютно невизначена. Ліквідність балансує в діапазоні.</span>
       </div>
       <div class="report-c"><span class="head" style="color:#ffa500;">ЗВЕРНІТЬ УВАГУ:</span> Індикатори не показують чіткої переваги ні биків, ні ведмедів. Торгівля в такій зоні ('піла') несе підвищений ризик вибивання стопів в обидві сторони. Найкраща позиція зараз — сидіти на паркані (поза ринком).</div>
       <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Рекомендація: розглядати лонг тільки при імпульсному закріпленні вище поточного діапазону опори; розглядати шорт тільки при пробитті нижньої підтримки. Чекаємо на вихід китів з великим об'ємом для формування істинного тренду.</div>
-      \`;
+      `;
     }
     
     document.getElementById("trade-signal").innerHTML = tradeHtml;
