@@ -485,32 +485,41 @@ async function loadCryptoEconomy() {
     <table class="data-table">
       <thead>
         <tr>
-          <th>АКТИВ</th>
-          <th>ЦІНА (USD)</th>
-          <th>ЗМІНА (24H)</th>
-          <th>HIGH / LOW</th>
-          <th>ОБ'ЄМ</th>
+          <th>Name</th>
+          <th>Value</th>
+          <th>Change</th>
+          <th>Chg%</th>
+          <th>Open</th>
+          <th>High</th>
+          <th>Low</th>
+          <th>Prev</th>
         </tr>
       </thead>
       <tbody>
     `;
     
     responses.forEach(c => {
-      let pc = parseFloat(c.priceChangePercent || 0);
       let price = parseFloat(c.lastPrice || 0);
       let change = parseFloat(c.priceChange || 0);
+      let pc = parseFloat(c.priceChangePercent || 0);
+      let open = parseFloat(c.openPrice || 0);
       let hi = parseFloat(c.highPrice || 0);
       let lo = parseFloat(c.lowPrice || 0);
-      let vol = parseFloat(c.volume || 0);
+      let prev = parseFloat(c.prevClosePrice || 0);
       
-      let changeClass = pc >= 0 ? 'color:#0f0' : 'color:#f00';
+      let cc = pc >= 0 ? 'color:#0f0' : 'color:#f00';
+      let sym = (c.symbol || "").replace("USDT","");
+      
       analyticsTable += `
         <tr>
-          <td style="font-weight:bold; color:#0ff;">${(c.symbol || "UNKNOWN").replace("USDT","")}</td>
-          <td>${price.toLocaleString()}</td>
-          <td style="${changeClass}; font-weight:bold;">${change.toFixed(2)} (${pc.toFixed(2)}%)</td>
-          <td style="color:#aaa;">${hi.toLocaleString()} / ${lo.toLocaleString()}</td>
-          <td style="color:#ddd;">${vol.toLocaleString()}</td>
+          <td style="font-weight:bold; color:#fff;">${sym}</td>
+          <td style="font-weight:bold;">${price.toLocaleString()}</td>
+          <td style="${cc}">${change > 0 ? '+' : ''}${change.toFixed(2)}</td>
+          <td style="${cc}; font-weight:bold;">${pc.toFixed(2)}%</td>
+          <td style="color:#aaa;">${open.toLocaleString()}</td>
+          <td style="color:#0f0;">${hi.toLocaleString()}</td>
+          <td style="color:#f00;">${lo.toLocaleString()}</td>
+          <td style="color:#aaa;">${prev.toLocaleString()}</td>
         </tr>
       `;
     });
