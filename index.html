@@ -1,749 +1,383 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ibonarium • Global Economy & Resonator Core</title>
+    <meta charset="UTF-8">
+    <title>ibonarium.stability.human.lab.live</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- CSP для безпечного iframe на GitHub Pages -->
+    <meta http-equiv="Content-Security-Policy" content="frame-src https://realtime.obs-nancay.fr https://obs-nancay.fr;">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #cfefff;
+            font-family: Inter, system-ui, monospace;
+            overflow: auto;
+        }
+        .wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8px 0;
+        }
+        .panel {
+            width: 96%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: row;
+            gap: 18px;
+        }
+        /* LEFT */
+        .left {
+            width: 40%;
+            border: 1px solid #0ff3;
+            padding: 14px;
+            overflow-y: auto;
+            min-height: 500px;
+        }
+        .left h2 {
+            font-size: 19.8px;
+            margin-bottom: 12.6px;
+            text-align: center;
+            color: #7fffd4;
+        }
+        .indicator {
+            margin-bottom: 8px;
+            font-size: 14.4px;
+            line-height: 1.3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .indicator .label {
+            opacity: 0.9;
+        }
+        .indicator .value {
+            font-weight: bold;
+            min-width: 110px;
+            text-align: right;
+            padding: 3px 7px;
+            border-radius: 4px;
+            transition: background-color 0.5s;
+        }
+        /* RIGHT */
+        .right {
+            width: 60%;
+            border: 1px solid #0ff3;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .chart-container {
+            flex: 0.8; 
+            min-height: 180px; 
+        }
+        canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .spectrogram-container {
+            flex: 2; 
+            min-height: 420px; 
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            filter: contrast(115%) brightness(110%);
+            background: #000;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+        /* Адаптація для планшетів та мобільних */
+        @media (max-width: 1024px) {
+            .panel {
+                flex-direction: column;
+            }
+            .left, .right {
+                width: 100%;
+            }
+            .left {
+                min-height: auto;
+            }
+            .right {
+                min-height: auto;
+            }
+            .chart-container {
+                min-height: 250px;
+            }
+            .spectrogram-container {
+                min-height: 500px;
+            }
+        }
 
-<style>
-/* ===== БАЗОВИЙ СТИЛЬ ===== */
-* {margin:0; padding:0; box-sizing:border-box;}
-html, body {
-  width:100%; height:100%;
-  background:#020202; 
-  font-family:'Space Grotesk', sans-serif; 
-  color:#9fe7ff; 
-  overflow-x:hidden;
-}
-canvas {position:fixed; inset:0; z-index:0;}
-.wrapper {
-  position:relative; z-index:2; 
-  display:flex; flex-direction:column; 
-  align-items:center; 
-  padding:30px 20px; gap:10px; 
-  text-align:center; 
-  font-size:13px; line-height:1.4;
-}
+        @media (max-width: 768px) {
+            .wrapper {
+                padding: 6px;
+            }
+            .panel {
+                gap: 12px;
+            }
+            .left {
+                padding: 12px;
+            }
+            .left h2 {
+                font-size: 18px;
+            }
+            .indicator {
+                font-size: 13.5px;
+                margin-bottom: 7px;
+            }
+            .right {
+                padding: 12px;
+            }
+            .chart-container {
+                min-height: 200px;
+            }
+            .spectrogram-container {
+                min-height: 450px;
+            }
+            iframe {
+                transform: scale(0.90);
+                transform-origin: top left;
+            }
+        }
 
-.main-title {
-  font-family:'Cinzel', serif; 
-  font-size:28px; 
-  font-weight:700; 
-  margin-bottom:0px;
-  color:#0ff;
-  text-shadow: 0 0 20px #0ff;
-  letter-spacing: 2px;
-}
-
-.subheader {
-  font-size:12px;
-  color:#aaa;
-  margin-bottom:30px;
-  letter-spacing: 4px;
-}
-
-/* ===== ЗАГОЛОВКИ БЛОКІВ ===== */
-.category-header {
-  width:90%; max-width:900px;
-  margin:50px 0 10px 0;
-  padding-bottom:10px;
-  border-bottom:2px solid rgba(0, 255, 255, 0.5);
-  font-family:'Cinzel', serif;
-  font-size:22px;
-  font-weight:bold;
-  text-align:left;
-  color:#fff;
-  text-shadow:0 0 15px rgba(0, 255, 255, 0.6);
-}
-
-.category-header-pink {
-  border-bottom:2px solid rgba(255, 0, 255, 0.5);
-  color: #f0f;
-  text-shadow:0 0 15px rgba(255, 0, 255, 0.6);
-}
-
-/* ===== СТАНДАРТНІ СЕКЦІЇ (ECONOMY) ===== */
-.section {width:90%; max-width:900px; margin:4px 0; display:flex; flex-wrap:wrap; justify-content:center; gap:12px;}
-.section div {margin:2px 6px; font-size:11px; line-height:1.0; font-family:'Space Grotesk', sans-serif;}
-
-#ticker {width:100%; overflow:hidden; background:#1a001a; border-top:1px solid #111; border-bottom:1px solid #111; padding:4px 0; position:relative; margin-top:20px;}
-#ticker span {display:inline-block; white-space:nowrap; padding-left:100%; animation: ticker 60s linear infinite; font-size:13px; font-family:'Space Grotesk', sans-serif;}
-@keyframes ticker {from{transform:translateX(0);} to{transform:translateX(-100%);}}
-
-#alerts {width:90%; max-width:900px; padding:8px; margin:12px 0; text-align:center; font-size:13px; line-height:1.3; position:relative;}
-.alert {
-  display:inline-block; padding:10px 16px; margin:4px; border-radius:12px; color:#fff; font-weight:bold;
-  opacity:0.9; font-family:'Space Grotesk', sans-serif; font-size:14px;
-  transition:opacity 1s, transform 0.3s; animation: neonPulse 1.2s infinite alternate;
-}
-.alert.up {background:linear-gradient(90deg,#00ff00,#00aa00);}
-.alert.down {background:linear-gradient(90deg,#ff0000,#aa0000);}
-.alert.warning {background:linear-gradient(90deg,#ff0,#aa0);}
-@keyframes neonPulse {
-  0% {text-shadow:0 0 4px #fff,0 0 10px #0ff,0 0 20px #0ff,0 0 40px #0ff;}
-  50% {text-shadow:0 0 8px #fff,0 0 20px #0ff,0 0 40px #0ff,0 0 60px #0ff;}
-  100% {text-shadow:0 0 4px #fff,0 0 10px #0ff,0 0 20px #0ff,0 0 40px #0ff;}
-}
-
-#systemButton {
-  width:92vw; max-width:900px; padding:14px 0; margin:12px 0; border-radius:30px; 
-  border:1px solid #0ff; background:rgba(0,255,255,0.05); text-align:center; font-size:16px; 
-  font-weight:bold; font-family:'Cinzel', serif; position:relative; overflow:hidden;
-  animation: glowFade 3s infinite alternate;
-}
-#systemButton span {
-  position:relative; z-index:2; padding:4px 12px; border-radius:20px; display:inline-block; 
-  min-width:120px; transition:all 0.5s; font-weight:bold; color:#fff; font-family:'Space Grotesk', sans-serif;
-}
-#systemButton span.normalState {color:#0f0;}
-#systemButton span.downState {color:#f00;}
-#systemButton span.upState {color:#ff0;}
-#systemButton span.warning {color:#f0f;}
-@keyframes glowFade {0% {box-shadow:0 0 12px #0ff,0 0 24px #0ff inset;} 50% {box-shadow:0 0 24px #0ff,0 0 48px #0ff inset;} 100% {box-shadow:0 0 12px #0ff,0 0 24px #0ff inset;}}
-
-#analytics {width:100%; max-width:900px; margin:10px 0; padding:6px 0;}
-
-/* Таблиці Аналітики */
-.data-table {
-  width: 100%; border-collapse: collapse; margin: 10px 0;
-  font-family: 'Space Grotesk', sans-serif; font-size: 13px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(0, 255, 255, 0.2);
-}
-.data-table th {
-  background: rgba(0, 255, 255, 0.1); color: #0ff;
-  padding: 10px; text-align: left;
-  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
-  font-family: 'Cinzel', serif; letter-spacing: 1px; font-weight: bold;
-}
-.data-table td { padding: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #fff; }
-.data-table tr:hover td { background: rgba(0, 255, 255, 0.05); }
-
-/* ===== МАТРИЦІ АНАЛІТИКИ (RESONATOR) ===== */
-.alert-matrix {
-  width:90%; max-width:900px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid #333;
-  border-left: 4px solid #0ff;
-  padding: 24px;
-  margin: 5px 0 20px 0;
-  text-align: left;
-  backdrop-filter: blur(5px);
-  position: relative;
-  box-shadow: 0 0 30px rgba(0,255,255,0.03);
-}
-
-.ai-matrix { border-left: 4px solid #f0f; box-shadow: 0 0 35px rgba(255,0,255,0.05); }
-.ai-matrix::after {
-  content: "◉ NEURAL REPORT COMPILED";
-  position: absolute; top: -10px; right: 15px; background: #000;
-  padding: 3px 10px; font-size: 10px; font-weight: bold;
-  color: #f0f; border: 1px solid #f0f; animation: pulse 2s infinite;
-}
-
-.matrix-title { font-family: 'Cinzel', serif; font-size: 16px; color: #fff; margin-bottom: 12px; font-weight: bold; }
-.pink-title { color: #f0f; border-bottom: 1px dashed #f0f; padding-bottom: 8px;}
-
-.alert-desc {
-  background: rgba(255, 255, 255, 0.02);
-  padding: 15px; border-left: 2px dashed #0ff;
-  margin-bottom: 20px; line-height: 1.6;
-}
-.alert-desc ul { list-style: none; padding-left: 5px; }
-.alert-desc li { margin-bottom: 8px; color: #cceeff; }
-.alert-desc li b { color: #fff; font-weight: bold; }
-
-.algo-section { position: relative; border-top: 1px solid #444; padding-top: 20px; margin-top: 10px; }
-.algo-section::before {
-  content: "◉ АВТОМАТИЧНИЙ ВИСНОВОК АЛГОРИТМУ:";
-  display: block; font-size: 11px; color: #f0f; margin-bottom: 10px; letter-spacing: 1px;
-}
-
-.alert-box {
-  display: inline-block; padding: 14px 18px; border-radius: 4px;
-  font-family: 'Space Grotesk', sans-serif; font-weight: bold; font-size: 15px;
-  color: #fff; line-height: 1.5; width: 100%;
-}
-
-.bg-danger { background: linear-gradient(90deg, rgba(255,0,0,0.2), rgba(0,0,0,0)); border-left: 4px solid #f0f; text-shadow: 0 0 5px #f00; border-color: #f00;}
-.bg-warning { background: linear-gradient(90deg, rgba(255,165,0,0.2), rgba(0,0,0,0)); border-left: 4px solid #ffa500; text-shadow: 0 0 5px #ffa500; }
-.bg-success { background: linear-gradient(90deg, rgba(0,255,0,0.2), rgba(0,0,0,0)); border-left: 4px solid #0f0; text-shadow: 0 0 5px #0f0; }
-.bg-info { background: linear-gradient(90deg, rgba(0,255,255,0.1), rgba(0,0,0,0)); border-left: 4px solid #0ff; text-shadow: 0 0 5px #0ff; }
-
-.status-subtitle { display: block; font-weight: normal; font-size: 13px; color: #ddd; margin-top: 8px; text-shadow: none; }
-
-.report-p { font-size: 14.5px; color: #d1f2ff; line-height: 1.7; padding-top: 15px; border-top: 1px solid #333; }
-.report-p span.head { color: #f0f; font-weight: bold; letter-spacing: 1px;}
-.report-c { font-size: 14.5px; color: #d1f2ff; line-height: 1.7; padding-top: 10px; }
-.report-c span.head { color: #0ff; font-weight: bold; letter-spacing: 1px;}
-
-/* ===== ГРАФІКИ ТА ВІДЖЕТИ ===== */
-.chart {width:92vw; max-width:900px; height:320px; margin:14px 0; border:1px solid #111;}
-.tv-widget { width:92vw; max-width:900px; margin:15px 0; border: 1px solid rgba(0, 255, 255, 0.15); background: #050505; }
-@media(max-width:600px){.chart {height:250px;}}
-
-#footer {font-size:10px; opacity:0.3; margin:40px 0; font-family:'Space Grotesk', sans-serif;}
-@keyframes pulse { 0% {opacity:1;} 50% {opacity:0.4;} 100% {opacity:1;} }
-</style>
+        @media (max-width: 480px) {
+            .left h2 {
+                font-size: 16.2px;
+            }
+            .indicator {
+                font-size: 12.6px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .indicator .value {
+                margin-top: 4px;
+                text-align: left;
+            }
+            .left {
+                padding: 9px;
+            }
+            .right {
+                padding: 9px;
+            }
+            .chart-container {
+                min-height: 180px;
+            }
+            .spectrogram-container {
+                min-height: 400px;
+            }
+            iframe {
+                transform: scale(0.85);
+                transform-origin: top left;
+            }
+        }
+    </style>
 </head>
 <body>
-<canvas id="stars"></canvas>
-
 <div class="wrapper">
-  
-  <div class="main-title">IBONARIUM • ECONOMY SIGNAL</div>
-  
-  <div id="ticker"><span id="tickerText">LOADING CRYPTO DATA...</span></div>
-  <div class="section" id="fx" style="width:100%; display:block;"></div>
-  <div id="analytics" style="width:90%;"></div>
-  
-  <div id="systemButton"><span id="systemState">Завантаження...</span></div>
-  <div id="alerts"></div>
+    <div class="panel">
+        <!-- LEFT COLUMN -->
+        <div class="left">
+            <h2>ibonarium.solar.stability.lab.live</h2>
+            <div class="indicator"><span class="label">Solar Wind Speed (km/s):</span> <span id="sw_speed" class="value">—</span></div>
+            <div class="indicator"><span class="label">Solar Wind Density (/cc):</span> <span id="sw_density" class="value">—</span></div>
+            <div class="indicator"><span class="label">Solar Wind Temperature (K):</span> <span id="sw_temp" class="value">—</span></div>
+            <div class="indicator"><span class="label">IMF Bt – Total Magnetic Field (nT):</span> <span id="imf_bt" class="value">—</span></div>
+            <div class="indicator"><span class="label">IMF Bz (nT):</span> <span id="imf_bz" class="value">—</span></div>
+            <div class="indicator"><span class="label">IMF By (nT):</span> <span id="imf_by" class="value">—</span></div>
+            <div class="indicator"><span class="label">Solar Wind Dynamic Pressure (nPa):</span> <span id="pressure" class="value">—</span></div>
+            <div class="indicator"><span class="label">Proton Flux &gt;10 MeV:</span> <span id="proton_flux" class="value">—</span></div>
+            <div class="indicator"><span class="label">Electron Flux &gt;2 MeV:</span> <span id="electron_flux" class="value">—</span></div>
+            <div class="indicator"><span class="label">Kp Index:</span> <span id="kp" class="value">—</span></div>
+            <div class="indicator"><span class="label">Dst Index (nT):</span> <span id="dst" class="value">—</span></div>
+            <div class="indicator"><span class="label">AE Index (Auroral Electrojet):</span> <span id="ae" class="value">—</span></div>
+            <div class="indicator"><span class="label">Geomagnetic Storm Level (G1–G5):</span> <span id="storm" class="value">—</span></div>
 
-  <!-- Графіки Криптовалют -->
-  <div id="chartBTC" class="chart"></div>
-  <div id="chartETH" class="chart"></div>
-  <div id="chartSOL" class="chart"></div>
-  <div id="chartXRP" class="chart"></div>
-  <div id="chartLTC" class="chart"></div>
-  <div id="chartDASH" class="chart"></div>
-  
-  <div class="category-header">СИРОВИННІ ТОВАРИ ТА МАКРОЕКОНОМІКА</div>
-
-  <!-- Таблиця Котирувань Сировини -->
-  <div class="tv-widget" style="height:350px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-quotes.js" async>
-      {
-        "width": "100%", "height": "100%",
-        "symbolsGroups": [
-          {
-            "name": "Метали та Енергія",
-            "originalName": "Commodities",
-            "symbols": [
-              { "name": "OANDA:XAUUSD", "displayName": "Золото (Gold)" },
-              { "name": "OANDA:XAGUSD", "displayName": "Срібло (Silver)" },
-              { "name": "OANDA:XPDUSD", "displayName": "Паладій (Palladium)" },
-              { "name": "OANDA:XCUUSD", "displayName": "Мідь (Copper)" },
-              { "name": "OANDA:WTICOUSD", "displayName": "Нафта WTI" },
-              { "name": "OANDA:BCOUSD", "displayName": "Нафта Brent" },
-              { "name": "OANDA:NATGASUSD", "displayName": "Природний газ" }
-            ]
-          }
-        ],
-        "showSymbolLogo": true, "isTransparent": true, "colorTheme": "dark", "locale": "uk"
-      }
-      </script>
+            <h2 style="margin-top:24px; font-size:16.2px;">ibonarium.solar.flare.activity.lab.live</h2>
+            <div class="indicator"><span class="label">Latest GOES X-Ray Flux Class:</span> <span id="flare_class" class="value">—</span></div>
+            <div class="indicator"><span class="label">Recent X-class Flares (last 7 days):</span> <span id="x_flares_count" class="value">—</span></div>
+            <div class="indicator"><span class="label">Strongest Recent Flare:</span> <span id="strongest_flare" class="value">—</span></div>
+            <div class="indicator"><span class="label">F10.7 cm Radio Flux (sfu):</span> <span id="f107" class="value">—</span></div>
+            <div class="indicator"><span class="label">Sunspot Number (SIDC):</span> <span id="sunspot" class="value">—</span></div>
+        </div>
+        <!-- RIGHT COLUMN -->
+        <div class="right">
+            <div class="chart-container">
+                <canvas id="breathChart"></canvas>
+            </div>
+            <div class="spectrogram-container">
+                <iframe
+                    src="https://realtime.obs-nancay.fr/orfees/"
+                    loading="lazy"
+                    referrerpolicy="no-referrer"
+                    sandbox="allow-scripts allow-same-origin">
+                </iframe>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <!-- Графіки Сировини -->
-  <div id="chartWTIOil" class="chart"></div>
-  <div id="chartBrentOil" class="chart"></div>
-  <div id="chartNatGas" class="chart"></div>
-  <div id="chartGold" class="chart"></div>
-  <div id="chartSilver" class="chart"></div>
-  <div id="chartPalladium" class="chart"></div>
-  <div id="chartCopper" class="chart"></div>
-
-  <!-- Календар Подій -->
-  <div class="category-header">ЕКОНОМІЧНИЙ КАЛЕНДАР</div>
-  <div class="tv-widget" style="height:500px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-      {
-        "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%",
-        "locale": "uk", "importanceFilter": "-1,0,1", "currencyFilter": "USD,EUR,GBP,CNY,JPY,AUD,CAD,CHF"
-      }
-      </script>
-    </div>
-  </div>
-
-  <div class="main-title" style="margin-top:60px;">IBONARIUM • RESONATOR</div>
-  <div class="subheader">AUTONOMOUS MACRO ANALYSIS ENGINE v4</div>
-
-  <!-- РЕЗОНАТОР 1 -->
-  <div class="category-header">I. ГЛОБАЛЬНА ЛІКВІДНІСТЬ & РИЗИК</div>
-  <div class="alert-matrix">
-    <div class="matrix-title">АНАЛІТИЧНА ДОВІДКА: ТИСК АКТИВІВ</div>
-    <div class="alert-desc">
-      <ul>
-        <li><b>DXY (Долар США):</b> Базова валюта ліквідності. Коли DXY падає, центробанки здешевлюють кредити — крипта стрімко росте.</li>
-        <li><b>S&P 500 (SPY):</b> "Барометр" Уолл-Стріт. Відображає інституційний капітал. Його падіння завжди тягне крипту вниз.</li>
-        <li><b>Золото:</b> Стандарт страху. Якщо Золото пробиває максимуми, світ готується до знецінення грошей.</li>
-      </ul>
-    </div>
-    <div class="algo-section" id="algo-risk">
-      <div class="alert-box bg-info">⏳ Формую з'єднання: аналіз котирувань BTC, Золота та DXY...</div>
-    </div>
-  </div>
-  <div class="tv-widget" style="height:450px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-      {
-        "symbols": [
-          [ "BTC (Крипта / Ризик)", "BINANCE:BTCUSDT|1D" ],
-          [ "S&P 500 (ETF SPY)", "AMEX:SPY|1D" ],
-          [ "Золото (Захист)", "OANDA:XAUUSD|1D" ],
-          [ "DXY ETF (Тиск Долара)", "AMEX:UUP|1D" ]
-        ],
-        "chartOnly": false, "width": "100%", "height": "100%", "locale": "uk", "colorTheme": "dark",
-        "gridLineColor": "rgba(255, 255, 255, 0.05)", "scalePosition": "right", "scaleMode": "Percentage",
-        "fontFamily": "inherit", "fontColor": "#9fe7ff", "isTransparent": true, "lineType": 0
-      }
-      </script>
-    </div>
-  </div>
-
-  <!-- РЕЗОНАТОР 2 -->
-  <div class="category-header">II. ІНФЛЯЦІЙНО-ПРОМИСЛОВИЙ ТИСК</div>
-  <div class="alert-matrix">
-    <div class="matrix-title">АНАЛІТИЧНА ДОВІДКА: ПУЛЬС ЕКОНОМІКИ</div>
-    <div class="alert-desc">
-      <ul>
-        <li><b>Нафта WTI:</b> Вартість "крові" економіки. Висока нафта = зростання інфляції = висока ставка ФРС (негатив для BTC).</li>
-        <li><b>Мідь (Доктор Мідь):</b> Маркер індустріального росту. Падіння Міді віщує глобальну рецесію.</li>
-      </ul>
-    </div>
-    <div class="algo-section" id="algo-inflation">
-      <div class="alert-box bg-info">⏳ CORS Proxy: Зв'язок із Yahoo Finance для аналізу бареля WTI та Міді...</div>
-    </div>
-  </div>
-  <div class="tv-widget" style="height:450px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-      {
-        "symbols": [
-          [ "Нафта WTI (Інфляція)", "OANDA:WTICOUSD|1D" ],
-          [ "Природний газ", "OANDA:NATGASUSD|1D" ],
-          [ "Мідь (Промисловість)", "OANDA:XCUUSD|1D" ],
-          [ "Срібло", "OANDA:XAGUSD|1D" ]
-        ],
-        "chartOnly": false, "width": "100%", "height": "100%", "locale": "uk", "colorTheme": "dark",
-        "gridLineColor": "rgba(255, 255, 255, 0.05)", "scalePosition": "right", "scaleMode": "Percentage",
-        "fontFamily": "inherit", "fontColor": "#9fe7ff", "isTransparent": true, "lineType": 0
-      }
-      </script>
-    </div>
-  </div>
-
-  <!-- РЕЗОНАТОР 3 -->
-  <div class="category-header">III. ВНУТРІШНЬО-КРИПТОВИЙ ПЕРЕЛИВ</div>
-  <div class="alert-matrix">
-    <div class="matrix-title">АНАЛІТИЧНА ДОВІДКА: ФАЗИ АЛЬТСЕЗОНУ</div>
-    <div class="alert-desc">
-      <ul>
-        <li><b>Фаза 1 (BTC Домінація):</b> Гроші заходять у Біткоїн. Альти страждають ("Вакуум").</li>
-        <li><b>Фаза 2 (Ethereum / L1):</b> Гроші з Біткоїна переливаються у великі екосистеми (ETH, SOL). Це справжній альтсезон.</li>
-        <li><b>Фаза 3 (Мем-коїни):</b> Шалений ріст Doge. Ознака перегріву маркету (натовп у Фомо). Фінальна стадія бичого циклу.</li>
-      </ul>
-    </div>
-    <div class="algo-section" id="algo-alt">
-      <div class="alert-box bg-info">⏳ Алгоритм зчитує динаміку BTC, ETH, SOL та DOGE...</div>
-    </div>
-  </div>
-  <div class="tv-widget" style="height:450px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-      {
-        "symbols": [
-          [ "Bitcoin (База Баз)", "BINANCE:BTCUSDT|1D" ],
-          [ "Ethereum (Екосистема)", "BINANCE:ETHUSDT|1D" ],
-          [ "Solana (Швидкість)", "BINANCE:SOLUSDT|1D" ],
-          [ "Dogecoin (Індикатор Натовпу)", "BINANCE:DOGEUSDT|1D" ]
-        ],
-        "chartOnly": false, "width": "100%", "height": "100%", "locale": "uk", "colorTheme": "dark",
-        "gridLineColor": "rgba(255, 255, 255, 0.05)", "scalePosition": "right", "scaleMode": "Percentage",
-        "fontFamily": "inherit", "fontColor": "#9fe7ff", "isTransparent": true, "lineType": 0
-      }
-      </script>
-    </div>
-  </div>
-
-  <!-- РЕЗОНАТОР 4 -->
-  <div class="category-header">IV. ТЕПЛОВА МАТРИЦЯ КАПІТАЛУ</div>
-  <div class="alert-matrix">
-    <div class="matrix-title">ВІЗУАЛІЗАЦІЯ ВОЛЮМЕТРИЧНОГО ПРИТОКУ</div>
-    <div class="alert-desc">Тут ви бачите "зелені острови" (сфери вливання інституційних грошей) або "червоне море" (каскадні ліквідації) у реальному часі.</div>
-  </div>
-  <div class="tv-widget" style="height:600px;">
-    <div class="tradingview-widget-container">
-      <div class="tradingview-widget-container__widget"></div>
-      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-      {
-        "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "change",
-        "locale": "uk", "colorTheme": "dark", "hasTopBar": true, "isZoomEnabled": true,
-        "width": "100%", "height": "100%"
-      }
-      </script>
-    </div>
-  </div>
-
-  <!-- ФІНАЛЬНИЙ ЗВІТ -->
-  <div class="category-header category-header-pink">V. СИНТЕТИЧНИЙ ЗВІТ АЛГОРИТМУ (24H)</div>
-  <div class="alert-matrix ai-matrix">
-    <div class="matrix-title pink-title">ГЛОБАЛЬНИЙ ОПЕРАТИВНИЙ РЕЗЮМЕ</div>
-    <div id="algo-summary">
-      <div class="alert-box bg-info">⏳ Акумуляція даних зі всіх модулів та генерація звіту...</div>
-    </div>
-  </div>
-
-  <!-- IBONARIUM TRADE ON SIGNAL -->
-  <div class="category-header category-header-pink" style="border-bottom:2px solid rgba(0, 255, 0, 0.5); color: #0f0; text-shadow:0 0 15px rgba(0, 255, 0, 0.6); margin-top:40px;">VI. IBONARIUM TRADE ON SIGNAL</div>
-  <div class="alert-matrix" style="border-left: 4px solid #0f0; box-shadow: 0 0 35px rgba(0,255,0,0.05);">
-    <div class="matrix-title" style="color: #0f0; border-bottom: 1px dashed #0f0; padding-bottom: 8px;">РЕКОМЕНДАЦІЇ ДЛЯ ТОРГІВЛІ (BTC)</div>
-    <div id="trade-signal">
-      <div class="alert-box bg-info">⏳ Аналізую поточний стан ринку для отримання сигналу...</div>
-    </div>
-  </div>
-
-  <div id="footer">© IBONARIUM ECONOMY & RESONATOR CORE • UNIFIED DASHBOARD</div>
 </div>
 
 <script>
-/* ==============================================
-   1. ЗОРЯНИЙ ФОН
-   ============================================== */
-const s=document.getElementById("stars"); const ctx=s.getContext("2d");
-let W,H,stars=[];
-function resize(){W=s.width=window.innerWidth; H=s.height=window.innerHeight; stars=Array.from({length:200},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*W}));}
-resize(); window.addEventListener("resize",resize);
-function draw(){
-  ctx.fillStyle="rgba(0, 0, 0, 0.85)"; ctx.fillRect(0,0,W,H); ctx.fillStyle="#0ff"; 
-  stars.forEach(st=>{
-    st.z-=0.4; if(st.z<=0) st.z=W; 
-    const k=128/st.z; const x=(st.x-W/2)*k+W/2; const y=(st.y-H/2)*k+H/2; 
-    if(x>0&&x<W&&y>0&&y<H) { ctx.fillRect(x,y,(1-st.z/W)*2,(1-st.z/W)*2); }
-  }); requestAnimationFrame(draw);
-}
-draw();
+const labels = [];
+const dataBt = [];
+const dataBz = [];
+const dataPressure = [];
+const dataKp = [];
+const ctx = document.getElementById('breathChart').getContext('2d');
+const breathChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [
+      { label: 'IMF Bt (nT)', data: dataBt, borderColor: '#0ff', backgroundColor: 'rgba(0,255,255,0.1)', borderWidth: 2, tension: 0.4 },
+      { label: 'IMF Bz (nT)', data: dataBz, borderColor: '#f0f', backgroundColor: 'rgba(255,0,255,0.1)', borderWidth: 2, tension: 0.4 },
+      { label: 'Dynamic Pressure (nPa)', data: dataPressure, borderColor: '#ff0', backgroundColor: 'rgba(255,255,0,0.1)', borderWidth: 2, tension: 0.4 },
+      { label: 'Kp Index', data: dataKp, borderColor: '#0f0', backgroundColor: 'rgba(0,255,0,0.1)', borderWidth: 2, tension: 0.4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { x: { ticks: { color: '#9ff' }, grid: { color: '#033' } }, y: { ticks: { color: '#9ff' }, grid: { color: '#033' } } },
+    plugins: { legend: { labels: { color: '#cff' } } }
+  }
+});
 
-/* ==============================================
-   2. ЕКОНОМІЧНИЙ СИГНАЛ (БЛОКИ КРИПТИ І ВАЛЮТ)
-   ============================================== */
-async function loadFX() {
-  console.log("Starting loadFX...");
+function setAlert(elementId, level) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.className = 'value';
+  if (level === 'green') el.style.backgroundColor = 'rgba(0,255,0,0.2)';
+  else if (level === 'yellow') el.style.backgroundColor = 'rgba(255,255,0,0.2)';
+  else if (level === 'red') el.style.backgroundColor = 'rgba(255,0,0,0.3)';
+  else el.style.backgroundColor = 'transparent';
+}
+
+async function updateData() {
   try {
-    const res = await fetch('https://open.er-api.com/v6/latest/USD');
-    const fx = await res.json();
-    if (fx.result === "success") {
-      console.log("FX data loaded successfully");
-      const uah = fx.rates.UAH || 0;
-      const eur = fx.rates.EUR || 1;
-      const pln = fx.rates.PLN || 1;
-      const gbp = fx.rates.GBP || 1;
-      
-      document.getElementById("fx").innerHTML = `
-        <div class="section" style="width:100%; display:flex; justify-content:center; gap:20px; border-bottom:1px solid #111; padding-bottom:10px; margin-bottom:15px;">
-          <div><b>1 USD</b> = ${uah.toFixed(2)} UAH</div>
-          <div><b>1 EUR</b> = ${(uah / eur).toFixed(2)} UAH</div>
-          <div><b>1 PLN</b> = ${(uah / pln).toFixed(2)} UAH</div>
-          <div><b>1 GBP</b> = ${(uah / gbp).toFixed(2)} UAH</div>
-        </div>
-      `;
+    const plasma = await fetch("https://services.swpc.noaa.gov/products/solar-wind/plasma-1-day.json").then(r => r.json());
+    const mag = await fetch("https://services.swpc.noaa.gov/products/solar-wind/mag-1-day.json").then(r => r.json());
+    const kp = await fetch("https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json").then(r => r.json());
+
+    const p = plasma[plasma.length - 1];
+    const m = mag[mag.length - 1];
+    const k = kp[kp.length - 1];
+
+    const time = new Date().toLocaleTimeString();
+
+    const bt = parseFloat(m[6]) || 0;
+    const bz = parseFloat(m[3]) || 0;
+    
+    // Розрахунок динамічного тиску: P = 1.67e-6 * density * speed^2
+    const dens = parseFloat(p[1]) || 0;
+    const speed = parseFloat(p[2]) || 0;
+    const pressure = parseFloat((dens * Math.pow(speed, 2) * 0.00000167).toFixed(2)) || 0;
+    
+    // Виправлення доступу до Кр (об'єктний формат)
+    const kpVal = parseFloat(k.Kp) || 0;
+
+    labels.push(time);
+    if (labels.length > 30) { labels.shift(); dataBt.shift(); dataBz.shift(); dataPressure.shift(); dataKp.shift(); }
+
+    dataBt.push(bt);
+    dataBz.push(bz);
+    dataPressure.push(pressure);
+    dataKp.push(kpVal);
+
+    document.getElementById("sw_speed").textContent = p[2] || '—';
+    document.getElementById("sw_density").textContent = p[1] || '—';
+    document.getElementById("sw_temp").textContent = p[3] || '—';
+    document.getElementById("imf_bt").textContent = m[6] || '—';
+    document.getElementById("imf_bz").textContent = m[3] || '—';
+    document.getElementById("imf_by").textContent = m[2] || '—';
+    document.getElementById("pressure").textContent = pressure.toFixed(2);
+    document.getElementById("kp").textContent = kpVal.toFixed(2);
+
+    document.getElementById("dst").textContent = "NOAA Dst realtime";
+    document.getElementById("ae").textContent = "Auroral activity active";
+    document.getElementById("proton_flux").textContent = "SWPC GOES";
+    document.getElementById("electron_flux").textContent = "SWPC GOES";
+
+    document.getElementById("storm").textContent =
+      kpVal >= 8 ? "G4–G5" :
+      kpVal >= 7 ? "G3" :
+      kpVal >= 6 ? "G2" :
+      kpVal >= 5 ? "G1" : "Quiet";
+
+    setAlert('sw_speed', speed > 700 ? 'yellow' : speed > 1000 ? 'red' : 'green');
+    setAlert('imf_bz', bz > -5 ? 'green' : bz > -10 ? 'yellow' : 'red');
+    setAlert('imf_bt', bt < 20 ? 'green' : bt < 30 ? 'yellow' : 'red');
+    setAlert('pressure', pressure < 5 ? 'green' : pressure < 10 ? 'yellow' : 'red');
+    setAlert('kp', kpVal < 4 ? 'green' : kpVal < 6 ? 'yellow' : 'red');
+    setAlert('storm', document.getElementById("storm").textContent === "Quiet" ? 'green' : document.getElementById("storm").textContent.includes("G1") || document.getElementById("storm").textContent.includes("G2") ? 'yellow' : 'red');
+
+    const xray = await fetch("https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json").then(r => r.json());
+    const latestXray = xray[xray.length - 1];
+    const flux = latestXray.flux;
+    const flareClass = classifyFlare(flux);
+    document.getElementById("flare_class").textContent = flareClass || '—';
+
+    const indices = await fetch("https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json").then(r => r.json());
+    const latestIndices = indices[indices.length - 1];
+    document.getElementById("f107").textContent = latestIndices.f10_7 || latestIndices["f10.7"] || '—';
+    document.getElementById("sunspot").textContent = latestIndices.ssn || '—';
+
+    const flares = await fetch("https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR").then(r => r.json());
+    const now = Date.now();
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const recentFlares = Array.isArray(flares) ? flares.filter(f => new Date(f.peakTime) > sevenDaysAgo) : [];
+    const xFlares = recentFlares.filter(f => f.classType && f.classType.startsWith('X'));
+    document.getElementById("x_flares_count").textContent = xFlares.length;
+
+    if (xFlares.length > 0) {
+      const strongest = xFlares.reduce((max, f) => {
+        const val = parseFloat(f.classType.substring(1)) || 0;
+        const maxVal = parseFloat(max.classType.substring(1)) || 0;
+        return val > maxVal ? f : max;
+      });
+      document.getElementById("strongest_flare").textContent = strongest.classType + ` (${new Date(strongest.peakTime).toLocaleString()})`;
     } else {
-      console.warn("FX API returned non-success result", fx);
+      document.getElementById("strongest_flare").textContent = "None";
     }
-  } catch(e) { 
-    console.error("FX loading error:", e);
-    document.getElementById("fx").innerHTML = "<div style='color:red; padding:10px;'>Помилка завантаження валют</div>";
+
+    const flareLevel = flareClass.startsWith('C') ? 'green' : flareClass.startsWith('M') ? 'yellow' : flareClass.startsWith('X') ? 'red' : 'green';
+    setAlert('flare_class', flareLevel);
+    setAlert('x_flares_count', xFlares.length === 0 ? 'green' : xFlares.length <= 2 ? 'yellow' : 'red');
+
+    breathChart.update();
+  } catch (e) {
+    console.error("DATA ERROR", e);
   }
 }
 
-async function loadCryptoEconomy() {
-  console.log("Starting loadCryptoEconomy...");
-  try {
-    const symbols = ["BTCUSDT","ETHUSDT","SOLUSDT","XRPUSDT","LTCUSDT","DASHUSDT"];
-    const responses = await Promise.all(symbols.map(sym => 
-      fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`)
-      .then(r => r.json())
-      .catch(err => {
-        console.error(`Error fetching ${sym}:`, err);
-        return { symbol: sym, lastPrice: "0", priceChangePercent: "0", priceChange: "0", highPrice: "0", lowPrice: "0", volume: "0" };
-      })
-    ));
-    
-    console.log("Crypto data received:", responses.length, "items");
-
-    // TICKER STRING
-    const tickerStr = responses.map(c => {
-      const price = parseFloat(c.lastPrice || 0);
-      const pct = parseFloat(c.priceChangePercent || 0);
-      return `${c.symbol.replace("USDT","")} ${price.toLocaleString()} USD (${pct.toFixed(2)}%)`;
-    }).join(" • ");
-    document.getElementById("tickerText").innerText = tickerStr;
-
-    // ВІДСЛІДКОВУВАННЯ ЗМІН І ЇХ ВІЗУАЛІЗАЦІЯ В ТАБЛИЦІ
-    let analyticsTable = `
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Value</th>
-          <th>Change</th>
-          <th>Chg%</th>
-          <th>Open</th>
-          <th>High</th>
-          <th>Low</th>
-          <th>Prev</th>
-        </tr>
-      </thead>
-      <tbody>
-    `;
-    
-    responses.forEach(c => {
-      let price = parseFloat(c.lastPrice || 0);
-      let change = parseFloat(c.priceChange || 0);
-      let pc = parseFloat(c.priceChangePercent || 0);
-      let open = parseFloat(c.openPrice || 0);
-      let hi = parseFloat(c.highPrice || 0);
-      let lo = parseFloat(c.lowPrice || 0);
-      let prev = parseFloat(c.prevClosePrice || 0);
-      
-      let cc = pc >= 0 ? 'color:#0f0' : 'color:#f00';
-      let sym = (c.symbol || "").replace("USDT","");
-      
-      analyticsTable += `
-        <tr>
-          <td style="font-weight:bold; color:#fff;">${sym}</td>
-          <td style="font-weight:bold;">${price.toLocaleString()}</td>
-          <td style="${cc}">${change > 0 ? '+' : ''}${change.toFixed(2)}</td>
-          <td style="${cc}; font-weight:bold;">${pc.toFixed(2)}%</td>
-          <td style="color:#aaa;">${open.toLocaleString()}</td>
-          <td style="color:#0f0;">${hi.toLocaleString()}</td>
-          <td style="color:#f00;">${lo.toLocaleString()}</td>
-          <td style="color:#aaa;">${prev.toLocaleString()}</td>
-        </tr>
-      `;
-    });
-    analyticsTable += `</tbody></table>`;
-
-    let fngIndex = 50, fngText = "Neutral";
-    try {
-      const fngRes = await fetch("https://api.alternative.me/fng/?limit=1");
-      const fngData = await fngRes.json();
-      fngIndex = parseInt(fngData.data[0].value);
-      fngText = fngData.data[0].value_classification;
-    } catch(e) { console.warn("FNG error, using default"); }
-
-    const cryptoVol = Math.max(...responses.map(c=>Math.abs(parseFloat(c.priceChangePercent || 0)))).toFixed(2);
-    const h = new Date().getUTCHours();
-    let session = h>=0&&h<9 ? "Азійська сесія" : h>=9&&h<17 ? "Європейська сесія" : "Американська сесія";
-    let fngColor = fngIndex >= 60 ? '#0f0' : fngIndex <= 40 ? '#f00' : '#ffa500';
-
-    document.getElementById("analytics").innerHTML = analyticsTable + 
-      `<div style="margin-top:15px; background:rgba(255,255,255,0.02); padding:12px; border-radius:5px; display:flex; justify-content:space-around; align-items:center; font-size:12px; color:#aaa; border-left:2px solid #0ff;">
-         <span>Волатильність ТОП: <b style="color:#fff">${cryptoVol}%</b></span>
-         <span>Індекс Страху та Жадібності: <b style="color:${fngColor}; font-size:14px;">${fngIndex} (${fngText})</b></span>
-         <span>Поточна сесія: <b style="color:#0ff">${session}</b></span>
-       </div>`;
-
-    const span = document.getElementById("systemState");
-    let stateText = "Норма"; span.className="normalState";
-    if (fngIndex >= 80) {stateText="Екстремальний страх"; span.className="downState";}
-    else if (fngIndex >= 60) {stateText="Середня жадібність"; span.className="upState";}
-    else if (fngIndex <= 40) {stateText="Ринок у страху"; span.className="downState";}
-    if (parseFloat(cryptoVol) > 6){stateText+=" | Підвищена волатильність"; span.className="warning";}
-    span.innerText = stateText;
-
-    const alertsContainer = document.getElementById("alerts");
-    alertsContainer.innerHTML = "";
-    responses.forEach(c=>{
-      const change = parseFloat(c.priceChangePercent || 0);
-      if(Math.abs(change) > 5) {
-        const div = document.createElement("div");
-        div.className = "alert " + (change>0 ? "up" : "down");
-        div.innerText = `${(c.symbol || "").replace("USDT","")} ${change>0 ? '↑' : '↓'} ${change.toFixed(2)}%`;
-        alertsContainer.appendChild(div);
-        setTimeout(()=>{div.style.opacity=0; setTimeout(()=>div.remove(),1000)},10000);
-      }
-    });
-  } catch(e) { 
-    console.error("loadCryptoEconomy error:", e);
-    document.getElementById("analytics").innerHTML = "<div style='color:red; padding:10px;'>Помилка завантаження крипто-даних</div>";
-  }
+function classifyFlare(flux) {
+  if (typeof flux !== 'number' || flux <= 0) return '—';
+  if (flux >= 1e-4) return 'X' + (flux / 1e-4).toFixed(1);
+  if (flux >= 1e-5) return 'M' + (flux / 1e-5).toFixed(1);
+  if (flux >= 1e-6) return 'C' + (flux / 1e-6).toFixed(1);
+  if (flux >= 1e-7) return 'B' + (flux / 1e-7).toFixed(1);
+  return 'A' + (flux / 1e-8).toFixed(1);
 }
 
-loadFX(); setInterval(loadFX, 300000);
-loadCryptoEconomy(); setInterval(loadCryptoEconomy, 25000);
-
-/* ==============================================
-   3. РОБОТ-АНАЛІЗАТОР (RESONATOR AI)
-   ============================================== */
-async function getYahooData(ticker) {
-  try {
-    const url = `https://corsproxy.io/?${encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/' + ticker)}`;
-    const r = await fetch(url);
-    const d = await r.json();
-    const p = d.chart.result[0].meta.regularMarketPrice;
-    const prev = d.chart.result[0].meta.chartPreviousClose;
-    return ((p - prev) / prev) * 100;
-  } catch(e) { return null; }
-}
-
-async function runAutoAnalyzer() {
-  try {
-    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "DOGEUSDT", "PAXGUSDT", "EURUSDT"];
-    const responses = await Promise.all(symbols.map(sym => fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${sym}`).then(r => r.json())));
-    const data = {};
-    responses.forEach(r => { if (r.symbol) data[r.symbol] = parseFloat(r.priceChangePercent); });
-
-    const btc = data["BTCUSDT"] || 0;
-    const gold = data["PAXGUSDT"] || 0;
-    const dxyProxy = -(data["EURUSDT"] || 0); 
-    const eth = data["ETHUSDT"] || 0;
-    const sol = data["SOLUSDT"] || 0;
-    const doge = data["DOGEUSDT"] || 0;
-
-    // --- МОДУЛЬ 1: РИЗИК ---
-    let riskHtml = "";
-    if (dxyProxy > 0.3 && gold > 0.1 && btc < 0) riskHtml = `<div class="alert-box bg-danger">🔴 ВТЕЧА В ДОЛАР (RISK-OFF) <span class="status-subtitle">ДЕТАЛІ: Долар зміцнюється (+${dxyProxy.toFixed(2)}%), Золото росте, Біткоїн страждає (${btc.toFixed(2)}%). Великий капітал в паніці скидає ризик.</span></div>`;
-    else if (btc > 1.5 && dxyProxy < -0.1) riskHtml = `<div class="alert-box bg-success">🟢 ЗЕЛЕНЕ СВІТЛО (СИЛЬНИЙ RISK-ON) <span class="status-subtitle">ДЕТАЛІ: Долар падає (${dxyProxy.toFixed(2)}%), ліквідність масштабної хвилею заливається у Біткоїн (+${btc.toFixed(2)}%). Ідеальні умови для лонгів.</span></div>`;
-    else if (btc > 0 && btc > gold) riskHtml = `<div class="alert-box bg-info">🔵 ОБЕРЕЖНИЙ АПЕТИТ <span class="status-subtitle">ДЕТАЛІ: Біткоїн (+${btc.toFixed(2)}%) сильніший за Золото. Інвестори ризикують, але тотальної ейфорії ще немає.</span></div>`;
-    else riskHtml = `<div class="alert-box bg-warning">⚠️ ОЧІКУВАННЯ / БОКОВИК <span class="status-subtitle">ДЕТАЛІ: Зміни незначні (BTC: ${btc.toFixed(2)}%, DXY: ${dxyProxy.toFixed(2)}%). Ринок в стані технічного флету.</span></div>`;
-    document.getElementById("algo-risk").innerHTML = riskHtml;
-
-    // --- МОДУЛЬ 2: ІНФЛЯЦІЯ ---
-    const oilChange = await getYahooData('CL=F');
-    const copperChange = await getYahooData('HG=F');
-    const oilVal = oilChange !== null ? oilChange : 0;
-    const copperVal = copperChange !== null ? copperChange : 0;
-
-    let infHtml = "";
-    if (oilChange === null || copperChange === null) infHtml = `<div class="alert-box bg-warning">⚠️ ТЕХНІЧНА ПАУЗА <span class="status-subtitle">Глобальні біржі тимчасово обмежили пакетну віддачу даних для алгоритму. Оцініть інфляцію візуально на графіку.</span></div>`;
-    else if (oilChange > 2) infHtml = `<div class="alert-box bg-danger">🔴 ГОСТРА ІНФЛЯЦІЙНА ЗАГРОЗА <span class="status-subtitle">ДЕТАЛІ: Нафта зростає на ${oilChange.toFixed(2)}%. ФРС триматиме високі ставки. Ризикові активи під відчутним тиском.</span></div>`;
-    else if (copperChange > oilChange && copperChange > 0.5) infHtml = `<div class="alert-box bg-success">🟢 ПРОМИСЛОВИЙ ОПТИМІЗМ <span class="status-subtitle">ДЕТАЛІ: Мідь зростає (+${copperChange.toFixed(2)}%). Світова індустрія розширюється. Прекрасний фон для інвестицій в технологічні та інноваційні токени.</span></div>`;
-    else if (oilChange < -1.5) infHtml = `<div class="alert-box bg-info">🔵 ЗГАСАННЯ ІНФЛЯЦІЇ <span class="status-subtitle">ДЕТАЛІ: Нафта активно падає (${oilChange.toFixed(2)}%). Інвестори очікуватимуть здешевлення кредитів у макроекономіці. Це довгостроковий плюс.</span></div>`;
-    else infHtml = `<div class="alert-box bg-warning">⚠️ МАКРО-БАЛАНС <span class="status-subtitle">ДЕТАЛІ: Коливання мінімальні (Нафта: ${oilVal.toFixed(2)}%, Мідь: ${copperVal.toFixed(2)}%). Ринок чекає на нові економічні звіти.</span></div>`;
-    document.getElementById("algo-inflation").innerHTML = infHtml;
-
-    // --- МОДУЛЬ 3: АЛЬТСЕЗОН ---
-    let altHtml = "";
-    if (doge > btc + 4 && doge > 8) altHtml = `<div class="alert-box bg-danger">🔴 МЕМ-ПУЗИР (ФОМО) <span class="status-subtitle">ДЕТАЛІ: Памп Dogecoin (+${doge.toFixed(2)}%). Зазвичай це фінал росту ринку перед жорсткою корекцією маркетмейкером. Обережно!</span></div>`;
-    else if (eth > btc + 1 && sol > btc + 1) altHtml = `<div class="alert-box bg-success">🟢 РОЗГОРТАННЯ АЛЬТСЕЗОНУ <span class="status-subtitle">ДЕТАЛІ: ETH (+${eth.toFixed(2)}%) та SOL (+${sol.toFixed(2)}%) обганяють BTC. Капітал переливається у великі екосистеми смарт-контрактів.</span></div>`;
-    else if (btc > eth + 1 && btc > sol + 1 && btc > 1.5) altHtml = `<div class="alert-box bg-warning">⚠️ ВАКУУМ ДОМІНАЦІЇ <span class="status-subtitle">ДЕТАЛІ: Біткоїн (+${btc.toFixed(2)}%) висмоктує ліквідність всієї екосистеми. Альти стоять на місці або просідають відносно нього.</span></div>`;
-    else altHtml = `<div class="alert-box bg-info">🔵 СИНХРОННИЙ БОКОВИК <span class="status-subtitle">ДЕТАЛІ: Активи крокують синхронно. Маркетмейкер ще не обрав сектор для перетікання ліквідності. (BTC: ${btc.toFixed(2)}%, ETH: ${eth.toFixed(2)}%).</span></div>`;
-    document.getElementById("algo-alt").innerHTML = altHtml;
-
-    // --- МОДУЛЬ 5: ФІНАЛЬНИЙ ЗВІТ ---
-    let macroText = "";
-    if (oilVal > 1.5) macroText += `Глобальний інфляційний тиск різко підвищується (Сира нафта: +${oilVal.toFixed(2)}%). Це змусить Центробанки утримувати жорстку монетарну політику, "сушачи" вільну ліквідність у світі. `;
-    else if (oilVal < -1) macroText += `Спостерігається системне послаблення енергетичного цінового тиску (Нафта: ${oilVal.toFixed(2)}%). Світова економіка отримує простір для стимулювання та друку грошей. `;
-    else macroText += `Світовий енергетичний сектор відносно спокійний, радикальних зламів постачань не зафіксовано. `;
-    
-    if (copperVal > 1) macroText += `Активація попиту на Мідь (+${copperVal.toFixed(2)}%) індикує стабільне світове промислове виробництво та оптимізм на ринках Азії. `;
-    
-    if (dxyProxy > 0.3) macroText += `Разом з цим Індекс Долара демонструє домінантну силу (+${dxyProxy.toFixed(2)}%), що слугує поточним бар'єром (глобальний капітал зберігають в американському фіаті). `;
-    else if (dxyProxy < -0.3) macroText += `Послаблення Долара (${dxyProxy.toFixed(2)}%) розкриває сьогодні ідеальне "вікно можливостей" для прискореного росту міжнародних ризикових інвестицій. `;
-
-    let cryptoText = "";
-    if (btc > 2) {
-      cryptoText += `Крипторинок агресивно очолює Біткоїн (+${btc.toFixed(2)}%). `;
-      cryptoText += (eth < btc) ? `Кореляційні активи (зокрема популярні L1-мережі) наразі страждають від нестачі притоку через 'Вакуум Домінації' BTC.` : `Гроші відразу ж органічно переходять у смарт-контракти (ETH: +${eth.toFixed(2)}%).`;
-    } else if (btc < -2) {
-      cryptoText += `Цифрове золото (BTC) зазнає каскадного корекційного тиску (${btc.toFixed(2)}%). Усі захисні портфелі перемикаються у фіатні та класичні гавані. `;
-    } else {
-      cryptoText += `Ринок криптовалют консолідує торгові об'єми навколо поточних позначок (BTC: ${btc.toFixed(2)}%). `;
-      if (eth > 1.5 || sol > 1.5) cryptoText += `Частина акумульованої енергії успішно перетікає у вторинний ринок, стимулюючи локальний Альтсезон (Solana: +${sol.toFixed(2)}%). `;
-    }
-    if (doge > 8) cryptoText += `Значним тригером ризику зараз виступає аномальний памп мем-сегменту (+${doge.toFixed(2)}%), що історично вказує на пікове залучення гарячої некваліфікованої публіки ритейлу, після якого зазвичай відбувається масштабна корекція (стрижка). `;
-
-    let verdictText = "", vClass = "";
-    let score = btc + (eth * 0.5) + (dxyProxy * -2) + (oilVal * -0.5);
-
-    if (score > 4) { verdictText = "БИЧИЙ ФАЗОВИЙ ТРЕНД (ПРИТІК ЛІКВІДНОСТІ). Інфраструктура зелених макро-показників видає дозвіл на інтенсивне утримання позицій."; vClass = "bg-success"; }
-    else if (score < -3) { verdictText = "ВТЕЧА КАПІТАЛУ (ШОК ЛІКВІДНОСТІ). Нейромережа фіксує масовий перехід грошей у Фіат/Долар. Найкращим рішенням є хеджування портфелів та фіксація прибутку."; vClass = "bg-danger"; }
-    else if (dxyProxy > 0.5 && btc < 0) { verdictText = "ТЕРМІНАЛЬНИЙ ТИСК ДОЛАРА. Цифрові активи втрачають капіталізацію через міцну базу фіату. Альткоїни будуть поступово виснажуватись під власною вагою."; vClass = "bg-warning"; }
-    else if (btc > 0 && eth > btc) { verdictText = "РОТАЦІЯ АКТИВІВ (ФАЗА АЛЬТІВ). Рекомендовано тимчасово фокусуватись на альтернативних екосистемах другого рівня та топових децентралізованих протоколах."; vClass = "bg-info"; }
-    else { verdictText = "КОНСОЛІДАЦІЯ ОБ'ЄМІВ. Ліквідність повністю збалансована. Алгоритм не вбачає очевидних перекосів для агресивної торгівлі прямо зараз. Можливий флет."; vClass = "bg-info"; }
-
-    document.getElementById("algo-summary").innerHTML = `
-      <div class="alert-box ${vClass}" style="margin-bottom: 20px; font-size:16px;">
-        🏁 ПІДСУМКОВИЙ ВЕРДИКТ:<br><span style="font-weight:normal; font-size:14px;">${verdictText}</span>
-      </div>
-      <div class="report-p"><span class="head">🌍 МАРО-СИТУАЦІЯ:</span> ${macroText || "Макроекономічні індикатори перебувають у стані спокою."}</div>
-      <div class="report-c"><span class="head">⛓ КРИПТО-СЕКТОР:</span> ${cryptoText || "Ринок залишається у площині зниженої волатильності без спекулятивних загострень."}</div>
-    `;
-
-    // --- МОДУЛЬ 6: IBONARIUM TRADE ON SIGNAL ---
-    let tradeScore = btc + (eth * 0.5) + (dxyProxy * -2.5) + (oilVal * -0.5);
-    let tradeHtml = "";
-    
-    if (tradeScore >= 3 && btc >= -0.5) {
-      // LONG
-      tradeHtml = `
-      <div class="alert-box bg-success" style="margin-bottom: 15px; font-size:16px;">
-        🟢 СИГНАЛ: LONG (ЛОНГ)<br><span style="font-weight:normal; font-size:14px;">Ринок демонструє силу та впевненість. Розумні гроші заходять в активи.</span>
-      </div>
-      <div class="report-c"><span class="head" style="color:#0f0;">ЗВЕРНІТЬ УВАГУ:</span> DXY ($DXY) не створює тиску, а ліквідність активно заливається в цифрові активи. Інституційний фон сприятливий для відкриття та утримання лонгових (Бичих) позицій по Біткоїну.</div>
-      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Очікується пробиття найближчих ключових опорів вгору. Стоп-лосс рекомендується розмістити під рівнем останнього проторгованого дна. Слідкуйте за об'ємами — якщо ріст перестане підтримуватися об'ємами на годинних свічках, це пастка.</div>
-      `;
-    } else if (tradeScore <= -3 || btc <= -2 || dxyProxy >= 0.8) {
-      // SHORT
-      tradeHtml = `
-      <div class="alert-box bg-danger" style="margin-bottom: 15px; font-size:16px;">
-        🔴 СИГНАЛ: SHORT (ШОРТ / ХЕДЖ)<br><span style="font-weight:normal; font-size:14px;">Жорсткий тиск на ризикові активи. Триває корекція або спадний тренд.</span>
-      </div>
-      <div class="report-c"><span class="head" style="color:#f00;">ЗВЕРНІТЬ УВАГУ:</span> Долар стрімко зростає або інфляційні маркери дуже напружені. Спостерігається вихід капіталу з Біткоїна в захисні активи (фіат). Ринок мегавразливий до каскадних ліквідацій лонгів.</div>
-      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Ймовірність тестування нижніх рівнів підтримки надзвичайно висока. Якщо відкриваєте шорт — ставте короткий стоп за найближчу зону консолідації зверху. Будьте готові до 'відскоків мертвої кішки' (маніпуляції).</div>
-      `;
-    } else {
-      // WAIT
-      tradeHtml = `
-      <div class="alert-box bg-warning" style="margin-bottom: 15px; font-size:16px;">
-        ⚠️ СИГНАЛ: WAIT (НЕ В УГОДІ / БОКОВИК)<br><span style="font-weight:normal; font-size:14px;">Ситуація абсолютно невизначена. Ліквідність балансує в діапазоні.</span>
-      </div>
-      <div class="report-c"><span class="head" style="color:#ffa500;">ЗВЕРНІТЬ УВАГУ:</span> Індикатори не показують чіткої переваги ні биків, ні ведмедів. Торгівля в такій зоні ('піла') несе підвищений ризик вибивання стопів в обидві сторони. Найкраща позиція зараз — сидіти на паркані (поза ринком).</div>
-      <div class="report-p"><span class="head" style="color:#0ff;">ПРОГНОЗ + АНАЛІТИКА:</span> Рекомендація: розглядати лонг тільки при імпульсному закріпленні вище поточного діапазону опори; розглядати шорт тільки при пробитті нижньої підтримки. Чекаємо на вихід китів з великим об'ємом для формування істинного тренду.</div>
-      `;
-    }
-    
-    document.getElementById("trade-signal").innerHTML = tradeHtml;
-
-  } catch (error) {
-    document.getElementById("algo-summary").innerHTML = `<div class="alert-box bg-warning">Помилка генерації звіту через відсутність доступу до макро-даних.</div>`;
-    document.getElementById("trade-signal").innerHTML = `<div class="alert-box bg-warning">Сигнал недоступний.</div>`;
-  }
-}
-runAutoAnalyzer(); setInterval(runAutoAnalyzer, 30000);
-
-/* ==============================================
-   4. ІНІЦІАЛІЗАЦІЯ СТАНДАРТНИХ ГРАФІКІВ (ECONOMY)
-   ============================================== */
-const tvCharts = [
-  {id:"chartBTC", symbol:"BINANCE:BTCUSDT"},
-  {id:"chartETH", symbol:"BINANCE:ETHUSDT"},
-  {id:"chartSOL", symbol:"BINANCE:SOLUSDT"},
-  {id:"chartXRP", symbol:"BINANCE:XRPUSDT"},
-  {id:"chartLTC", symbol:"BINANCE:LTCUSDT"},
-  {id:"chartDASH", symbol:"BINANCE:DASHUSDT"},
-  {id:"chartWTIOil", symbol:"OANDA:WTICOUSD"},
-  {id:"chartBrentOil", symbol:"OANDA:BCOUSD"},
-  {id:"chartNatGas", symbol:"OANDA:NATGASUSD"},
-  {id:"chartGold", symbol:"OANDA:XAUUSD"},
-  {id:"chartSilver", symbol:"OANDA:XAGUSD"},
-  {id:"chartPalladium", symbol:"OANDA:XPDUSD"},
-  {id:"chartCopper", symbol:"OANDA:XCUUSD"}
-];
-const scriptTV = document.createElement("script"); 
-scriptTV.src = "https://s3.tradingview.com/tv.js"; 
-scriptTV.onload = () => {
-  tvCharts.forEach(c => {
-    new TradingView.widget({
-      container_id: c.id, autosize: true, symbol: c.symbol, interval: "60",
-      timezone: "Europe/Kiev", theme: "dark", style: "1", locale: "uk",
-      hide_top_toolbar: true, hide_side_toolbar: true, allow_symbol_change: true
-    });
-  });
-};
-document.body.appendChild(scriptTV);
+updateData();
+setInterval(updateData, 60000);
 </script>
 </body>
 </html>
+
