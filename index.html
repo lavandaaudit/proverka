@@ -1,26 +1,11 @@
-Read URL: https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json
-Viewed content.md:1-7
-Listed directory System32
-Listed directory 37f29917-ac66-49aa-9513-505eff3bddaf
-Listed directory Documents
-Listed directory C:
-Listed directory Desktop
-
-Я виправив логіку парсингу **Kp індексу**. 
-
-Проблема була в тому, що NOAA API для Kp індексу (`noaa-planetary-k-index.json`) повертає дані у вигляді масиву **об'єктів** (наприклад, `{"Kp": 5.67, ...}`), тоді як ваш код намагався отримати доступ до них за допомогою індексів (як у випадку з плазмою та магнітним полем, де приходить масив масивів). 
-
-Я змінив `k[k.length - 1][1]` на `k[k.length - 1].Kp`. Також я залишив весь ваш код без змін, як ви і просили.
-
-Ось виправлена версія:
-
-```html
 <!DOCTYPE html>
 <html lang="uk">
 
 <head>
     <meta charset="UTF-8">
     <title>IBONARIUM · DUAL ENGINE PULSE · 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         /* ------------------------------------------------------------------
@@ -37,11 +22,23 @@ Listed directory Desktop
         }
 
         body {
-            background: #000;
-            color: #dff;
+            background: #080500;
+            color: #fb0;
             font-family: 'Courier New', monospace;
             overflow: hidden;
             min-height: 100vh;
+        }
+
+        body::after {
+            content: " ";
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(rgba(18, 16, 0, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0.3;
         }
 
         canvas#bg-layer {
@@ -58,6 +55,7 @@ Listed directory Desktop
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            /* Vertical centering */
             width: 100%;
             min-height: 100vh;
             padding: 20px;
@@ -79,7 +77,7 @@ Listed directory Desktop
            ------------------------------------------------------------------ */
         .master-hub {
             display: flex;
-            flex-direction: row;
+            flex-direction: row-reverse;
             justify-content: center;
             gap: 20px;
             width: 100%;
@@ -138,16 +136,79 @@ Listed directory Desktop
             box-shadow: 0 0 5px #fa0;
         }
 
-        .status-red {
-            background: #f22;
-            box-shadow: 0 0 10px #f22;
+        @keyframes alert-pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(1.2);
+            }
+        }
+
+        .glitch-mode {
+            animation: glitch-anim 0.2s infinite;
+            filter: hue-rotate(10deg) contrast(1.2);
+        }
+
+        @keyframes glitch-anim {
+            0% {
+                transform: translate(0);
+            }
+
+            20% {
+                transform: translate(-1px, 1px);
+            }
+
+            40% {
+                transform: translate(-1px, -1px);
+            }
+
+            60% {
+                transform: translate(1px, 1px);
+            }
+
+            80% {
+                transform: translate(1px, -1px);
+            }
+
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        .observer-block {
+            width: 100%;
+            background: rgba(0, 30, 40, 0.3);
+            border: 1px solid rgba(0, 170, 255, 0.1);
+            padding: 10px;
+            font-size: 7.5px;
+            color: #0af;
+            margin-top: 15px;
+        }
+
+        .obs-title {
+            color: #fff;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
         }
 
         #heatmap {
             display: grid;
             grid-template-columns: repeat(12, 12px);
             gap: 2px;
-            margin: 5px 0;
+            margin: 15px 0;
+            padding: 5px;
+            border: 1px solid rgba(0, 255, 255, 0.05);
+            background: rgba(0, 20, 30, 0.2);
         }
 
         .h-cell {
@@ -297,27 +358,34 @@ Listed directory Desktop
             gap: 20px;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 0;
+            padding-top: 0px;
+            /* Aligned with top status line */
             position: relative;
             z-index: 50;
         }
 
         .viz-box {
             width: 100%;
-            height: 585px;
+            height: 420px;
+            /* Compressed height to pull text up */
             position: relative;
             z-index: 1;
+            margin-top: 60px;
+            /* Added space below description */
         }
 
         .compass-box {
             position: absolute;
-            top: 50%;
+            top: 65%;
+            /* Shifted down to fill lower space */
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 720px;
-            height: 720px;
+            width: 900px;
+            height: 900px;
             z-index: 10;
+            /* Above graphs */
             pointer-events: none;
+            /* Don't block interaction */
             opacity: 0.8;
         }
 
@@ -362,13 +430,58 @@ Listed directory Desktop
 
         #clock-overlay {
             position: fixed;
-            bottom: 8px;
+            bottom: 50px;
             right: 10px;
             font-size: 8px;
             color: #6cf;
             opacity: 0.5;
             text-align: right;
             pointer-events: none;
+        }
+
+        .event-horizon {
+            width: 100%;
+            background: rgba(40, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            padding: 8px;
+            margin-top: 10px;
+            font-size: 7px;
+        }
+
+        .event-entry {
+            display: flex;
+            justify-content: space-between;
+            color: #f55;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.05);
+            padding: 2px 0;
+            animation: blink 0.5s step-end 2;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .system-description {
+            width: 810px;
+            font-size: 11px;
+            font-family: 'Trebuchet MS', sans-serif;
+            line-height: 1.6;
+            color: #fb0;
+            opacity: 0.8;
+            text-align: justify;
+            border-bottom: 1px solid rgba(255, 170, 0, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            letter-spacing: 0.2px;
+            text-transform: none;
+        }
+
+        .system-description b {
+            color: #fff;
+            opacity: 1;
+            text-transform: uppercase;
         }
 
         @media (max-width: 1300px) {
@@ -407,30 +520,19 @@ Listed directory Desktop
             <div class="left-hub">
                 <div id="cosmic-status-line">СИСТЕМА IO ОНЛАЙН :: СИНХРОНІЗАЦІЯ...</div>
 
-                <div id="solar-hud">
-                    <div class="hud-item" onclick="solo(0)"><span class="status-dot status-green"
-                            id="d0"></span>wind:<span id="v0">---</span></div>
-                    <div class="hud-item" onclick="solo(1)"><span class="status-dot status-green"
-                            id="d1"></span>dens:<span id="v1">---</span></div>
-                    <div class="hud-item" onclick="solo(2)"><span class="status-dot status-green"
-                            id="d2"></span>bt:<span id="v2">---</span></div>
-                    <div class="hud-item" onclick="solo(3)"><span class="status-dot status-green"
-                            id="d3"></span>temp:<span id="v3">---</span></div>
-                    <div class="hud-item" onclick="solo(4)"><span class="status-dot status-green"
-                            id="d4"></span>bz:<span id="v4">---</span></div>
-                    <div class="hud-item" onclick="solo(5)"><span class="status-dot status-green"
-                            id="d5"></span>phi:<span id="v5">---</span></div>
-                    <div class="hud-item" onclick="solo(6)"><span class="status-dot status-green"
-                            id="d6"></span>bx:<span id="v6">---</span></div>
-                    <div class="hud-item" onclick="solo(7)"><span class="status-dot status-green"
-                            id="d7"></span>by:<span id="v7">---</span></div>
+                <div class="observer-block">
+                    <div class="obs-title"><span>Laborant1 AI</span> <span id="obs-status">ACTIVE</span></div>
+                    <div id="obs-log" style="opacity:0.6; min-height:30px;">Ініціалізація спостерігача...</div>
+                    <div style="margin-top:5px; color:#fa0;">BIO_IMPACT: <span id="bio-val">LOW</span></div>
                 </div>
 
-                <div id="heatmap"></div>
+                <div id="solar-hud">
+                    <!-- Dynamic HUD via JS -->
+                </div>
 
                 <div class="sun-box">
                     <img id="sun-img" class="sun-disk"
-                        src="https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg" alt="AIA">
+                        src="http://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l0171.jpg" alt="SOLAR_DISK">
                 </div>
 
                 <div class="controls-row">
@@ -443,15 +545,38 @@ Listed directory Desktop
                     <button class="btn-lite btn-zoom" onclick="zoom(-0.2)">-</button>
                 </div>
 
+                <div id="heatmap"></div>
+
                 <div id="data-list-grid"></div>
                 <div class="diag-row" id="diag-out"
                     style="font-size:7px; color:#fa0; opacity:0.8; height:10px; width:100%; text-align:center;">
                     моніторинг корони...</div>
                 <div class="sys-terminal" id="sys-out"></div>
+
+
+                <div class="event-horizon">
+                    <div class="obs-title" style="color:#f55;">EVENT_HORIZON // CAPTURED</div>
+                    <div id="event-log"></div>
+                </div>
             </div>
 
             <!-- RIGHT COLUMN -->
             <div class="right-hub">
+                <div class="system-description">
+                    <b>IBONARIUM_RESONANCE_CORE [IRC]:</b> синтетична аналітична платформа, що працює за принципом
+                    міжсферної кореляції. система в реальному часі інтегрує три автономні пласти реальності: фізичний
+                    (іоносфера та сонячний вітер), психо-соціальний (глобальний емоційний тон новин через gdelt) та
+                    економічний (волатильність та хешрейт криптовалютних мереж). <b>принцип дії резонатора:</b>
+                    центральне обчислювальне ядро вираховує фазову синхронізацію між цими шарами, виявляючи моменти,
+                    коли фізична енергія сонця трансформується в соціальну напругу або ринкові рухи. виявлення
+                    <b>net_resonance</b> дозволяє ловити "тіні подій" — нелінійні зв'язки, де макро-процеси космосу
+                    стають тригерами для мікро-змін у людській системі.
+                    <b>протоколи сповіщення:</b> особливу увагу слід приділяти алертам <i>vektor_shift</i>, які
+                    сигналізують про миттєву зміну кутової швидкості або амплітуди ключового параметра — це часто вказує
+                    на початок прихованого тренду. при входженні в стан <i>event_horizon</i> (резонанс понад 85%)
+                    система переходить у режим фіксації аномалій, де кожен "спалах" на радарі та глітч інтерфейсу є
+                    передвісником критичної зміни фази реальності.
+                </div>
                 <div class="viz-box">
                     <canvas id="viz-canvas"></canvas>
                 </div>
@@ -465,16 +590,34 @@ Listed directory Desktop
 
     <div id="clock-overlay">—</div>
 
+
     <script>
         const proxy = 'https://corsproxy.io/?';
+
+        // ------------------------------------------------------------------
+        // SDO SOLAR IMAGE SOURCES — LMSAL SunInTime (no CORS restrictions)
+        // ------------------------------------------------------------------
+        const LMSAL = 'http://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/';
+        const SUN_SOURCES = {
+            '0171': LMSAL + 'l0171.jpg',
+            '0193': LMSAL + 'l0193.jpg',
+            '0304': LMSAL + 'l0304.jpg',
+            '0131': LMSAL + 'l0131.jpg',
+            'HMI':  LMSAL + 'lHMIIF.jpg'
+        };
 
         // ------------------------------------------------------------------
         // STATE STORAGE
         // ------------------------------------------------------------------
         const S = {
             wind: 420, dens: 5, bt: 5, bz: 0, temp: 100000, phi: 0, bx: 0, by: 0,
-            press: 1.2, kp: 0, dst: -5, f107: 150, sunspots: 80, convi: 0
+            press: 1.2, kp: 0, dst: -5, f107: 150, sunspots: 80, convi: 0,
+            tone: 50, conflict: 10, btc: 0, bio: 0,
+            prev: {} // Previous for derivatives
         };
+        const GHOSTS = [];
+        const EVENTS = []; // Event Horizon Store
+        let shockwave = 0; // Shockwave radius for major events
         const PEAKS = {};
         const HIST = { wind: [], dens: [], bt: [], bz: [], kp: [], convi: [] };
         const LIMIT = 60;
@@ -482,63 +625,66 @@ Listed directory Desktop
         let sunZoom = 1.0;
 
         const configs = [
-            { l: 'швидкість вітру', k: 'wind', m: 1000, c: '#00f2ff', thr: 650 },
-            { l: 'щільність протонів', k: 'dens', m: 50, c: '#ffcc00', thr: 15 },
-            { l: 'магн.поле bt', k: 'bt', m: 50, c: '#ff0055', thr: 18 },
-            { l: 'темп.плазми', k: 'temp', m: 1000000, c: '#33ff00', thr: 500000 },
-            { l: 'комп.bz', k: 'bz', m: 25, c: '#9d00ff', thr: 12 },
-            { l: 'кут phi', k: 'phi', m: 360, c: '#00ffea', thr: 300 },
-            { l: 'комп.bx', k: 'bx', m: 25, c: '#ff6a00', thr: 15 },
-            { l: 'комп.by', k: 'by', m: 25, c: '#ffffff', thr: 15 }
+            { l: 'швидкість вітру', k: 'wind', m: 1000, c: '#ffaa00', z: 'CORE' },
+            { l: 'комп.bz', k: 'bz', m: 25, c: '#ff5500', z: 'CORE' },
+            { l: 'індекс kp', k: 'kp', m: 9, c: '#ffd400', z: 'CORE' },
+            { l: 'gdelt tone', k: 'tone', m: 100, c: '#ffea00', z: 'HUMAN' },
+            { l: 'конфліктність', k: 'conflict', m: 100, c: '#ff0000', z: 'HUMAN' },
+            { l: 'волатильність btc', k: 'btc', m: 10, c: '#ff8800', z: 'ECON' },
+            { l: 'індекс хаосу', k: 'convi', m: 100, c: '#ffcc00', z: 'CORE' },
+            { l: 'щільність протонів', k: 'dens', m: 50, c: '#ffbb33', z: 'CORE' }
         ];
 
+        const THEME = {
+            main: '#ff9900',
+            bg: '#080500',
+            acc: '#ffcc00',
+            warn: '#ff3300'
+        };
+
         // ------------------------------------------------------------------
-        // RENDERING PIPELINES - ОПТИМІЗОВАНО
+        // RENDERING PIPELINES
         // ------------------------------------------------------------------
-        const bgC = document.getElementById('bg-layer');
-        const bgCtx = bgC.getContext('2d');
-        const vzC = document.getElementById('viz-canvas');
-        const vizCtx = vzC.getContext('2d');
-        const cpC = document.getElementById('compass-canvas');
-        const cpCtx = cpC.getContext('2d');
+        const bgC = document.getElementById('bg-layer'); const bgCtx = bgC.getContext('2d');
+        const vzC = document.getElementById('viz-canvas'); const vizCtx = vzC.getContext('2d');
+        const cpC = document.getElementById('compass-canvas'); const cpCtx = cpC.getContext('2d');
 
         function resize() {
             const ratio = window.devicePixelRatio || 1;
-            bgC.width = innerWidth * ratio;
-            bgC.height = innerHeight * ratio;
-            vzC.width = 810 * ratio;
-            vzC.height = 585 * ratio;
-            cpC.width = 720 * ratio;
-            cpC.height = 720 * ratio;
-            bgCtx.scale(ratio, ratio);
-            vizCtx.scale(ratio, ratio);
-            cpCtx.scale(ratio, ratio);
+            bgC.width = innerWidth * ratio; bgC.height = innerHeight * ratio;
+            vzC.width = 810 * ratio; vzC.height = 585 * ratio;
+            cpC.width = 720 * ratio; cpC.height = 720 * ratio;
+            bgCtx.scale(ratio, ratio); vizCtx.scale(ratio, ratio); cpCtx.scale(ratio, ratio);
         }
-        window.addEventListener('resize', resize);
-        resize();
+        window.addEventListener('resize', resize); resize();
 
-        // СПРОЩЕНІ ЗІРКИ - менше зірок, без складних обчислень
-        const stars = [...Array(150)].map(() => ({
-            x: Math.random() * innerWidth,
-            y: Math.random() * innerHeight,
-            s: Math.random() * 1.5 + 0.5
-        }));
+        const stars = [...Array(400)].map(() => ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() * 2000, s: Math.random() * 1.2 + 0.5 }));
+        const formulaTexts = ["P_dyn = ρv²", "λ = h/p", "E = hν", "∇·B = 0", "F = q(E + v×B)"];
+        const formulaObjs = formulaTexts.map(f => ({ t: f, x: Math.random(), y: Math.random(), ph: Math.random() * 6.28 }));
 
         // ------------------------------------------------------------------
         // CORE FUNCTIONS
         // ------------------------------------------------------------------
         let activeSolo = -1, curSpec = '0171';
 
-        function solo(i) {
-            activeSolo = (activeSolo === i) ? -1 : i;
-            log(`Соло синхр.: ${activeSolo === -1 ? 'ВИМК' : configs[i].l}`);
-        }
+        function solo(i) { activeSolo = (activeSolo === i) ? -1 : i; log(`Соло синхр.: ${activeSolo === -1 ? 'ВИМК' : configs[i].l}`); }
 
         function spec(c, btn) {
             curSpec = c;
             document.querySelectorAll('.btn-lite').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.getElementById('sun-img').src = `https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l${c}.jpg?t=` + Date.now();
+            updateSunImg();
+        }
+
+        function updateSunImg() {
+            const img = document.getElementById('sun-img');
+            const base = SUN_SOURCES[curSpec] || SUN_SOURCES['HMI'];
+            img.src = base + '?t=' + Date.now();
+            img.onerror = () => {
+                // Fallback to HMI if wavelength image fails
+                img.src = SUN_SOURCES['HMI'] + '?t=' + Date.now();
+                log('SDO: Fallback to HMI');
+            };
         }
 
         function zoom(delta) {
@@ -553,116 +699,228 @@ Listed directory Desktop
             }
             log(`Зум сонця: ${Math.round(sunZoom * 100)}%`);
         }
-
         function log(m) {
             const l = document.getElementById('sys-out');
-            const e = document.createElement('div');
-            e.innerText = `${new Date().toLocaleTimeString()} :: ${m}`;
-            l.prepend(e);
-            if (l.childNodes.length > 15) l.removeChild(l.lastChild);
+            const e = document.createElement('div'); e.innerText = `${new Date().toLocaleTimeString()} :: ${m}`;
+            l.prepend(e); if (l.childNodes.length > 15) l.removeChild(l.lastChild);
         }
 
         async function fetchAll() {
             try {
-                // Спроба прямого запиту до NOAA API
-                const [p, m, k] = await Promise.all([
-                    fetch('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json')
-                        .then(r => r.json())
-                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json')).then(r => r.json())),
-                    fetch('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')
-                        .then(r => r.json())
-                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')).then(r => r.json())),
-                    fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')
-                        .then(r => r.json())
-                        .catch(() => fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')).then(r => r.json()))
+                // GDELT Tone: Average global news sentiment (timeline sentiment)
+                // BTC: CoinGecko price + 24h change
+                // NOAA SWPC: Solar wind data
+                const [p, m, k, g, b] = await Promise.all([
+                    fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json')).then(r => r.json()),
+                    fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json')).then(r => r.json()),
+                    fetch(proxy + encodeURIComponent('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json')).then(r => r.json()),
+                    fetch(proxy + encodeURIComponent('https://api.gdeltproject.org/api/v2/doc/doc?query=world&mode=timeline&timeline=sentiment&format=json')).then(r => r.json()).catch(() => null),
+                    fetch(proxy + encodeURIComponent('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true')).then(r => r.json()).catch(() => null)
                 ]);
 
                 if (p && p.length > 1) {
-                    const l = p[p.length - 1];
-                    S.dens = parseFloat(l[1]) || 5;
-                    S.wind = parseFloat(l[2]) || 400;
-                    S.temp = parseFloat(l[3]) || 100000;
-                    log(`✓ Плазма: ${S.wind.toFixed(0)} км/с`);
+                    const l = p[p.length - 1]; S.dens = parseFloat(l[1]) || 5; S.wind = parseFloat(l[2]) || 400; S.temp = parseFloat(l[3]) || 100000;
                 }
                 if (m && m.length > 1) {
-                    const l = m[m.length - 1];
-                    S.bx = parseFloat(l[1]) || 0;
-                    S.by = parseFloat(l[2]) || 0;
-                    S.bz = parseFloat(l[3]) || 0;
-                    S.phi = parseFloat(l[5]) || 0;
-                    S.bt = parseFloat(l[6]) || 5;
-                    log(`✓ Магнітне поле: BZ=${S.bz.toFixed(1)} nT`);
+                    const l = m[m.length - 1]; S.bx = parseFloat(l[1]); S.by = parseFloat(l[2]); S.bz = parseFloat(l[3]); S.phi = parseFloat(l[5]); S.bt = parseFloat(l[6]);
                 }
-                if (k && k.length >= 1) {
-                    // ТУТ ВИПРАВЛЕНО: API повертає об'єкти, а не масиви
-                    S.kp = k[k.length - 1].Kp || 0; 
-                    log(`✓ Kp індекс: ${S.kp}`);
+                if (k && k.length > 0) S.kp = parseFloat(k[k.length - 1].Kp) || 0;
+                
+                // GDELT Integration
+                if (g && g.timeline && g.timeline[0] && g.timeline[0].series && g.timeline[0].series[0].data) {
+                    const series = g.timeline[0].series[0].data;
+                    const latest = series[series.length - 1];
+                    S.tone = (latest.value + 10) * 5; // Normalize GDELT tone (-10 to 10 typical) to 0-100
+                    S.conflict = Math.max(0, 50 - S.tone); // Conflict as inverse of positive tone
                 }
 
-                S.convi = (((S.wind / 1000) + (S.kp / 9) + (Math.abs(S.bz) / 20)) / 3 * 100).toFixed(1);
+                // BTC Integration
+                if (b && b.bitcoin) {
+                    S.btc = Math.abs(b.bitcoin.usd_24h_change) || 0;
+                }
 
-                const upH = (k, v) => {
-                    HIST[k].push(v);
-                    if (HIST[k].length > LIMIT) HIST[k].shift();
-                };
-                upH('wind', S.wind);
-                upH('dens', S.dens);
-                upH('bt', S.bt);
-                upH('bz', S.bz);
-                upH('kp', S.kp);
-                upH('convi', S.convi);
+                S.convi = parseFloat((((S.wind / 1000) + (S.kp / 9) + (Math.abs(S.bz) / 20)) / 3 * 100));
+
+                const upH = (k, v) => { if (!HIST[k]) HIST[k] = []; HIST[k].push(parseFloat(v) || 0); if (HIST[k].length > LIMIT) HIST[k].shift(); };
+
+                // DERIVATIVE ALERT ENGINE (Acceleration Tracking)
+                configs.forEach(c => {
+                    const diff = Math.abs(S[c.k] - (S.prev[c.k] || S[c.k]));
+                    const rate = diff / c.m;
+                    if (rate > 0.08) { // Sudden 8% jump within 5s
+                        addAlert(`VEKTOR_SHIFT: ${c.k.toUpperCase()} [${(rate * 100).toFixed(1)}%]`);
+                        if (rate > 0.15) shockwave = 1; // Major shift triggers shockwave
+                    }
+                    S.prev[c.k] = S[c.k];
+                });
+
+                upH('wind', S.wind); upH('dens', S.dens); upH('bt', S.bt); upH('bz', S.bz); upH('kp', S.kp); upH('convi', S.convi);
+                upH('tone', S.tone); upH('conflict', S.conflict); upH('btc', S.btc);
+
                 updateUI();
-            } catch (e) {
-                log("⚠ Втрата зв'язку з NOAA");
-                console.error('Fetch error:', e);
+                updateObserver();
+            } catch (e) { log("Втрата зв'язку"); }
+        }
+
+        function addAlert(msg) {
+            const h = document.getElementById('alert-hub');
+            if (!h) return;
+            const d = document.createElement('div');
+            d.className = 'f-msg';
+            d.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            h.prepend(d);
+            setTimeout(() => d.remove(), 7000);
+        }
+
+        const phrases = [
+            "Виявлено кореляцію між KP та волатильністю ринку.",
+            "Нейронний фон стабільний. Соціальний ефект мінімальний.",
+            "Система фіксує фазовий дрейф у другому шарі.",
+            "Геомагнітний тиск зростає. Можлива дестабілізація тону.",
+            "Критичний резонанс! Людський чинник реагує на енерговикид."
+        ];
+
+        let systemStress = 0;
+        function updateObserver() {
+            const res = (S.kp / 9 + S.conflict / 100 + Math.abs(S.btc) / 10) / 3;
+            const logEl = document.getElementById('obs-log');
+
+            // Named Core States
+            let coreState = "STABLE";
+            if (S.kp > 4 && S.btc > 2) coreState = "QUANTUM_ARBITRAGE";
+            else if (S.tone < 30) coreState = "SOCIAL_DEPRESSION";
+            else if (res > 0.7) coreState = "RESONANCE_OVERDRIVE";
+
+            if (logEl) logEl.innerText = `[${coreState}] ${phrases[Math.floor(res * (phrases.length - 1))] || phrases[0]}`;
+
+            if (res > 0.5) systemStress += 0.25;
+            else systemStress = Math.max(0, systemStress - 0.1);
+
+            // Event Capture Logic (Fixation)
+            if (res > 0.85 && (!EVENTS.length || Date.now() - EVENTS[0].t > 60000)) {
+                const ev = { t: Date.now(), l: coreState, r: (res * 100).toFixed(1) };
+                EVENTS.unshift(ev);
+                if (EVENTS.length > 5) EVENTS.pop();
+                const eLog = document.getElementById('event-log');
+                if (eLog) eLog.innerHTML = EVENTS.map(e => `<div class="event-entry"><span>${new Date(e.t).toLocaleTimeString()}</span><span>${e.l}</span><span>${e.r}%</span></div>`).join('');
+                addAlert('!!! CRITICAL_RESONANCE_CAPTURED !!!');
             }
+
+            const bioEl = document.getElementById('bio-val');
+            if (bioEl) bioEl.innerText = S.bio > 5 ? 'CRITICAL_FLUX' : (S.bio > 2 ? 'ELEVATED' : 'STABLE');
+
+            const stressEl = document.getElementById('obs-status');
+            if (stressEl) stressEl.innerHTML = `STRESS: ${systemStress.toFixed(1)}%`;
+
+            if (res > 0.6 || systemStress > 60) document.body.classList.add('glitch-mode');
+            else document.body.classList.remove('glitch-mode');
         }
 
         function updateUI() {
-            let html = '<div class="cat-title">Сонячна іоносфера</div>';
-            const heatmapColors = [];
+            let hudHtml = '';
+            let gridHtml = '<div class="cat-title">Квантове Ядро</div>';
+            const hmCells = [];
 
             configs.forEach((c, i) => {
-                const v = S[c.k];
-                if (!PEAKS[c.k] || Math.abs(v) > PEAKS[c.k]) PEAKS[c.k] = Math.abs(v);
-
+                const v = S[c.k] || 0;
                 const n = Math.min(1, Math.abs(v) / c.m);
-                const statusClass = n > 0.8 ? 'status-red' : (n > 0.5 ? 'status-yellow' : 'status-green');
                 const statusHex = n > 0.8 ? '#f22' : (n > 0.5 ? '#fa0' : '#0f4');
+                const statusClass = n > 0.8 ? 'status-red' : (n > 0.5 ? 'status-yellow' : 'status-green');
 
-                document.getElementById(`v${i}`).innerText = v.toFixed(c.k === 'temp' ? 0 : 1);
-                document.getElementById(`d${i}`).className = 'status-dot ' + statusClass;
+                // Update HUD Grid
+                hudHtml += `<div class="hud-item" onclick="solo(${i})"><span class="status-dot ${statusClass}"></span>${c.k}:<span>${v.toFixed(1)}</span></div>`;
 
-                if (i === 4) html += '<div class="cat-title">Магнітосфера</div>';
-                html += `<div class="data-entry"><span class="d-lbl">${c.l}</span><span class="d-val ${n > 0.8 ? 'd-val-danger' : (n > 0.5 ? 'd-val-watch' : 'd-val-safe')}">${v.toPrecision(4)}</span></div>`;
+                // Update Detailed List
+                if (i === 3) gridHtml += '<div class="cat-title">Антропосфера & Ринки</div>';
+                gridHtml += `<div class="data-entry"><span class="d-lbl">${c.l}</span><span class="d-val ${n > 0.8 ? 'd-val-danger' : (n > 0.5 ? 'd-val-watch' : 'd-val-safe')}">${v.toPrecision(4)}</span></div>`;
 
-                for (let j = 0; j < 6; j++) heatmapColors.push(statusHex);
+                // Collect colors from HISTORY for the heatmap (12 samples per key)
+                const h = HIST[c.k] || [];
+                const samples = h.slice(-12);
+                while (samples.length < 12) samples.unshift(0);
+                samples.forEach(sv => {
+                    const sn = Math.min(1, Math.abs(sv) / c.m);
+                    hmCells.push(sn > 0.8 ? '#f22' : (sn > 0.5 ? '#fa0' : '#0f4'));
+                });
             });
 
-            document.getElementById('data-list-grid').innerHTML = html;
-            document.getElementById('cosmic-status-line').innerText = `Ibonarium_NEW.13.ГОЛОВНА СИНХРОНІЗАЦІЯ :: ${new Date().toLocaleTimeString()} :: KP ${S.kp}`;
+            document.getElementById('solar-hud').innerHTML = hudHtml;
+            document.getElementById('data-list-grid').innerHTML = gridHtml;
+            document.getElementById('cosmic-status-line').innerText = `РЕЗОНАНС АКТИВНИЙ :: ${new Date().toLocaleTimeString()} :: LVL ${Math.round(S.convi / 20)}`;
 
             const hm = document.getElementById('heatmap');
             hm.innerHTML = '';
-            heatmapColors.forEach(color => {
+            hmCells.forEach(color => {
                 const cl = document.createElement('div');
                 cl.className = 'h-cell';
                 cl.style.background = color;
+                cl.style.opacity = color === '#0f4' ? '0.2' : '0.8';
                 cl.style.boxShadow = `0 0 4px ${color}`;
                 hm.appendChild(cl);
             });
         }
 
-        // СПРОЩЕНИЙ ФОН - статичні зірки без руху
-        function drawBackground() {
-            bgCtx.fillStyle = '#000';
+        function drawBackground(t) {
+            bgCtx.fillStyle = '#080500';
             bgCtx.fillRect(0, 0, innerWidth, innerHeight);
 
+            const cx = innerWidth / 2, cy = innerHeight / 2;
+            const res = (S.kp / 9 + S.convi / 100) / 2;
+
+            // Ambient Grid with Vibration
+            bgCtx.beginPath();
+            bgCtx.strokeStyle = `rgba(255, 140, 0, ${0.02 + res * 0.04})`;
+            const drift = Math.sin(t * 0.5) * 10;
+            for (let x = -40; x < innerWidth + 40; x += 60) { bgCtx.moveTo(x + drift, 0); bgCtx.lineTo(x - drift, innerHeight); }
+            for (let y = -40; y < innerHeight + 40; y += 60) { bgCtx.moveTo(0, y + drift); bgCtx.lineTo(innerWidth, y - drift); }
+            bgCtx.stroke();
+
+            // Formula Spectral Flicker
+            formulaObjs.forEach(f => {
+                const alpha = Math.max(0, Math.sin(t * 0.4 + f.ph) - 0.5);
+                if (alpha <= 0) return;
+                bgCtx.fillStyle = `rgba(255, 180, 0, ${alpha * 0.3})`;
+                bgCtx.font = '9px Courier New';
+                bgCtx.fillText(f.t, f.x * innerWidth + Math.cos(t * 0.2 + f.ph) * 30, f.y * innerHeight + Math.sin(t * 0.2 + f.ph) * 30);
+            });
+
+            // Drifting Stars
             stars.forEach(s => {
-                bgCtx.fillStyle = `rgba(180,240,255,0.6)`;
+                s.z -= 1.0; if (s.z <= 0) s.z = 2000;
+                let k = 450 / s.z;
+                let px = s.x * k * innerWidth + cx, py = s.y * k * innerHeight + cy;
+                if (px < 0 || px > innerWidth || py < 0 || py > innerHeight) return;
+                bgCtx.fillStyle = `rgba(255, 200, 0, ${0.3 * (1 - s.z / 2000)})`;
+                bgCtx.fillRect(px, py, 1.2, 1.2);
+            });
+
+            // Occasional Geometric Ghosts
+            if (Math.sin(t * 0.1) > 0.8) {
+                bgCtx.strokeStyle = 'rgba(255, 100, 0, 0.05)';
                 bgCtx.beginPath();
-                bgCtx.arc(s.x, s.y, s.s, 0, 6.28);
-                bgCtx.fill();
+                const gx = cx + Math.cos(t * 0.2) * 400, gy = cy + Math.sin(t * 0.2) * 300;
+                for (let i = 0; i < 3; i++) {
+                    const r = 50 + i * 40;
+                    bgCtx.moveTo(gx + r, gy);
+                    for (let a = 0; a < 6.28; a += 1.04) bgCtx.lineTo(gx + Math.cos(a) * r, gy + Math.sin(a) * r);
+                }
+                bgCtx.stroke();
+            }
+        }
+
+        function drawUIExtras(t) {
+            // Draw animated brackets for modules
+            bgCtx.strokeStyle = `rgba(255, 200, 0, ${0.1 + Math.sin(t * 5) * 0.05})`;
+            bgCtx.lineWidth = 1;
+
+            document.querySelectorAll('.observer-block, #solar-hud, #heatmap, .event-horizon, .viz-box').forEach(el => {
+                const r = el.getBoundingClientRect();
+                const pad = 4;
+                const s = 10;
+                // Top Left
+                bgCtx.beginPath(); bgCtx.moveTo(r.left - pad, r.top - pad + s); bgCtx.lineTo(r.left - pad, r.top - pad); bgCtx.lineTo(r.left - pad + s, r.top - pad); bgCtx.stroke();
+                // Bottom Right
+                bgCtx.beginPath(); bgCtx.moveTo(r.right + pad, r.bottom + pad - s); bgCtx.lineTo(r.right + pad, r.bottom + pad); bgCtx.lineTo(r.right + pad - s, r.bottom + pad); bgCtx.stroke();
             });
         }
 
@@ -670,63 +928,43 @@ Listed directory Desktop
             vizCtx.clearRect(0, 0, 810, 585);
 
             const drawG = (lbl, hist, x, y, cw, ch, col, max, thr) => {
-                vizCtx.save();
-                vizCtx.translate(x, y);
-                vizCtx.strokeStyle = 'rgba(0,180,255,0.15)';
-                vizCtx.lineWidth = 1;
-                for (let i = 0; i <= 3; i++) {
-                    vizCtx.beginPath();
-                    vizCtx.moveTo(0, i * ch / 3);
-                    vizCtx.lineTo(cw, i * ch / 3);
-                    vizCtx.stroke();
-                }
+                vizCtx.save(); vizCtx.translate(x, y); // No float movement for graphs
+                vizCtx.strokeStyle = 'rgba(0,180,255,0.15)'; vizCtx.lineWidth = 1;
+                for (let i = 0; i <= 3; i++) { vizCtx.beginPath(); vizCtx.moveTo(0, i * ch / 3); vizCtx.lineTo(cw, i * ch / 3); vizCtx.stroke(); }
                 vizCtx.strokeStyle = 'rgba(0,180,255,0.05)';
-                for (let i = 0; i <= 4; i++) {
-                    vizCtx.beginPath();
-                    vizCtx.moveTo(i * cw / 4, 0);
-                    vizCtx.lineTo(i * cw / 4, ch);
-                    vizCtx.stroke();
-                }
+                for (let i = 0; i <= 4; i++) { vizCtx.beginPath(); vizCtx.moveTo(i * cw / 4, 0); vizCtx.lineTo(i * cw / 4, ch); vizCtx.stroke(); }
 
                 if (hist.length > 0) {
                     const last = hist[hist.length - 1] || 0;
                     const isAlert = Math.abs(last) > thr;
                     vizCtx.beginPath();
                     hist.forEach((v, i) => {
-                        const gx = i * (cw / (LIMIT - 1));
-                        const gy = ch - (Math.abs(v) / max) * ch;
+                        const gx = i * (cw / (LIMIT - 1)); const gy = ch - (Math.abs(v) / max) * ch;
                         i === 0 ? vizCtx.moveTo(gx, gy) : vizCtx.lineTo(gx, gy);
                     });
-                    vizCtx.strokeStyle = isAlert ? '#f22' : col;
-                    vizCtx.lineWidth = 1.8;
-                    vizCtx.stroke();
+                    vizCtx.strokeStyle = isAlert ? '#f22' : col; vizCtx.lineWidth = 1.8; vizCtx.stroke();
 
                     hist.forEach((v, i) => {
                         if (i % 5 === 0 || i === hist.length - 1) {
-                            const gx = i * (cw / (LIMIT - 1));
-                            const gy = ch - (Math.abs(v) / max) * ch;
-                            vizCtx.beginPath();
-                            vizCtx.arc(gx, gy, 2, 0, 6.28);
-                            vizCtx.fillStyle = isAlert ? '#f22' : col;
-                            vizCtx.fill();
+                            const gx = i * (cw / (LIMIT - 1)); const gy = ch - (Math.abs(v) / max) * ch;
+                            vizCtx.beginPath(); vizCtx.arc(gx, gy, 2, 0, 6.28); vizCtx.fillStyle = isAlert ? '#f22' : col; vizCtx.fill();
                             if (i === hist.length - 1) {
-                                vizCtx.fillStyle = '#fff';
-                                vizCtx.font = 'bold 8px Courier New';
+                                vizCtx.fillStyle = '#fff'; vizCtx.font = 'bold 8px Courier New';
                                 vizCtx.fillText(parseFloat(v).toFixed(1), gx + 4, gy + 3);
                             }
                         }
                     });
                 }
-                vizCtx.fillStyle = col;
-                vizCtx.font = '8px Courier New';
-                vizCtx.fillText(lbl, 0, -6);
+                vizCtx.fillStyle = col; vizCtx.font = '8px Courier New'; vizCtx.fillText(lbl, 0, -6);
                 vizCtx.restore();
             };
 
             const gw = 234, gh = 135, gapX = 270, gapY = 198;
+            // ROW 1
             drawG('АНАЛІТИКА.ШВИДКОСТІ', HIST.wind, 20, 60, gw, gh, '#0af', 1000, 650);
             drawG('АНАЛІТИКА.ПРОТОНІВ', HIST.dens, 20 + gapX, 60, gw, gh, '#ff0', 50, 15);
             drawG('АНАЛІТИКА.MAG_BT', HIST.bt, 20 + gapX * 2, 60, gw, gh, '#f05', 50, 18);
+            // ROW 2
             drawG('ІНДЕКС.KP', HIST.kp, 20, 60 + gapY, gw, gh, '#f80', 9, 5);
             drawG('АНАЛІТИКА.MAG_BZ', HIST.bz, 20 + gapX, 60 + gapY, gw, gh, '#44f', 25, 12);
             drawG('ІНДЕКС.ХАОСУ', HIST.convi, 20 + gapX * 2, 60 + gapY, gw, gh, '#0ff', 100, 70);
@@ -735,170 +973,133 @@ Listed directory Desktop
         function drawCompass(t) {
             cpCtx.clearRect(0, 0, 720, 720);
             const cx = 360, cy = 360;
-            const radius = 288;
-            const chaos = S.convi / 100;
+            const radius = 300;
 
-            // --- REAL-TIME STATE ANALYZER ---
-            let status = { label: "ШТИЛЬ_00", color: "#0f4", level: 1, desc: "МАГНІТОСФЕРА СТАБІЛЬНА" };
-            if (S.kp >= 3 || S.wind > 450 || S.bz < -3) {
-                status = { label: "КВАНТОВИЙ_ДРЕЙФ", color: "#0af", level: 2, desc: "ПЕРЕХІДНИЙ ПОТІК ПЛАЗМИ" };
-            }
-            if (S.kp >= 4 || S.wind > 550 || S.bz < -8) {
-                status = { label: "ГЕО_ЗБУДЖЕННЯ", color: "#fa0", level: 3, desc: "ПОСИЛЕННЯ СОНЯЧНОГО ВІТРУ" };
-            }
-            if (S.kp >= 5 || S.wind > 650 || S.bz < -15) {
-                status = { label: "МАГНІТНИЙ_ШТОРМ", color: "#f55", level: 4, desc: "АКТИВНА ГЕОМАГНІТНА ПОДІЯ" };
-            }
-            if (S.kp >= 7 || chaos > 0.8) {
-                status = { label: "КРИТИЧНИЙ_ВИКИД", color: "#f0f", level: 5, desc: "ЕКСТРЕМАЛЬНИЙ РІВЕНЬ ЗАГРОЗИ" };
-            }
-
-            // --- СТАТИЧНІ КІЛЬЦЯ БЕЗ ОБЕРТАННЯ ---
-            for (let i = 1; i <= 6; i++) {
-                const r = (radius / 6) * i;
-                cpCtx.strokeStyle = status.level > 3 ? status.color : `rgba(0, 255, 255, ${0.04 + (i / 30)})`;
-
-                if (i % 2 === 0) {
-                    cpCtx.setLineDash([8, 20]);
-                    cpCtx.lineWidth = 2.5;
-                } else {
-                    cpCtx.setLineDash([30, 15]);
-                    cpCtx.lineWidth = 1;
-                }
+            const drawHex = (rx, ry, r) => {
                 cpCtx.beginPath();
-                cpCtx.arc(cx, cy, r, 0, Math.PI * 2);
-                cpCtx.stroke();
-            }
-            cpCtx.setLineDash([]);
+                for (let i = 0; i < 6; i++) {
+                    const a = i * Math.PI * 2 / 6;
+                    const x = rx + Math.cos(a) * r;
+                    const y = ry + Math.sin(a) * r;
+                    i === 0 ? cpCtx.moveTo(x, y) : cpCtx.lineTo(x, y);
+                }
+                cpCtx.closePath();
+            };
 
-            // --- ANALYTIC SIDEBARS (STATE DATA) ---
-            cpCtx.fillStyle = status.color;
-            cpCtx.font = 'bold 8px Space Mono';
-            cpCtx.textAlign = 'left';
-            const telemetry = [
-                `SYST_PHASE: ${status.label}`,
-                `THREAT_LVL: ${status.level}/5`,
-                `CHAOS_IDX: ${(chaos * 100).toFixed(2)}%`,
-                `BZ_VECTOR: ${S.bz.toFixed(2)} nT`,
-                `K_INDEX: ${S.kp}`
+            // --- HEXAGON REALITY BRANES ---
+            const zones = [
+                { r: 0.35, col: 'rgba(255, 170, 0, 0.08)', lbl: '[ CORE_PHYS ]' },
+                { r: 0.70, col: 'rgba(255, 120, 0, 0.04)', lbl: '[ HUMAN_PULSE ]' },
+                { r: 1.0, col: 'rgba(255, 80, 0, 0.03)', lbl: '[ ECON_VORTEX ]' }
             ];
-            telemetry.forEach((txt, i) => cpCtx.fillText(`> ${txt}`, cx - radius - 50, cy - radius + 40 + i * 14));
 
-            // THREAT METER BAR
-            cpCtx.strokeStyle = 'rgba(255,255,255,0.1)';
-            cpCtx.strokeRect(cx - radius - 50, cy - radius + 110, 100, 4);
-            cpCtx.fillStyle = status.color;
-            cpCtx.fillRect(cx - radius - 50, cy - radius + 110, status.level * 20, 4);
+            zones.slice().reverse().forEach(z => {
+                const zR = radius * z.r;
+                cpCtx.fillStyle = z.col;
+                drawHex(cx, cy, zR); cpCtx.fill();
+                cpCtx.strokeStyle = 'rgba(255, 170, 0, 0.15)';
+                cpCtx.setLineDash([2, 8]);
+                drawHex(cx, cy, zR); cpCtx.stroke();
+                cpCtx.setLineDash([]);
+                cpCtx.fillStyle = 'rgba(255, 150, 0, 0.4)';
+                cpCtx.font = 'bold 8px Courier New';
+                cpCtx.textAlign = 'center';
+                cpCtx.fillText(z.lbl, cx, cy - zR + 12);
+            });
 
-            // --- DATA POINTS ---
+            let resLevel = (S.kp / 9 + S.conflict / 100 + Math.abs(S.btc) / 10) / 3;
+            let status = { label: "STEADY_FIX", color: "#ff8800" };
+            if (resLevel > 0.5) status = { label: "DRIFT_SCENARIO", color: "#ffaa00" };
+            if (resLevel > 0.8) status = { label: "HORIZON_RESONANCE", color: "#ff3300" };
+
             const points = configs.map((c, i) => {
-                const angle = (i * Math.PI * 2 / 8);
+                const angle = (i * Math.PI * 2 / 8) + t * 0.05;
                 const val = S[c.k] || 0;
                 const n = Math.min(1, Math.abs(val) / c.m);
-                const r = (n * radius * 0.7) + (radius * 0.3);
-                return {
-                    x: cx + Math.cos(angle) * r,
-                    y: cy + Math.sin(angle) * r,
-                    color: c.c,
-                    norm: n,
-                    label: c.k.toUpperCase(),
-                    val: val
-                };
+
+                let baseR = 0, range = 0;
+                if (c.z === 'CORE') { baseR = 0; range = radius * 0.35; }
+                else if (c.z === 'HUMAN') { baseR = radius * 0.35; range = radius * 0.35; }
+                else { baseR = radius * 0.70; range = radius * 0.30; }
+
+                const r = baseR + (n * range);
+                return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r, color: c.c, norm: n, label: c.k.toUpperCase() };
             });
 
-            // Energy Web
+            // Geometric Linkages
             cpCtx.beginPath();
-            cpCtx.setLineDash([2, 4]);
-            cpCtx.lineWidth = 1;
-            cpCtx.strokeStyle = status.level > 3 ? status.color : `rgba(0, 255, 255, ${0.15 + chaos * 0.4})`;
-            points.forEach((p, i) => {
-                i === 0 ? cpCtx.moveTo(p.x, p.y) : cpCtx.lineTo(p.x, p.y);
-            });
-            cpCtx.closePath();
-            cpCtx.stroke();
-            cpCtx.setLineDash([]);
+            cpCtx.strokeStyle = `rgba(255, 170, 0, ${0.1 + resLevel * 0.4})`;
+            points.forEach((p, i) => { i === 0 ? cpCtx.moveTo(p.x, p.y) : cpCtx.lineTo(p.x, p.y); });
+            cpCtx.closePath(); cpCtx.stroke();
 
-            // DATA NODES
+            // Diamond Nodes
             points.forEach((p, i) => {
-                const s = 4 + (p.norm * 2);
-                cpCtx.strokeStyle = p.color;
-                cpCtx.lineWidth = 2;
-                cpCtx.beginPath();
-                cpCtx.moveTo(p.x - s, p.y);
-                cpCtx.lineTo(p.x + s, p.y);
-                cpCtx.moveTo(p.x, p.y - s);
-                cpCtx.lineTo(p.x, p.y + s);
-                cpCtx.stroke();
+                cpCtx.save();
+                cpCtx.translate(p.x, p.y);
+                cpCtx.rotate(Math.PI / 4);
+                cpCtx.fillStyle = p.color;
+                cpCtx.shadowBlur = 10; cpCtx.shadowColor = p.color;
+                const size = 3 + p.norm * 4;
+                cpCtx.fillRect(-size / 2, -size / 2, size, size);
+                cpCtx.restore();
 
-                cpCtx.fillStyle = '#fff';
-                cpCtx.font = 'bold 7px Space Mono';
+                cpCtx.fillStyle = '#ffaa00'; cpCtx.font = '7px Courier New';
                 cpCtx.textAlign = 'left';
-                cpCtx.fillText(`[${p.label}]`, p.x + 8, p.y - 12);
-                cpCtx.fillText(`${Math.round(p.norm * 100)}%`, p.x + 8, p.y - 4);
-
-                if (p.norm > 0.8 || status.level >= 4) {
-                    cpCtx.strokeStyle = '#f22';
-                    const b = 15;
-                    cpCtx.strokeRect(p.x - b / 2, p.y - b / 2, b, b);
-                }
+                cpCtx.fillText(`» ${p.label}`, p.x + 10, p.y - 2);
             });
 
-            // --- ALERT OVERLAY ---
-            if (status.level >= 4) {
-                cpCtx.fillStyle = '#f22';
-                cpCtx.font = 'bold 12px Space Mono';
-                cpCtx.textAlign = 'center';
-                cpCtx.fillText('!! УВАГА: КРИТИЧНЕ ЗБУДЖЕННЯ !!', cx, cy + radius + 40);
+            // Overdrive FX
+            if (resLevel > 0.7) {
+                drawHex(cx, cy, radius + 15 + Math.sin(t * 15) * 5);
+                cpCtx.strokeStyle = status.color;
+                cpCtx.lineWidth = 1;
+                cpCtx.stroke();
             }
 
-            // HEADER INFO
-            cpCtx.fillStyle = status.color;
-            cpCtx.font = 'bold 11px Space Mono';
             cpCtx.textAlign = 'center';
-            cpCtx.fillText(`${status.label} // ${status.desc}`, cx, cy - radius - 60);
-        }
+            cpCtx.fillStyle = status.color;
+            cpCtx.font = 'bold 10px Courier New';
+            cpCtx.fillText(`[ STATUS: ${status.label} ]`, cx, cy + radius + 35);
 
-        // ОПТИМІЗОВАНИЙ LOOP - фон малюється раз, графіки рідше
-        let frameCount = 0;
-        let bgDrawn = false;
+            // Shocker (Energy Burst)
+            if (shockwave > 0) {
+                cpCtx.beginPath();
+                cpCtx.arc(cx, cy, radius * shockwave, 0, 6.28);
+                cpCtx.strokeStyle = `rgba(255,255,255,${1 - shockwave})`;
+                cpCtx.lineWidth = 2;
+                cpCtx.stroke();
+                shockwave += 0.04;
+                if (shockwave > 1.5) shockwave = 0;
+            }
+
+            // High Resonance Overdrive Visuals
+            if (resLevel > 0.7) {
+                for (let i = 0; i < 3; i++) {
+                    const ang = t * 10 + i;
+                    cpCtx.beginPath();
+                    cpCtx.arc(cx, cy, radius + 20 + Math.sin(t * 20) * 10, ang, ang + 0.5);
+                    cpCtx.strokeStyle = status.color;
+                    cpCtx.lineWidth = 4;
+                    cpCtx.stroke();
+                }
+            }
+        }
 
         function loop() {
             try {
                 const t = performance.now() * 0.001;
-
-                // Фон малюємо тільки один раз
-                if (!bgDrawn) {
-                    drawBackground();
-                    bgDrawn = true;
-                }
-
-                // Графіки оновлюємо кожен кадр
-                drawViz(t);
-
-                // Компас оновлюємо кожні 2 кадри
-                if (frameCount % 2 === 0) {
-                    drawCompass(t);
-                }
-
-                // Годинник оновлюємо кожні 30 кадрів (~0.5 сек)
-                if (frameCount % 30 === 0) {
-                    const now = new Date();
-                    document.getElementById('clock-overlay').innerHTML = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}<br>ТЕРМІНАЛ АКТИВНИЙ: +${Math.floor((Date.now() - startTime) / 1000)}с`;
-                }
-
-                frameCount++;
+                drawBackground(t); drawViz(t); drawCompass(t);
+                drawUIExtras(t);
+                const now = new Date();
+                document.getElementById('clock-overlay').innerHTML = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}<br>ТЕРМІНАЛ АКТИВНИЙ: +${Math.floor((Date.now() - startTime) / 1000)}с`;
             } catch (e) { }
             requestAnimationFrame(loop);
         }
 
-        fetchAll();
-        setInterval(fetchAll, 5000);
-        setInterval(() => {
-            document.getElementById('sun-img').src = `https://sdowww.lmsal.com/sdomedia/SunInTime/mostrecent/l${curSpec}.jpg?t=` + Date.now();
-        }, 600000);
+        fetchAll(); setInterval(fetchAll, 5000);
+        setInterval(updateSunImg, 600000);
         loop();
     </script>
 </body>
 
 </html>
-```
