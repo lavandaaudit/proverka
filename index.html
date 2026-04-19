@@ -3,983 +3,453 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>GEOMETRIC CHAOS x PLANET CHAOS · ARCHIVE 2026</title>
+    <title>DAY SPACE · COSMIC PHOTO DOSSIER</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <style>
         /* ------------------------------------------------------------------
-           CORE STYLES (MERGED)
+           AESTHETIC: DEEP VOID & COSMIC PRECISION
            ------------------------------------------------------------------ */
-        html,
+        :root {
+            --bg-deep: #020205;
+            --accent-pri: #80f;
+            --accent-sec: #0ff;
+            --white: #eef;
+            --glass-panel: rgba(5, 5, 15, 0.9);
+            --border-subtle: rgba(100, 100, 255, 0.15);
+            --font-poster: 'Bebas Neue', cursive;
+            --font-mono: 'Space Mono', monospace;
+            --font-ui: 'Inter', sans-serif;
+            --pad-outer: 40px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            height: 100%;
-            font-family: 'Courier New', monospace;
-            color: #0af;
+            background: var(--bg-deep);
+            color: var(--white);
+            font-family: var(--font-mono);
+            overflow: hidden;
+            height: 100vh;
+            font-size: 10px;
+        }
+
+        canvas#bg-dust { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.3; }
+
+        .app-container {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: 380px 1fr 300px;
+            grid-template-rows: auto 1fr;
+            gap: 20px;
+            height: 100vh;
+            padding: var(--pad-outer);
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-pri);
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        .brand-box { display: flex; flex-direction: column; gap: 0px; }
+        .brand { 
+            font-family: var(--font-poster);
+            font-size: 48px; 
+            letter-spacing: 4px; 
+            color: var(--white); 
+            text-transform: uppercase; 
+            line-height: 1;
+            text-shadow: 2px 2px 0 var(--accent-pri), 4px 4px 0 rgba(128, 0, 255, 0.3);
+        }
+        .sub-brand { font-size: 10px; color: #668; letter-spacing: 5px; text-transform: uppercase; margin-top: 5px; }
+
+        /* LEFT: CHRONICLE */
+        .col-left { display: flex; flex-direction: column; gap: 15px; overflow: hidden; }
+        .timeline-container {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-pri) transparent;
+        }
+
+        .timeline-item {
+            background: var(--glass-panel);
+            border: 1px solid var(--border-subtle);
+            border-left: 5px solid var(--accent-pri);
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .timeline-item:hover {
+            border-color: var(--accent-sec);
+            background: rgba(30, 0, 60, 0.4);
+            transform: scale(1.02) translateX(8px);
+        }
+
+        .timeline-item.active { border-left-color: var(--accent-sec); box-shadow: 0 0 30px rgba(0, 255, 255, 0.1); }
+        .timeline-img { width: 100%; height: 110px; object-fit: cover; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .timeline-meta { display: flex; justify-content: space-between; font-size: 9px; color: var(--accent-sec); margin-bottom: 4px; }
+        .timeline-title { font-size: 11px; color: var(--white); font-weight: 600; line-height: 1.2; text-transform: uppercase; }
+
+        /* CENTER: PROJECTION */
+        .col-center {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, rgba(128, 0, 255, 0.1), transparent 80%);
+            border: 1px solid var(--border-subtle);
             overflow: hidden;
         }
 
-        canvas {
-            display: block;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1;
+        #main-photo-frame {
+            position: relative;
+            width: 90%;
+            height: 80%;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-in;
+            box-shadow: 0 0 100px rgba(0, 0, 0, 1);
         }
 
-        /* UI CONTAINER */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none;
+        #main-photo { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.8s ease; }
+        .photo-overlay { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4)); }
+
+        .center-hud { position: absolute; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; }
+        .photo-title { font-family: var(--font-poster); font-size: 32px; color: var(--white); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 20px var(--accent-pri); max-width: 85%; line-height: 1; }
+        .photo-loc { font-size: 11px; color: var(--accent-sec); letter-spacing: 2px; text-transform: uppercase; }
+
+        /* RIGHT: DATA */
+        .col-right { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--glass-panel); border: 1px solid var(--border-subtle); backdrop-filter: blur(15px); padding: 15px; }
+        .card-h { font-size: 10px; color: var(--accent-sec); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-left: 3px solid var(--accent-pri); padding-left: 10px; }
+
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 5px; }
+        .data-lbl { color: #668; }
+        .data-val { color: var(--white); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
+
+        .log-box { font-family: var(--font-ui); font-size: 9px; color: #88a; max-height: 300px; overflow-y: auto; line-height: 1.6; }
+        .log-entry { margin-bottom: 8px; padding-left: 10px; border-left: 1px solid var(--accent-pri); }
+        .log-time { color: var(--accent-sec); margin-right: 6px; font-weight: bold; }
+
+        /* ZOOM MODAL */
+        #zoom-modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.98); display: none; justify-content: center; align-items: center; cursor: zoom-out; backdrop-filter: blur(30px); opacity: 0; transition: opacity 0.5s ease; }
+        #zoom-modal.active { display: flex; opacity: 1; }
+        #zoom-img { max-width: 98vw; max-height: 98vh; object-fit: contain; }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; padding: 15px; overflow-y: auto; height: auto; }
+            .header { height: auto; flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 10px; }
+            .col-left { height: auto; order: 2; margin-bottom: 10px; }
+            .timeline-container { flex-direction: row; height: 160px; overflow-x: auto; overflow-y: hidden; padding-right: 0; padding-bottom: 10px; }
+            .timeline-item { min-width: 180px; height: 140px; border-left: 0; border-top: 4px solid var(--accent-pri); }
+            .timeline-img { height: 80px; }
+            .col-center { order: 1; min-height: 400px; margin-bottom: 10px; }
+            .col-right { order: 3; }
+            .photo-title { font-size: 24px; }
+            body { overflow-y: auto; }
         }
 
-        .interactive {
-            pointer-events: auto;
-        }
+        .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to bottom, transparent, rgba(128, 0, 255, 0.05), transparent); animation: scanline 6s linear infinite; pointer-events: none; }
+        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
 
-        /* HEADER & HUD */
-        #hud {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            font-size: 13px;
-            opacity: 0.8;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
-            font-weight: bold;
-        }
-
-        #hud-sub {
-            position: absolute;
-            top: 32px;
-            left: 16px;
-            font-size: 11px;
-            opacity: 0.6;
-            color: #6cf;
-        }
-
-        #status {
-            position: absolute;
-            top: 50px;
-            left: 16px;
-            font-size: 11px;
-            color: #0f0;
-            opacity: 0.7;
-        }
-
-        /* CODE 2: MONTHS NAV */
-        #months-nav {
-            position: absolute;
-            top: 80px;
-            left: 16px;
-            width: 100px;
-            font-size: 12px;
-            line-height: 1.8;
-        }
-
-        #months-nav a {
-            display: block;
-            color: #0af;
-            text-decoration: underline;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        #months-nav a:hover {
-            color: #fff;
-            text-shadow: 0 0 5px #0af;
-        }
-
-        /* CODE 2: MAIN DATA LIST */
-        #data-main {
-            position: absolute;
-            top: 80px;
-            left: 130px;
-            bottom: 20px;
-            width: 400px;
-            font-size: 11px;
-            line-height: 1.0;
-            letter-spacing: -0.5px;
-            overflow-y: auto;
-            color: #0f0;
-            display: grid;
-            grid-template-columns: auto auto;
-            align-content: start;
-            justify-content: start;
-            column-gap: 25px;
-            row-gap: 0px;
-            padding-right: 15px;
-            scrollbar-width: thin;
-            scrollbar-color: #004466 #001122;
-        }
-
-        /* HEATMAP (Square block near the top graph) */
-        #heatmap {
-            position: absolute;
-            top: 80px;
-            right: 650px;
-            /* Moved significantly left to avoid overlapping with 2nd column of graphs */
-            display: grid;
-            grid-template-columns: repeat(8, 14px);
-            gap: 2px;
-            opacity: 0.9;
-            pointer-events: none;
-        }
-
-        .heatcell {
-            width: 14px;
-            height: 14px;
-            background: #0f0;
-            border: 1px solid #333;
-        }
-
-        /* FOOTER */
-        #clock {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            font-size: 11px;
-            opacity: 0.5;
-            color: #6cf;
-            text-align: right;
-            line-height: 1.3;
-        }
-
-        /* DATA STYLING */
-        .category {
-            margin: 8px 0 4px 0;
-            font-size: 12px;
-            color: #0af;
-            font-weight: bold;
-            grid-column: span 2;
-            border-bottom: 2px solid #004466;
-            padding-bottom: 2px;
-            text-transform: uppercase;
-        }
-
-        .row {
-            white-space: pre;
-            opacity: 0.9;
-            margin-bottom: 1px;
-        }
-
-        .label {
-            color: #6cf;
-        }
-
-        .val {
-            font-weight: bold;
-        }
-
-        .val-safe {
-            color: #0f0;
-        }
-
-        .val-watch {
-            color: #ffd700;
-        }
-
-        .val-warn {
-            color: #ff8c00;
-        }
-
-        .val-danger {
-            color: #f00;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #001122;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #004466;
-        }
-
-        @media (max-width: 800px) {
-            #ui-layer {
-                display: flex;
-                flex-direction: column;
-                pointer-events: auto;
-                overflow-y: auto;
-                padding: 16px;
-                box-sizing: border-box;
-                background: rgba(0, 0, 0, 0.4);
-            }
-
-            #hud,
-            #hud-sub,
-            #status,
-            #heatmap,
-            #months-nav,
-            #data-main,
-            #clock {
-                position: relative !important;
-                top: auto !important;
-                left: auto !important;
-                right: auto !important;
-                bottom: auto !important;
-                width: 100% !important;
-                margin-bottom: 24px !important;
-                opacity: 1 !important;
-            }
-
-            #hud {
-                font-size: 16px;
-            }
-
-            #hud-sub {
-                font-size: 11px;
-                margin-top: -16px;
-                margin-bottom: 12px !important;
-            }
-
-            #status {
-                font-size: 11px;
-                margin-bottom: 16px !important;
-            }
-
-            #heatmap {
-                grid-template-columns: repeat(auto-fill, 14px);
-                gap: 3px;
-            }
-
-            #months-nav {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 12px;
-                width: 100% !important;
-            }
-
-            #months-nav a {
-                display: inline-block;
-            }
-
-            #data-main {
-                display: grid;
-                grid-template-columns: 1fr;
-                height: auto !important;
-                overflow-y: visible !important;
-                padding-right: 0;
-            }
-
-            #clock {
-                text-align: left;
-                margin-top: 20px;
-                border-top: 1px solid rgba(102, 204, 255, 0.2);
-                padding-top: 10px;
-            }
-        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-pri); }
     </style>
 </head>
 
 <body>
+    <canvas id="bg-dust"></canvas>
+    
+    <div id="zoom-modal" onclick="closeZoom()">
+        <img id="zoom-img" src="" alt="Cosmic View">
+    </div>
 
-    <canvas id="c"></canvas>
-
-    <div id="ui-layer">
-        <div id="hud">ARCHIVE 2026.Ibonarium Cosmo Dynamics Lab LIVE — Center for Space & Planetary Monitoring.</div>
-        <div id="hud-sub">lavanda audit · ibonarium · project 2026</div>
-        <div id="status">ініціалізація...</div>
-
-        <!-- HEATMAP AT TOP -->
-        <div id="heatmap"></div>
-
-        <div id="months-nav" class="interactive">
-            <a href="https://lavandaaudit.github.io/radio_underground.signal-off-grid/#" target="_blank">UNDERGROUND</a>
-            <a href="https://lavandaaudit.github.io/february2026/" target="_blank">TERRARIUM</a>
-            <a href="https://lavandaaudit.github.io/lis.8/" target="_blank">Encyclopedia</a>
-            <a href="https://lavandaaudit.github.io/zeek/" target="_blank">Lab.IV</a>
-            <a href="https://lavandaaudit.github.io/lis.10/" target="_blank">Lab.V</a>
-            <a href="https://lavandaaudit.github.io/lis12/" target="_blank">Lab.VI</a>
-            <a href="https://lavandaaudit.github.io/lis.9/" target="_blank">Lab.VII</a>
-            <a href="https://lavandaaudit.github.io/tymannost/" target="_blank">Lab.VIII</a>
-            <a href="https://lavandaaudit.github.io/radio_underground.signal-off-grid/#" target="_blank">Lab.IX</a>
-            <a href="https://lavandaaudit.github.io/radio_underground.signal-off-grid/#" target="_blank">Lab.X</a>
-            <a href="https://lavandaaudit.github.io/radio_underground.signal-off-grid/#" target="_blank">Lab.IV</a>
-            <a href="https://lavandaaudit.github.io/radio_underground.signal-off-grid/#" target="_blank">Lab.XII</a>
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="brand-box">
+                <div class="brand">DAY SPACE</div>
+                <div class="sub-brand">NASA Space Archive · ГЛИБОКИЙ КОСМОС</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:32px; font-weight:300; color:#fff; font-family:var(--font-poster);" id="clock-utc">00:00:00</div>
+                <div style="font-size:9px; color:var(--accent-sec); letter-spacing:2px; font-weight:bold;">UTC / CHRONOS READY</div>
+            </div>
         </div>
 
-        <div id="data-main" class="interactive"></div>
-        <div id="clock">—</div>
+        <!-- LEFT: CHRONICLE -->
+        <div class="col-left">
+            <div class="card-h">📡 КОСМІЧНА ХРОНІКА</div>
+            <div class="timeline-container" id="timeline">
+                <div style="color:#556; font-size:10px; padding:20px;">СИНХРОНІЗАЦІЯ З АРХІВАМИ NASA...</div>
+            </div>
+        </div>
+
+        <!-- CENTER: MAIN -->
+        <div class="col-center">
+            <div id="main-photo-frame" onclick="openZoom()">
+                <img id="main-photo" src="" alt="Cosmic Moment">
+                <div class="photo-overlay"></div>
+                <div class="scanline"></div>
+            </div>
+
+            <div class="center-hud">
+                <div>
+                    <div class="photo-title" id="p-title">ІНІЦІАЛІЗАЦІЯ...</div>
+                    <div class="photo-loc" id="p-loc">ОЧІКУВАННЯ ДАНИХ</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:8px; color:#556; margin-bottom:5px;">ID ОБ'ЄКТА</div>
+                    <div style="font-size:16px; font-weight:bold; color:var(--accent-sec);" id="p-id">#000000</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: DATA -->
+        <div class="col-right">
+            <div class="card">
+                <div class="card-h">🔍 МЕТАДАНІ ОБ'ЄКТА</div>
+                <div id="meta-container">
+                    <div class="data-row"><span class="data-lbl">Джерело</span><span class="data-val">NASA_SPACE_NODE</span></div>
+                    <div class="data-row"><span class="data-lbl">Дата зйомки</span><span class="data-val" id="m-time">---</span></div>
+                    <div class="data-row"><span class="data-lbl">Локація / Центр</span><span class="data-val" id="m-center">---</span></div>
+                    <div class="data-row"><span class="data-lbl">ID Ресурсу</span><span class="data-val" id="m-hash">---</span></div>
+                    <div class="data-row" style="flex-direction:column; border:0; gap:5px;">
+                        <span class="data-lbl">Опис об'єкта / Переклад</span>
+                        <div id="m-desc" style="font-size:9px; color:#aaa; line-height:1.5; max-height:120px; overflow-y:auto; padding-right:5px;">Завантаження...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                <div class="card-h">📡 ЖУРНАЛ СИСТЕМИ</div>
+                <div class="log-box" id="sys-log"></div>
+                <div style="margin-top:auto; padding-top:15px; border-top:1px solid #112; font-size:9px; color:var(--white); line-height:1.4;">
+                    <b style="color:var(--accent-sec);">NASA SPACE SYNC [ACTIVE]</b><br>
+                    Фокус: Галактики, Туманності та Зірки.<br><br>
+                    <span style="color:var(--accent-pri);">Автоматичний переклад активовано.</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('c');
-        const ctx = canvas.getContext('2d');
-        const dataDiv = document.getElementById('data-main');
-        const statusDiv = document.getElementById('status');
-        const clockDiv = document.getElementById('clock');
-        const heatmapDiv = document.getElementById('heatmap');
+        // ============================================================================
+        // STATE & CACHE
+        // ============================================================================
+        const STATE = { photos: [], currentIndex: -1 };
+        const TRANSLATIONS = new Map();
 
-        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
+        const elTimeline = document.getElementById('timeline');
+        const elLog = document.getElementById('sys-log');
+        const elMainPhoto = document.getElementById('main-photo');
+        const elClock = document.getElementById('clock-utc');
+        const elDesc = document.getElementById('m-desc');
+        const elTitle = document.getElementById('p-title');
 
-        const startTime = Date.now();
-        function formatRelativeTime(ms) {
-            const s = Math.floor(ms / 1000);
-            if (s < 60) return `+${s}s`;
-            const m = Math.floor(s / 60); const sec = s % 60;
-            if (m < 60) return `+${m}m ${sec}s`;
-            const h = Math.floor(m / 60); const min = m % 60;
-            return `+${h}h ${min}m`;
+        // ============================================================================
+        // TRANSLATION ENGINE
+        // ============================================================================
+        async function translateText(text) {
+            if (!text || text.length < 3) return text;
+            if (TRANSLATIONS.has(text)) return TRANSLATIONS.get(text);
+
+            try {
+                // MyMemory Free API - 1000 words limit, usually okay for single user refresh
+                // We truncate to avoid hitting very long description limits on some API nodes
+                const truncated = text.length > 500 ? text.substring(0, 500) + '...' : text;
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(truncated)}&langpair=en|uk`;
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data && data.responseData && data.responseData.translatedText) {
+                    const result = data.responseData.translatedText;
+                    TRANSLATIONS.set(text, result);
+                    return result;
+                }
+                return text;
+            } catch (e) {
+                console.warn("Translation failed", e);
+                return text;
+            }
         }
-        function updateClock() {
+
+        // ============================================================================
+        // INIT
+        // ============================================================================
+        async function init() {
+            log("ЯДРО DAY SPACE ЗАПУЩЕНО");
+            log("ЛОКАЛІЗАЦІЯ ДАНИХ: УКРАЇНСЬКА");
+            
+            setInterval(tickClock, 1000); tickClock();
+            initDust();
+
+            try {
+                await fetchNASAData();
+                renderTimeline();
+                if(STATE.photos.length > 0) selectPhoto(0);
+            } catch(e) {
+                console.error(e);
+                log("⚠ ПОМИЛКА СИНХРОНІЗАЦІЇ.");
+            }
+        }
+
+        function tickClock() {
             const now = new Date();
-            clockDiv.innerHTML = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}<br>${formatRelativeTime(Date.now() - startTime)}`;
+            elClock.innerText = now.toLocaleTimeString('uk-UA', { timeZone: 'UTC', hour12: false });
         }
-        setInterval(updateClock, 1000); updateClock();
 
-        const proxy = 'https://corsproxy.io/?';
+        // ============================================================================
+        // DATA
+        // ============================================================================
+        async function fetchNASAData() {
+            const queries = ['galaxy', 'nebula', 'deep space', 'star cluster'];
+            const q = queries[Math.floor(Math.random()*queries.length)];
+            
+            const res = await fetch(`https://images-api.nasa.gov/search?q=${q}&media_type=image`);
+            const data = await res.json();
+            const items = data.collection.items;
 
-        // DATA STATE
-        let realData = { seismic: 0.5, magnetic: 0.5, atmosphere_wind: 0.5, atmosphere_pressure: 0.5, atmosphere_temp: 0.5, ocean: 0.5, solar_radiation: 0.5, solar_wind: 0.5, precipitation: 0.5, chaos: 0.5 };
-        let solarIndices = { f107: 120, kp: 2.0, ap: 12, dst: -15, ssn: 85, xray: -6.5, proton: 0.3, electron: 150, bz: -2.5, density: 5.2 };
-        let earthEnvData = { air_quality_pm25: 15, air_quality_aqi: 45, co: 0.4, no2: 25, o3: 40, so2: 10, uv_index: 3.5, humidity: 65, cloud_cover: 45, visibility: 12 };
+            log(`DANІ NASA ОТРИМАНО. КОЛЕКЦІЯ: ${q.toUpperCase()}`);
 
-        // HISTORY FOR DYNAMIC GRAPHS
-        const HISTORY_LIMIT = 50;
-        let dataHistory = {}; Object.keys(realData).forEach(k => dataHistory[k] = []);
-        let kpHistory = [];
-        let btcHistory = [];
-        let aqiHistory = [];
-        let solarWindHistory = [];
-        let oilHistory = [];
-        let windHistory = [];
-
-        let heatmapValues = [];
-
-        const stars = [];
-        for (let i = 0; i < 300; i++) stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.2 + 0.4, baseAlpha: Math.random() * 0.4 + 0.25, twinkle: Math.random() * 0.015 + 0.006 });
-
-        const blobs = [
-            { param: 'seismic', color: 'rgba(220,60,80,', phase: 0 },
-            { param: 'magnetic', color: 'rgba(60,180,255,', phase: 1.2 },
-            { param: 'atmosphere_wind', color: 'rgba(80,255,160,', phase: 2.4 },
-            { param: 'atmosphere_temp', color: 'rgba(255,180,60,', phase: 3.6 },
-            { param: 'solar_radiation', color: 'rgba(255,240,100,', phase: 4.8 },
-            { param: 'solar_wind', color: 'rgba(200,120,255,', phase: 6.0 },
-            { param: 'precipitation', color: 'rgba(100,220,255,', phase: 7.2 }
-        ];
-        blobs.forEach(b => {
-            b.targetSize = 6; b.targetAlpha = 0.7; b.angle = Math.random() * 6.28; b.radius = 60 + Math.random() * 50;
-            b.currentSize = b.targetSize; b.currentAlpha = b.targetAlpha; b.currentDist = b.radius;
-        });
-
-        const formulas = ["E=mc^2", "F=ma", "∇·E=ρ/ε₀", "∫F·dr=ΔK", "a^2+b^2=c^2", "iħ∂ψ/∂t=Hψ", "V=IR"];
-        const formulaObjs = formulas.map(f => ({ text: f, x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, alpha: 0, phase: Math.random() * 6.28 }));
-
-        function lerp(a, b, t) { return a + (b - a) * t; }
-
-        function getColorClass(value, thresholds) {
-            if (value === '--' || value === null) return 'val-safe';
-            if (!thresholds) return 'val-safe';
-            let v = parseFloat(value);
-            if (isNaN(v)) return 'val-safe';
-            if (thresholds.danger !== undefined && v >= thresholds.danger) return 'val-danger';
-            if (thresholds.warn !== undefined && v >= thresholds.warn) return 'val-warn';
-            if (thresholds.watch !== undefined && v >= thresholds.watch) return 'val-watch';
-            return 'val-safe';
-        }
-        function getColor(value, thresholds) {
-            const cls = getColorClass(value, thresholds);
-            switch (cls) {
-                case 'val-safe': return '#0f0';
-                case 'val-watch': return '#ffd700';
-                case 'val-warn': return '#ff8c00';
-                case 'val-danger': return '#f00';
-                default: return '#0f0';
-            }
-        }
-        function updateHeatmap() {
-            heatmapDiv.innerHTML = '';
-            heatmapValues.forEach(val => {
-                const cell = document.createElement('div');
-                cell.className = 'heatcell';
-                cell.style.background = val.color;
-                heatmapDiv.appendChild(cell);
+            STATE.photos = items.slice(0, 30).map((item, index) => {
+                const d = item.data[0];
+                return {
+                    id: d.nasa_id || 'ID-' + index,
+                    title: d.title,
+                    loc: d.location || d.center || 'ГЛИБОКИЙ КОСМОС',
+                    captured: d.date_created ? new Date(d.date_created).toLocaleDateString() : '---',
+                    src: item.links[0].href,
+                    desc: d.description || 'Опис відсутній.',
+                    meta: { center: d.center || 'NASA ARC', id: d.nasa_id }
+                };
             });
         }
-        async function fetchSmart(url) {
-            try { let r = await fetch(url); if (r.ok) return await r.json(); } catch (e) { }
-            try { let r = await fetch(proxy + encodeURIComponent(url)); if (r.ok) return await r.json(); } catch (e) { }
-            return null;
+
+        // ============================================================================
+        // UI
+        // ============================================================================
+        function renderTimeline() {
+            elTimeline.innerHTML = '';
+            STATE.photos.forEach((p, index) => {
+                const div = document.createElement('div');
+                div.className = `timeline-item ${index === STATE.currentIndex ? 'active' : ''}`;
+                div.onclick = () => selectPhoto(index);
+                div.innerHTML = `
+                    <div style="overflow:hidden;"><img class="timeline-img" src="${p.src}" alt="Cosmos" loading="lazy"></div>
+                    <div class="timeline-meta">
+                        <span>#${p.id.substr(0,12)}</span>
+                    </div>
+                    <div class="timeline-title">${p.title.toUpperCase()}</div>
+                `;
+                elTimeline.appendChild(div);
+            });
         }
-        async function fetchWithProxy(url) {
-            try { let r = await fetch(proxy + encodeURIComponent(url)); if (r.ok) return await r.json(); } catch (e) { }
-            return null;
+
+        async function selectPhoto(index) {
+            if (index === STATE.currentIndex) return;
+            STATE.currentIndex = index;
+            const p = STATE.photos[index];
+            
+            document.querySelectorAll('.timeline-item').forEach((el, i) => {
+                el.classList.toggle('active', i === index);
+            });
+
+            // Transition
+            elMainPhoto.style.opacity = '0';
+            elDesc.style.opacity = '0.5';
+            elDesc.innerText = "ПЕРЕКЛАД...";
+            elTitle.innerText = "СИНХРОНІЗАЦІЯ...";
+
+            setTimeout(async () => {
+                elMainPhoto.src = p.src;
+                elMainPhoto.onload = () => elMainPhoto.style.opacity = '1';
+                
+                document.getElementById('p-loc').innerText = p.loc;
+                document.getElementById('p-id').innerText = '#' + p.id;
+                document.getElementById('m-time').innerText = p.captured;
+                document.getElementById('m-center').innerText = p.meta.center;
+                document.getElementById('m-hash').innerText = p.meta.id;
+
+                // Neural Translation
+                const [translatedTitle, translatedDesc] = await Promise.all([
+                    translateText(p.title),
+                    translateText(p.desc)
+                ]);
+
+                elTitle.innerText = translatedTitle.toUpperCase();
+                elDesc.innerText = translatedDesc;
+                elDesc.style.opacity = '1';
+
+                log(`ОБ'ЄКТ #${p.id} ЛОКАЛІЗОВАНО`);
+            }, 300);
         }
 
-        function updateHistory(arr, val) {
-            arr.push(val);
-            if (arr.length > HISTORY_LIMIT) arr.shift();
+        function openZoom() {
+            const modal = document.getElementById('zoom-modal');
+            document.getElementById('zoom-img').src = elMainPhoto.src;
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('active'), 10);
         }
 
-        async function fetchAllData() {
-            statusDiv.innerHTML = 'оновлення джерел...';
-            let html = '';
-            let loaded = 0;
-            heatmapValues = [];
+        function closeZoom() {
+            const modal = document.getElementById('zoom-modal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 500);
+        }
 
-            // --- 1. WEATHER ---
-            html += '<div class="category">ПОГОДА (KYIV)</div>';
-            const weather = await fetchSmart('https://api.open-meteo.com/v1/forecast?latitude=50.45&longitude=30.52&current=temperature_2m,relative_humidity_2m,pressure_msl,wind_speed_10m,wind_direction_10m,precipitation,weather_code,is_day,shortwave_radiation,visibility');
-            if (weather?.current) {
-                const w = weather.current;
-                realData.atmosphere_temp = Math.min(1, Math.max(0, (w.temperature_2m + 40) / 80));
-                realData.atmosphere_wind = Math.min(1, (w.wind_speed_10m || 0) / 80);
-                realData.atmosphere_pressure = Math.min(1, Math.max(0, ((w.pressure_msl || 1013) - 950) / 150));
-                realData.precipitation = Math.min(1, (w.precipitation || 0) / 15);
-                realData.solar_radiation = Math.min(1, (w.shortwave_radiation || 0) / 1200);
-                earthEnvData.humidity = w.relative_humidity_2m || 65;
-                earthEnvData.cloud_cover = 45;
-                earthEnvData.visibility = (w.visibility || 12000) / 1000;
+        function log(msg) {
+            const t = new Date().toLocaleTimeString('uk-UA', { hour12: false });
+            const d = document.createElement('div');
+            d.className = 'log-entry';
+            d.innerHTML = `<span class="log-time">[${t}]</span> ${msg}`;
+            elLog.prepend(d);
+            if (elLog.children.length > 20) elLog.lastChild.remove();
+        }
 
-                const wMetrics = [
-                    { label: 'Temperature', value: w.temperature_2m, thresholds: { watch: 30, warn: 35, danger: 40 }, unit: ' °C' },
-                    { label: 'Humidity', value: w.relative_humidity_2m, thresholds: { watch: 80, warn: 90, danger: 95 }, unit: ' %' },
-                    { label: 'Pressure', value: w.pressure_msl, thresholds: { watch: 1020, warn: 1030, danger: 1040 }, unit: ' hPa' },
-                    { label: 'Wind Speed', value: w.wind_speed_10m, thresholds: { watch: 15, warn: 20, danger: 25 }, unit: ' km/h' },
-                    { label: 'Precipitation', value: w.precipitation, thresholds: { watch: 1, warn: 5, danger: 10 }, unit: ' mm' },
-                ];
-                updateHistory(windHistory, w.wind_speed_10m || 0);
-                wMetrics.forEach(m => {
-                    html += `<div class="row"><span class="label">${m.label} </span><span class="val ${getColorClass(m.value, m.thresholds)}">${m.value}${m.unit}</span></div>`;
-                    heatmapValues.push({ value: m.value, color: getColor(m.value, m.thresholds) });
+        function initDust() {
+            const canvas = document.getElementById('bg-dust');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w, h, particles = [];
+            const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+            window.onresize = resize; resize();
+            for(let i=0; i<100; i++) particles.push({ x: Math.random()*w, y: Math.random()*h, s: Math.random()*2, v: Math.random()*0.3, o: Math.random() });
+            const draw = () => {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => {
+                    ctx.fillStyle = `rgba(255,255,255,${p.o})`;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+                    p.y -= p.v; if(p.y < 0) p.y = h;
                 });
-                loaded += wMetrics.length;
-            }
-
-            // --- 2. AIR ---
-            html += '<div class="category">ПОВІТРЯ (ENV)</div>';
-            const air = await fetchSmart('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=50.45&longitude=30.52&current=pm10,pm2_5,carbon_monoxide,ozone,european_aqi,nitrogen_dioxide,sulphur_dioxide,aerosol_optical_depth,dust,uv_index,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen');
-            if (air?.current) {
-                const a = air.current;
-                earthEnvData.air_quality_pm25 = a.pm2_5 || 15;
-                earthEnvData.co = a.carbon_monoxide ? a.carbon_monoxide / 1000 : 0.4;
-                earthEnvData.no2 = a.nitrogen_dioxide || 25;
-                earthEnvData.o3 = a.ozone || 40;
-                earthEnvData.so2 = a.sulphur_dioxide || 10;
-                earthEnvData.air_quality_aqi = a.european_aqi || 50;
-                earthEnvData.uv_index = a.uv_index || 3;
-
-                updateHistory(aqiHistory, a.european_aqi || 0);
-
-                const airMetrics = [
-                    { label: 'European AQI', value: a.european_aqi, thresholds: { watch: 51, warn: 101, danger: 151 } },
-                    { label: 'PM10', value: a.pm10, thresholds: { watch: 46, warn: 121, danger: 196 }, unit: ' µg/m³' },
-                    { label: 'PM2.5', value: a.pm2_5, thresholds: { watch: 16, warn: 51, danger: 91 }, unit: ' µg/m³' },
-                    { label: 'CO', value: a.carbon_monoxide ? (a.carbon_monoxide / 1000).toFixed(2) : null, thresholds: { watch: 5, warn: 10, danger: 20 }, unit: ' mg/m³' },
-                    { label: 'O₃', value: a.ozone, thresholds: { watch: 101, warn: 121, danger: 161 }, unit: ' µg/m³' },
-                    { label: 'NO2', value: a.nitrogen_dioxide, thresholds: { watch: 40, warn: 90, danger: 120 }, unit: ' µg/m³' },
-                    { label: 'SO2', value: a.sulphur_dioxide, thresholds: { watch: 20, warn: 80, danger: 100 }, unit: ' µg/m³' },
-                    { label: 'UV Index', value: a.uv_index, thresholds: { watch: 3, warn: 6, danger: 8 }, unit: '' },
-                    { label: 'Pollen(Birch)', value: a.birch_pollen, thresholds: { watch: 10, warn: 50, danger: 100 }, unit: ' gr/m³' },
-                    { label: 'Pollen(Grass)', value: a.grass_pollen, thresholds: { watch: 10, warn: 50, danger: 100 }, unit: ' gr/m³' },
-                    { label: 'Pollen(Ambrosia)', value: a.ragweed_pollen, thresholds: { watch: 10, warn: 50, danger: 100 }, unit: ' gr/m³' }
-                ];
-                airMetrics.forEach(m => {
-                    html += `<div class="row"><span class="label">${m.label} </span><span class="val ${getColorClass(m.value, m.thresholds)}">${m.value ?? '--'}${m.unit ?? ''}</span></div>`;
-                    heatmapValues.push({ value: m.value, color: getColor(m.value, m.thresholds) });
-                });
-                loaded += airMetrics.length;
-            }
-
-            // --- 3. COSMOS ---
-            html += '<div class="category">КОСМОС (SOLAR)</div>';
-            const plasma = await fetchWithProxy('https://services.swpc.noaa.gov/products/solar-wind/plasma-7-day.json');
-            if (plasma?.length > 1) {
-                let speedIdx = 2, denIdx = 1, tempIdx = 3;
-                if (plasma[0].includes('speed')) speedIdx = plasma[0].indexOf('speed');
-                if (plasma[0].includes('density')) denIdx = plasma[0].indexOf('density');
-                if (plasma[0].includes('temperature')) tempIdx = plasma[0].indexOf('temperature');
-
-                let lastValid = plasma.slice().reverse().find(r => !isNaN(parseFloat(r[speedIdx])) && parseFloat(r[speedIdx]) > 0);
-                if (lastValid) {
-                    const speed = parseFloat(lastValid[speedIdx]);
-                    const den = parseFloat(lastValid[denIdx]);
-                    const temp = parseFloat(lastValid[tempIdx]);
-                    realData.solar_wind = Math.min(1, Math.max(0, (speed - 250) / 750));
-                    solarIndices.density = den;
-                    solarIndices.bz = -2.5;
-                    updateHistory(solarWindHistory, speed);
-
-                    const plasmaMetrics = [
-                        { label: 'Solar Wind Speed', value: speed, thresholds: { watch: 500, warn: 700, danger: 900 }, unit: ' km/s' },
-                        { label: 'Solar Wind Density', value: den, thresholds: { watch: 15, warn: 30, danger: 50 }, unit: ' /cm³' },
-                        { label: 'Solar Wind Temp', value: temp / 1000, thresholds: { watch: 100, warn: 300, danger: 500 }, unit: ' kK' },
-                        { label: 'Mag Field Bt', value: 5.0, thresholds: { watch: 5, warn: 10, danger: 20 }, unit: ' nT' },
-                    ];
-                    plasmaMetrics.forEach(m => {
-                        html += `<div class="row"><span class="label">${m.label} </span><span class="val ${getColorClass(m.value, m.thresholds)}">${m.value.toFixed(1)}${m.unit}</span></div>`;
-                        heatmapValues.push({ value: m.value, color: getColor(m.value, m.thresholds) });
-                    });
-                    loaded += plasmaMetrics.length;
-                }
-            }
-
-            const kpData = await fetchWithProxy('https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json');
-            if (kpData && kpData.length > 0) {
-                const lastKp = parseFloat(kpData[kpData.length - 1].Kp) || 0;
-                solarIndices.kp = lastKp;
-                updateHistory(kpHistory, lastKp);
-
-                html += `<div class="row"><span class="label">Kp-index </span><span class="val ${getColorClass(lastKp, { watch: 5, warn: 6, danger: 7 })}">${lastKp}</span></div>`;
-                heatmapValues.push({ value: lastKp, color: getColor(lastKp, { watch: 5, warn: 6, danger: 7 }) });
-                for (let i = 2; i <= 4; i++) {
-                    if (kpData.length >= i) {
-                        let val = parseFloat(kpData[kpData.length - i].Kp) || 0;
-                        html += `<div class="row"><span class="label">Kp T-${i - 1} </span><span class="val ${getColorClass(val, { watch: 5, warn: 6, danger: 7 })}">${val}</span></div>`;
-                        heatmapValues.push({ value: val, color: getColor(val, { watch: 5, warn: 6, danger: 7 }) });
-                    }
-                }
-            }
-
-            const dst = await fetchWithProxy('https://services.swpc.noaa.gov/products/kyoto-dst.json');
-            if (dst && dst.length > 0) {
-                const lastDst = parseFloat(dst[dst.length - 1].dst) || 0;
-                solarIndices.dst = lastDst;
-                html += `<div class="row"><span class="label">Dst Index </span><span class="val ${getColorClass(-lastDst, { watch: 50, warn: 100, danger: 200 })}">${lastDst} nT</span></div>`;
-                heatmapValues.push({ value: lastDst, color: getColor(-lastDst, { watch: 50, warn: 100, danger: 200 }) });
-            }
-
-            const xray = await fetchWithProxy('https://services.swpc.noaa.gov/json/goes/primary/xray-flares-latest.json');
-            if (xray?.length > 0) {
-                const fluxVal = xray[0].flux || 0;
-                html += `<div class="row"><span class="label">X-ray Flare </span><span class="val">${fluxVal} ${xray[0].class_type ?? ''}</span></div>`;
-                heatmapValues.push({ value: fluxVal, color: '#ffd700' });
-            }
-
-            // --- 4. WATER ---
-            html += '<div class="category">ВОДА (GLOBAL)</div>';
-            const waterPoints = [
-                { name: 'Black Sea', lat: 43.0, lon: 34.0 }, { name: 'Mediterranean', lat: 35.0, lon: 18.0 }, { name: 'North Atlantic', lat: 45.0, lon: -30.0 }, { name: 'Pacific Ocean', lat: 20.0, lon: -155.0 }
-            ];
-            for (const wp of waterPoints) {
-                const wData = await fetchSmart(`https://marine-api.open-meteo.com/v1/marine?latitude=${wp.lat}&longitude=${wp.lon}&current=wave_height,sea_surface_temperature`);
-                if (wData?.current) {
-                    const wm = wData.current;
-                    html += `<div class="row"><span class="label">${wp.name} </span><span class="val">${wm.sea_surface_temperature}°C / ${wm.wave_height}m</span></div>`;
-                    heatmapValues.push({ value: wm.sea_surface_temperature, color: getColor(wm.sea_surface_temperature, { watch: 25, warn: 30, danger: 32 }) });
-                    loaded++;
-                }
-            }
-
-            // --- 5. ENERGY ---
-            html += '<div class="category">ЕНЕРГІЯ (YAHOO)</div>';
-            const commodities = [
-                { symbol: 'CL=F', name: 'WTI Oil', thresholds: { watch: 75, warn: 85, danger: 95 } },
-                { symbol: 'BZ=F', name: 'Brent Oil', thresholds: { watch: 80, warn: 90, danger: 100 } },
-                { symbol: 'NG=F', name: 'Nat. Gas', thresholds: { watch: 3, warn: 4, danger: 5 } },
-                { symbol: 'GC=F', name: 'Gold', thresholds: { watch: 2100, warn: 2200, danger: 2300 } },
-                { symbol: 'SI=F', name: 'Silver', thresholds: { watch: 26, warn: 29, danger: 32 } },
-                { symbol: 'HG=F', name: 'Copper', thresholds: { watch: 4.2, warn: 4.6, danger: 5.0 } }
-            ];
-            for (const c of commodities) {
-                const dat = await fetchWithProxy(`https://query1.finance.yahoo.com/v8/finance/chart/${c.symbol}?range=1d&interval=1d`);
-                let val = 0;
-
-                if (dat?.chart?.result?.[0]?.meta?.regularMarketPrice) {
-                    val = dat.chart.result[0].meta.regularMarketPrice;
-                }
-
-                if (val > 0) {
-                    if (c.symbol === 'CL=F') updateHistory(oilHistory, val);
-                    html += `<div class="row"><span class="label">${c.name} </span><span class="val ${getColorClass(val, c.thresholds)}">${val.toFixed(2)} $</span></div>`;
-                    heatmapValues.push({ value: val, color: getColor(val, c.thresholds) });
-                    loaded++;
-                }
-            }
-
-            // --- 6. AGRO ---
-            html += '<div class="category">АГРО (YAHOO)</div>';
-            const agro = [
-                { symbol: 'ZC=F', name: 'Corn', thresholds: { watch: 450, warn: 500, danger: 600 } },
-                { symbol: 'ZW=F', name: 'Wheat', thresholds: { watch: 600, warn: 700, danger: 800 } },
-                { symbol: 'ZS=F', name: 'Soybean', thresholds: { watch: 1200, warn: 1300, danger: 1400 } },
-                { symbol: 'KC=F', name: 'Coffee', thresholds: { watch: 180, warn: 220, danger: 250 } }
-            ];
-            for (const c of agro) {
-                const dat = await fetchWithProxy(`https://query1.finance.yahoo.com/v8/finance/chart/${c.symbol}?range=1d&interval=1d`);
-                if (dat?.chart?.result?.[0]?.meta?.regularMarketPrice) {
-                    const val = dat.chart.result[0].meta.regularMarketPrice;
-                    html += `<div class="row"><span class="label">${c.name} </span><span class="val ${getColorClass(val, c.thresholds)}">${val.toFixed(2)}</span></div>`;
-                    heatmapValues.push({ value: val, color: getColor(val, c.thresholds) });
-                    loaded++;
-                }
-            }
-
-            // --- 7. EARTHQUAKES ---
-            html += '<div class="category">ЗЕМЛЕТРУСИ (LAST HR)</div>';
-            const quakes = await fetchSmart('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson');
-            if (quakes?.features) {
-                quakes.features.slice(0, 8).forEach((q) => {
-                    const mag = q.properties.mag || 0;
-                    const place = (q.properties.place || 'Unknown').substring(0, 18);
-                    html += `<div class="row"><span class="label">M${mag.toFixed(1)} </span><span class="val ${getColorClass(mag, { watch: 4, warn: 5, danger: 6 })}">${place}</span></div>`;
-                    heatmapValues.push({ value: mag, color: getColor(mag, { watch: 4, warn: 5, danger: 6 }) });
-                });
-                loaded++;
-            }
-
-            // --- 8. FINANCE & CRYPTO ---
-            html += '<div class="category">CRYPTO & MARKET</div>';
-            const cryptoIds = 'bitcoin,ethereum,solana,ripple,cardano';
-            const crypto = await fetchWithProxy(`https://api.coingecko.com/api/v3/simple/price?ids=${cryptoIds}&vs_currencies=usd&include_24hr_change=true`);
-            if (crypto) {
-                for (let k in crypto) {
-                    const price = crypto[k].usd;
-                    const change = crypto[k].usd_24h_change || 0;
-                    if (k === 'bitcoin') updateHistory(btcHistory, price);
-
-                    // Alert logic: High volatility (up or down > 5%) is yellow, > 10% red
-                    let color = '#0f0';
-                    let cls = 'val-safe';
-                    if (Math.abs(change) > 10) { color = '#f00'; cls = 'val-danger'; }
-                    else if (Math.abs(change) > 5) { color = '#ff8c00'; cls = 'val-warn'; }
-
-                    html += `<div class="row"><span class="label">${k.toUpperCase()} </span><span class="val ${cls}">${price} $ <span style="font-size:9px">(${change > 0 ? '+' : ''}${change.toFixed(1)}%)</span></span></div>`;
-                    heatmapValues.push({ value: price, color: color });
-                }
-            }
-
-            // --- 9. CURRENCIES ---
-            html += '<div class="category">ВАЛЮТИ</div>';
-            const cbRates = await fetchWithProxy('https://api.coinbase.com/v2/exchange-rates?currency=USD');
-            if (cbRates?.data?.rates) {
-                const r = cbRates.data.rates;
-                ['EUR', 'GBP', 'JPY', 'UAH'].forEach(c => {
-                    const val = parseFloat(r[c]);
-                    html += `<div class="row"><span class="label">USD/${c} </span><span class="val">${val.toFixed(2)}</span></div>`;
-                    heatmapValues.push({ value: val, color: '#0f0' });
-                });
-            }
-
-            Object.keys(realData).forEach(k => {
-                updateHistory(dataHistory[k], realData[k]);
-            });
-
-            dataDiv.innerHTML = html || '<div>немає даних</div>';
-            statusDiv.innerHTML = `джерела: ${loaded} • ${new Date().toLocaleTimeString()}`;
-            updateHeatmap();
+                requestAnimationFrame(draw);
+            };
+            draw();
         }
 
-        fetchAllData();
-        setInterval(fetchAllData, 60000);
-
-        // --- DRAWING FUNCTIONS ---
-
-        function drawGraphHelper(title, history, mx, my, w, h, color, maxVal, unit) {
-            ctx.save(); ctx.translate(mx, my);
-            ctx.strokeStyle = 'rgba(180,180,180,0.15)'; ctx.lineWidth = 1;
-            for (let i = 0; i <= 5; i++) {
-                let y = i * h / 5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                let x = i * w / 5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            ctx.fillStyle = color; ctx.font = '10px Courier New'; ctx.fillText(title, 0, -5);
-
-            if (history.length > 1) {
-                ctx.beginPath();
-                history.forEach((v, i) => {
-                    const x = i * (w / (HISTORY_LIMIT - 1));
-                    const y = h - (v / maxVal) * h;
-                    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-                });
-                ctx.strokeStyle = color; ctx.lineWidth = 1.8; ctx.stroke();
-
-                const lastV = history[history.length - 1];
-                const lastX = (history.length - 1) * (w / (HISTORY_LIMIT - 1));
-                const lastY = h - (lastV / maxVal) * h;
-                ctx.beginPath(); ctx.arc(lastX, lastY, 3, 0, 6.28); ctx.fillStyle = '#fff'; ctx.fill();
-                ctx.fillStyle = color; ctx.fillText(lastV.toFixed(1) + (unit || ''), w + 5, lastY + 4);
-            }
-            ctx.restore();
-        }
-
-        function drawCombinedGrid() {
-            if (canvas.width < 900) return;
-            const w = 180, h = 100, mx = canvas.width - w - 20, my = 80;
-            ctx.save(); ctx.translate(mx, my);
-            ctx.strokeStyle = 'rgba(180,180,180,0.15)'; ctx.lineWidth = 1;
-            for (let i = 0; i <= 5; i++) {
-                let y = i * h / 5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                let x = i * w / 5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            ctx.fillStyle = 'rgba(0,255,180,0.8)'; ctx.font = '10px Courier New'; ctx.fillText('MAIN INDICES', 0, -5);
-            const keys = Object.keys(realData).filter(k => k !== 'chaos');
-            ctx.beginPath(); let f = true;
-            keys.forEach((k, i) => {
-                const v = realData[k]; const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                f ? ctx.moveTo(x, y) : ctx.lineTo(x, y); f = false;
-            });
-            ctx.strokeStyle = 'rgba(0,255,180,0.7)'; ctx.lineWidth = 1.8; ctx.stroke();
-            keys.forEach((k, i) => {
-                const v = realData[k]; const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fillStyle = 'rgba(0,255,180,0.9)'; ctx.fill();
-            });
-            ctx.restore();
-        }
-
-        function drawSolarGrid() {
-            if (canvas.width < 900) return;
-            const w = 180, h = 100, mx = canvas.width - w - 20, my = 220;
-            ctx.save(); ctx.translate(mx, my);
-            ctx.strokeStyle = 'rgba(255,180,0,0.15)'; ctx.lineWidth = 1;
-            for (let i = 0; i <= 5; i++) {
-                let y = i * h / 5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                let x = i * w / 5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            ctx.fillStyle = 'rgba(255,220,80,0.8)'; ctx.font = '10px Courier New'; ctx.fillText('SOLAR INDICES', 0, -5);
-            const keys = Object.keys(solarIndices);
-            ctx.beginPath(); let f = true;
-            keys.forEach((k, i) => {
-                let v = solarIndices[k];
-                if (k === 'f107') v /= 250; else if (k === 'kp') v /= 9; else if (k === 'dst') v = (v + 100) / 200;
-                else if (k === 'proton' || k === 'electron') v = Math.log10(v + 1) / 5;
-                else if (k === 'xray') v = (v + 8) / 6; else v /= 100;
-                v = Math.max(0, Math.min(1, v));
-                const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                f ? ctx.moveTo(x, y) : ctx.lineTo(x, y); f = false;
-            });
-            ctx.strokeStyle = 'rgba(255,220,80,0.7)'; ctx.lineWidth = 1.8; ctx.stroke();
-            keys.forEach((k, i) => {
-                let v = solarIndices[k];
-                if (k === 'f107') v /= 250; else if (k === 'kp') v /= 9; else if (k === 'dst') v = (v + 100) / 200;
-                else if (k === 'proton' || k === 'electron') v = Math.log10(v + 1) / 5;
-                else if (k === 'xray') v = (v + 8) / 6; else v /= 100;
-                v = Math.max(0, Math.min(1, v));
-                const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fillStyle = 'rgba(255,220,80,0.9)'; ctx.fill();
-            });
-            ctx.restore();
-        }
-
-        function drawEarthEnvGrid() {
-            if (canvas.width < 900) return;
-            const w = 180, h = 100, mx = canvas.width - w - 20, my = 360;
-            ctx.save(); ctx.translate(mx, my);
-            ctx.strokeStyle = 'rgba(80,255,220,0.15)'; ctx.lineWidth = 1;
-            for (let i = 0; i <= 5; i++) {
-                let y = i * h / 5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-                let x = i * w / 5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-            }
-            ctx.fillStyle = 'rgba(80,255,220,0.8)'; ctx.font = '10px Courier New'; ctx.fillText('EARTH ENV', 0, -5);
-            const keys = Object.keys(earthEnvData);
-            ctx.beginPath(); let f = true;
-            keys.forEach((k, i) => {
-                let v = earthEnvData[k];
-                if (k.includes('pm')) v /= 100; else if (k.includes('aqi')) v /= 200; else if (k === 'co') v /= 1; else if (k === 'uv') v /= 10; else if (k === 'humidity') v /= 100; else if (k === 'visibility') v /= 30;
-                v = Math.max(0, Math.min(1, v));
-                const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                f ? ctx.moveTo(x, y) : ctx.lineTo(x, y); f = false;
-            });
-            ctx.strokeStyle = 'rgba(80,255,220,0.7)'; ctx.lineWidth = 1.8; ctx.stroke();
-            keys.forEach((k, i) => {
-                let v = earthEnvData[k];
-                if (k.includes('pm')) v /= 100; else if (k.includes('aqi')) v /= 200; else if (k === 'co') v /= 1; else if (k === 'uv') v /= 10; else if (k === 'humidity') v /= 100; else if (k === 'visibility') v /= 30;
-                v = Math.max(0, Math.min(1, v));
-                const x = i * (w / (keys.length - 1)); const y = h - v * h;
-                ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fillStyle = 'rgba(80,255,220,0.9)'; ctx.fill();
-            });
-            ctx.restore();
-        }
-
-        function drawStressGrids() {
-            if (canvas.width < 900) return;
-            const w = 180; const mx = canvas.width - w - 20; const my = 500;
-            ctx.save(); ctx.translate(mx, my);
-            ctx.fillStyle = 'rgba(0,170,255,0.8)'; ctx.font = '10px Courier New'; ctx.fillText('SECTOR STRESS INDEX', 0, -10);
-            const sectors = [
-                { l: 'GEOSPHERE', v: realData.seismic },
-                { l: 'MAGNETOSPHERE', v: realData.magnetic },
-                { l: 'ATMOSPHERE', v: realData.atmosphere_wind },
-                { l: 'BIOSPHERE', v: earthEnvData.air_quality_aqi / 200 },
-                { l: 'HELIOSPHERE', v: realData.solar_wind },
-                { l: 'STABILITY', v: 1 - realData.chaos }
-            ];
-            sectors.forEach((s, i) => {
-                const y = i * 20; const val = Math.max(0.05, Math.min(1, s.v));
-                ctx.fillStyle = 'rgba(100,200,255,0.6)'; ctx.font = '8px Courier New'; ctx.fillText(s.l, 0, y + 8);
-                ctx.fillStyle = 'rgba(0,40,60,0.4)'; ctx.fillRect(0, y + 10, w, 4);
-                const color = s.v > 0.7 ? 'rgba(255,50,50,0.8)' : (s.v > 0.4 ? 'rgba(255,200,50,0.8)' : 'rgba(0,255,150,0.8)');
-                ctx.fillStyle = color; ctx.fillRect(0, y + 10, w * val, 4);
-                ctx.fillStyle = color; ctx.fillText((val * 100).toFixed(0) + '%', w + 5, y + 14);
-            });
-            ctx.restore();
-        }
-
-        // --- THE COMPASS VISUALIZER (TOPOLOGY REPLACEMENT) ---
-        function drawSystemTopology() {
-            const breathScale = 1 + Math.sin(t * 0.5) * 0.04; // Slow breathing cycle
-            const r = Math.min(canvas.width, canvas.height) * 0.18 * breathScale;
-            const cx = canvas.width / 2 + (canvas.width > 900 ? 50 : 0);
-            const cy = canvas.height / 2;
-            ctx.save(); ctx.translate(cx, cy);
-
-            // 1. OUTER ROTATING COMPASS RING
-            ctx.save();
-            ctx.rotate(t * 0.08);
-            ctx.strokeStyle = 'rgba(0, 180, 255, 0.15)';
-            ctx.lineWidth = 1;
-            ctx.beginPath(); ctx.arc(0, 0, r * 1.15, 0, 6.28); ctx.stroke();
-            for (let i = 0; i < 360; i += 5) {
-                const a = i * Math.PI / 180;
-                const len = i % 45 === 0 ? 10 : (i % 10 === 0 ? 5 : 2);
-                ctx.beginPath();
-                ctx.moveTo(Math.cos(a) * r * 1.1, Math.sin(a) * r * 1.1);
-                ctx.lineTo(Math.cos(a) * (r * 1.1 + len), Math.sin(a) * (r * 1.1 + len));
-                ctx.strokeStyle = i % 45 === 0 ? 'rgba(0, 255, 255, 0.5)' : 'rgba(0, 180, 255, 0.2)';
-                ctx.stroke();
-            }
-            ctx.restore();
-
-            // 1b. MINIMALISTIC INTERNAL ROTATING ACCENT
-            ctx.save();
-            ctx.rotate(-t * 0.2);
-            ctx.setLineDash([2, 12]);
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
-            ctx.beginPath(); ctx.arc(0, 0, r * 0.7, 0, 6.28); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.restore();
-
-            // 2. RADIAL GRID
-            ctx.strokeStyle = 'rgba(0, 180, 255, 0.08)';
-            [0.2, 0.4, 0.6, 0.8, 1.0].forEach(fr => {
-                ctx.beginPath(); ctx.arc(0, 0, r * fr, 0, 6.28); ctx.stroke();
-            });
-
-            // 4. DATA POLYGON (THE "COMPASS INTERIOR")
-            const keys = [
-                { k: 'seismic', l: 'SEISMIC', threshold: 0.7, alertName: 'SEISMIC SHIFT' },
-                { k: 'magnetic', l: 'MAGNETIC', threshold: 0.7, alertName: 'MAG. ANOMALY' },
-                { k: 'solar_wind', l: 'SOL.WIND', threshold: 0.7, alertName: 'SOLAR STORM' },
-                { k: 'atmosphere_temp', l: 'TEMP', threshold: 0.8, alertName: 'THERMAL SPIKE' },
-                { k: 'air_quality_aqi', l: 'AQI', src: earthEnvData, max: 200, threshold: 0.5, alertName: 'AQI WARNING' },
-                { k: 'precipitation', l: 'RAIN', threshold: 0.6, alertName: 'HEAVY RAIN' },
-                { k: 'chaos', l: 'CHAOS', threshold: 0.8, alertName: 'CHAOS INDEX HI' },
-                { k: 'solar_radiation', l: 'SOL.RAD', threshold: 0.7, alertName: 'RAD. ALERT' }
-            ];
-            const step = 6.28 / keys.length;
-
-            ctx.beginPath();
-            keys.forEach((d, i) => {
-                let v = (d.src ? d.src[d.k] : realData[d.k]) || 0; if (d.max) v /= d.max; v = Math.max(0.1, Math.min(1, v));
-                const rr = (v + Math.sin(t * 1.2 + i) * 0.03 * realData.chaos) * r;
-                const a = i * step - 1.57; const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
-                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            });
-            ctx.closePath();
-            const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-            grad.addColorStop(0, 'rgba(0, 100, 255, 0.05)');
-            grad.addColorStop(0.7, 'rgba(0, 255, 150, 0.08)');
-            grad.addColorStop(1, 'rgba(255, 50, 0, 0.2)');
-            ctx.fillStyle = grad; ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.7)'; ctx.lineWidth = 1.5; ctx.stroke();
-
-            // 5. DATA POINTS, LABELS & ANIMATED ALERTS
-            keys.forEach((d, i) => {
-                let rawV = (d.src ? d.src[d.k] : realData[d.k]) || 0;
-                let v = rawV; if (d.max) v /= d.max; v = Math.max(0.1, Math.min(1, v));
-                const rr = (v + Math.sin(t * 1.2 + i) * 0.03 * realData.chaos) * r;
-                const a = i * step - 1.57;
-                const x = Math.cos(a) * rr, y = Math.sin(a) * rr;
-
-                // Active point blinking
-                ctx.beginPath(); ctx.arc(x, y, 3, 0, 6.28); ctx.fillStyle = '#fff'; ctx.fill();
-                ctx.shadowBlur = v > 0.7 ? 15 : 8; ctx.shadowColor = v > 0.7 ? '#f00' : '#0ff'; ctx.stroke(); ctx.shadowBlur = 0;
-
-                // Labels
-                if (canvas.width > 550) {
-                    const labelDist = r + 45 + (Math.sin(t * 0.5) * 5);
-                    const lx = Math.cos(a) * labelDist, ly = Math.sin(a) * labelDist;
-                    ctx.fillStyle = `rgba(0, 220, 255, ${0.4 + breathScale * 0.4})`; ctx.font = '10px Courier New';
-                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(d.l, lx, ly);
-                    ctx.beginPath(); ctx.moveTo(Math.cos(a) * (rr + 5), Math.sin(a) * (rr + 5)); ctx.lineTo(Math.cos(a) * (labelDist - 10), Math.sin(a) * (labelDist - 10));
-                    ctx.strokeStyle = 'rgba(0, 255, 255, 0.15)'; ctx.stroke();
-                }
-
-                // --- ALERT LOGIC ---
-                if (v >= d.threshold) {
-                    const alertBreath = Math.sin(t * 10) * 0.5 + 0.5; // High speed flash
-                    ctx.save();
-                    ctx.translate(x, y);
-
-                    // Warning Circle
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 15 + alertBreath * 10, 0, 6.28);
-                    ctx.strokeStyle = `rgba(255, 50, 0, ${0.3 * (1 - alertBreath)})`;
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    // Alert Text
-                    const tx = Math.cos(a) * 30, ty = Math.sin(a) * 30;
-                    ctx.fillStyle = `rgba(255, 0, 0, ${0.5 + alertBreath * 0.5})`;
-                    ctx.font = 'bold 9px Courier New';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('!ALERT!', tx, ty);
-                    ctx.font = '8px Courier New';
-                    ctx.fillText(d.alertName, tx, ty + 10);
-
-                    // Animated bracket around text
-                    ctx.strokeStyle = `rgba(255, 0, 0, ${0.3 + alertBreath * 0.4})`;
-                    ctx.beginPath();
-                    ctx.moveTo(tx - 25, ty - 5); ctx.lineTo(tx - 25, ty + 15);
-                    ctx.moveTo(tx + 25, ty - 5); ctx.lineTo(tx + 25, ty + 15);
-                    ctx.stroke();
-
-                    ctx.restore();
-                }
-            });
-
-            ctx.restore();
-        }
-
-        let t = 0;
-        function loop() {
-            t += 0.016;
-            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            const chaos = realData.chaos, cx = canvas.width / 2 + (canvas.width > 900 ? 50 : 0), cy = canvas.height / 2;
-
-            stars.forEach(s => {
-                const tw = Math.sin(t * s.twinkle * 12 + s.x * 0.008) * 0.18 * (1 - chaos * 0.3);
-                ctx.fillStyle = `rgba(220,235,255,${Math.max(0.08, s.baseAlpha + tw).toFixed(3)})`;
-                ctx.fillRect(s.x, s.y, s.size, s.size);
-            });
-
-            // LAYERED GEOMETRY
-            drawSystemTopology();
-
-            formulaObjs.forEach(f => {
-                f.alpha = Math.sin(t * 0.5 + f.phase) * 0.5 + 0.5;
-                ctx.fillStyle = `rgba(180,255,200,${f.alpha * 0.25})`;
-                ctx.font = '16px Courier New'; ctx.fillText(f.text, f.x + Math.sin(t) * 10, f.y + Math.cos(t) * 10);
-            });
-
-            drawCombinedGrid(); drawSolarGrid(); drawEarthEnvGrid(); drawStressGrids();
-
-            if (canvas.width > 1200) {
-                const w = 180, h = 80, mx = canvas.width - 420;
-                drawGraphHelper('SOLAR KP-INDEX', kpHistory, mx, 80, w, h, 'rgba(255, 200, 0, 0.8)', 9, '');
-                const maxBtc = btcHistory.length ? Math.max(...btcHistory) * 1.05 : 100000;
-                drawGraphHelper('BTC/USD VALUE', btcHistory, mx, 190, w, h, 'rgba(0, 255, 100, 0.8)', maxBtc, '$');
-                drawGraphHelper('EUROPEAN AQI', aqiHistory, mx, 300, w, h, 'rgba(100, 200, 255, 0.8)', 200, '');
-                drawGraphHelper('SOLAR WIND VEL', solarWindHistory, mx, 410, w, h, 'rgba(255, 100, 255, 0.8)', 1000, 'km/s');
-                drawGraphHelper('LOCAL WIND SPEED', windHistory, mx, 520, w, h, 'rgba(0, 200, 255, 0.8)', 50, 'km/h');
-            }
-
-            requestAnimationFrame(loop);
-        }
-        loop();
+        init();
     </script>
 </body>
 
