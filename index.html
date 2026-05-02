@@ -56,142 +56,14 @@
             background: #000;
         }
 
-        /* Floating Premium Navigation */
-        .nav-dock {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 15px 10px;
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: 1px solid var(--border);
-            border-radius: 50px;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .nav-item {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            text-decoration: none;
-            color: var(--accent);
-            font-family: var(--font-mono);
-            font-size: 12px;
-        }
-
-        .nav-item:hover {
-            background: rgba(0, 229, 255, 0.1);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent);
-            transform: scale(1.1);
-        }
-
-        .nav-item.active {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-            box-shadow: 0 0 20px var(--accent);
-        }
-
-        .nav-label {
-            position: absolute;
-            left: 55px;
-            background: var(--glass);
-            padding: 5px 12px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0;
-            pointer-events: none;
-            transition: 0.3s;
-            white-space: nowrap;
-            color: #fff;
-        }
-
-        .nav-item:hover .nav-label {
-            opacity: 1;
-            left: 60px;
-        }
-
-        /* Header Info Overlay */
-        .hub-header {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            text-align: right;
-            pointer-events: none;
-        }
-
-        .station-name {
-            font-size: 14px;
-            font-weight: 300;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-transform: uppercase;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-        }
-
-        .live-status {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            color: var(--secondary);
-            margin-top: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-        }
-
-        .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--secondary);
-            border-radius: 50%;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* Scroll Progress Bar */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent), var(--secondary));
-            width: 0%;
-            z-index: 1001;
-            transition: width 0.1s;
-        }
-
         /* Custom Scrollbar */
-        .hub-container::-webkit-scrollbar {
-            width: 4px;
+        body::-webkit-scrollbar {
+            width: 8px;
         }
-        .hub-container::-webkit-scrollbar-track {
-            background: transparent;
+        body::-webkit-scrollbar-track {
+            background: #06020a;
         }
-        .hub-container::-webkit-scrollbar-thumb {
+        body::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 10px;
         }
@@ -199,80 +71,22 @@
 </head>
 <body>
 
-    <div class="progress-bar" id="progressBar"></div>
-
-    <header class="hub-header">
-        <div class="station-name">IBONARIUM · HUB</div>
-        <div class="live-status"><div class="pulse-dot"></div> MULTI-STREAM ACTIVE</div>
-    </header>
-
-    <nav class="nav-dock">
-        <a href="#live" class="nav-item active" data-index="0">
-            01
-            <span class="nav-label">Solar Live Lab</span>
-        </a>
-        <a href="#archive" class="nav-item" data-index="1">
-            02
-            <span class="nav-label">30 Day Archive</span>
-        </a>
-        <a href="#lightmeter" class="nav-item" data-index="2">
-            03
-            <span class="nav-label">Lightmeter 2.0</span>
-        </a>
-    </nav>
-
-    <div class="hub-container" id="hubContainer">
+    <div class="hub-container">
         <!-- PAGE 1: SOLAR LIVE -->
         <section id="live">
-            <iframe src="https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/" title="Sun Ibonarium Cosmo Dynamics Lab Live"></iframe>
+            <iframe src="https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/" title="Sun Ibonarium Cosmo Dynamics Lab Live" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
 
         <!-- PAGE 2: ARCHIVE -->
         <section id="archive">
-            <iframe src="https://lavandaaudit.github.io/sun.30/" title="Sun 30 Days Archive"></iframe>
+            <iframe src="https://lavandaaudit.github.io/sun.30/" title="Sun 30 Days Archive" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
 
         <!-- PAGE 3: LIGHTMETER -->
         <section id="lightmeter">
-            <iframe src="https://lavandaaudit.github.io/svitlometr.2/" title="Ibonarium Lightmeter 2.0"></iframe>
+            <iframe src="https://lavandaaudit.github.io/svitlometr.2/" title="Ibonarium Lightmeter 2.0" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
     </div>
 
-    <script>
-        const progressBar = document.getElementById('progressBar');
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = document.querySelectorAll('section');
-
-        // Update progress and active nav item
-        window.addEventListener('scroll', () => {
-            const scrollPos = window.scrollY;
-            const height = document.documentElement.scrollHeight - window.innerHeight;
-            const scrolled = (scrollPos / height) * 100;
-            progressBar.style.width = scrolled + '%';
-
-            // Check active section
-            sections.forEach((section, i) => {
-                const rect = section.getBoundingClientRect();
-                // If section is roughly in the middle of the viewport
-                if (rect.top <= window.innerHeight/2 && rect.bottom >= window.innerHeight/2) {
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    navItems[i].classList.add('active');
-                }
-            });
-        });
-
-        // Smooth click navigation
-        navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = item.getAttribute('href');
-                const targetSection = document.querySelector(targetId);
-                window.scrollTo({
-                    top: targetSection.offsetTop,
-                    behavior: 'smooth'
-                });
-            });
-        });
-    </script>
 </body>
 </html>
