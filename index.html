@@ -1,456 +1,282 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8">
-    <title>DAY SPACE · COSMIC PHOTO DOSSIER</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
-        rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBONARIUM · COSMO · DYNAMICS · HUB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+    
     <style>
-        /* ------------------------------------------------------------------
-           AESTHETIC: DEEP VOID & COSMIC PRECISION
-           ------------------------------------------------------------------ */
         :root {
-            --bg-deep: #020205;
-            --accent-pri: #80f;
-            --accent-sec: #0ff;
-            --white: #eef;
-            --glass-panel: rgba(5, 5, 15, 0.9);
-            --border-subtle: rgba(100, 100, 255, 0.15);
-            --font-poster: 'Oswald', sans-serif;
-            --font-mono: 'Space Mono', monospace;
-            --font-ui: 'Inter', sans-serif;
-            --pad-outer: 40px;
+            --bg: #030305;
+            --accent: #00e5ff;
+            --secondary: #ff007a;
+            --glass: rgba(0, 10, 20, 0.7);
+            --border: rgba(0, 229, 255, 0.2);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        body {
-            background: var(--bg-deep);
-            color: var(--white);
-            font-family: var(--font-mono);
-            overflow: hidden;
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: var(--font-main);
+            overflow: hidden; /* We handle scrolling via snapping */
+        }
+
+        /* Snap Scroll Container */
+        .hub-container {
+            width: 100%;
             height: 100vh;
-            font-size: 10px;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
         }
 
-        canvas#bg-dust { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.3; }
-
-        .app-container {
+        /* Section Styling */
+        section {
+            width: 100%;
+            height: 100vh;
+            scroll-snap-align: start;
             position: relative;
-            z-index: 10;
-            display: grid;
-            grid-template-columns: 380px 1fr 300px;
-            grid-template-rows: auto 1fr;
-            gap: 20px;
-            height: 100vh;
-            padding: var(--pad-outer);
-            max-width: 1920px;
-            margin: 0 auto;
+            background: #000;
         }
 
-        .header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--accent-pri);
-            padding-bottom: 15px;
-            margin-bottom: 10px;
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #000;
         }
 
-        .brand-box { display: flex; flex-direction: column; gap: 0px; }
-        .brand { 
-            font-family: var(--font-poster);
-            font-size: 48px; 
-            letter-spacing: 4px; 
-            color: var(--white); 
-            text-transform: uppercase; 
-            line-height: 1;
-            text-shadow: 2px 2px 0 var(--accent-pri), 4px 4px 0 rgba(128, 0, 255, 0.3);
-        }
-        .sub-brand { font-size: 10px; color: #668; letter-spacing: 5px; text-transform: uppercase; margin-top: 5px; }
-
-        /* LEFT: CHRONICLE */
-        .col-left { display: flex; flex-direction: column; gap: 15px; overflow: hidden; }
-        .timeline-container {
-            flex: 1;
-            overflow-y: auto;
-            padding-right: 12px;
+        /* Floating Premium Navigation */
+        .nav-dock {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
             display: flex;
             flex-direction: column;
             gap: 15px;
-            scrollbar-width: thin;
-            scrollbar-color: var(--accent-pri) transparent;
+            padding: 15px 10px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
 
-        .timeline-item {
-            background: var(--glass-panel);
-            border: 1px solid var(--border-subtle);
-            border-left: 5px solid var(--accent-pri);
-            padding: 10px;
+        .nav-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            text-decoration: none;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 12px;
         }
 
-        .timeline-item:hover {
-            border-color: var(--accent-sec);
-            background: rgba(30, 0, 60, 0.4);
-            transform: scale(1.02) translateX(8px);
+        .nav-item:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+            transform: scale(1.1);
         }
 
-        .timeline-item.active { border-left-color: var(--accent-sec); box-shadow: 0 0 30px rgba(0, 255, 255, 0.1); }
-        .timeline-img { width: 100%; height: 110px; object-fit: cover; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .timeline-meta { display: flex; justify-content: space-between; font-size: 9px; color: var(--accent-sec); margin-bottom: 4px; }
-        .timeline-title { font-size: 11px; color: var(--white); font-weight: 600; line-height: 1.2; text-transform: uppercase; }
+        .nav-item.active {
+            background: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
 
-        /* CENTER: PROJECTION */
-        .col-center {
-            position: relative;
+        .nav-label {
+            position: absolute;
+            left: 55px;
+            background: var(--glass);
+            padding: 5px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            white-space: nowrap;
+            color: #fff;
+        }
+
+        .nav-item:hover .nav-label {
+            opacity: 1;
+            left: 60px;
+        }
+
+        /* Header Info Overlay */
+        .hub-header {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            text-align: right;
+            pointer-events: none;
+        }
+
+        .station-name {
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .live-status {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--secondary);
+            margin-top: 5px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at center, rgba(128, 0, 255, 0.1), transparent 80%);
-            border: 1px solid var(--border-subtle);
-            overflow: hidden;
+            justify-content: flex-end;
+            gap: 8px;
         }
 
-        #main-photo-frame {
-            position: relative;
-            width: 90%;
-            height: 80%;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: zoom-in;
-            box-shadow: 0 0 100px rgba(0, 0, 0, 1);
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--secondary);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
         }
 
-        #main-photo { max-width: 100%; max-height: 100%; object-fit: contain; transition: opacity 0.8s ease; }
-        .photo-overlay { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at center, transparent, rgba(0,0,0,0.4)); }
-
-        .center-hud { position: absolute; bottom: 30px; left: 30px; right: 30px; display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; }
-        .photo-title { font-family: var(--font-poster); font-size: 32px; color: var(--white); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; text-shadow: 0 0 20px var(--accent-pri); max-width: 85%; line-height: 1; }
-        .photo-loc { font-size: 11px; color: var(--accent-sec); letter-spacing: 2px; text-transform: uppercase; }
-
-        /* RIGHT: DATA */
-        .col-right { display: flex; flex-direction: column; gap: 15px; }
-        .card { background: var(--glass-panel); border: 1px solid var(--border-subtle); backdrop-filter: blur(15px); padding: 15px; }
-        .card-h { font-size: 10px; color: var(--accent-sec); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; border-left: 3px solid var(--accent-pri); padding-left: 10px; }
-
-        .data-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 5px; }
-        .data-lbl { color: #668; }
-        .data-val { color: var(--white); font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
-
-        .log-box { font-family: var(--font-ui); font-size: 9px; color: #88a; max-height: 300px; overflow-y: auto; line-height: 1.6; }
-        .log-entry { margin-bottom: 8px; padding-left: 10px; border-left: 1px solid var(--accent-pri); }
-        .log-time { color: var(--accent-sec); margin-right: 6px; font-weight: bold; }
-
-        /* ZOOM MODAL */
-        #zoom-modal { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.98); display: none; justify-content: center; align-items: center; cursor: zoom-out; backdrop-filter: blur(30px); opacity: 0; transition: opacity 0.5s ease; }
-        #zoom-modal.active { display: flex; opacity: 1; }
-        #zoom-img { max-width: 98vw; max-height: 98vh; object-fit: contain; }
-
-        /* MOBILE RESPONSIVENESS */
-        @media (max-width: 1024px) {
-            .app-container { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto; padding: 15px; overflow-y: auto; height: auto; }
-            .header { height: auto; flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 10px; }
-            .col-left { height: auto; order: 2; margin-bottom: 10px; }
-            .timeline-container { flex-direction: row; height: 160px; overflow-x: auto; overflow-y: hidden; padding-right: 0; padding-bottom: 10px; }
-            .timeline-item { min-width: 180px; height: 140px; border-left: 0; border-top: 4px solid var(--accent-pri); }
-            .timeline-img { height: 80px; }
-            .col-center { order: 1; min-height: 400px; margin-bottom: 10px; }
-            .col-right { order: 3; }
-            .photo-title { font-size: 24px; }
-            body { overflow-y: auto; }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 100px; background: linear-gradient(to bottom, transparent, rgba(128, 0, 255, 0.05), transparent); animation: scanline 6s linear infinite; pointer-events: none; }
-        @keyframes scanline { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
+        /* Scroll Progress Bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            width: 0%;
+            z-index: 1001;
+            transition: width 0.1s;
+        }
 
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--accent-pri); }
+        /* Custom Scrollbar */
+        .hub-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .hub-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .hub-container::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
     </style>
 </head>
-
 <body>
-    <canvas id="bg-dust"></canvas>
-    
-    <div id="zoom-modal" onclick="closeZoom()">
-        <img id="zoom-img" src="" alt="Cosmic View">
-    </div>
 
-    <div class="app-container">
-        <!-- HEADER -->
-        <div class="header">
-            <div class="brand-box">
-                <div class="brand">DAY SPACE</div>
-                <div class="sub-brand">NASA Space Archive · ГЛИБОКИЙ КОСМОС</div>
-            </div>
-            <div style="text-align:right">
-                <div style="font-size:32px; font-weight:300; color:#fff; font-family:var(--font-poster);" id="clock-utc">00:00:00</div>
-                <div style="font-size:9px; color:var(--accent-sec); letter-spacing:2px; font-weight:bold;">UTC / CHRONOS READY</div>
-            </div>
-        </div>
+    <div class="progress-bar" id="progressBar"></div>
 
-        <!-- LEFT: CHRONICLE -->
-        <div class="col-left">
-            <div class="card-h">📡 КОСМІЧНА ХРОНІКА</div>
-            <div class="timeline-container" id="timeline">
-                <div style="color:#556; font-size:10px; padding:20px;">СИНХРОНІЗАЦІЯ З АРХІВАМИ NASA...</div>
-            </div>
-        </div>
+    <header class="hub-header">
+        <div class="station-name">IBONARIUM · HUB</div>
+        <div class="live-status"><div class="pulse-dot"></div> MULTI-STREAM ACTIVE</div>
+    </header>
 
-        <!-- CENTER: MAIN -->
-        <div class="col-center">
-            <div id="main-photo-frame" onclick="openZoom()">
-                <img id="main-photo" src="" alt="Cosmic Moment">
-                <div class="photo-overlay"></div>
-                <div class="scanline"></div>
-            </div>
+    <nav class="nav-dock">
+        <a href="#live" class="nav-item active" data-index="0">
+            01
+            <span class="nav-label">Solar Live Lab</span>
+        </a>
+        <a href="#archive" class="nav-item" data-index="1">
+            02
+            <span class="nav-label">30 Day Archive</span>
+        </a>
+        <a href="#lightmeter" class="nav-item" data-index="2">
+            03
+            <span class="nav-label">Lightmeter 2.0</span>
+        </a>
+    </nav>
 
-            <div class="center-hud">
-                <div>
-                    <div class="photo-title" id="p-title">ІНІЦІАЛІЗАЦІЯ...</div>
-                    <div class="photo-loc" id="p-loc">ОЧІКУВАННЯ ДАНИХ</div>
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:8px; color:#556; margin-bottom:5px;">ID ОБ'ЄКТА</div>
-                    <div style="font-size:16px; font-weight:bold; color:var(--accent-sec);" id="p-id">#000000</div>
-                </div>
-            </div>
-        </div>
+    <div class="hub-container" id="hubContainer">
+        <!-- PAGE 1: SOLAR LIVE -->
+        <section id="live">
+            <iframe src="https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/" title="Sun Ibonarium Cosmo Dynamics Lab Live"></iframe>
+        </section>
 
-        <!-- RIGHT: DATA -->
-        <div class="col-right">
-            <div class="card">
-                <div class="card-h">🔍 МЕТАДАНІ ОБ'ЄКТА</div>
-                <div id="meta-container">
-                    <div class="data-row"><span class="data-lbl">Джерело</span><span class="data-val">NASA_SPACE_NODE</span></div>
-                    <div class="data-row"><span class="data-lbl">Дата зйомки</span><span class="data-val" id="m-time">---</span></div>
-                    <div class="data-row"><span class="data-lbl">Локація / Центр</span><span class="data-val" id="m-center">---</span></div>
-                    <div class="data-row"><span class="data-lbl">ID Ресурсу</span><span class="data-val" id="m-hash">---</span></div>
-                    <div class="data-row" style="flex-direction:column; border:0; gap:5px;">
-                        <span class="data-lbl">Опис об'єкта / Переклад</span>
-                        <div id="m-desc" style="font-family:var(--font-poster); font-size:13px; color:#aaa; line-height:1.4; max-height:160px; overflow-y:auto; padding-right:5px; text-transform:uppercase; letter-spacing:0.5px;">Завантаження...</div>
-                    </div>
-                </div>
-            </div>
+        <!-- PAGE 2: ARCHIVE -->
+        <section id="archive">
+            <iframe src="https://lavandaaudit.github.io/sun.30/" title="Sun 30 Days Archive"></iframe>
+        </section>
 
-            <div class="card" style="flex:1; display:flex; flex-direction:column;">
-                <div class="card-h">📡 ЖУРНАЛ СИСТЕМИ</div>
-                <div class="log-box" id="sys-log"></div>
-                <div style="margin-top:auto; padding-top:15px; border-top:1px solid #112; font-size:9px; color:var(--white); line-height:1.4;">
-                    <b style="color:var(--accent-sec);">NASA SPACE SYNC [ACTIVE]</b><br>
-                    Фокус: Галактики, Туманності та Зірки.<br><br>
-                    <span style="color:var(--accent-pri);">Автоматичний переклад активовано.</span>
-                </div>
-            </div>
-        </div>
+        <!-- PAGE 3: LIGHTMETER -->
+        <section id="lightmeter">
+            <iframe src="https://lavandaaudit.github.io/svitlometr.2/" title="Ibonarium Lightmeter 2.0"></iframe>
+        </section>
     </div>
 
     <script>
-        // ============================================================================
-        // STATE & CACHE
-        // ============================================================================
-        const STATE = { photos: [], currentIndex: -1 };
-        const TRANSLATIONS = new Map();
+        const container = document.getElementById('hubContainer');
+        const progressBar = document.getElementById('progressBar');
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('section');
 
-        const elTimeline = document.getElementById('timeline');
-        const elLog = document.getElementById('sys-log');
-        const elMainPhoto = document.getElementById('main-photo');
-        const elClock = document.getElementById('clock-utc');
-        const elDesc = document.getElementById('m-desc');
-        const elTitle = document.getElementById('p-title');
+        // Update progress and active nav item
+        container.addEventListener('scroll', () => {
+            const scrollPos = container.scrollTop;
+            const height = container.scrollHeight - container.clientHeight;
+            const scrolled = (scrollPos / height) * 100;
+            progressBar.style.width = scrolled + '%';
 
-        // ============================================================================
-        // TRANSLATION ENGINE
-        // ============================================================================
-        async function translateText(text) {
-            if (!text || text.length < 3) return text;
-            if (TRANSLATIONS.has(text)) return TRANSLATIONS.get(text);
-
-            try {
-                // MyMemory Free API - 1000 words limit, usually okay for single user refresh
-                // We truncate to avoid hitting very long description limits on some API nodes
-                const truncated = text.length > 500 ? text.substring(0, 500) + '...' : text;
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(truncated)}&langpair=en|uk`;
-                const res = await fetch(url);
-                const data = await res.json();
-                
-                if (data && data.responseData && data.responseData.translatedText) {
-                    const result = data.responseData.translatedText;
-                    TRANSLATIONS.set(text, result);
-                    return result;
+            // Check active section
+            sections.forEach((section, i) => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top >= -100 && rect.top <= 100) {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    navItems[i].classList.add('active');
                 }
-                return text;
-            } catch (e) {
-                console.warn("Translation failed", e);
-                return text;
-            }
-        }
-
-        // ============================================================================
-        // INIT
-        // ============================================================================
-        async function init() {
-            log("ЯДРО DAY SPACE ЗАПУЩЕНО");
-            log("ЛОКАЛІЗАЦІЯ ДАНИХ: УКРАЇНСЬКА");
-            
-            setInterval(tickClock, 1000); tickClock();
-            initDust();
-
-            try {
-                await fetchNASAData();
-                renderTimeline();
-                if(STATE.photos.length > 0) selectPhoto(0);
-            } catch(e) {
-                console.error(e);
-                log("⚠ ПОМИЛКА СИНХРОНІЗАЦІЇ.");
-            }
-        }
-
-        function tickClock() {
-            const now = new Date();
-            elClock.innerText = now.toLocaleTimeString('uk-UA', { timeZone: 'UTC', hour12: false });
-        }
-
-        // ============================================================================
-        // DATA
-        // ============================================================================
-        async function fetchNASAData() {
-            const queries = ['galaxy', 'nebula', 'deep space', 'star cluster'];
-            const q = queries[Math.floor(Math.random()*queries.length)];
-            
-            const res = await fetch(`https://images-api.nasa.gov/search?q=${q}&media_type=image`);
-            const data = await res.json();
-            const items = data.collection.items;
-
-            log(`DANІ NASA ОТРИМАНО. КОЛЕКЦІЯ: ${q.toUpperCase()}`);
-
-            STATE.photos = items.slice(0, 30).map((item, index) => {
-                const d = item.data[0];
-                return {
-                    id: d.nasa_id || 'ID-' + index,
-                    title: d.title,
-                    loc: d.location || d.center || 'ГЛИБОКИЙ КОСМОС',
-                    captured: d.date_created ? new Date(d.date_created).toLocaleDateString() : '---',
-                    src: item.links[0].href,
-                    desc: d.description || 'Опис відсутній.',
-                    meta: { center: d.center || 'NASA ARC', id: d.nasa_id }
-                };
             });
-        }
+        });
 
-        // ============================================================================
-        // UI
-        // ============================================================================
-        function renderTimeline() {
-            elTimeline.innerHTML = '';
-            STATE.photos.forEach((p, index) => {
-                const div = document.createElement('div');
-                div.className = `timeline-item ${index === STATE.currentIndex ? 'active' : ''}`;
-                div.onclick = () => selectPhoto(index);
-                div.innerHTML = `
-                    <div style="overflow:hidden;"><img class="timeline-img" src="${p.src}" alt="Cosmos" loading="lazy"></div>
-                    <div class="timeline-meta">
-                        <span>#${p.id.substr(0,12)}</span>
-                    </div>
-                    <div class="timeline-title">${p.title.toUpperCase()}</div>
-                `;
-                elTimeline.appendChild(div);
-            });
-        }
-
-        async function selectPhoto(index) {
-            if (index === STATE.currentIndex) return;
-            STATE.currentIndex = index;
-            const p = STATE.photos[index];
-            
-            document.querySelectorAll('.timeline-item').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
-            });
-
-            // Transition
-            elMainPhoto.style.opacity = '0';
-            elDesc.style.opacity = '0.5';
-            elDesc.innerText = "ПЕРЕКЛАД...";
-            elTitle.innerText = "СИНХРОНІЗАЦІЯ...";
-
-            setTimeout(async () => {
-                elMainPhoto.src = p.src;
-                elMainPhoto.onload = () => elMainPhoto.style.opacity = '1';
-                
-                document.getElementById('p-loc').innerText = p.loc;
-                document.getElementById('p-id').innerText = '#' + p.id;
-                document.getElementById('m-time').innerText = p.captured;
-                document.getElementById('m-center').innerText = p.meta.center;
-                document.getElementById('m-hash').innerText = p.meta.id;
-
-                // Neural Translation
-                const [translatedTitle, translatedDesc] = await Promise.all([
-                    translateText(p.title),
-                    translateText(p.desc)
-                ]);
-
-                elTitle.innerText = translatedTitle.toUpperCase();
-                elDesc.innerText = translatedDesc;
-                elDesc.style.opacity = '1';
-
-                log(`ОБ'ЄКТ #${p.id} ЛОКАЛІЗОВАНО`);
-            }, 300);
-        }
-
-        function openZoom() {
-            const modal = document.getElementById('zoom-modal');
-            document.getElementById('zoom-img').src = elMainPhoto.src;
-            modal.style.display = 'flex';
-            setTimeout(() => modal.classList.add('active'), 10);
-        }
-
-        function closeZoom() {
-            const modal = document.getElementById('zoom-modal');
-            modal.classList.remove('active');
-            setTimeout(() => modal.style.display = 'none', 500);
-        }
-
-        function log(msg) {
-            const t = new Date().toLocaleTimeString('uk-UA', { hour12: false });
-            const d = document.createElement('div');
-            d.className = 'log-entry';
-            d.innerHTML = `<span class="log-time">[${t}]</span> ${msg}`;
-            elLog.prepend(d);
-            if (elLog.children.length > 20) elLog.lastChild.remove();
-        }
-
-        function initDust() {
-            const canvas = document.getElementById('bg-dust');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let w, h, particles = [];
-            const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
-            window.onresize = resize; resize();
-            for(let i=0; i<100; i++) particles.push({ x: Math.random()*w, y: Math.random()*h, s: Math.random()*2, v: Math.random()*0.3, o: Math.random() });
-            const draw = () => {
-                ctx.clearRect(0, 0, w, h);
-                particles.forEach(p => {
-                    ctx.fillStyle = `rgba(255,255,255,${p.o})`;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
-                    p.y -= p.v; if(p.y < 0) p.y = h;
+        // Smooth click navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = item.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                container.scrollTo({
+                    top: targetSection.offsetTop,
+                    behavior: 'smooth'
                 });
-                requestAnimationFrame(draw);
-            };
-            draw();
-        }
-
-        init();
+            });
+        });
     </script>
 </body>
-
 </html>
