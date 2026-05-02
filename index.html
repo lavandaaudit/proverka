@@ -27,27 +27,23 @@
 
         html, body {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             background-color: var(--bg);
             color: #fff;
             font-family: var(--font-main);
-            overflow: hidden; /* We handle scrolling via snapping */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
         }
 
-        /* Snap Scroll Container */
+        /* Container for sections */
         .hub-container {
             width: 100%;
-            height: 100vh;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
         }
 
         /* Section Styling */
         section {
             width: 100%;
             height: 100vh;
-            scroll-snap-align: start;
             position: relative;
             background: #000;
         }
@@ -243,22 +239,22 @@
     </div>
 
     <script>
-        const container = document.getElementById('hubContainer');
         const progressBar = document.getElementById('progressBar');
         const navItems = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('section');
 
         // Update progress and active nav item
-        container.addEventListener('scroll', () => {
-            const scrollPos = container.scrollTop;
-            const height = container.scrollHeight - container.clientHeight;
+        window.addEventListener('scroll', () => {
+            const scrollPos = window.scrollY;
+            const height = document.documentElement.scrollHeight - window.innerHeight;
             const scrolled = (scrollPos / height) * 100;
             progressBar.style.width = scrolled + '%';
 
             // Check active section
             sections.forEach((section, i) => {
                 const rect = section.getBoundingClientRect();
-                if (rect.top >= -100 && rect.top <= 100) {
+                // If section is roughly in the middle of the viewport
+                if (rect.top <= window.innerHeight/2 && rect.bottom >= window.innerHeight/2) {
                     navItems.forEach(nav => nav.classList.remove('active'));
                     navItems[i].classList.add('active');
                 }
@@ -271,7 +267,7 @@
                 e.preventDefault();
                 const targetId = item.getAttribute('href');
                 const targetSection = document.querySelector(targetId);
-                container.scrollTo({
+                window.scrollTo({
                     top: targetSection.offsetTop,
                     behavior: 'smooth'
                 });
