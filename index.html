@@ -489,6 +489,12 @@
         `;
         document.head.appendChild(styleSheet);
 
+        // Configuration & State
+        const proxy = 'https://api.codetabs.com/v1/proxy?quest='; 
+        let currentMode = 'interference';
+        let solarData = { speed: 432, dens: 2.1, mag: 4.8, kp: 1.3, xray: 'Normal', ssn: 142, proton: 'Normal' };
+        let lastFetchStatus = "initial"; 
+
         const params = {
             a: 60, lambda: 520, d: 700, intensity: 1.3, speed: 9, 
             blur: 24, contrast: 1.6, hueShift: 0, noise: 0.22, 
@@ -500,105 +506,97 @@
             spiralFactor: 0, polygonFactor: 0, mirrorSymmetry: 0, zoomEffect: 0
         };
 
-        // Improved proxy for higher reliability
-        const proxy = 'https://api.allorigins.win/raw?url='; 
-        let currentMode = 'interference';
-        let solarData = { speed: 432, dens: 2.1, mag: 4.8, kp: 1.3, xray: 'Normal', ssn: 142, proton: 'Normal' };
-        let lastFetchStatus = "initial"; // "success", "partial", "failed"
+        async function fetchSource(url) {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 8000); // 8s timeout
+            try {
+                const r = await fetch(proxy + encodeURIComponent(url), { signal: controller.signal });
+                clearTimeout(id);
+                if (!r.ok) return null;
+                return await r.json();
+            } catch (e) {
+                return null;
+            }
+        }
 
         async function fetchAllData() {
             nextUpdate = 30;
             let successCount = 0;
-            try {
-                const urls = {
-                    plasma: 'https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json',
-                    mag: 'https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json',
-                    kp: 'https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json',
-                    scales: 'https://services.swpc.noaa.gov/products/noaa-scales.json',
-                    ssn: 'https://services.swpc.noaa.gov/products/summary/sunspot-number.json'
-                };
 
-                const fetchSource = async (url) => {
-                    const r = await fetch(proxy + encodeURIComponent(url));
-                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-                    return await r.json();
-                };
+            const urls = {
+                plasma: 'https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json',
+                mag: 'https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json',
+                kp: 'https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json',
+                scales: 'https://services.swpc.noaa.gov/products/noaa-scales.json',
+                ssn: 'https://services.swpc.noaa.gov/products/summary/sunspot-number.json'
+            };
 
-                // PLASMA
-                try {
-                    const pData = await fetchSource(urls.plasma);
-                    if (pData && pData.length > 1) {
-                        const l = pData[pData.length - 1];
-                        if (l[2]) { solarData.speed = parseFloat(l[2]); successCount++; }
-                        if (l[1]) solarData.dens = parseFloat(l[1]);
-                    }
-                } catch(e) { console.warn("Plasma fetch error:", e); }
+            // Run in parallel
+            const [pData, mData, kData, sData, dData] = await Promise.all([
+                fetchSource(urls.plasma),
+                fetchSource(urls.mag),
+                fetchSource(urls.kp),
+                fetchSource(urls.scales),
+                fetchSource(urls.ssn)
+            ]);
 
-                // MAG
-                try {
-                    const mData = await fetchSource(urls.mag);
-                    if (mData && mData.length > 1) {
-                        const l = mData[mData.length - 1];
-                        if (l[6]) { solarData.mag = parseFloat(l[6]); successCount++; }
-                    }
-                } catch(e) { console.warn("Mag fetch error:", e); }
-
-                // KP
-                try {
-                    const kData = await fetchSource(urls.kp);
-                    if (kData && kData.length > 1) {
-                        const l = kData[kData.length - 1];
-                        if (l[1]) { solarData.kp = parseFloat(l[1]); successCount++; }
-                    }
-                } catch(e) { console.warn("KP fetch error:", e); }
-
-                // SCALES (X-RAY, PROTON)
-                try {
-                    const sData = await fetchSource(urls.scales);
-                    if (sData) {
-                        if (sData.r && sData.r.text) solarData.xray = sData.r.text;
-                        if (sData.s && sData.s.text) solarData.proton = sData.s.text;
-                    }
-                } catch(e) { console.warn("Scales fetch error:", e); }
-
-                // SSN
-                try {
-                    const dData = await fetchSource(urls.ssn);
-                    if (dData && dData.Sum) solarData.ssn = dData.Sum;
-                } catch(e) { console.warn("SSN fetch error:", e); }
-
-            } catch (e) {
-                console.error("Critical fetch error:", e);
-            } finally {
-                lastFetchStatus = (successCount >= 3) ? "success" : (successCount > 0 ? "partial" : "failed");
-                
-                // Drift logic for missing data
-                if (lastFetchStatus !== "success") {
-                    solarData.speed += (Math.random() - 0.5) * 4;
-                    solarData.dens += (Math.random() - 0.5) * 0.2;
-                    solarData.mag += (Math.random() - 0.5) * 0.3;
-                    solarData.kp = Math.max(0, Math.min(9, solarData.kp + (Math.random() - 0.5) * 0.1));
-                }
-
-                // Update UI elements
-                document.getElementById('sol-wind').innerText = solarData.speed.toFixed(0);
-                document.getElementById('sol-dens').innerText = solarData.dens.toFixed(1);
-                document.getElementById('sol-mag').innerText = solarData.mag.toFixed(1);
-                document.getElementById('st-kp').innerText = solarData.kp.toFixed(1);
-                document.getElementById('st-xray').innerText = solarData.xray;
-                document.getElementById('st-proton').innerText = solarData.proton;
-                document.getElementById('st-ssn').innerText = solarData.ssn;
-                
-                const syncTag = lastFetchStatus === "success" ? "LIVE" : (lastFetchStatus === "partial" ? "PARTIAL" : "DRIFT");
-                document.getElementById('sol-sync').innerHTML = `<span style="color:${lastFetchStatus==='success'?'#0f0':'#f90'}">${syncTag}</span> ${new Date().toLocaleTimeString()}`;
-                
-                updateSystemLogic();
-                generateWideAnalysis();
+            if (pData && pData.length > 1) {
+                const l = pData[pData.length - 1];
+                if (l[2]) { solarData.speed = parseFloat(l[2]); successCount++; }
+                if (l[1]) solarData.dens = parseFloat(l[1]);
             }
+
+            if (mData && mData.length > 1) {
+                const l = mData[mData.length - 1];
+                if (l[6]) { solarData.mag = parseFloat(l[6]); successCount++; }
+            }
+
+            if (kData && kData.length > 1) {
+                const l = kData[kData.length - 1];
+                if (l[1]) { solarData.kp = parseFloat(l[1]); successCount++; }
+            }
+
+            if (sData) {
+                if (sData.r && sData.r.text) solarData.xray = sData.r.text;
+                if (sData.s && sData.s.text) solarData.proton = sData.s.text;
+            }
+
+            if (dData && dData.Sum) solarData.ssn = dData.Sum;
+
+            lastFetchStatus = (successCount >= 3) ? "success" : (successCount > 0 ? "partial" : "failed");
+            updateUI();
         }
 
+        function updateUI() {
+            // Drift logic
+            if (lastFetchStatus !== "success") {
+                solarData.speed += (Math.random() - 0.5) * 5;
+                solarData.dens += (Math.random() - 0.5) * 0.2;
+                solarData.mag += (Math.random() - 0.5) * 0.3;
+                solarData.kp = Math.max(0, Math.min(9, solarData.kp + (Math.random() - 0.5) * 0.1));
+            }
 
-        // Logic & Stats
+            // Sync indicators
+            const syncEl = document.getElementById('sol-sync');
+            const color = lastFetchStatus === 'success' ? '#0f0' : (lastFetchStatus === 'partial' ? '#ff0' : '#f44');
+            const label = lastFetchStatus.toUpperCase();
+            syncEl.innerHTML = `<span style="color:${color}">${label}</span> ${new Date().toLocaleTimeString()}`;
+
+            // HUD
+            document.getElementById('sol-wind').innerText = solarData.speed.toFixed(0);
+            document.getElementById('sol-dens').innerText = solarData.dens.toFixed(1);
+            document.getElementById('sol-mag').innerText = solarData.mag.toFixed(1);
+
+            // Detailed Stats
+            document.getElementById('st-kp').innerText = solarData.kp.toFixed(1);
+            document.getElementById('st-xray').innerText = solarData.xray;
+            document.getElementById('st-proton').innerText = solarData.proton;
+            document.getElementById('st-ssn').innerText = solarData.ssn;
+
+            updateSystemLogic();
+            generateWideAnalysis();
+        }
+
         function updateSystemLogic() {
             params.speed = (solarData.speed - 300) / 15 + 9;
             params.intensity = solarData.dens / 5 + 1;
@@ -609,6 +607,7 @@
             params.lambda = 400 + (solarData.speed % 380); 
             updatePhysicsStats();
         }
+
 
         function updatePhysicsStats() {
             const c = 299792458; const h = 6.626e-34; const eV = 1.602e-19;
@@ -764,7 +763,20 @@
             monitors.push({ ctx: c.getContext('2d'), mode: m, id: i, canvas: c });
         });
 
+        function setMode(m) {
+            currentMode = m;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            const btnId = `btn-${m.substring(0,3)}`;
+            const btn = document.getElementById(btnId);
+            if (btn) btn.classList.add('active');
+            monitors.forEach(mon => {
+                if (mon.mode === m) mon.canvas.parentElement.style.borderColor = 'var(--secondary)';
+                else mon.canvas.parentElement.style.borderColor = 'rgba(255,255,255,0.05)';
+            });
+        }
+
         let nextUpdate = 30; setInterval(() => { nextUpdate--; if (nextUpdate < 0) nextUpdate = 30; document.getElementById('update-timer').innerText = `Next: ${nextUpdate}s`; }, 1000);
+        updateUI(); // Initial populate
         requestAnimationFrame(mainLoop); fetchAllData(); setInterval(fetchAllData, 30000);
 
         function nmToRGB(wl, intensity = 1) {
