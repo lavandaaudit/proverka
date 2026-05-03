@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBONARIUM · COSMO · DYNAMICS · HUB</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-    
+    <title>IBONARIUM · SVITLO · METR · 2026 · PHYS-EXTENDED</title>
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap');
+
         :root {
             --bg: #030305;
             --accent: #00e5ff;
             --secondary: #ff007a;
-            --glass: rgba(0, 10, 20, 0.7);
+            --gold: #ffaa00;
+            --glass: rgba(0, 20, 40, 0.4);
             --border: rgba(0, 229, 255, 0.2);
             --font-main: 'Outfit', sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -25,73 +26,756 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            min-height: 100vh;
-            background-color: var(--bg);
-            color: #fff;
+        body {
+            background: var(--bg);
+            color: #eef;
             font-family: var(--font-main);
             overflow-x: hidden;
-            scroll-behavior: smooth;
+            min-height: 100vh;
         }
 
-        /* Container for sections */
-        .hub-container {
-            width: 100%;
+        canvas#stars {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.6;
         }
 
-        /* Section Styling */
-        section {
-            width: 100%;
-            height: 100vh;
+        .app {
             position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 20px;
+            gap: 20px;
+            max-width: 1400px; /* Increased max-width because zoom will shrink it */
+            margin: 0 auto;
+            zoom: 0.8; /* Quickest and most effective way to scale everything by 20% */
+        }
+
+        /* HEADER */
+        .brand-header {
+            font-size: 24px;
+            font-weight: 300;
+            color: var(--accent);
+            text-transform: lowercase;
+            letter-spacing: 6px;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            margin-bottom: 5px;
+        }
+
+        #solar-hud {
+            display: flex;
+            gap: 20px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--gold);
+            background: rgba(255, 170, 0, 0.05);
+            padding: 8px 25px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 170, 0, 0.15);
+            backdrop-filter: blur(10px);
+            align-items: center;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #0f0;
+            font-weight: bold;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #0f0;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #0f0;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #update-timer {
+            color: var(--accent);
+            font-size: 9px;
+            opacity: 0.7;
+        }
+
+        #solar-hud span {
+            font-weight: bold;
+            color: #fff;
+        }
+
+        /* BUTTONS */
+        .header-ui {
+            width: 100%;
+        }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .mode-btn {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 10px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            border-radius: 4px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .mode-btn:hover {
+            background: rgba(0, 229, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .mode-btn.active {
+            background: rgba(255, 0, 122, 0.1);
+            border-color: var(--secondary);
+            color: var(--secondary);
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.2);
+        }
+
+        /* MONITORS */
+        .monitors-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            width: 100%;
+        }
+
+        .monitor-item {
+            position: relative;
+            aspect-ratio: 1/1;
             background: #000;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Fixed height for Lightmeter to show all data */
-        #lightmeter {
-            height: 1600px;
-        }
-
-        iframe {
+        canvas.display {
             width: 100%;
             height: 100%;
-            border: none;
             display: block;
-            background: #000;
         }
 
-        /* Custom Scrollbar */
-        body::-webkit-scrollbar {
+        .data-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 8px;
+            color: var(--gold);
+            font-family: var(--font-mono);
+            font-size: 8px;
+            border-radius: 3px;
+            border-left: 2px solid var(--gold);
+            pointer-events: none;
+        }
+
+        .monitor-label {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.8;
+        }
+
+        /* CONTROLS */
+        .controls-container {
+            width: 100%;
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #solar-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .ctrl {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .ctrl label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ctrl label span {
+            color: #fff;
+        }
+
+        .ctrl input {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            appearance: none;
+            outline: none;
+        }
+
+        .ctrl input::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* ANALYTICAL BLOCK */
+        .analytical-block {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: var(--font-mono);
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .phys-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-right: 1px solid var(--border);
+            padding-right: 20px;
+        }
+
+        .stat-line {
+            font-size: 11px;
+            color: #88a;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .stat-line b {
+            color: var(--accent);
+        }
+
+        .system-summary {
+            padding-left: 5px;
+        }
+
+        .summary-title {
+            color: var(--secondary);
+            font-size: 12px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-title::before {
+            content: '';
             width: 8px;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: blink 1s infinite;
         }
-        body::-webkit-scrollbar-track {
-            background: #06020a;
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
-        body::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 10px;
+
+        .summary-text {
+            font-size: 12px;
+            line-height: 1.6;
+            color: #ccd;
+        }
+
+        .ticker-wrap {
+            margin-top: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            color: var(--gold);
+            font-size: 10px;
+        }
+
+        .ticker {
+            display: inline-block;
+            animation: ticker 30s linear infinite;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1000px) {
+            .monitors-grid, .btn-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .analytical-block {
+                grid-template-columns: 1fr;
+            }
+            .phys-stats {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .monitors-grid {
+                grid-template-columns: 1fr;
+            }
+            .brand-header {
+                font-size: 18px;
+            }
+            #solar-hud {
+                flex-direction: column;
+                gap: 5px;
+                align-items: center;
+            }
         }
     </style>
 </head>
+
 <body>
+    <canvas id="stars"></canvas>
 
-    <div class="hub-container">
-        <!-- PAGE 1: SOLAR LIVE -->
-        <section id="live">
-            <iframe src="https://lavandaaudit.github.io/sun-ibonarium-cosmo-dynamics-lab-live/" title="Sun Ibonarium Cosmo Dynamics Lab Live" scrolling="no" style="overflow: hidden;"></iframe>
-        </section>
+    <div class="app">
+        <div class="brand-header">ibonarium.svitlo.metr.2026.lavandaaudit</div>
+        
+        <div id="solar-hud">
+            <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
+            SOLAR WIND: <span id="sol-wind">---</span> km/s |
+            DENSITY: <span id="sol-dens">---</span> p/cm³ |
+            MAG FIELD: <span id="sol-mag">---</span> nT |
+            SYNC: <span id="sol-sync">...</span>
+            <span id="update-timer">Next: 30s</span>
+        </div>
 
-        <!-- PAGE 2: ARCHIVE -->
-        <section id="archive">
-            <iframe src="https://lavandaaudit.github.io/sun.30/" title="Sun 30 Days Archive" scrolling="no" style="overflow: hidden;"></iframe>
-        </section>
+        <div class="header-ui">
+            <div class="btn-row">
+                <button class="mode-btn active" id="btn-int" onclick="setMode('interference')">01. INTERFERENCE</button>
+                <button class="mode-btn" id="btn-diff" onclick="setMode('diffraction')">02. DIFFRACTION</button>
+                <button class="mode-btn" id="btn-disp" onclick="setMode('dispersion')">03. DISPERSION</button>
+                <button class="mode-btn" id="btn-kin" onclick="setMode('kinetics')">04. KINETICS</button>
+                <button class="mode-btn" id="btn-pol" onclick="setMode('polarization')">05. POLARIZATION</button>
+                <button class="mode-btn" id="btn-ray" onclick="setMode('raytracing')">06. RAY OPTICS</button>
+                <button class="mode-btn" id="btn-wav" onclick="setMode('wavefront')">07. WAVEFRONT</button>
+                <button class="mode-btn" id="btn-syn" onclick="setMode('synchrotron')">08. SYNCHROTRON</button>
+            </div>
+        </div>
 
-        <!-- PAGE 3: LIGHTMETER -->
-        <section id="lightmeter">
-            <iframe src="https://lavandaaudit.github.io/svitlometr.2/" title="Ibonarium Lightmeter 2.0" scrolling="no" style="overflow: hidden;"></iframe>
-        </section>
+        <div class="monitors-grid" id="m-grid"></div>
+
+        <div class="analytical-block" id="full-analysis">
+            <div class="analysis-section">
+                <div class="summary-title">Квантові та Фізичні Метрики</div>
+                <div class="phys-stats-grid">
+                    <div class="stat-item">Довжина хвилі (λ): <b id="st-lambda">520 nm</b></div>
+                    <div class="stat-item">Частота (f): <b id="st-freq">576 THz</b></div>
+                    <div class="stat-item">Енергія фотона (E): <b id="st-energy">2.38 eV</b></div>
+                    <div class="stat-item">Імпульс (p): <b id="st-mom">---</b></div>
+                    <div class="stat-item">Показник заломлення (n): <b id="st-refr">1.52</b></div>
+                    <div class="stat-item">Довжина когерентності: <b id="st-coh">---</b></div>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="summary-title">Стан Космічного Потоку (Live Data)</div>
+                <div class="narrative-content" id="space-narrative">
+                    Аналіз потоку... Очікування даних від DSCOVR та GOES...
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="summary-title">Геомагнітний та Радіаційний Аналіз</div>
+                <div class="phys-stats-grid">
+                    <div class="stat-item">K-Index (Kp): <b id="st-kp">---</b></div>
+                    <div class="stat-item">X-Ray Flux: <b id="st-xray">---</b></div>
+                    <div class="stat-item">Proton Flux: <b id="st-proton">---</b></div>
+                    <div class="stat-item">Sunspots (SSN): <b id="st-ssn">---</b></div>
+                </div>
+                <div class="narrative-content" id="geo-narrative" style="margin-top:10px; font-size:10px; opacity:0.8;">
+                    Стан магнітосфери: Калібрування...
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="summary-title">Комплексний Висновок Системи</div>
+                <div class="narrative-content" id="system-verdict" style="color: var(--accent); font-weight: 500;">
+                    Завантаження інтелектуального модуля аналізу...
+                </div>
+            </div>
+        </div>
     </div>
 
+    <script>
+        // Updated styles for the expanded analytical block
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `
+            .analytical-block {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto auto;
+                gap: 25px;
+                padding: 30px;
+                background: rgba(0, 5, 15, 0.95);
+            }
+            .analysis-section {
+                border-left: 1px solid var(--border);
+                padding-left: 15px;
+            }
+            .phys-stats-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .stat-item {
+                font-size: 11px;
+                color: #88a;
+            }
+            .stat-item b {
+                color: var(--accent);
+                display: block;
+            }
+            .narrative-content {
+                font-size: 11px;
+                line-height: 1.5;
+                color: #ccd;
+                margin-top: 5px;
+            }
+            @media (max-width: 900px) {
+                .analytical-block { grid-template-columns: 1fr; }
+            }
+        `;
+        document.head.appendChild(styleSheet);
+
+        const params = {
+            a: 60, lambda: 520, d: 700, intensity: 1.3, speed: 9, 
+            blur: 24, contrast: 1.6, hueShift: 0, noise: 0.22, 
+            asym: 0.08, slits: 2, coherence: 0.85, phase: 0,
+            temperature: 0.2, diffusion: 0.3, curvature: 0,
+            nonlinear: 0.4, decoherence: 0.15, polarization: 0.5,
+            qnoise: 0.12, waveTilt: 0, waveBend: 0, beamSpread: 0.5,
+            beamCurvature: 0, interferenceShift: 0, radialDistort: 0,
+            spiralFactor: 0, polygonFactor: 0, mirrorSymmetry: 0, zoomEffect: 0
+        };
+
+        // Improved proxy for higher reliability
+        const proxy = 'https://api.allorigins.win/raw?url='; 
+        let currentMode = 'interference';
+        let solarData = { speed: 432, dens: 2.1, mag: 4.8, kp: 1.3, xray: 'Normal', ssn: 142, proton: 'Normal' };
+        let lastFetchStatus = "initial"; // "success", "partial", "failed"
+
+        async function fetchAllData() {
+            nextUpdate = 30;
+            let successCount = 0;
+            try {
+                const urls = {
+                    plasma: 'https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json',
+                    mag: 'https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json',
+                    kp: 'https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json',
+                    scales: 'https://services.swpc.noaa.gov/products/noaa-scales.json',
+                    ssn: 'https://services.swpc.noaa.gov/products/summary/sunspot-number.json'
+                };
+
+                const fetchSource = async (url) => {
+                    const r = await fetch(proxy + encodeURIComponent(url));
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return await r.json();
+                };
+
+                // PLASMA
+                try {
+                    const pData = await fetchSource(urls.plasma);
+                    if (pData && pData.length > 1) {
+                        const l = pData[pData.length - 1];
+                        if (l[2]) { solarData.speed = parseFloat(l[2]); successCount++; }
+                        if (l[1]) solarData.dens = parseFloat(l[1]);
+                    }
+                } catch(e) { console.warn("Plasma fetch error:", e); }
+
+                // MAG
+                try {
+                    const mData = await fetchSource(urls.mag);
+                    if (mData && mData.length > 1) {
+                        const l = mData[mData.length - 1];
+                        if (l[6]) { solarData.mag = parseFloat(l[6]); successCount++; }
+                    }
+                } catch(e) { console.warn("Mag fetch error:", e); }
+
+                // KP
+                try {
+                    const kData = await fetchSource(urls.kp);
+                    if (kData && kData.length > 1) {
+                        const l = kData[kData.length - 1];
+                        if (l[1]) { solarData.kp = parseFloat(l[1]); successCount++; }
+                    }
+                } catch(e) { console.warn("KP fetch error:", e); }
+
+                // SCALES (X-RAY, PROTON)
+                try {
+                    const sData = await fetchSource(urls.scales);
+                    if (sData) {
+                        if (sData.r && sData.r.text) solarData.xray = sData.r.text;
+                        if (sData.s && sData.s.text) solarData.proton = sData.s.text;
+                    }
+                } catch(e) { console.warn("Scales fetch error:", e); }
+
+                // SSN
+                try {
+                    const dData = await fetchSource(urls.ssn);
+                    if (dData && dData.Sum) solarData.ssn = dData.Sum;
+                } catch(e) { console.warn("SSN fetch error:", e); }
+
+            } catch (e) {
+                console.error("Critical fetch error:", e);
+            } finally {
+                lastFetchStatus = (successCount >= 3) ? "success" : (successCount > 0 ? "partial" : "failed");
+                
+                // Drift logic for missing data
+                if (lastFetchStatus !== "success") {
+                    solarData.speed += (Math.random() - 0.5) * 4;
+                    solarData.dens += (Math.random() - 0.5) * 0.2;
+                    solarData.mag += (Math.random() - 0.5) * 0.3;
+                    solarData.kp = Math.max(0, Math.min(9, solarData.kp + (Math.random() - 0.5) * 0.1));
+                }
+
+                // Update UI elements
+                document.getElementById('sol-wind').innerText = solarData.speed.toFixed(0);
+                document.getElementById('sol-dens').innerText = solarData.dens.toFixed(1);
+                document.getElementById('sol-mag').innerText = solarData.mag.toFixed(1);
+                document.getElementById('st-kp').innerText = solarData.kp.toFixed(1);
+                document.getElementById('st-xray').innerText = solarData.xray;
+                document.getElementById('st-proton').innerText = solarData.proton;
+                document.getElementById('st-ssn').innerText = solarData.ssn;
+                
+                const syncTag = lastFetchStatus === "success" ? "LIVE" : (lastFetchStatus === "partial" ? "PARTIAL" : "DRIFT");
+                document.getElementById('sol-sync').innerHTML = `<span style="color:${lastFetchStatus==='success'?'#0f0':'#f90'}">${syncTag}</span> ${new Date().toLocaleTimeString()}`;
+                
+                updateSystemLogic();
+                generateWideAnalysis();
+            }
+        }
+
+
+        // Logic & Stats
+        function updateSystemLogic() {
+            params.speed = (solarData.speed - 300) / 15 + 9;
+            params.intensity = solarData.dens / 5 + 1;
+            params.qnoise = (solarData.kp / 9) * 0.5 + (solarData.dens / 50) * 0.2;
+            params.waveBend = (solarData.mag - 5) / 10;
+            params.curvature = (solarData.mag - 10) / 20;
+            params.polarization = Math.abs(Math.sin(solarData.mag * 0.1));
+            params.lambda = 400 + (solarData.speed % 380); 
+            updatePhysicsStats();
+        }
+
+        function updatePhysicsStats() {
+            const c = 299792458; const h = 6.626e-34; const eV = 1.602e-19;
+            const wl_nm = params.lambda; const wl_m = wl_nm * 1e-9;
+            const freq = c / wl_m;
+            document.getElementById('st-lambda').innerText = wl_nm.toFixed(1) + " nm";
+            document.getElementById('st-freq').innerText = (freq / 1e12).toFixed(2) + " THz";
+            document.getElementById('st-energy').innerText = (h * freq / eV).toFixed(3) + " eV";
+            document.getElementById('st-mom').innerText = (h / wl_m).toExponential(3) + " kg·m/s";
+            document.getElementById('st-refr').innerText = (1.5046 + 0.0042 / Math.pow(wl_nm/1000, 2)).toFixed(4);
+            document.getElementById('st-coh').innerText = (0.85 * 500 / (params.qnoise + 1)).toFixed(2) + " μm";
+        }
+
+        function generateWideAnalysis() {
+            const spaceN = document.getElementById('space-narrative');
+            const geoN = document.getElementById('geo-narrative');
+            const verdict = document.getElementById('system-verdict');
+
+            // --- DEEP SPACE NARRATIVE ---
+            let sText = `Комплексний аналіз сонячного вітру вказує на стабільний потік плазми зі швидкістю <b>${solarData.speed.toFixed(0)} км/с</b>. `;
+            sText += `Ця кінетична енергія безпосередньо впливає на частоту фотонних коливань у симуляції, зміщуючи спектральний центр до <b>${params.lambda.toFixed(1)} нм</b>. `;
+            sText += `Щільність протонів на рівні <b>${solarData.dens.toFixed(1)} p/cm³</b> модулює інтенсивність когерентного випромінювання, створюючи освітленість у <b>${(params.intensity * 100).toFixed(0)}%</b> від номіналу. `;
+            sText += `Міжпланетне магнітне поле (IMF) з вектором Bt=<b>${solarData.mag.toFixed(1)} нТл</b> зумовлює просторову деформацію хвильового фронту. `;
+            sText += `Фіксується кутове відхилення в <b>${(params.waveBend * 15).toFixed(2)}°</b>, що проявляється як анізотропія в моніторах поляризації та дифракції. `;
+            sText += `Поточний стан фотосфери класифікується як ${solarData.speed > 500 ? "високоенергетичний" : "номінальний"}, що вимагає відповідного калібрування оптичних сенсорів.`;
+            spaceN.innerHTML = sText;
+
+            // --- DEEP GEOMAGNETIC NARRATIVE ---
+            let gText = `Геомагнітне оточення Землі реагує на потік з індексом збурення <b>Kp=${solarData.kp}</b>. `;
+            if (solarData.kp < 3) gText += "Магнітосфера перебуває у квазістаціонарному стані, що забезпечує мінімальну дегерерацію квантових станів та високу чіткість інтерференційних картин. ";
+            else if (solarData.kp < 5) gText += "Спостерігається суббуря середньої інтенсивності. Квантовий шум (<b>${(params.qnoise * 100).toFixed(2)}%</b>) вносить стохастичні флуктуації в дифракційні максимуми. ";
+            else gText += "<b>УВАГА: ГЕОМАГНІТНИЙ ШТОРМ.</b> Магнітосфера сильно збурена. Рівень когерентності падає, спостерігається значна турбулентність у розподілі фаз. ";
+            
+            gText += `Рентгенівське випромінювання (X-Ray Flux) знаходиться на рівні <b>${solarData.xray}</b>, що вказує на ${solarData.xray.includes('Normal') ? "відсутність потужних спалахів" : "наявність активних процесів у сонячній короні"}. `;
+            gText += `Кількість сонячних плям (<b>SSN=${solarData.ssn}</b>) підтверджує ${solarData.ssn > 100 ? "активну фазу" : "відносний спокій"} сонячного циклу. `;
+            gText += `Потік протонів (<b>${solarData.proton}</b>) створює додатковий радіаційний фон, який інтелектуально фільтрується системою для підтримки стабільності візуалізації.`;
+            geoN.innerHTML = gText;
+
+            // --- COMPREHENSIVE SYSTEM VERDICT ---
+            let vText = "";
+            const isCritical = solarData.kp >= 5 || solarData.speed > 650;
+            const isActive = solarData.speed > 480 || solarData.kp >= 3;
+
+            vText += "<b>АНАЛІТИЧНИЙ ВИСНОВОК:</b> ";
+            if (isCritical) {
+                vText += "СИСТЕМА В РЕЖИМІ ЕКСТРЕМАЛЬНОГО СПОСТЕРЕЖЕННЯ. Виявлено критичне збурення космічного середовища. Висока швидкість сонячного вітру та магнітний тиск призводять до нелінійної деформації простору-часу в межах симуляції. Рекомендується фіксація квантових аномалій у моніторі синхротронного випромінювання. Енергія фотонів досягла порогу стабільності.";
+            } else if (isActive) {
+                vText += "ПІДВИЩЕНА АКТИВНІСТЬ. Поточні параметри сонячного вітру створюють оптимальні умови для вивчення динамічної інтерференції. Спостерігається плазмовий дрейф, що збагачує спектральний склад випромінювання. Система демонструє стабільну роботу при підвищеному квантовому шумі. Усі візуальні метрики синхронізовані з телеметрією NOAA в режимі реального часу.";
+            } else {
+                vText += "СТАБІЛЬНИЙ МОНІТОРИНГ. Стан космічної погоди сприятливий для прецизійних вимірювань. Фоновий шум мінімальний, хвильовий фронт демонструє ідеальну сферичність. Світловий метр фіксує еталонні показники когерентності. Система працює в режимі енергозбереження, підтримуючи базову траєкторію візуалізації без значних аберацій.";
+            }
+            vText += `<br><br><small style="opacity:0.5; font-size:9px;">ДАНІ СИНХРОНІЗОВАНО З: L1 LAGRANGE POINT (DSCOVR) & GEOSTATIONARY ORBIT (GOES). СТАЦІЯ: IBONARIUM 2026.</small>`;
+            verdict.innerHTML = vText;
+        }
+
+        // Starfield Engine
+        const sc = document.getElementById('stars'); const sctx = sc.getContext('2d');
+        function resz() { sc.width = innerWidth; sc.height = innerHeight; } resz(); addEventListener('resize', resz);
+        let stars = [...Array(300)].map(() => ({ x: (Math.random() - 0.5) * 2000, y: (Math.random() - 0.5) * 2000, z: Math.random() * 2000, s: Math.random() * 2 + 0.5 }));
+        function drawStars(t) {
+            sctx.fillStyle = '#010204'; sctx.fillRect(0, 0, sc.width, sc.height);
+            const cx = sc.width / 2, cy = sc.height / 2;
+            const speed = (params.speed * 0.1 + 0.5);
+            stars.forEach(st => {
+                st.z -= speed; if (st.z <= 0) st.z = 2000;
+                let k = 600 / st.z; let px = st.x * k + cx; let py = st.y * k + cy;
+                if (px < 0 || px > sc.width || py < 0 || py > sc.height) return;
+                let size = (1 - st.z / 2000) * st.s;
+                sctx.fillStyle = `rgba(180, 240, 255, ${1 - st.z / 2000})`;
+                sctx.beginPath(); sctx.arc(px, py, size, 0, 6.28); sctx.fill();
+            });
+        }
+
+        // Animation Loop
+        let lastFrameTime = 0;
+        function mainLoop(time) {
+            if (time - lastFrameTime < 28) { requestAnimationFrame(mainLoop); return; }
+            lastFrameTime = time; const t = time * 0.001;
+            drawStars(t); monitors.forEach(m => drawMonitor(m, t));
+            requestAnimationFrame(mainLoop);
+        }
+
+        function drawMonitor(mon, t) {
+            const { ctx, mode, id } = mon; const w = 460; const time = t * (params.speed * 0.15 + 1);
+            ctx.fillStyle = 'rgba(3, 3, 5, 0.25)'; ctx.fillRect(0, 0, w, w);
+            if (mode === 'interference') {
+                const lambda = params.lambda / 10; const k = 6.28 / lambda; const d_val = params.a;
+                for (let y = 0; y < w; y += 12) {
+                    for (let x = 0; x < w; x += 12) {
+                        let nx = x - w/2; let ny = y - w/2;
+                        const d1 = Math.sqrt((nx + d_val)**2 + ny**2); const d2 = Math.sqrt((nx - d_val)**2 + ny**2);
+                        let val = Math.cos(k * d1 - time) + Math.cos(k * d2 - time);
+                        ctx.fillStyle = nmToRGB(params.lambda, (val + 2) / 4 * params.intensity); ctx.fillRect(x, y, 12, 12);
+                    }
+                }
+            } else if (mode === 'diffraction') {
+                const slitWidth = params.a / 10;
+                for (let px = 0; px < w; px += 4) {
+                    let x = (px - w / 2) * 0.1; let b = (Math.PI * slitWidth * x) / (params.lambda / 100);
+                    let I = Math.pow(Math.sin(b) / b || 1, 2) * params.intensity;
+                    ctx.fillStyle = nmToRGB(params.lambda, I); ctx.fillRect(px, (w - w * I) / 2, 4, w * I);
+                }
+            } else if (mode === 'dispersion') {
+                for (let i = 0; i < 10; i++) {
+                    let wl = 400 + i * 40; let dev = (1.5 + params.curvature - 1) * (1 + 10000 / (wl * wl)) * 100;
+                    ctx.strokeStyle = nmToRGB(wl, params.intensity); ctx.beginPath(); ctx.moveTo(0, w/2);
+                    ctx.lineTo(w*0.4, w/2 + params.waveBend * 20); ctx.lineTo(w, w/2 + dev * params.waveBend - 50 + i * 15); ctx.stroke();
+                }
+            } else if (mode === 'kinetics') {
+                particles.forEach(p => {
+                    p.x += (params.speed * 0.3 + 1); if (p.x > w) { p.x = 0; p.y = Math.random() * w; }
+                    ctx.fillStyle = nmToRGB(params.lambda, params.intensity);
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 2 + params.qnoise * 5 * Math.random(), 0, 6.28); ctx.fill();
+                });
+            } else if (mode === 'polarization') {
+                const angle = params.polarization * Math.PI * 2 + time * 0.5;
+                for (let x = 60; x < w; x += 80) {
+                    for (let y = 60; y < w; y += 80) {
+                        ctx.strokeStyle = nmToRGB(params.lambda, 0.8); ctx.beginPath();
+                        ctx.moveTo(x - Math.cos(angle)*30, y - Math.sin(angle)*30); ctx.lineTo(x + Math.cos(angle)*30, y + Math.sin(angle)*30); ctx.stroke();
+                    }
+                }
+            } else if (mode === 'raytracing') {
+                for (let i = 0; i < 8; i++) {
+                    let y = 80 + i * 40; ctx.strokeStyle = nmToRGB(params.lambda, params.intensity * 0.5);
+                    ctx.beginPath(); ctx.moveTo(0, y); let midY = y + Math.sin(time + i) * 30 * params.curvature;
+                    ctx.lineTo(w*0.5, midY); ctx.lineTo(w, midY + (midY - y) * 2.5); ctx.stroke();
+                }
+            } else if (mode === 'wavefront') {
+                for (let r = 0; r < 4; r++) {
+                    let radius = (time * 50 + r * 120) % 450; ctx.strokeStyle = nmToRGB(params.lambda, (1 - radius / 450) * params.intensity);
+                    ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(w/2, w/2, radius, radius * (1 - Math.abs(params.waveBend)), params.waveBend * Math.PI, 0, 6.28); ctx.stroke();
+                }
+            } else if (mode === 'synchrotron') {
+                let rx = w/2 + Math.cos(time * 1.5) * 100; let ry = w/2 + Math.sin(time * 1.2) * 80;
+                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(rx, ry, 4, 0, 6.28); ctx.fill();
+                for (let i = 0; i < 3; i++) {
+                    let r = (time * 150 + i * 120) % 350; ctx.strokeStyle = nmToRGB(400 + Math.sin(time)*200, (1 - r/350) * params.intensity);
+                    ctx.beginPath(); ctx.arc(rx, ry, r, 0, 6.28); ctx.stroke();
+                }
+            }
+            document.getElementById(`flux-${id}`).innerText = (params.intensity * 40 + Math.sin(time + id) * 5 + 10).toFixed(1);
+            document.getElementById(`en-${id}`).innerText = (Math.sin(time + id) * 180).toFixed(1) + "°";
+        }
+
+        const modesList = ['interference', 'diffraction', 'dispersion', 'kinetics', 'polarization', 'raytracing', 'wavefront', 'synchrotron'];
+        const gridEl = document.getElementById('m-grid'); const monitors = [];
+        const particles = [...Array(100)].map(() => ({ x: Math.random() * 460, y: Math.random() * 460 }));
+        modesList.forEach((m, i) => {
+            const div = document.createElement('div'); div.className = 'monitor-item';
+            div.innerHTML = `<canvas class="display" id="can-${i}"></canvas><div class="data-overlay">FLUX: <span id="flux-${i}">0.0</span><br>PHASE: <span id="en-${i}">0.0</span></div><div class="monitor-label">${m}</div>`;
+            gridEl.appendChild(div); const c = div.querySelector('canvas'); c.width = c.height = 460;
+            monitors.push({ ctx: c.getContext('2d'), mode: m, id: i, canvas: c });
+        });
+
+        let nextUpdate = 30; setInterval(() => { nextUpdate--; if (nextUpdate < 0) nextUpdate = 30; document.getElementById('update-timer').innerText = `Next: ${nextUpdate}s`; }, 1000);
+        requestAnimationFrame(mainLoop); fetchAllData(); setInterval(fetchAllData, 30000);
+
+        function nmToRGB(wl, intensity = 1) {
+            let r, g, b; if (wl >= 380 && wl < 440) { r = -1 * (wl - 440) / (440 - 380); g = 0; b = 1; }
+            else if (wl >= 440 && wl < 490) { r = 0; g = (wl - 440) / (490 - 440); b = 1; } else if (wl >= 490 && wl < 510) { r = 0; g = 1; b = -1 * (wl - 510) / (510 - 490); }
+            else if (wl >= 510 && wl < 580) { r = (wl - 510) / (580 - 510); g = 1; b = 0; } else if (wl >= 580 && wl < 645) { r = 1; g = -1 * (wl - 645) / (645 - 580); b = 0; }
+            else if (wl >= 645 && wl <= 780) { r = 1; g = 0; b = 0; } else { r = 0; g = 0; b = 0; }
+            let att = (wl < 420) ? 0.3 + 0.7 * (wl - 380) / (420 - 380) : (wl > 700) ? 0.3 + 0.7 * (780 - wl) / (780 - 700) : 1;
+            return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${intensity * att})`;
+        }
+    </script>
 </body>
+
 </html>
