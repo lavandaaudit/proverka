@@ -408,14 +408,14 @@
 
         <div class="analytical-block" id="full-analysis">
             <div class="analysis-section">
-                <div class="summary-title">Квантові та Фізичні Метрики</div>
+                <div class="summary-title">Параметри Сонячного Вітру (NOAA / DSCOVR)</div>
                 <div class="phys-stats-grid">
-                    <div class="stat-item">Довжина хвилі (λ): <b id="st-lambda">520 nm</b></div>
-                    <div class="stat-item">Частота (f): <b id="st-freq">576 THz</b></div>
-                    <div class="stat-item">Енергія фотона (E): <b id="st-energy">2.38 eV</b></div>
-                    <div class="stat-item">Імпульс (p): <b id="st-mom">---</b></div>
-                    <div class="stat-item">Показник заломлення (n): <b id="st-refr">1.52</b></div>
-                    <div class="stat-item">Довжина когерентності: <b id="st-coh">---</b></div>
+                    <div class="stat-item">Швидкість (v): <b id="st-lambda">---</b></div>
+                    <div class="stat-item">Щільність (n): <b id="st-freq">---</b></div>
+                    <div class="stat-item">IMF Bt: <b id="st-energy">---</b></div>
+                    <div class="stat-item">IMF напрямок: <b id="st-mom">---</b></div>
+                    <div class="stat-item">Kp-індекс: <b id="st-refr">---</b></div>
+                    <div class="stat-item">Сонячні плями (SSN): <b id="st-coh">---</b></div>
                 </div>
             </div>
 
@@ -568,98 +568,99 @@
         }
 
         function updateUI() {
-            // Drift logic
-            if (lastFetchStatus !== "success") {
-                solarData.speed += (Math.random() - 0.5) * 5;
-                solarData.dens += (Math.random() - 0.5) * 0.2;
-                solarData.mag += (Math.random() - 0.5) * 0.3;
-                solarData.kp = Math.max(0, Math.min(9, solarData.kp + (Math.random() - 0.5) * 0.1));
-            }
+            const hasData = lastFetchStatus === 'success' || lastFetchStatus === 'partial';
 
             // Sync indicators
             const syncEl = document.getElementById('sol-sync');
             const color = lastFetchStatus === 'success' ? '#0f0' : (lastFetchStatus === 'partial' ? '#ff0' : '#f44');
-            const label = lastFetchStatus.toUpperCase();
+            const label = lastFetchStatus === 'initial' ? 'INIT' : lastFetchStatus.toUpperCase();
             syncEl.innerHTML = `<span style="color:${color}">${label}</span> ${new Date().toLocaleTimeString()}`;
 
-            // HUD
-            document.getElementById('sol-wind').innerText = solarData.speed.toFixed(0);
-            document.getElementById('sol-dens').innerText = solarData.dens.toFixed(1);
-            document.getElementById('sol-mag').innerText = solarData.mag.toFixed(1);
+            // HUD — show '---' if no real data
+            document.getElementById('sol-wind').innerText = hasData ? solarData.speed.toFixed(0) : '---';
+            document.getElementById('sol-dens').innerText = hasData ? solarData.dens.toFixed(1) : '---';
+            document.getElementById('sol-mag').innerText  = hasData ? solarData.mag.toFixed(1)  : '---';
 
-            // Detailed Stats
-            document.getElementById('st-kp').innerText = solarData.kp.toFixed(1);
-            document.getElementById('st-xray').innerText = solarData.xray;
-            document.getElementById('st-proton').innerText = solarData.proton;
-            document.getElementById('st-ssn').innerText = solarData.ssn;
+            // Detailed Stats — only real values
+            document.getElementById('st-kp').innerText    = hasData ? solarData.kp.toFixed(1)   : '---';
+            document.getElementById('st-xray').innerText  = hasData ? solarData.xray             : '---';
+            document.getElementById('st-proton').innerText = hasData ? solarData.proton          : '---';
+            document.getElementById('st-ssn').innerText   = hasData ? String(solarData.ssn)      : '---';
 
-            updateSystemLogic();
-            generateWideAnalysis();
+            updateSystemLogic(hasData);
+            generateWideAnalysis(hasData);
         }
 
-        function updateSystemLogic() {
-            params.speed = (solarData.speed - 300) / 15 + 9;
-            params.intensity = solarData.dens / 5 + 1;
-            params.qnoise = (solarData.kp / 9) * 0.5 + (solarData.dens / 50) * 0.2;
-            params.waveBend = (solarData.mag - 5) / 10;
-            params.curvature = (solarData.mag - 10) / 20;
-            params.polarization = Math.abs(Math.sin(solarData.mag * 0.1));
-            params.lambda = 400 + (solarData.speed % 380); 
-            updatePhysicsStats();
+        function updateSystemLogic(hasData) {
+            if (hasData) {
+                // Drive canvas animations from real data
+                params.speed     = (solarData.speed - 300) / 15 + 9;
+                params.intensity = solarData.dens / 5 + 1;
+                params.qnoise    = (solarData.kp / 9) * 0.5 + (solarData.dens / 50) * 0.2;
+                params.waveBend  = (solarData.mag - 5) / 10;
+                params.curvature = (solarData.mag - 10) / 20;
+                params.polarization = Math.abs(Math.sin(solarData.mag * 0.1));
+            }
+            updateSpaceWeatherStats(hasData);
         }
 
-
-        function updatePhysicsStats() {
-            const c = 299792458; const h = 6.626e-34; const eV = 1.602e-19;
-            const wl_nm = params.lambda; const wl_m = wl_nm * 1e-9;
-            const freq = c / wl_m;
-            document.getElementById('st-lambda').innerText = wl_nm.toFixed(1) + " nm";
-            document.getElementById('st-freq').innerText = (freq / 1e12).toFixed(2) + " THz";
-            document.getElementById('st-energy').innerText = (h * freq / eV).toFixed(3) + " eV";
-            document.getElementById('st-mom').innerText = (h / wl_m).toExponential(3) + " kg·m/s";
-            document.getElementById('st-refr').innerText = (1.5046 + 0.0042 / Math.pow(wl_nm/1000, 2)).toFixed(4);
-            document.getElementById('st-coh').innerText = (0.85 * 500 / (params.qnoise + 1)).toFixed(2) + " μm";
+        // Displays only REAL measured quantities from NOAA
+        function updateSpaceWeatherStats(hasData) {
+            const na = '---';
+            // Solar wind kinetic energy (real NOAA plasma data)
+            document.getElementById('st-lambda').innerText  = hasData ? solarData.speed.toFixed(1) + ' km/s'  : na;
+            // Proton density (real NOAA plasma data)
+            document.getElementById('st-freq').innerText    = hasData ? solarData.dens.toFixed(2)  + ' p/cm³'  : na;
+            // Photon energy proxy from IMF (real NOAA mag data)
+            document.getElementById('st-energy').innerText  = hasData ? solarData.mag.toFixed(2)   + ' nT'     : na;
+            // IMF Bz component direction
+            document.getElementById('st-mom').innerText     = hasData ? (solarData.mag >= 0 ? '▲ North' : '▼ South') : na;
+            // Kp estimated real-time index
+            document.getElementById('st-refr').innerText    = hasData ? solarData.kp.toFixed(1)    : na;
+            // Sunspot number
+            document.getElementById('st-coh').innerText     = hasData ? String(solarData.ssn)      : na;
         }
 
-        function generateWideAnalysis() {
+        function generateWideAnalysis(hasData) {
             const spaceN = document.getElementById('space-narrative');
-            const geoN = document.getElementById('geo-narrative');
+            const geoN   = document.getElementById('geo-narrative');
             const verdict = document.getElementById('system-verdict');
 
-            // --- DEEP SPACE NARRATIVE ---
-            let sText = `Комплексний аналіз сонячного вітру вказує на стабільний потік плазми зі швидкістю <b>${solarData.speed.toFixed(0)} км/с</b>. `;
-            sText += `Ця кінетична енергія безпосередньо впливає на частоту фотонних коливань у симуляції, зміщуючи спектральний центр до <b>${params.lambda.toFixed(1)} нм</b>. `;
-            sText += `Щільність протонів на рівні <b>${solarData.dens.toFixed(1)} p/cm³</b> модулює інтенсивність когерентного випромінювання, створюючи освітленість у <b>${(params.intensity * 100).toFixed(0)}%</b> від номіналу. `;
-            sText += `Міжпланетне магнітне поле (IMF) з вектором Bt=<b>${solarData.mag.toFixed(1)} нТл</b> зумовлює просторову деформацію хвильового фронту. `;
-            sText += `Фіксується кутове відхилення в <b>${(params.waveBend * 15).toFixed(2)}°</b>, що проявляється як анізотропія в моніторах поляризації та дифракції. `;
-            sText += `Поточний стан фотосфери класифікується як ${solarData.speed > 500 ? "високоенергетичний" : "номінальний"}, що вимагає відповідного калібрування оптичних сенсорів.`;
+            if (!hasData) {
+                spaceN.innerHTML = '<span style="color:#f44">⚠ Немає з\'єднання з NOAA API. Очікування реальних даних...</span>';
+                geoN.innerHTML   = '<span style="color:#f44">⚠ Геомагнітні дані недоступні. Перевірте мережу.</span>';
+                verdict.innerHTML = '<b>ОЧІКУВАННЯ:</b> Система чекає на реальну телеметрію від DSCOVR (L1) та GOES. Симуляція вимкнена.';
+                return;
+            }
+
+            // --- SOLAR WIND NARRATIVE ---
+            let sText = `Сонячний вітер зафіксовано зі швидкістю <b>${solarData.speed.toFixed(0)} км/с</b> (джерело: DSCOVR L1 NOAA/plasma-5-minute). `;
+            sText += `Щільність протонів: <b>${solarData.dens.toFixed(1)} p/cm³</b>. `;
+            sText += `Міжпланетне магнітне поле (IMF) Bt = <b>${solarData.mag.toFixed(1)} нТл</b>, напрямок: <b>${solarData.mag >= 0 ? '▲ North' : '▼ South'}</b>. `;
+            sText += `Стан сонячної активності: ${solarData.speed > 600 ? '<b style="color:#f44">ВИСОКА (>600 km/s)</b>' : solarData.speed > 450 ? '<b style="color:#ff0">ПОМІРНА</b>' : '<b style="color:#0f0">НОРМАЛЬНА</b>'}.`;
             spaceN.innerHTML = sText;
 
-            // --- DEEP GEOMAGNETIC NARRATIVE ---
-            let gText = `Геомагнітне оточення Землі реагує на потік з індексом збурення <b>Kp=${solarData.kp}</b>. `;
-            if (solarData.kp < 3) gText += "Магнітосфера перебуває у квазістаціонарному стані, що забезпечує мінімальну дегерерацію квантових станів та високу чіткість інтерференційних картин. ";
-            else if (solarData.kp < 5) gText += "Спостерігається суббуря середньої інтенсивності. Квантовий шум (<b>${(params.qnoise * 100).toFixed(2)}%</b>) вносить стохастичні флуктуації в дифракційні максимуми. ";
-            else gText += "<b>УВАГА: ГЕОМАГНІТНИЙ ШТОРМ.</b> Магнітосфера сильно збурена. Рівень когерентності падає, спостерігається значна турбулентність у розподілі фаз. ";
-            
-            gText += `Рентгенівське випромінювання (X-Ray Flux) знаходиться на рівні <b>${solarData.xray}</b>, що вказує на ${solarData.xray.includes('Normal') ? "відсутність потужних спалахів" : "наявність активних процесів у сонячній короні"}. `;
-            gText += `Кількість сонячних плям (<b>SSN=${solarData.ssn}</b>) підтверджує ${solarData.ssn > 100 ? "активну фазу" : "відносний спокій"} сонячного циклу. `;
-            gText += `Потік протонів (<b>${solarData.proton}</b>) створює додатковий радіаційний фон, який інтелектуально фільтрується системою для підтримки стабільності візуалізації.`;
+            // --- GEOMAGNETIC NARRATIVE ---
+            let gText = `Геомагнітний індекс <b>Kp = ${solarData.kp.toFixed(1)}</b> (джерело: NOAA/noaa-estimated-planetary-k-index-1-minute). `;
+            if (solarData.kp < 3) gText += 'Стан: <b style="color:#0f0">СПОКІЙНИЙ</b> — магнітосфера стабільна, геомагнітних збурень не фіксується. ';
+            else if (solarData.kp < 5) gText += 'Стан: <b style="color:#ff0">ЗБУРЕНИЙ</b> — геомагнітна суббуря, можливі полярні сяйва на широтах 60°+. ';
+            else gText += '<b style="color:#f44">⚠ ГЕОМАГНІТНИЙ ШТОРМ (Kp ≥ 5)</b> — значні збурення магнітосфери. ';
+            gText += `X-Ray Flux: <b>${solarData.xray}</b> · Proton Flux: <b>${solarData.proton}</b> (GOES/noaa-scales). `;
+            gText += `Сонячні плями SSN = <b>${solarData.ssn}</b> — ${solarData.ssn > 150 ? 'пік активності' : solarData.ssn > 80 ? 'активна фаза' : 'спокійна фаза'} сонячного циклу 25.`;
             geoN.innerHTML = gText;
 
-            // --- COMPREHENSIVE SYSTEM VERDICT ---
-            let vText = "";
-            const isCritical = solarData.kp >= 5 || solarData.speed > 650;
-            const isActive = solarData.speed > 480 || solarData.kp >= 3;
-
-            vText += "<b>АНАЛІТИЧНИЙ ВИСНОВОК:</b> ";
+            // --- SYSTEM VERDICT ---
+            const isCritical = solarData.kp >= 5 || solarData.speed > 700;
+            const isActive   = solarData.speed > 450 || solarData.kp >= 3;
+            let vText = '<b>ВИСНОВОК СИСТЕМИ:</b> ';
             if (isCritical) {
-                vText += "СИСТЕМА В РЕЖИМІ ЕКСТРЕМАЛЬНОГО СПОСТЕРЕЖЕННЯ. Виявлено критичне збурення космічного середовища. Висока швидкість сонячного вітру та магнітний тиск призводять до нелінійної деформації простору-часу в межах симуляції. Рекомендується фіксація квантових аномалій у моніторі синхротронного випромінювання. Енергія фотонів досягла порогу стабільності.";
+                vText += 'КРИТИЧНА АКТИВНІСТЬ. Зафіксовано геомагнітний шторм або екстремальний сонячний вітер. Потенційний вплив на навігацію, радіозв\'язок та електромережі.';
             } else if (isActive) {
-                vText += "ПІДВИЩЕНА АКТИВНІСТЬ. Поточні параметри сонячного вітру створюють оптимальні умови для вивчення динамічної інтерференції. Спостерігається плазмовий дрейф, що збагачує спектральний склад випромінювання. Система демонструє стабільну роботу при підвищеному квантовому шумі. Усі візуальні метрики синхронізовані з телеметрією NOAA в режимі реального часу.";
+                vText += 'ПІДВИЩЕНА АКТИВНІСТЬ. Параметри сонячного вітру вище норми. Рекомендовано спостереження за геомагнітними коливаннями.';
             } else {
-                vText += "СТАБІЛЬНИЙ МОНІТОРИНГ. Стан космічної погоди сприятливий для прецизійних вимірювань. Фоновий шум мінімальний, хвильовий фронт демонструє ідеальну сферичність. Світловий метр фіксує еталонні показники когерентності. Система працює в режимі енергозбереження, підтримуючи базову траєкторію візуалізації без значних аберацій.";
+                vText += 'СТАБІЛЬНИЙ СТАН. Усі параметри в межах норми. Геомагнітне поле спокійне. Іоносфера стабільна.';
             }
-            vText += `<br><br><small style="opacity:0.5; font-size:9px;">ДАНІ СИНХРОНІЗОВАНО З: L1 LAGRANGE POINT (DSCOVR) & GEOSTATIONARY ORBIT (GOES). СТАЦІЯ: IBONARIUM 2026.</small>`;
+            vText += `<br><br><small style="opacity:0.5; font-size:9px;">ДЖЕРЕЛА: NOAA/SWPC (DSCOVR L1 + GOES). ОНОВЛЕННЯ: кожні 30 сек. СТАНЦІЯ: IBONARIUM 2026.</small>`;
             verdict.innerHTML = vText;
         }
 
