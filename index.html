@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IBONARIUM · SVITLO · METR · 2026 · PHYS-EXTENDED</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap');
 
@@ -386,9 +387,15 @@
             <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
             SOLAR WIND: <span id="sol-wind">---</span> km/s |
             DENSITY: <span id="sol-dens">---</span> p/cm³ |
-            MAG FIELD: <span id="sol-mag">---</span> nT |
-            SYNC: <span id="sol-sync">...</span>
+            IMF Bz: <span id="hud-bz">---</span> nT |
+            Kp: <span id="hud-kp">---</span> <span id="hud-kptrend" style="font-size:14px;"></span> |
+            <span id="sol-sync">...</span>
             <span id="update-timer">Next: 30s</span>
+            <div style="display:flex;gap:4px;margin-left:8px;">
+                <span id="hud-r" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">R0</span>
+                <span id="hud-s" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">S0</span>
+                <span id="hud-g" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">G0</span>
+            </div>
         </div>
 
         <div class="header-ui">
@@ -405,6 +412,20 @@
         </div>
 
         <div class="monitors-grid" id="m-grid"></div>
+
+        <!-- TIME SERIES CHART -->
+        <div id="chart-section" style="background:rgba(0,5,15,0.95);border-top:1px solid var(--border);padding:16px 20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <span style="font-size:11px;letter-spacing:2px;color:var(--accent);">SOLAR WEATHER TIME SERIES · LAST 30 READINGS</span>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span style="font-size:10px;color:#557;">DATA TIME: <b id="data-time" style="color:#aac;">---</b></span>
+                    <div id="progress-bar-wrap" style="width:80px;height:4px;background:#111;border-radius:2px;overflow:hidden;">
+                        <div id="progress-bar" style="height:100%;background:var(--accent);width:100%;transition:width 1s linear;"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="height:120px;"><canvas id="solarChart"></canvas></div>
+        </div>
 
         <div class="analytical-block" id="full-analysis" style="grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto auto;">
 
@@ -435,9 +456,13 @@
                 <div class="summary-title">Геомагнітний Стан · NOAA</div>
                 <div class="phys-stats-grid">
                     <div class="stat-item">Kp-індекс: <b id="st-refr">---</b></div>
-                    <div class="stat-item">Рівень бурі: <b id="st-storm">---</b></div>
+                    <div class="stat-item">Тренд Kp: <b id="st-kptrend">---</b></div>
+                    <div class="stat-item">Рівень бурі (G): <b id="st-storm">---</b></div>
+                    <div class="stat-item">Аврора видна до: <b id="st-aurora">---</b></div>
                     <div class="stat-item">X-Ray Flux: <b id="st-xray">---</b></div>
                     <div class="stat-item">Proton Flux: <b id="st-proton">---</b></div>
+                    <div class="stat-item">R-scale: <b id="st-rscale">---</b></div>
+                    <div class="stat-item">S-scale: <b id="st-sscale">---</b></div>
                 </div>
             </div>
 
@@ -447,10 +472,14 @@
                 <div class="phys-stats-grid">
                     <div class="stat-item">X-Ray клас (зараз): <b id="st-flare">---</b></div>
                     <div class="stat-item">X-спалахів (7 днів): <b id="st-xcount">---</b></div>
-                    <div class="stat-item">Найсильніший спалах: <b id="st-strongest">---</b></div>
+                    <div class="stat-item">Найсильніший: <b id="st-strongest">---</b></div>
                     <div class="stat-item">F10.7 (sfu): <b id="st-f107">---</b></div>
+                    <div class="stat-item">Вірогідність M-спал. 24г: <b id="st-probm">---</b></div>
+                    <div class="stat-item">Вірогідність X-спал. 24г: <b id="st-probx">---</b></div>
                     <div class="stat-item">Сонячні плями (SSN): <b id="st-coh">---</b></div>
-                    <div class="stat-item">SSN з SIDC: <b id="st-ssn">---</b></div>
+                    <div class="stat-item">CME на Землю: <b id="st-cme">---</b></div>
+                    <div class="stat-item">Electron Flux: <b id="st-elec">---</b></div>
+                    <div class="stat-item">SSN (SIDC): <b id="st-ssn">---</b></div>
                 </div>
             </div>
 
@@ -518,9 +547,12 @@
         let currentMode = 'interference';
         let solarData = {
             speed: 432, dens: 2.1, temp: 80000, mag: 4.8, bz: -2, by: 1,
-            kp: 1.3, xray: 'Normal', ssn: 142, proton: 'Normal',
-            pressure: 2.1, flareClass: '---', f107: 150,
-            stormLevel: 'Quiet', xFlareCount: 0, strongestFlare: 'None'
+            kp: 1.3, prevKp: 1.3, kpTrend: '→', xray: 'Normal', ssn: 142,
+            proton: 'Normal', pressure: 2.1, flareClass: '---', f107: 150,
+            stormLevel: 'Quiet', xFlareCount: 0, strongestFlare: 'None',
+            flareProb24M: '---', flareProb24X: '---',
+            electronFlux: '---', hasCME: false, dataTime: '---',
+            rScale: 0, sScale: 0, gScale: 0, auroraLat: '---'
         };
         let lastFetchStatus = 'initial';
 
@@ -550,20 +582,26 @@
             const U = {
                 plasma:  'https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json',
                 mag:     'https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json',
-                kp:      'https://services.swpc.noaa.gov/products/noaa-estimated-planetary-k-index-1-minute.json',
+                kp:      'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json',
                 scales:  'https://services.swpc.noaa.gov/products/noaa-scales.json',
                 ssn:     'https://services.swpc.noaa.gov/products/summary/sunspot-number.json',
                 xray:    'https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json',
                 indices: 'https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json',
-                donki:   'https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR'
+                donki:   'https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR',
+                preds:   'https://services.swpc.noaa.gov/products/noaa-solar-geomagnetic-predictions.json',
+                elec:    'https://services.swpc.noaa.gov/json/goes/primary/electrons-6-hour.json',
+                cme:     'https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/CME'
             };
-            const [pD, mD, kD, sD, dD, xD, iD, fD] = await Promise.all([
+            const [pD, mD, kD, sD, dD, xD, iD, fD, prD, elD, cmD] = await Promise.all([
                 fetchSource(U.plasma), fetchSource(U.mag), fetchSource(U.kp),
                 fetchSource(U.scales), fetchSource(U.ssn), fetchSource(U.xray),
-                fetchSource(U.indices), fetchSource(U.donki)
+                fetchSource(U.indices), fetchSource(U.donki),
+                fetchSource(U.preds), fetchSource(U.elec), fetchSource(U.cme)
             ]);
+            // Plasma data time
             if (pD && pD.length > 1) {
                 const l = pD[pD.length - 1];
+                if (l[0]) solarData.dataTime = l[0].replace('T',' ').substring(0,16) + ' UTC';
                 if (l[2]) { solarData.speed = parseFloat(l[2]); successCount++; }
                 if (l[1]) solarData.dens  = parseFloat(l[1]);
                 if (l[3]) solarData.temp  = parseFloat(l[3]);
@@ -577,7 +615,13 @@
             }
             if (kD && kD.length > 1) {
                 const l = kD[kD.length - 1];
-                if (l[1]) { solarData.kp = parseFloat(l[1]); successCount++; }
+                const kpVal = l.Kp !== undefined ? parseFloat(l.Kp) : parseFloat(l[1]);
+                if (!isNaN(kpVal)) {
+                    solarData.kpTrend = kpVal > solarData.prevKp + 0.3 ? '↑' : kpVal < solarData.prevKp - 0.3 ? '↓' : '→';
+                    solarData.prevKp = solarData.kp;
+                    solarData.kp = kpVal;
+                    successCount++;
+                }
             }
             if (sD) {
                 if (sD.r && sD.r.text) solarData.xray   = sD.r.text;
@@ -585,12 +629,15 @@
                 if (sD.g && sD.g.Scale) {
                     const g = parseInt(sD.g.Scale);
                     solarData.stormLevel = g >= 1 ? 'G' + g : 'Quiet';
+                    solarData.gScale = g || 0;
                 }
             }
-            if (dD && dD.Sum) { solarData.ssn = dD.Sum; }
+            if (dD && dD.Sum) solarData.ssn = dD.Sum;
             if (xD && xD.length > 0) {
                 const flux = parseFloat(xD[xD.length - 1].flux);
                 solarData.flareClass = classifyFlare(flux);
+                // R-scale from X-ray
+                solarData.rScale = flux >= 1e-4 ? 4 : flux >= 1e-5 ? 3 : flux >= 2e-5 ? 2 : flux >= 1e-6 ? 1 : 0;
             }
             if (iD && iD.length > 0) {
                 const lat = iD[iD.length - 1];
@@ -604,47 +651,146 @@
                 solarData.xFlareCount = xfl.length;
                 if (xfl.length > 0) {
                     const top = xfl.reduce((a, b) =>
-                        (parseFloat(b.classType.slice(1)) || 0) > (parseFloat(a.classType.slice(1)) || 0) ? b : a);
+                        (parseFloat(b.classType.slice(1))||0) > (parseFloat(a.classType.slice(1))||0) ? b : a);
                     solarData.strongestFlare = top.classType + ' @ ' + new Date(top.peakTime).toLocaleDateString();
                 } else { solarData.strongestFlare = 'None'; }
             }
+            // Flare probability (24h)
+            if (prD && Array.isArray(prD) && prD.length > 1) {
+                const row = prD[prD.length - 1];
+                // Headers are in row 0; typical columns: date, c-prob, m-prob, x-prob
+                try {
+                    solarData.flareProb24M = row[3] !== undefined ? row[3] + '%' : '---';
+                    solarData.flareProb24X = row[4] !== undefined ? row[4] + '%' : '---';
+                } catch(e) { solarData.flareProb24M = solarData.flareProb24X = '---'; }
+            }
+            // Electron flux
+            if (elD && elD.length > 0) {
+                const el = elD[elD.length - 1];
+                const ef = parseFloat(el.flux || el.observed_flux);
+                solarData.electronFlux = isNaN(ef) ? '---' : ef.toExponential(2);
+                solarData.sScale = ef > 1e4 ? 5 : ef > 1e3 ? 4 : ef > 1e2 ? 3 : ef > 10 ? 2 : ef > 1 ? 1 : 0;
+            }
+            // CME earth-directed check
+            if (cmD && Array.isArray(cmD)) {
+                const cutoff = Date.now() - 3 * 864e5;
+                const recent = cmD.filter(c => new Date(c.startTime) > cutoff);
+                solarData.hasCME = recent.some(c => c.cmeAnalyses &&
+                    c.cmeAnalyses.some(a => a.isMostAccurate && Math.abs(a.longitude||180) < 45));
+            }
+            // Aurora latitude from Kp
+            solarData.auroraLat = solarData.kp >= 1 ? (90 - solarData.kp * 5.5).toFixed(0) + '°N' : '>85°N';
+
             lastFetchStatus = successCount >= 3 ? 'success' : successCount > 0 ? 'partial' : 'failed';
             updateUI();
+        }
+
+        // ── CHART SETUP ──────────────────────────────────────────────────────────
+        const chartH = { labels: [], bz: [], kp: [], speed: [], pressure: [] };
+        let solarChart = null;
+        function initChart() {
+            const ctx = document.getElementById('solarChart');
+            if (!ctx || !window.Chart) return;
+            solarChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartH.labels,
+                    datasets: [
+                        { label: 'IMF Bz (nT)', data: chartH.bz, borderColor: '#ff4fa0', backgroundColor: 'rgba(255,79,160,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
+                        { label: 'Kp × 2', data: chartH.kp, borderColor: '#00e5ff', backgroundColor: 'rgba(0,229,255,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
+                        { label: 'Speed / 80', data: chartH.speed, borderColor: '#ffaa00', backgroundColor: 'rgba(255,170,0,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
+                        { label: 'Pressure', data: chartH.pressure, borderColor: '#88ff44', backgroundColor: 'rgba(136,255,68,0.05)', borderWidth: 1.2, tension: 0.4, pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false, animation: false,
+                    scales: {
+                        x: { ticks: { color: '#445', font: { size: 8 }, maxTicksLimit: 8 }, grid: { color: 'rgba(0,229,255,0.04)' } },
+                        y: { ticks: { color: '#445', font: { size: 8 } }, grid: { color: 'rgba(0,229,255,0.04)' } }
+                    },
+                    plugins: { legend: { labels: { color: '#778', font: { size: 9 }, boxWidth: 10 } } }
+                }
+            });
+        }
+        function updateChart(ok) {
+            if (!solarChart || !ok) return;
+            const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            chartH.labels.push(t);
+            chartH.bz.push(parseFloat(solarData.bz.toFixed(1)));
+            chartH.kp.push(parseFloat((solarData.kp * 2).toFixed(1)));
+            chartH.speed.push(parseFloat((solarData.speed / 80).toFixed(1)));
+            chartH.pressure.push(parseFloat(solarData.pressure.toFixed(2)));
+            if (chartH.labels.length > 30) {
+                chartH.labels.shift(); chartH.bz.shift(); chartH.kp.shift();
+                chartH.speed.shift(); chartH.pressure.shift();
+            }
+            solarChart.update('none');
+        }
+
+        // ── SCALE BADGE HELPER ───────────────────────────────────────────────────
+        const scaleColors = ['#333','#1a6','#880','#f90','#f40','#f00'];
+        const scaleTextC  = ['#555','#0f0','#ff0','#f90','#f44','#f44'];
+        function setScaleBadge(id, letter, n) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const safe = Math.max(0, Math.min(5, n));
+            el.textContent = letter + safe;
+            el.style.background = scaleColors[safe];
+            el.style.color = scaleTextC[safe];
         }
 
         function updateUI() {
             const ok = lastFetchStatus === 'success' || lastFetchStatus === 'partial';
             const na = '---';
-            // HUD top bar
-            const syncEl = document.getElementById('sol-sync');
+            // HUD
             const col = lastFetchStatus === 'success' ? '#0f0' : lastFetchStatus === 'partial' ? '#ff0' : '#f44';
             const lbl = lastFetchStatus === 'initial' ? 'INIT' : lastFetchStatus.toUpperCase();
-            syncEl.innerHTML = `<span style="color:${col}">${lbl}</span> ${new Date().toLocaleTimeString()}`;
+            document.getElementById('sol-sync').innerHTML = `<span style="color:${col}">${lbl}</span> ${new Date().toLocaleTimeString()}`;
             document.getElementById('sol-wind').innerText = ok ? solarData.speed.toFixed(0) : na;
             document.getElementById('sol-dens').innerText = ok ? solarData.dens.toFixed(1)  : na;
-            document.getElementById('sol-mag').innerText  = ok ? solarData.mag.toFixed(1)   : na;
-            // Section 1 - Solar Wind
+            document.getElementById('hud-bz').innerText   = ok ? solarData.bz.toFixed(1)    : na;
+            document.getElementById('hud-bz').style.color = ok ? (solarData.bz < -5 ? '#f44' : solarData.bz < 0 ? '#ff0' : '#0f0') : '#888';
+            document.getElementById('hud-kp').innerText   = ok ? solarData.kp.toFixed(2)    : na;
+            document.getElementById('hud-kp').style.color = ok ? (solarData.kp >= 5 ? '#f44' : solarData.kp >= 3 ? '#ff0' : '#0f0') : '#888';
+            document.getElementById('hud-kptrend').innerText = ok ? solarData.kpTrend : '';
+            // R/S/G badges (HUD)
+            setScaleBadge('hud-r', 'R', solarData.rScale);
+            setScaleBadge('hud-s', 'S', solarData.sScale);
+            setScaleBadge('hud-g', 'G', solarData.gScale);
+            // Data time + progress bar
+            if (ok) document.getElementById('data-time').innerText = solarData.dataTime;
+            // Section 1 – Solar Wind
             document.getElementById('st-lambda').innerText   = ok ? solarData.speed.toFixed(1) + ' km/s'  : na;
             document.getElementById('st-freq').innerText     = ok ? solarData.dens.toFixed(2)  + ' p/cm³' : na;
-            document.getElementById('st-temp').innerText     = ok ? (solarData.temp / 1000).toFixed(0) + ' kK' : na;
+            document.getElementById('st-temp').innerText     = ok ? (solarData.temp/1000).toFixed(0) + ' kK' : na;
             document.getElementById('st-pressure').innerText = ok ? solarData.pressure.toFixed(2) + ' nPa' : na;
-            // Section 2 - IMF
+            // Section 2 – IMF
             document.getElementById('st-energy').innerText = ok ? solarData.mag.toFixed(2) + ' nT'  : na;
             document.getElementById('st-bz').innerText     = ok ? solarData.bz.toFixed(2)  + ' nT'  : na;
             document.getElementById('st-by').innerText     = ok ? solarData.by.toFixed(2)  + ' nT'  : na;
             document.getElementById('st-mom').innerText    = ok ? (solarData.bz < 0 ? '▼ South (небезпечно)' : '▲ North (безпечно)') : na;
-            // Section 3 - Geomagnetic
-            document.getElementById('st-refr').innerText  = ok ? solarData.kp.toFixed(1) : na;
-            document.getElementById('st-storm').innerText = ok ? solarData.stormLevel : na;
-            document.getElementById('st-xray').innerText  = ok ? solarData.xray        : na;
-            document.getElementById('st-proton').innerText= ok ? solarData.proton       : na;
-            // Section 4 - Flares
-            document.getElementById('st-flare').innerText    = ok ? solarData.flareClass     : na;
+            // Section 3 – Geomagnetic
+            document.getElementById('st-refr').innerText    = ok ? solarData.kp.toFixed(2) : na;
+            document.getElementById('st-kptrend').innerText = ok ? solarData.kpTrend + ' ' + (solarData.kpTrend==='↑'?'Зростає':solarData.kpTrend==='↓'?'Спадає':'Стабільно') : na;
+            document.getElementById('st-storm').innerText   = ok ? solarData.stormLevel : na;
+            document.getElementById('st-aurora').innerText  = ok ? '≥ ' + solarData.auroraLat : na;
+            document.getElementById('st-xray').innerText    = ok ? solarData.xray   : na;
+            document.getElementById('st-proton').innerText  = ok ? solarData.proton : na;
+            document.getElementById('st-rscale').innerText  = ok ? 'R' + solarData.rScale + ' (Radio Blackout)' : na;
+            document.getElementById('st-sscale').innerText  = ok ? 'S' + solarData.sScale + ' (Radiation Storm)' : na;
+            // Section 4 – Flares
+            document.getElementById('st-flare').innerText    = ok ? solarData.flareClass      : na;
             document.getElementById('st-xcount').innerText   = ok ? String(solarData.xFlareCount) : na;
             document.getElementById('st-strongest').innerText= ok ? solarData.strongestFlare  : na;
-            document.getElementById('st-f107').innerText     = ok ? String(solarData.f107)     : na;
-            document.getElementById('st-coh').innerText      = ok ? String(solarData.ssn)      : na;
-            document.getElementById('st-ssn').innerText      = ok ? String(solarData.ssn)      : na;
+            document.getElementById('st-f107').innerText     = ok ? String(solarData.f107)    : na;
+            document.getElementById('st-probm').innerText    = ok ? solarData.flareProb24M    : na;
+            document.getElementById('st-probx').innerText    = ok ? solarData.flareProb24X    : na;
+            document.getElementById('st-coh').innerText      = ok ? String(solarData.ssn)     : na;
+            document.getElementById('st-cme').innerText      = ok ? (solarData.hasCME ? '⚠ ТАК (3 дні)' : 'Не виявлено') : na;
+            document.getElementById('st-cme').style.color    = ok && solarData.hasCME ? '#f90' : '';
+            document.getElementById('st-elec').innerText     = ok ? solarData.electronFlux + ' pfu' : na;
+            document.getElementById('st-ssn').innerText      = ok ? String(solarData.ssn)     : na;
+            updateChart(ok);
             updateSystemLogic(ok);
             generateWideAnalysis(ok);
         }
@@ -715,64 +861,40 @@
             g += `<br>Поточний рентгенівський спалах GOES: ${flareTag}. `
                + `X-спалахів за 7 днів: <b>${solarData.xFlareCount}</b>`
                + (solarData.xFlareCount > 0 ? `, найсильніший: <b style="color:#f44">${solarData.strongestFlare}</b>` : ' (жодного)')
-               + `. X-Ray Flux (GOES scales): <b>${solarData.xray}</b>. `
-               + `Proton Flux: <b>${solarData.proton}</b>. `
+               + `. X-Ray Flux: <b>${solarData.xray}</b>. Proton Flux: <b>${solarData.proton}</b>. `
                + `<br>F10.7 = <b>${solarData.f107} sfu</b> — `
                + (solarData.f107 > 180 ? 'висока активність хромосфери' : solarData.f107 > 120 ? 'помірна активність' : 'низька активність')
                + `. SSN = <b>${solarData.ssn}</b> — `
-               + (solarData.ssn > 150 ? 'пік 25-го сонячного циклу' : solarData.ssn > 80 ? 'активна фаза циклу 25' : 'спокійна фаза циклу 25') + '.';
+               + (solarData.ssn > 150 ? 'пік 25-го сонячного циклу' : solarData.ssn > 80 ? 'активна фаза циклу 25' : 'спокійна фаза')
+               + `.<br><b>Прогноз NOAA на 24 год:</b> M-спалах <b>${solarData.flareProb24M}</b>, X-спалах <b>${solarData.flareProb24X}</b>. `
+               + `Electron Flux (≥2 MeV): <b>${solarData.electronFlux} pfu</b>. `
+               + `CME на Землю (3 дні): <b style="color:${solarData.hasCME?'#f90':'#0f0'}">${solarData.hasCME?'⚠ Виявлено':'Не виявлено'}</b>. `
+               + `Полярне сяйво видне від широти: <b>${solarData.auroraLat}</b>. `
+               + `R-scale: <b>R${solarData.rScale}</b> · S-scale: <b>S${solarData.sScale}</b> · G-scale: <b>G${solarData.gScale}</b>.`;
             geoN.innerHTML = g;
 
             // ── SYSTEM VERDICT ────────────────────────────────────────────────────
             const isCritical = solarData.kp >= 6 || solarData.speed > 700 || solarData.bz < -15
-                             || solarData.flareClass.startsWith('X') || solarData.pressure > 15;
+                             || solarData.flareClass.startsWith('X') || solarData.pressure > 15 || solarData.hasCME;
             const isElevated = solarData.kp >= 3 || solarData.speed > 450 || solarData.bz < -5
                              || solarData.flareClass.startsWith('M') || solarData.pressure > 5;
 
             let v = '';
             if (isCritical) {
                 v = `<b style="color:#f44">🔴 КРИТИЧНА ГЕОМАГНІТНА ПОДІЯ</b> — зафіксовано один або кілька критичних параметрів: `
-                  + `Kp=${solarData.kp.toFixed(1)}, швидкість=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, тиск=${solarData.pressure.toFixed(2)} nPa. `
-                  + `Ризики: збої GPS/навігації, радіозв'язку (HF), можливі перебої в електромережах на полюсах. `
-                  + `Рекомендовано: посилений моніторинг інфраструктури.`;
+                  + `Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, P=${solarData.pressure.toFixed(2)} nPa. `
+                  + `${solarData.hasCME ? '<b style="color:#f90">⚠ CME спрямовано на Землю!</b> ' : ''}`
+                  + `Ризики: збої GPS/навігації, радіозв'язку (HF), перебої в електромережах на полюсах. Рекомендовано посилений моніторинг.`;
             } else if (isElevated) {
-                v = `<b style="color:#ff0">🟡 ПІДВИЩЕНА АКТИВНІСТЬ</b> — параметри вище норми. `
-                  + `Kp=${solarData.kp.toFixed(1)}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT. `
-                  + `Можливі слабкі збурення іоносфери та геомагнітного поля. Стежте за оновленнями.`;
+                v = `<b style="color:#ff0">🟡 ПІДВИЩЕНА АКТИВНІСТЬ</b> — Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT. `
+                  + `Прогноз M-спалаху: <b>${solarData.flareProb24M}</b>. Можливі слабкі збурення іоносфери.`;
             } else {
-                v = `<b style="color:#0f0">🟢 СТАБІЛЬНИЙ СТАН</b> — всі параметри в нормі. `
-                  + `Kp=${solarData.kp.toFixed(1)}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, P=${solarData.pressure.toFixed(2)} nPa. `
-                  + `Геомагнітне поле спокійне. Іоносфера стабільна. Радіозв'язок без обмежень.`;
+                v = `<b style="color:#0f0">🟢 СТАБІЛЬНИЙ СТАН</b> — Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, P=${solarData.pressure.toFixed(2)} nPa. `
+                  + `Геомагнітне поле спокійне. Іоносфера стабільна. Прогноз X-спалаху: <b>${solarData.flareProb24X}</b>.`;
             }
-            v += `<br><small style="opacity:0.5;font-size:9px;">ДЖЕРЕЛА: NOAA/SWPC DSCOVR L1 · GOES · DONKI. ОНОВЛЕННЯ: 30 сек. IBONARIUM 2026</small>`;
+            v += `<br><small style="opacity:0.5;font-size:9px;">ДЖЕРЕЛА: NOAA/SWPC DSCOVR L1 · GOES · DONKI · NOAA PREDICTIONS. ОНОВЛЕННЯ: 30 сек. IBONARIUM 2026</small>`;
             verdict.innerHTML = v;
         }
-
-
-        const params = {
-            a: 60, lambda: 520, d: 700, intensity: 1.3, speed: 9, 
-            blur: 24, contrast: 1.6, hueShift: 0, noise: 0.22, 
-            asym: 0.08, slits: 2, coherence: 0.85, phase: 0,
-            temperature: 0.2, diffusion: 0.3, curvature: 0,
-            nonlinear: 0.4, decoherence: 0.15, polarization: 0.5,
-            qnoise: 0.12, waveTilt: 0, waveBend: 0, beamSpread: 0.5,
-            beamCurvature: 0, interferenceShift: 0, radialDistort: 0,
-            spiralFactor: 0, polygonFactor: 0, mirrorSymmetry: 0, zoomEffect: 0
-        };
-
-        async function fetchSource(url) {
-            const controller = new AbortController();
-            const id = setTimeout(() => controller.abort(), 8000); // 8s timeout
-            try {
-                const r = await fetch(proxy + encodeURIComponent(url), { signal: controller.signal });
-                clearTimeout(id);
-                if (!r.ok) return null;
-                return await r.json();
-            } catch (e) {
-                return null;
-            }
-        }
-
 
         // Starfield Engine
         const sc = document.getElementById('stars'); const sctx = sc.getContext('2d');
@@ -886,9 +1008,20 @@
             });
         }
 
-        let nextUpdate = 30; setInterval(() => { nextUpdate--; if (nextUpdate < 0) nextUpdate = 30; document.getElementById('update-timer').innerText = `Next: ${nextUpdate}s`; }, 1000);
-        updateUI(); // Initial populate
-        requestAnimationFrame(mainLoop); fetchAllData(); setInterval(fetchAllData, 30000);
+        let nextUpdate = 30;
+        setInterval(() => {
+            nextUpdate--;
+            if (nextUpdate < 0) nextUpdate = 30;
+            document.getElementById('update-timer').innerText = `Next: ${nextUpdate}s`;
+            const pct = (nextUpdate / 30) * 100;
+            const pb = document.getElementById('progress-bar');
+            if (pb) pb.style.width = pct + '%';
+        }, 1000);
+        initChart();
+        updateUI();
+        requestAnimationFrame(mainLoop);
+        fetchAllData();
+        setInterval(fetchAllData, 30000);
 
         function nmToRGB(wl, intensity = 1) {
             let r, g, b; if (wl >= 380 && wl < 440) { r = -1 * (wl - 440) / (440 - 380); g = 0; b = 1; }
