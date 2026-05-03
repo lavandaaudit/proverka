@@ -569,7 +569,8 @@
             const controller = new AbortController();
             const tid = setTimeout(() => controller.abort(), 9000);
             try {
-                const r = await fetch(proxy + encodeURIComponent(url), { signal: controller.signal });
+                // Використовуємо прямий запит, оскільки API NOAA та NASA підтримують CORS
+                const r = await fetch(url, { signal: controller.signal });
                 clearTimeout(tid);
                 if (!r.ok) return null;
                 return await r.json();
