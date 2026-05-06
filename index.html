@@ -1,1038 +1,657 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBONARIUM · SVITLO · METR · 2026 · PHYS-EXTENDED</title>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <title>ARSLIB UNIVERSALIS | Велика Художня Бібліотека</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap');
-
         :root {
-            --bg: #030305;
-            --accent: #00e5ff;
-            --secondary: #ff007a;
-            --gold: #ffaa00;
-            --glass: rgba(0, 20, 40, 0.4);
-            --border: rgba(0, 229, 255, 0.2);
-            --font-main: 'Outfit', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --bg-color: #08080a;
+            --panel-bg: #121214;
+            --accent-gold: #d4af37;
+            --accent-gold-glow: rgba(212, 175, 55, 0.4);
+            --text-primary: #f0f0f0;
+            --text-secondary: #a0a0a5;
+            --glass: rgba(18, 18, 20, 0.9);
+            --border-color: rgba(212, 175, 55, 0.25);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.8);
+            --transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: var(--bg);
-            color: #eef;
-            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 50%, #1a1a1e 0%, #08080a 100%);
         }
 
-        canvas#stars {
+        h1, h2, h3, .logo { font-family: 'Playfair Display', serif; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
+
+        .overlay-texture {
             position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.6;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            opacity: 0.1; pointer-events: none; z-index: 1000;
         }
 
-        .app {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px 20px;
-            gap: 20px;
-            max-width: 1400px; /* Increased max-width because zoom will shrink it */
+        /* Header */
+        .main-header {
+            padding: 1rem 5%;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: linear-gradient(to bottom, rgba(8,8,10,1), rgba(8,8,10,0.98));
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .main-header.scrolled {
+            padding: 0.5rem 5%;
+            background: rgba(8, 8, 10, 0.95);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .header-content {
+            max-width: 1400px;
             margin: 0 auto;
-            zoom: 0.8; /* Quickest and most effective way to scale everything by 20% */
         }
 
-        /* HEADER */
-        .brand-header {
-            font-size: 24px;
-            font-weight: 300;
-            color: var(--accent);
-            text-transform: lowercase;
-            letter-spacing: 6px;
-            text-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
-            margin-bottom: 5px;
-        }
-
-        #solar-hud {
-            display: flex;
-            gap: 20px;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            color: var(--gold);
-            background: rgba(255, 170, 0, 0.05);
-            padding: 8px 25px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 170, 0, 0.15);
-            backdrop-filter: blur(10px);
-            align-items: center;
-        }
-
-        .live-indicator {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #0f0;
-            font-weight: bold;
-            font-size: 9px;
-            text-transform: uppercase;
-        }
-
-        .live-dot {
-            width: 6px;
-            height: 6px;
-            background: #0f0;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #0f0;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        #update-timer {
-            color: var(--accent);
-            font-size: 9px;
-            opacity: 0.7;
-        }
-
-        #solar-hud span {
-            font-weight: bold;
-            color: #fff;
-        }
-
-        /* BUTTONS */
-        .header-ui {
-            width: 100%;
-        }
-
-        .btn-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            width: 100%;
-        }
-
-        .mode-btn {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            color: var(--accent);
-            padding: 10px;
-            cursor: pointer;
-            font-family: var(--font-mono);
-            font-size: 9px;
-            border-radius: 4px;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .mode-btn:hover {
-            background: rgba(0, 229, 255, 0.1);
-            border-color: var(--accent);
-            transform: translateY(-2px);
-        }
-
-        .mode-btn.active {
-            background: rgba(255, 0, 122, 0.1);
-            border-color: var(--secondary);
-            color: var(--secondary);
-            box-shadow: 0 0 15px rgba(255, 0, 122, 0.2);
-        }
-
-        /* MONITORS */
-        .monitors-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            width: 100%;
-        }
-
-        .monitor-item {
-            position: relative;
-            aspect-ratio: 1/1;
-            background: #000;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        canvas.display {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .data-overlay {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px 8px;
-            color: var(--gold);
-            font-family: var(--font-mono);
-            font-size: 8px;
-            border-radius: 3px;
-            border-left: 2px solid var(--gold);
-            pointer-events: none;
-        }
-
-        .monitor-label {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            color: var(--accent);
-            font-family: var(--font-mono);
-            font-size: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.8;
-        }
-
-        /* CONTROLS */
-        .controls-container {
-            width: 100%;
-            background: var(--glass);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #solar-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-        }
-
-        .ctrl {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .ctrl label {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            color: var(--accent);
+        .header-top {
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: var(--transition);
         }
 
-        .ctrl label span {
+        .main-header.scrolled .header-top { margin-bottom: 0.5rem; }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .main-header.scrolled .logo { transform: scale(0.85); transform-origin: left; }
+
+        .logo .gold { color: var(--accent-gold); text-shadow: 0 0 20px var(--accent-gold-glow); }
+        .logo .sub { font-size: 0.6rem; opacity: 0.5; font-family: 'Inter'; letter-spacing: 1px; text-transform: uppercase; }
+
+        .search-area input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
             color: #fff;
-        }
-
-        .ctrl input {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            appearance: none;
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            width: 250px;
+            font-size: 0.8rem;
+            font-family: inherit;
+            transition: var(--transition);
             outline: none;
         }
 
-        .ctrl input::-webkit-slider-thumb {
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--accent);
+        .main-header.scrolled .search-area input { width: 220px; }
+
+        .search-area input:focus {
+            width: 350px;
+            border-color: var(--accent-gold);
         }
 
-        /* ANALYTICAL BLOCK */
-        .analytical-block {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            font-family: var(--font-mono);
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 20px;
-        }
-
-        .phys-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            border-right: 1px solid var(--border);
-            padding-right: 20px;
-        }
-
-        .stat-line {
-            font-size: 11px;
-            color: #88a;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .stat-line b {
-            color: var(--accent);
-        }
-
-        .system-summary {
-            padding-left: 5px;
-        }
-
-        .summary-title {
-            color: var(--secondary);
-            font-size: 12px;
-            margin-bottom: 10px;
+        .nav-label {
+            font-size: 0.6rem;
+            color: var(--accent-gold);
             text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0.8rem 0 0.4rem;
+            font-weight: 700;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .main-header.scrolled .nav-label { margin: 0.3rem 0 0.2rem; font-size: 0.5rem; }
+
+        /* Epoch Navigation */
+        .epoch-nav {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding-bottom: 0.3rem;
+            transition: var(--transition);
         }
 
-        .summary-title::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--secondary);
-            border-radius: 50%;
-            display: inline-block;
-            animation: blink 1s infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .summary-text {
-            font-size: 12px;
-            line-height: 1.6;
-            color: #ccd;
-        }
-
-        .ticker-wrap {
-            margin-top: 10px;
-            overflow: hidden;
+        .epoch-btn {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
             white-space: nowrap;
-            color: var(--gold);
-            font-size: 10px;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        .ticker {
-            display: inline-block;
-            animation: ticker 30s linear infinite;
+        .epoch-btn:hover, .epoch-btn.active {
+            background: var(--accent-gold);
+            color: #000;
+            border-color: var(--accent-gold);
+            box-shadow: 0 5px 15px var(--accent-gold-glow);
         }
 
-        @keyframes ticker {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
+        /* Hero */
+        .hero-banner {
+            padding: 6rem 10% 4rem;
+            text-align: center;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 1000px) {
-            .monitors-grid, .btn-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .analytical-block {
-                grid-template-columns: 1fr;
-            }
-            .phys-stats {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 15px;
-            }
+        .hero-banner h1 { font-size: 4.5rem; margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .hero-banner p { color: var(--text-secondary); font-size: 1.3rem; max-width: 800px; margin: 0 auto 3rem; font-weight: 300; }
+
+        .btn-random {
+            padding: 1.2rem 2.5rem;
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        @media (max-width: 600px) {
-            .monitors-grid {
-                grid-template-columns: 1fr;
-            }
-            .brand-header {
-                font-size: 18px;
-            }
-            #solar-hud {
-                flex-direction: column;
-                gap: 5px;
-                align-items: center;
-            }
+        .btn-random:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--accent-gold-glow); background: #fff; }
+
+        /* Gallery */
+        .gallery-container { padding: 0 5% 5rem; }
+        .art-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 3rem;
+        }
+
+        .art-card {
+            background: var(--panel-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .art-card:hover { transform: translateY(-15px); border-color: var(--border-color); box-shadow: var(--shadow-lg); }
+        .img-container { height: 400px; overflow: hidden; background: #000; }
+        .art-card img { width: 100%; height: 100%; object-fit: cover; transition: 1.5s ease; }
+        .art-card:hover img { transform: scale(1.1); }
+        .card-info { padding: 2rem; }
+        .card-title { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .card-artist { color: var(--accent-gold); font-size: 0.9rem; font-weight: 600; opacity: 0.8; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 2000;
+            backdrop-filter: blur(20px);
+            opacity: 0; transition: 0.5s;
+        }
+
+        .modal.active { display: block; opacity: 1; }
+        .modal-container {
+            width: 95%; height: 90%; max-width: 1500px;
+            margin: 2.5% auto;
+            background: var(--panel-bg);
+            display: grid; grid-template-columns: 1.2fr 0.8fr;
+            border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-view { 
+            background: #000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 2rem; 
+            position: relative; 
+            overflow: hidden;
+            cursor: zoom-in;
+        }
+        .modal-view img { 
+            max-width: 100%; 
+            max-height: 80vh; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
+            transition: transform 0.3s ease;
+        }
+        
+        .magnifier-lens {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            border: 2px solid var(--accent-gold);
+            border-radius: 50%;
+            pointer-events: none;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
+            background-repeat: no-repeat;
+            background-color: #000;
+            transition: opacity 0.2s ease;
+        }
+
+        .zoom-hint {
+            position: absolute;
+            bottom: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            border: 1px solid var(--border-color);
+            pointer-events: none;
+            z-index: 50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: fadeInOut 3s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 3rem; color: #fff; cursor: pointer; transition: 0.3s; z-index: 2100; }
+        .close-btn:hover { color: var(--accent-gold); transform: rotate(90deg); }
+
+        .m-title { font-size: 3rem; margin-bottom: 1rem; line-height: 1.1; }
+        .m-artist { color: var(--accent-gold); font-size: 1.4rem; margin-bottom: 2rem; font-style: italic; }
+        .m-meta { display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
+        .tag { padding: 0.5rem 1.2rem; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-color); border-radius: 20px; color: var(--accent-gold); font-size: 0.85rem; }
+        .m-summary { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); }
+
+        /* Loader */
+        .loader { grid-column: 1 / -1; text-align: center; padding: 5rem 0; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid var(--accent-gold); border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        footer { padding: 4rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-secondary); font-size: 0.9rem; }
+
+        @media (max-width: 1100px) {
+            .modal-container { grid-template-columns: 1fr; height: 95%; overflow-y: auto; }
+            .modal-content { padding: 2rem; border-left: none; }
+            .hero-banner h1 { font-size: 3rem; }
         }
     </style>
 </head>
-
 <body>
-    <canvas id="stars"></canvas>
+    <div class="overlay-texture"></div>
 
-    <div class="app">
-        <div class="brand-header">ibonarium.svitlo.metr.2026.lavandaaudit</div>
-        
-        <div id="solar-hud">
-            <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
-            SOLAR WIND: <span id="sol-wind">---</span> km/s |
-            DENSITY: <span id="sol-dens">---</span> p/cm³ |
-            IMF Bz: <span id="hud-bz">---</span> nT |
-            Kp: <span id="hud-kp">---</span> <span id="hud-kptrend" style="font-size:14px;"></span> |
-            <span id="sol-sync">...</span>
-            <span id="update-timer">Next: 30s</span>
-            <div style="display:flex;gap:4px;margin-left:8px;">
-                <span id="hud-r" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">R0</span>
-                <span id="hud-s" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">S0</span>
-                <span id="hud-g" style="padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;background:#222;color:#555;">G0</span>
+    <header class="main-header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo" onclick="location.reload()">
+                    <span class="gold">ARSLIB</span>
+                    <span class="sub">Universalis</span>
+                </div>
+                <div class="search-area">
+                    <input type="text" id="searchInput" placeholder="Шукати автора, епоху або назву...">
+                </div>
             </div>
+            <div class="nav-label">Епохи та Напрямки:</div>
+            <nav class="epoch-nav" id="epochNav">
+                <button class="epoch-btn active" data-query="art">Всі епохи</button>
+                <button class="epoch-btn" data-query="ancient art">Античність</button>
+                <button class="epoch-btn" data-query="renaissance art">Відродження</button>
+                <button class="epoch-btn" data-query="impressionism">Імпресіонізм</button>
+                <button class="epoch-btn" data-query="modern art">Модернізм</button>
+                <button class="epoch-btn" data-query="contemporary art">Сучасність</button>
+                <button class="epoch-btn" data-query="japanese art">Японія</button>
+            </nav>
+            <div class="nav-label">Хронологія за Століттями (I - XXI ст.):</div>
+            <nav class="epoch-nav" id="centuryNav">
+                <!-- Centuries injected by JS -->
+            </nav>
         </div>
+    </header>
 
-        <div class="header-ui">
-            <div class="btn-row">
-                <button class="mode-btn active" id="btn-int" onclick="setMode('interference')">01. INTERFERENCE</button>
-                <button class="mode-btn" id="btn-diff" onclick="setMode('diffraction')">02. DIFFRACTION</button>
-                <button class="mode-btn" id="btn-disp" onclick="setMode('dispersion')">03. DISPERSION</button>
-                <button class="mode-btn" id="btn-kin" onclick="setMode('kinetics')">04. KINETICS</button>
-                <button class="mode-btn" id="btn-pol" onclick="setMode('polarization')">05. POLARIZATION</button>
-                <button class="mode-btn" id="btn-ray" onclick="setMode('raytracing')">06. RAY OPTICS</button>
-                <button class="mode-btn" id="btn-wav" onclick="setMode('wavefront')">07. WAVEFRONT</button>
-                <button class="mode-btn" id="btn-syn" onclick="setMode('synchrotron')">08. SYNCHROTRON</button>
-            </div>
+    <section class="hero-banner">
+        <h1>Скарбниця Світового Мистецтва</h1>
+        <p>Досліджуйте історію людства через призму мистецтва кожного століття. Від античних витоків до цифрового сьогодення.</p>
+        <button class="btn-random" onclick="openRandom()">Випадковий шедевр</button>
+    </section>
+
+    <main class="gallery-container">
+        <div id="artGrid" class="art-grid"></div>
+        <div id="scrollAnchor" style="height: 100px;"></div>
+        <div id="bottomLoader" class="loader" style="display: none;">
+            <div class="spinner"></div>
+            <p>Завантаження нових творів...</p>
         </div>
+    </main>
 
-        <div class="monitors-grid" id="m-grid"></div>
-
-        <!-- TIME SERIES CHART -->
-        <div id="chart-section" style="background:rgba(0,5,15,0.95);border-top:1px solid var(--border);padding:16px 20px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:11px;letter-spacing:2px;color:var(--accent);">SOLAR WEATHER TIME SERIES · LAST 30 READINGS</span>
-                <div style="display:flex;gap:6px;align-items:center;">
-                    <span style="font-size:10px;color:#557;">DATA TIME: <b id="data-time" style="color:#aac;">---</b></span>
-                    <div id="progress-bar-wrap" style="width:80px;height:4px;background:#111;border-radius:2px;overflow:hidden;">
-                        <div id="progress-bar" style="height:100%;background:var(--accent);width:100%;transition:width 1s linear;"></div>
-                    </div>
-                </div>
+    <div id="artModal" class="modal">
+        <span class="close-btn">&times;</span>
+        <div class="modal-container">
+            <div class="modal-view" id="modalView">
+                <img id="mImg" src="" alt="">
+                <div id="magnifier" class="magnifier-lens"></div>
+                <div class="zoom-hint">Наведіть для детального огляду</div>
             </div>
-            <div style="height:120px;"><canvas id="solarChart"></canvas></div>
-        </div>
-
-        <div class="analytical-block" id="full-analysis" style="grid-template-columns:1fr 1fr 1fr; grid-template-rows:auto auto;">
-
-            <!-- SECTION 1: Solar Wind -->
-            <div class="analysis-section">
-                <div class="summary-title">Сонячний Вітер · DSCOVR L1</div>
-                <div class="phys-stats-grid">
-                    <div class="stat-item">Швидкість (v): <b id="st-lambda">---</b></div>
-                    <div class="stat-item">Щільність (n): <b id="st-freq">---</b></div>
-                    <div class="stat-item">Температура (T): <b id="st-temp">---</b></div>
-                    <div class="stat-item">Дин. тиск (P): <b id="st-pressure">---</b></div>
-                </div>
+            <div class="modal-content">
+                <div class="m-meta" id="mMeta"></div>
+                <h2 class="m-title" id="mTitle"></h2>
+                <h3 class="m-artist" id="mArtist"></h3>
+                <div class="m-summary" id="mSummary"></div>
             </div>
-
-            <!-- SECTION 2: IMF -->
-            <div class="analysis-section">
-                <div class="summary-title">Міжпланетне Магнітне Поле · IMF</div>
-                <div class="phys-stats-grid">
-                    <div class="stat-item">IMF Bt (total): <b id="st-energy">---</b></div>
-                    <div class="stat-item">IMF Bz: <b id="st-bz">---</b></div>
-                    <div class="stat-item">IMF By: <b id="st-by">---</b></div>
-                    <div class="stat-item">Напрямок Bz: <b id="st-mom">---</b></div>
-                </div>
-            </div>
-
-            <!-- SECTION 3: Geomagnetic -->
-            <div class="analysis-section">
-                <div class="summary-title">Геомагнітний Стан · NOAA</div>
-                <div class="phys-stats-grid">
-                    <div class="stat-item">Kp-індекс: <b id="st-refr">---</b></div>
-                    <div class="stat-item">Тренд Kp: <b id="st-kptrend">---</b></div>
-                    <div class="stat-item">Рівень бурі (G): <b id="st-storm">---</b></div>
-                    <div class="stat-item">Аврора видна до: <b id="st-aurora">---</b></div>
-                    <div class="stat-item">X-Ray Flux: <b id="st-xray">---</b></div>
-                    <div class="stat-item">Proton Flux: <b id="st-proton">---</b></div>
-                    <div class="stat-item">R-scale: <b id="st-rscale">---</b></div>
-                    <div class="stat-item">S-scale: <b id="st-sscale">---</b></div>
-                </div>
-            </div>
-
-            <!-- SECTION 4: Flares & Activity -->
-            <div class="analysis-section">
-                <div class="summary-title">Спалахи та Активність · GOES</div>
-                <div class="phys-stats-grid">
-                    <div class="stat-item">X-Ray клас (зараз): <b id="st-flare">---</b></div>
-                    <div class="stat-item">X-спалахів (7 днів): <b id="st-xcount">---</b></div>
-                    <div class="stat-item">Найсильніший: <b id="st-strongest">---</b></div>
-                    <div class="stat-item">F10.7 (sfu): <b id="st-f107">---</b></div>
-                    <div class="stat-item">Вірогідність M-спал. 24г: <b id="st-probm">---</b></div>
-                    <div class="stat-item">Вірогідність X-спал. 24г: <b id="st-probx">---</b></div>
-                    <div class="stat-item">Сонячні плями (SSN): <b id="st-coh">---</b></div>
-                    <div class="stat-item">CME на Землю: <b id="st-cme">---</b></div>
-                    <div class="stat-item">Electron Flux: <b id="st-elec">---</b></div>
-                    <div class="stat-item">SSN (SIDC): <b id="st-ssn">---</b></div>
-                </div>
-            </div>
-
-            <!-- SECTION 5: Solar Wind Narrative -->
-            <div class="analysis-section">
-                <div class="summary-title">Аналіз Потоку · Live</div>
-                <div class="narrative-content" id="space-narrative">Очікування даних від DSCOVR та GOES...</div>
-            </div>
-
-            <!-- SECTION 6: Verdict -->
-            <div class="analysis-section" style="grid-column: span 1;">
-                <div class="summary-title">Геомагнітний Аналіз · Висновок</div>
-                <div class="narrative-content" id="geo-narrative" style="margin-bottom:10px;">Калібрування...</div>
-                <div class="narrative-content" id="system-verdict" style="color:var(--accent); font-weight:500; border-top:1px solid var(--border); padding-top:8px; margin-top:8px;">Завантаження...</div>
-            </div>
-
         </div>
     </div>
 
+    <footer>
+        <p>&copy; 2026 ARSLIB Universalis. Цифрова архівація світової спадщини.</p>
+    </footer>
 
     <script>
+        const API_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
+        const artGrid = document.getElementById('artGrid');
+        const searchInput = document.getElementById('searchInput');
+        const centuryNav = document.getElementById('centuryNav');
+        const modal = document.getElementById('artModal');
+        const closeBtn = document.querySelector('.close-btn');
 
-        // Updated styles for the expanded analytical block
-        const styleSheet = document.createElement("style");
-        styleSheet.innerText = `
-            .analytical-block {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: auto auto;
-                gap: 25px;
-                padding: 30px;
-                background: rgba(0, 5, 15, 0.95);
-            }
-            .analysis-section {
-                border-left: 1px solid var(--border);
-                padding-left: 15px;
-            }
-            .phys-stats-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-            .stat-item {
-                font-size: 11px;
-                color: #88a;
-            }
-            .stat-item b {
-                color: var(--accent);
-                display: block;
-            }
-            .narrative-content {
-                font-size: 11px;
-                line-height: 1.5;
-                color: #ccd;
-                margin-top: 5px;
-            }
-            @media (max-width: 900px) {
-                .analytical-block { grid-template-columns: 1fr; }
-            }
-        `;
-        document.head.appendChild(styleSheet);
+        let currentData = [];
+        let currentQuery = "art";
+        let currentRange = { start: null, end: null };
+        let skip = 0;
+        let isLoading = false;
+        let allLoaded = false;
 
-        // Configuration & State
-        const proxy = 'https://api.codetabs.com/v1/proxy?quest=';
-        let currentMode = 'interference';
-        let solarData = {
-            speed: 432, dens: 2.1, temp: 80000, mag: 4.8, bz: -2, by: 1,
-            kp: 1.3, prevKp: 1.3, kpTrend: '→', xray: 'Normal', ssn: 142,
-            proton: 'Normal', pressure: 2.1, flareClass: '---', f107: 150,
-            stormLevel: 'Quiet', xFlareCount: 0, strongestFlare: 'None',
-            flareProb24M: '---', flareProb24X: '---',
-            electronFlux: '---', hasCME: false, dataTime: '---',
-            rScale: 0, sScale: 0, gScale: 0, auroraLat: '---'
-        };
-        let lastFetchStatus = 'initial';
-
-        function classifyFlare(flux) {
-            if (typeof flux !== 'number' || flux <= 0) return '---';
-            if (flux >= 1e-4) return 'X' + (flux / 1e-4).toFixed(1);
-            if (flux >= 1e-5) return 'M' + (flux / 1e-5).toFixed(1);
-            if (flux >= 1e-6) return 'C' + (flux / 1e-6).toFixed(1);
-            if (flux >= 1e-7) return 'B' + (flux / 1e-7).toFixed(1);
-            return 'A' + (flux / 1e-8).toFixed(1);
-        }
-
-        async function fetchSource(url) {
-            const controller = new AbortController();
-            const tid = setTimeout(() => controller.abort(), 9000);
-            try {
-                // Використовуємо прямий запит, оскільки API NOAA та NASA підтримують CORS
-                const r = await fetch(url, { signal: controller.signal });
-                clearTimeout(tid);
-                if (!r.ok) return null;
-                return await r.json();
-            } catch { return null; }
-        }
-
-        async function fetchAllData() {
-            nextUpdate = 30;
-            let successCount = 0;
-            const U = {
-                plasma:  'https://services.swpc.noaa.gov/products/solar-wind/plasma-5-minute.json',
-                mag:     'https://services.swpc.noaa.gov/products/solar-wind/mag-5-minute.json',
-                kp:      'https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json',
-                scales:  'https://services.swpc.noaa.gov/products/noaa-scales.json',
-                ssn:     'https://services.swpc.noaa.gov/products/summary/sunspot-number.json',
-                xray:    'https://services.swpc.noaa.gov/json/goes/primary/xrays-6-hour.json',
-                indices: 'https://services.swpc.noaa.gov/json/solar-cycle/observed-solar-cycle-indices.json',
-                donki:   'https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR',
-                preds:   'https://services.swpc.noaa.gov/products/noaa-solar-geomagnetic-predictions.json',
-                elec:    'https://services.swpc.noaa.gov/json/goes/primary/electrons-6-hour.json',
-                cme:     'https://kauai.ccmc.gsfc.nasa.gov/DONKI/WS/get/CME'
+        // Century Buttons Generation
+        const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
+        roman.forEach((r, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'epoch-btn';
+            btn.textContent = `${r} ст.`;
+            const start = i * 100;
+            const end = (i + 1) * 100 - 1;
+            btn.onclick = () => {
+                // Clear active century buttons
+                centuryNav.querySelectorAll('.epoch-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentRange = { start, end };
+                fetchArt(currentQuery, false);
             };
-            const [pD, mD, kD, sD, dD, xD, iD, fD, prD, elD, cmD] = await Promise.all([
-                fetchSource(U.plasma), fetchSource(U.mag), fetchSource(U.kp),
-                fetchSource(U.scales), fetchSource(U.ssn), fetchSource(U.xray),
-                fetchSource(U.indices), fetchSource(U.donki),
-                fetchSource(U.preds), fetchSource(U.elec), fetchSource(U.cme)
-            ]);
-            // Plasma data time
-            if (pD && pD.length > 1) {
-                const l = pD[pD.length - 1];
-                if (l[0]) solarData.dataTime = l[0].replace('T',' ').substring(0,16) + ' UTC';
-                if (l[2]) { solarData.speed = parseFloat(l[2]); successCount++; }
-                if (l[1]) solarData.dens  = parseFloat(l[1]);
-                if (l[3]) solarData.temp  = parseFloat(l[3]);
-                solarData.pressure = parseFloat((solarData.dens * Math.pow(solarData.speed, 2) * 1.67e-6).toFixed(2));
-            }
-            if (mD && mD.length > 1) {
-                const l = mD[mD.length - 1];
-                if (l[6]) { solarData.mag = parseFloat(l[6]); successCount++; }
-                if (l[3]) solarData.bz = parseFloat(l[3]);
-                if (l[2]) solarData.by = parseFloat(l[2]);
-            }
-            if (kD && kD.length > 1) {
-                const l = kD[kD.length - 1];
-                const kpVal = l.Kp !== undefined ? parseFloat(l.Kp) : parseFloat(l[1]);
-                if (!isNaN(kpVal)) {
-                    solarData.kpTrend = kpVal > solarData.prevKp + 0.3 ? '↑' : kpVal < solarData.prevKp - 0.3 ? '↓' : '→';
-                    solarData.prevKp = solarData.kp;
-                    solarData.kp = kpVal;
-                    successCount++;
-                }
-            }
-            if (sD) {
-                if (sD.r && sD.r.text) solarData.xray   = sD.r.text;
-                if (sD.s && sD.s.text) solarData.proton = sD.s.text;
-                if (sD.g && sD.g.Scale) {
-                    const g = parseInt(sD.g.Scale);
-                    solarData.stormLevel = g >= 1 ? 'G' + g : 'Quiet';
-                    solarData.gScale = g || 0;
-                }
-            }
-            if (dD && dD.Sum) solarData.ssn = dD.Sum;
-            if (xD && xD.length > 0) {
-                const flux = parseFloat(xD[xD.length - 1].flux);
-                solarData.flareClass = classifyFlare(flux);
-                // R-scale from X-ray
-                solarData.rScale = flux >= 1e-4 ? 4 : flux >= 1e-5 ? 3 : flux >= 2e-5 ? 2 : flux >= 1e-6 ? 1 : 0;
-            }
-            if (iD && iD.length > 0) {
-                const lat = iD[iD.length - 1];
-                if (lat.f10_7 || lat['f10.7']) solarData.f107 = lat.f10_7 || lat['f10.7'];
-                if (lat.ssn) solarData.ssn = lat.ssn;
-            }
-            if (fD && Array.isArray(fD)) {
-                const cutoff = Date.now() - 7 * 864e5;
-                const recent = fD.filter(f => new Date(f.peakTime) > cutoff);
-                const xfl = recent.filter(f => f.classType && f.classType.startsWith('X'));
-                solarData.xFlareCount = xfl.length;
-                if (xfl.length > 0) {
-                    const top = xfl.reduce((a, b) =>
-                        (parseFloat(b.classType.slice(1))||0) > (parseFloat(a.classType.slice(1))||0) ? b : a);
-                    solarData.strongestFlare = top.classType + ' @ ' + new Date(top.peakTime).toLocaleDateString();
-                } else { solarData.strongestFlare = 'None'; }
-            }
-            // Flare probability (24h)
-            if (prD && Array.isArray(prD) && prD.length > 1) {
-                const row = prD[prD.length - 1];
-                // Headers are in row 0; typical columns: date, c-prob, m-prob, x-prob
-                try {
-                    solarData.flareProb24M = row[3] !== undefined ? row[3] + '%' : '---';
-                    solarData.flareProb24X = row[4] !== undefined ? row[4] + '%' : '---';
-                } catch(e) { solarData.flareProb24M = solarData.flareProb24X = '---'; }
-            }
-            // Electron flux
-            if (elD && elD.length > 0) {
-                const el = elD[elD.length - 1];
-                const ef = parseFloat(el.flux || el.observed_flux);
-                solarData.electronFlux = isNaN(ef) ? '---' : ef.toExponential(2);
-                solarData.sScale = ef > 1e4 ? 5 : ef > 1e3 ? 4 : ef > 1e2 ? 3 : ef > 10 ? 2 : ef > 1 ? 1 : 0;
-            }
-            // CME earth-directed check
-            if (cmD && Array.isArray(cmD)) {
-                const cutoff = Date.now() - 3 * 864e5;
-                const recent = cmD.filter(c => new Date(c.startTime) > cutoff);
-                solarData.hasCME = recent.some(c => c.cmeAnalyses &&
-                    c.cmeAnalyses.some(a => a.isMostAccurate && Math.abs(a.longitude||180) < 45));
-            }
-            // Aurora latitude from Kp
-            solarData.auroraLat = solarData.kp >= 1 ? (90 - solarData.kp * 5.5).toFixed(0) + '°N' : '>85°N';
-
-            lastFetchStatus = successCount >= 3 ? 'success' : successCount > 0 ? 'partial' : 'failed';
-            updateUI();
-        }
-
-        // ── CHART SETUP ──────────────────────────────────────────────────────────
-        const chartH = { labels: [], bz: [], kp: [], speed: [], pressure: [] };
-        let solarChart = null;
-        function initChart() {
-            const ctx = document.getElementById('solarChart');
-            if (!ctx || !window.Chart) return;
-            solarChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartH.labels,
-                    datasets: [
-                        { label: 'IMF Bz (nT)', data: chartH.bz, borderColor: '#ff4fa0', backgroundColor: 'rgba(255,79,160,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
-                        { label: 'Kp × 2', data: chartH.kp, borderColor: '#00e5ff', backgroundColor: 'rgba(0,229,255,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
-                        { label: 'Speed / 80', data: chartH.speed, borderColor: '#ffaa00', backgroundColor: 'rgba(255,170,0,0.05)', borderWidth: 1.5, tension: 0.4, pointRadius: 0 },
-                        { label: 'Pressure', data: chartH.pressure, borderColor: '#88ff44', backgroundColor: 'rgba(136,255,68,0.05)', borderWidth: 1.2, tension: 0.4, pointRadius: 0 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false, animation: false,
-                    scales: {
-                        x: { ticks: { color: '#445', font: { size: 8 }, maxTicksLimit: 8 }, grid: { color: 'rgba(0,229,255,0.04)' } },
-                        y: { ticks: { color: '#445', font: { size: 8 } }, grid: { color: 'rgba(0,229,255,0.04)' } }
-                    },
-                    plugins: { legend: { labels: { color: '#778', font: { size: 9 }, boxWidth: 10 } } }
-                }
-            });
-        }
-        function updateChart(ok) {
-            if (!solarChart || !ok) return;
-            const t = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            chartH.labels.push(t);
-            chartH.bz.push(parseFloat(solarData.bz.toFixed(1)));
-            chartH.kp.push(parseFloat((solarData.kp * 2).toFixed(1)));
-            chartH.speed.push(parseFloat((solarData.speed / 80).toFixed(1)));
-            chartH.pressure.push(parseFloat(solarData.pressure.toFixed(2)));
-            if (chartH.labels.length > 30) {
-                chartH.labels.shift(); chartH.bz.shift(); chartH.kp.shift();
-                chartH.speed.shift(); chartH.pressure.shift();
-            }
-            solarChart.update('none');
-        }
-
-        // ── SCALE BADGE HELPER ───────────────────────────────────────────────────
-        const scaleColors = ['#333','#1a6','#880','#f90','#f40','#f00'];
-        const scaleTextC  = ['#555','#0f0','#ff0','#f90','#f44','#f44'];
-        function setScaleBadge(id, letter, n) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            const safe = Math.max(0, Math.min(5, n));
-            el.textContent = letter + safe;
-            el.style.background = scaleColors[safe];
-            el.style.color = scaleTextC[safe];
-        }
-
-        function updateUI() {
-            const ok = lastFetchStatus === 'success' || lastFetchStatus === 'partial';
-            const na = '---';
-            // HUD
-            const col = lastFetchStatus === 'success' ? '#0f0' : lastFetchStatus === 'partial' ? '#ff0' : '#f44';
-            const lbl = lastFetchStatus === 'initial' ? 'INIT' : lastFetchStatus.toUpperCase();
-            document.getElementById('sol-sync').innerHTML = `<span style="color:${col}">${lbl}</span> ${new Date().toLocaleTimeString()}`;
-            document.getElementById('sol-wind').innerText = ok ? solarData.speed.toFixed(0) : na;
-            document.getElementById('sol-dens').innerText = ok ? solarData.dens.toFixed(1)  : na;
-            document.getElementById('hud-bz').innerText   = ok ? solarData.bz.toFixed(1)    : na;
-            document.getElementById('hud-bz').style.color = ok ? (solarData.bz < -5 ? '#f44' : solarData.bz < 0 ? '#ff0' : '#0f0') : '#888';
-            document.getElementById('hud-kp').innerText   = ok ? solarData.kp.toFixed(2)    : na;
-            document.getElementById('hud-kp').style.color = ok ? (solarData.kp >= 5 ? '#f44' : solarData.kp >= 3 ? '#ff0' : '#0f0') : '#888';
-            document.getElementById('hud-kptrend').innerText = ok ? solarData.kpTrend : '';
-            // R/S/G badges (HUD)
-            setScaleBadge('hud-r', 'R', solarData.rScale);
-            setScaleBadge('hud-s', 'S', solarData.sScale);
-            setScaleBadge('hud-g', 'G', solarData.gScale);
-            // Data time + progress bar
-            if (ok) document.getElementById('data-time').innerText = solarData.dataTime;
-            // Section 1 – Solar Wind
-            document.getElementById('st-lambda').innerText   = ok ? solarData.speed.toFixed(1) + ' km/s'  : na;
-            document.getElementById('st-freq').innerText     = ok ? solarData.dens.toFixed(2)  + ' p/cm³' : na;
-            document.getElementById('st-temp').innerText     = ok ? (solarData.temp/1000).toFixed(0) + ' kK' : na;
-            document.getElementById('st-pressure').innerText = ok ? solarData.pressure.toFixed(2) + ' nPa' : na;
-            // Section 2 – IMF
-            document.getElementById('st-energy').innerText = ok ? solarData.mag.toFixed(2) + ' nT'  : na;
-            document.getElementById('st-bz').innerText     = ok ? solarData.bz.toFixed(2)  + ' nT'  : na;
-            document.getElementById('st-by').innerText     = ok ? solarData.by.toFixed(2)  + ' nT'  : na;
-            document.getElementById('st-mom').innerText    = ok ? (solarData.bz < 0 ? '▼ South (небезпечно)' : '▲ North (безпечно)') : na;
-            // Section 3 – Geomagnetic
-            document.getElementById('st-refr').innerText    = ok ? solarData.kp.toFixed(2) : na;
-            document.getElementById('st-kptrend').innerText = ok ? solarData.kpTrend + ' ' + (solarData.kpTrend==='↑'?'Зростає':solarData.kpTrend==='↓'?'Спадає':'Стабільно') : na;
-            document.getElementById('st-storm').innerText   = ok ? solarData.stormLevel : na;
-            document.getElementById('st-aurora').innerText  = ok ? '≥ ' + solarData.auroraLat : na;
-            document.getElementById('st-xray').innerText    = ok ? solarData.xray   : na;
-            document.getElementById('st-proton').innerText  = ok ? solarData.proton : na;
-            document.getElementById('st-rscale').innerText  = ok ? 'R' + solarData.rScale + ' (Radio Blackout)' : na;
-            document.getElementById('st-sscale').innerText  = ok ? 'S' + solarData.sScale + ' (Radiation Storm)' : na;
-            // Section 4 – Flares
-            document.getElementById('st-flare').innerText    = ok ? solarData.flareClass      : na;
-            document.getElementById('st-xcount').innerText   = ok ? String(solarData.xFlareCount) : na;
-            document.getElementById('st-strongest').innerText= ok ? solarData.strongestFlare  : na;
-            document.getElementById('st-f107').innerText     = ok ? String(solarData.f107)    : na;
-            document.getElementById('st-probm').innerText    = ok ? solarData.flareProb24M    : na;
-            document.getElementById('st-probx').innerText    = ok ? solarData.flareProb24X    : na;
-            document.getElementById('st-coh').innerText      = ok ? String(solarData.ssn)     : na;
-            document.getElementById('st-cme').innerText      = ok ? (solarData.hasCME ? '⚠ ТАК (3 дні)' : 'Не виявлено') : na;
-            document.getElementById('st-cme').style.color    = ok && solarData.hasCME ? '#f90' : '';
-            document.getElementById('st-elec').innerText     = ok ? solarData.electronFlux + ' pfu' : na;
-            document.getElementById('st-ssn').innerText      = ok ? String(solarData.ssn)     : na;
-            updateChart(ok);
-            updateSystemLogic(ok);
-            generateWideAnalysis(ok);
-        }
-
-        function updateSystemLogic(ok) {
-            if (ok) {
-                params.speed       = (solarData.speed - 300) / 15 + 9;
-                params.intensity   = solarData.dens / 5 + 1;
-                params.qnoise      = (solarData.kp / 9) * 0.5;
-                params.waveBend    = (solarData.mag - 5) / 10;
-                params.curvature   = (solarData.mag - 10) / 20;
-                params.polarization= Math.abs(Math.sin(solarData.bz * 0.3));
-            }
-        }
-
-        function generateWideAnalysis(ok) {
-            const spaceN  = document.getElementById('space-narrative');
-            const geoN    = document.getElementById('geo-narrative');
-            const verdict = document.getElementById('system-verdict');
-
-            if (!ok) {
-                spaceN.innerHTML  = '<span style="color:#f44">⚠ Немає з\'єднання з NOAA API. Дані недоступні.</span>';
-                geoN.innerHTML    = '<span style="color:#f44">⚠ Геомагнітні дані недоступні. Перевірте мережу.</span>';
-                verdict.innerHTML = '<b>ОЧІКУВАННЯ:</b> Система чекає на телеметрію від DSCOVR (L1) та GOES.';
-                return;
-            }
-
-            // ── SOLAR WIND NARRATIVE ─────────────────────────────────────────────
-            const speedTag  = solarData.speed > 700 ? `<b style="color:#f44">ВИСОКА (${solarData.speed.toFixed(0)} km/s)</b>`
-                            : solarData.speed > 450 ? `<b style="color:#ff0">ПІДВИЩЕНА (${solarData.speed.toFixed(0)} km/s)</b>`
-                            : `<b style="color:#0f0">НОРМА (${solarData.speed.toFixed(0)} km/s)</b>`;
-            const pressTag  = solarData.pressure > 10 ? `<b style="color:#f44">${solarData.pressure.toFixed(2)} nPa (ВИСОКА)</b>`
-                            : solarData.pressure > 5  ? `<b style="color:#ff0">${solarData.pressure.toFixed(2)} nPa (ПОМІРНА)</b>`
-                            : `<b style="color:#0f0">${solarData.pressure.toFixed(2)} nPa (НОРМА)</b>`;
-            const bzTag     = solarData.bz < -10 ? `<b style="color:#f44">${solarData.bz.toFixed(1)} nT (КРИТИЧНО South — геошторм можливий)</b>`
-                            : solarData.bz < -5  ? `<b style="color:#ff0">${solarData.bz.toFixed(1)} nT (South — увага)</b>`
-                            : solarData.bz < 0   ? `<b style="color:#adf">${solarData.bz.toFixed(1)} nT (слабо South)</b>`
-                            : `<b style="color:#0f0">${solarData.bz.toFixed(1)} nT (North — безпечно)</b>`;
-
-            let s = `<b>Сонячний вітер</b> зафіксовано зі швидкістю ${speedTag}, щільністю протонів <b>${solarData.dens.toFixed(1)} p/cm³</b>`
-                  + ` та температурою плазми <b>${(solarData.temp/1000).toFixed(0)} kK</b>. `
-                  + `Динамічний тиск на магнітосферу: ${pressTag}. `
-                  + `<br><b>IMF Bt</b> = <b>${solarData.mag.toFixed(1)} nT</b>. `
-                  + `Компонент <b>Bz</b> = ${bzTag} — ключовий індикатор ризику геомагнітної бурі`
-                  + ` (від'ємний Bz → магнітне з'єднання з полем Землі → вхід плазми). `
-                  + `IMF <b>By</b> = <b>${solarData.by.toFixed(1)} nT</b>.`;
-            if (solarData.bz < -5) {
-                s += ` <b style="color:#f90">⚠ Від'ємний Bz посилює геомагнітний вплив.</b>`;
-            }
-            spaceN.innerHTML = s;
-
-            // ── GEOMAGNETIC + FLARE NARRATIVE ────────────────────────────────────
-            const kpTag = solarData.kp >= 7 ? `<b style="color:#f44">Kp = ${solarData.kp.toFixed(1)} (G${solarData.kp >= 8 ? '4–5' : '3'} — ШТОРМ)</b>`
-                        : solarData.kp >= 5 ? `<b style="color:#f90">Kp = ${solarData.kp.toFixed(1)} (G1–G2 — ШТОРМ)</b>`
-                        : solarData.kp >= 3 ? `<b style="color:#ff0">Kp = ${solarData.kp.toFixed(1)} (ЗБУРЕНО)</b>`
-                        : `<b style="color:#0f0">Kp = ${solarData.kp.toFixed(1)} (СПОКІЙНО)</b>`;
-
-            const flareTag = solarData.flareClass.startsWith('X') ? `<b style="color:#f44">${solarData.flareClass} (X-клас — екстремальний)</b>`
-                           : solarData.flareClass.startsWith('M') ? `<b style="color:#f90">${solarData.flareClass} (M-клас — помірний)</b>`
-                           : solarData.flareClass.startsWith('C') ? `<b style="color:#ff0">${solarData.flareClass} (C-клас — слабкий)</b>`
-                           : `<b style="color:#0f0">${solarData.flareClass}</b>`;
-
-            let g = `Геомагнітний індекс ${kpTag}, рівень бурі: <b>${solarData.stormLevel}</b>. `;
-            if (solarData.kp >= 5) g += `Можливі: збої радіозв'язку, GPS, полярні сяйва до 50° широти. `;
-            else if (solarData.kp >= 3) g += `Слабкі збурення магнітосфери, полярні сяйва на широтах 60°+. `;
-            else g += `Магнітосфера стабільна. Умови сприятливі. `;
-
-            g += `<br>Поточний рентгенівський спалах GOES: ${flareTag}. `
-               + `X-спалахів за 7 днів: <b>${solarData.xFlareCount}</b>`
-               + (solarData.xFlareCount > 0 ? `, найсильніший: <b style="color:#f44">${solarData.strongestFlare}</b>` : ' (жодного)')
-               + `. X-Ray Flux: <b>${solarData.xray}</b>. Proton Flux: <b>${solarData.proton}</b>. `
-               + `<br>F10.7 = <b>${solarData.f107} sfu</b> — `
-               + (solarData.f107 > 180 ? 'висока активність хромосфери' : solarData.f107 > 120 ? 'помірна активність' : 'низька активність')
-               + `. SSN = <b>${solarData.ssn}</b> — `
-               + (solarData.ssn > 150 ? 'пік 25-го сонячного циклу' : solarData.ssn > 80 ? 'активна фаза циклу 25' : 'спокійна фаза')
-               + `.<br><b>Прогноз NOAA на 24 год:</b> M-спалах <b>${solarData.flareProb24M}</b>, X-спалах <b>${solarData.flareProb24X}</b>. `
-               + `Electron Flux (≥2 MeV): <b>${solarData.electronFlux} pfu</b>. `
-               + `CME на Землю (3 дні): <b style="color:${solarData.hasCME?'#f90':'#0f0'}">${solarData.hasCME?'⚠ Виявлено':'Не виявлено'}</b>. `
-               + `Полярне сяйво видне від широти: <b>${solarData.auroraLat}</b>. `
-               + `R-scale: <b>R${solarData.rScale}</b> · S-scale: <b>S${solarData.sScale}</b> · G-scale: <b>G${solarData.gScale}</b>.`;
-            geoN.innerHTML = g;
-
-            // ── SYSTEM VERDICT ────────────────────────────────────────────────────
-            const isCritical = solarData.kp >= 6 || solarData.speed > 700 || solarData.bz < -15
-                             || solarData.flareClass.startsWith('X') || solarData.pressure > 15 || solarData.hasCME;
-            const isElevated = solarData.kp >= 3 || solarData.speed > 450 || solarData.bz < -5
-                             || solarData.flareClass.startsWith('M') || solarData.pressure > 5;
-
-            let v = '';
-            if (isCritical) {
-                v = `<b style="color:#f44">🔴 КРИТИЧНА ГЕОМАГНІТНА ПОДІЯ</b> — зафіксовано один або кілька критичних параметрів: `
-                  + `Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, P=${solarData.pressure.toFixed(2)} nPa. `
-                  + `${solarData.hasCME ? '<b style="color:#f90">⚠ CME спрямовано на Землю!</b> ' : ''}`
-                  + `Ризики: збої GPS/навігації, радіозв'язку (HF), перебої в електромережах на полюсах. Рекомендовано посилений моніторинг.`;
-            } else if (isElevated) {
-                v = `<b style="color:#ff0">🟡 ПІДВИЩЕНА АКТИВНІСТЬ</b> — Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT. `
-                  + `Прогноз M-спалаху: <b>${solarData.flareProb24M}</b>. Можливі слабкі збурення іоносфери.`;
-            } else {
-                v = `<b style="color:#0f0">🟢 СТАБІЛЬНИЙ СТАН</b> — Kp=${solarData.kp.toFixed(1)} ${solarData.kpTrend}, v=${solarData.speed.toFixed(0)} km/s, Bz=${solarData.bz.toFixed(1)} nT, P=${solarData.pressure.toFixed(2)} nPa. `
-                  + `Геомагнітне поле спокійне. Іоносфера стабільна. Прогноз X-спалаху: <b>${solarData.flareProb24X}</b>.`;
-            }
-            v += `<br><small style="opacity:0.5;font-size:9px;">ДЖЕРЕЛА: NOAA/SWPC DSCOVR L1 · GOES · DONKI · NOAA PREDICTIONS. ОНОВЛЕННЯ: 30 сек. IBONARIUM 2026</small>`;
-            verdict.innerHTML = v;
-        }
-
-        // Starfield Engine
-        const sc = document.getElementById('stars'); const sctx = sc.getContext('2d');
-        function resz() { sc.width = innerWidth; sc.height = innerHeight; } resz(); addEventListener('resize', resz);
-        let stars = [...Array(300)].map(() => ({ x: (Math.random() - 0.5) * 2000, y: (Math.random() - 0.5) * 2000, z: Math.random() * 2000, s: Math.random() * 2 + 0.5 }));
-        function drawStars(t) {
-            sctx.fillStyle = '#010204'; sctx.fillRect(0, 0, sc.width, sc.height);
-            const cx = sc.width / 2, cy = sc.height / 2;
-            const speed = (params.speed * 0.1 + 0.5);
-            stars.forEach(st => {
-                st.z -= speed; if (st.z <= 0) st.z = 2000;
-                let k = 600 / st.z; let px = st.x * k + cx; let py = st.y * k + cy;
-                if (px < 0 || px > sc.width || py < 0 || py > sc.height) return;
-                let size = (1 - st.z / 2000) * st.s;
-                sctx.fillStyle = `rgba(180, 240, 255, ${1 - st.z / 2000})`;
-                sctx.beginPath(); sctx.arc(px, py, size, 0, 6.28); sctx.fill();
-            });
-        }
-
-        // Animation Loop
-        let lastFrameTime = 0;
-        function mainLoop(time) {
-            if (time - lastFrameTime < 28) { requestAnimationFrame(mainLoop); return; }
-            lastFrameTime = time; const t = time * 0.001;
-            drawStars(t); monitors.forEach(m => drawMonitor(m, t));
-            requestAnimationFrame(mainLoop);
-        }
-
-        function drawMonitor(mon, t) {
-            const { ctx, mode, id } = mon; const w = 460; const time = t * (params.speed * 0.15 + 1);
-            ctx.fillStyle = 'rgba(3, 3, 5, 0.25)'; ctx.fillRect(0, 0, w, w);
-            if (mode === 'interference') {
-                const lambda = params.lambda / 10; const k = 6.28 / lambda; const d_val = params.a;
-                for (let y = 0; y < w; y += 12) {
-                    for (let x = 0; x < w; x += 12) {
-                        let nx = x - w/2; let ny = y - w/2;
-                        const d1 = Math.sqrt((nx + d_val)**2 + ny**2); const d2 = Math.sqrt((nx - d_val)**2 + ny**2);
-                        let val = Math.cos(k * d1 - time) + Math.cos(k * d2 - time);
-                        ctx.fillStyle = nmToRGB(params.lambda, (val + 2) / 4 * params.intensity); ctx.fillRect(x, y, 12, 12);
-                    }
-                }
-            } else if (mode === 'diffraction') {
-                const slitWidth = params.a / 10;
-                for (let px = 0; px < w; px += 4) {
-                    let x = (px - w / 2) * 0.1; let b = (Math.PI * slitWidth * x) / (params.lambda / 100);
-                    let I = Math.pow(Math.sin(b) / b || 1, 2) * params.intensity;
-                    ctx.fillStyle = nmToRGB(params.lambda, I); ctx.fillRect(px, (w - w * I) / 2, 4, w * I);
-                }
-            } else if (mode === 'dispersion') {
-                for (let i = 0; i < 10; i++) {
-                    let wl = 400 + i * 40; let dev = (1.5 + params.curvature - 1) * (1 + 10000 / (wl * wl)) * 100;
-                    ctx.strokeStyle = nmToRGB(wl, params.intensity); ctx.beginPath(); ctx.moveTo(0, w/2);
-                    ctx.lineTo(w*0.4, w/2 + params.waveBend * 20); ctx.lineTo(w, w/2 + dev * params.waveBend - 50 + i * 15); ctx.stroke();
-                }
-            } else if (mode === 'kinetics') {
-                particles.forEach(p => {
-                    p.x += (params.speed * 0.3 + 1); if (p.x > w) { p.x = 0; p.y = Math.random() * w; }
-                    ctx.fillStyle = nmToRGB(params.lambda, params.intensity);
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 2 + params.qnoise * 5 * Math.random(), 0, 6.28); ctx.fill();
-                });
-            } else if (mode === 'polarization') {
-                const angle = params.polarization * Math.PI * 2 + time * 0.5;
-                for (let x = 60; x < w; x += 80) {
-                    for (let y = 60; y < w; y += 80) {
-                        ctx.strokeStyle = nmToRGB(params.lambda, 0.8); ctx.beginPath();
-                        ctx.moveTo(x - Math.cos(angle)*30, y - Math.sin(angle)*30); ctx.lineTo(x + Math.cos(angle)*30, y + Math.sin(angle)*30); ctx.stroke();
-                    }
-                }
-            } else if (mode === 'raytracing') {
-                for (let i = 0; i < 8; i++) {
-                    let y = 80 + i * 40; ctx.strokeStyle = nmToRGB(params.lambda, params.intensity * 0.5);
-                    ctx.beginPath(); ctx.moveTo(0, y); let midY = y + Math.sin(time + i) * 30 * params.curvature;
-                    ctx.lineTo(w*0.5, midY); ctx.lineTo(w, midY + (midY - y) * 2.5); ctx.stroke();
-                }
-            } else if (mode === 'wavefront') {
-                for (let r = 0; r < 4; r++) {
-                    let radius = (time * 50 + r * 120) % 450; ctx.strokeStyle = nmToRGB(params.lambda, (1 - radius / 450) * params.intensity);
-                    ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(w/2, w/2, radius, radius * (1 - Math.abs(params.waveBend)), params.waveBend * Math.PI, 0, 6.28); ctx.stroke();
-                }
-            } else if (mode === 'synchrotron') {
-                let rx = w/2 + Math.cos(time * 1.5) * 100; let ry = w/2 + Math.sin(time * 1.2) * 80;
-                ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(rx, ry, 4, 0, 6.28); ctx.fill();
-                for (let i = 0; i < 3; i++) {
-                    let r = (time * 150 + i * 120) % 350; ctx.strokeStyle = nmToRGB(400 + Math.sin(time)*200, (1 - r/350) * params.intensity);
-                    ctx.beginPath(); ctx.arc(rx, ry, r, 0, 6.28); ctx.stroke();
-                }
-            }
-            document.getElementById(`flux-${id}`).innerText = (params.intensity * 40 + Math.sin(time + id) * 5 + 10).toFixed(1);
-            document.getElementById(`en-${id}`).innerText = (Math.sin(time + id) * 180).toFixed(1) + "°";
-        }
-
-        const modesList = ['interference', 'diffraction', 'dispersion', 'kinetics', 'polarization', 'raytracing', 'wavefront', 'synchrotron'];
-        const gridEl = document.getElementById('m-grid'); const monitors = [];
-        const particles = [...Array(100)].map(() => ({ x: Math.random() * 460, y: Math.random() * 460 }));
-        modesList.forEach((m, i) => {
-            const div = document.createElement('div'); div.className = 'monitor-item';
-            div.innerHTML = `<canvas class="display" id="can-${i}"></canvas><div class="data-overlay">FLUX: <span id="flux-${i}">0.0</span><br>PHASE: <span id="en-${i}">0.0</span></div><div class="monitor-label">${m}</div>`;
-            gridEl.appendChild(div); const c = div.querySelector('canvas'); c.width = c.height = 460;
-            monitors.push({ ctx: c.getContext('2d'), mode: m, id: i, canvas: c });
+            centuryNav.appendChild(btn);
         });
 
-        function setMode(m) {
-            currentMode = m;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            const btnId = `btn-${m.substring(0,3)}`;
-            const btn = document.getElementById(btnId);
-            if (btn) btn.classList.add('active');
-            monitors.forEach(mon => {
-                if (mon.mode === m) mon.canvas.parentElement.style.borderColor = 'var(--secondary)';
-                else mon.canvas.parentElement.style.borderColor = 'rgba(255,255,255,0.05)';
+        const TECHNIQUE_MAP = {
+            "oil on canvas": "Олія на полотні", "oil on wood": "Олія на дереві",
+            "watercolor": "Акварель", "engraving": "Гравюра", "etching": "Офорт",
+            "marble": "Мармур", "bronze": "Бронза", "sculpture": "Скульптура"
+        };
+
+        function translate(text) {
+            if (!text) return "";
+            const lower = text.toLowerCase();
+            for (const [en, ua] of Object.entries(TECHNIQUE_MAP)) {
+                if (lower.includes(en)) return ua;
+            }
+            return text;
+        }
+
+        async function gTranslate(text) {
+            if (!text || text.length < 3) return text;
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uk&dt=t&q=${encodeURIComponent(text)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                return data[0].map(item => item[0]).join('');
+            } catch (e) { return text; }
+        }
+
+        async function fetchArt(query = "art", append = false) {
+            if (isLoading || (allLoaded && append)) return;
+            isLoading = true;
+            currentQuery = query;
+
+            if (!append) {
+                skip = 0; allLoaded = false;
+                artGrid.innerHTML = '<div class="loader"><div class="spinner"></div><p>Відкриваємо архіви...</p></div>';
+            } else {
+                document.getElementById('bottomLoader').style.display = 'block';
+            }
+
+            try {
+                let url = `${API_URL}?q=${encodeURIComponent(currentQuery)}&has_image=1&limit=30&skip=${skip}`;
+                if (currentRange.start !== null) {
+                    url += `&created_after=${currentRange.start}&created_before=${currentRange.end}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                const artworks = data.data || [];
+                if (artworks.length < 30) allLoaded = true;
+
+                if (!append) {
+                    currentData = artworks.sort(() => Math.random() - 0.5);
+                    renderArt(currentData);
+                } else {
+                    currentData = [...currentData, ...artworks];
+                    renderArt(artworks, true);
+                }
+                skip += 30;
+            } catch (e) {
+                if (!append) artGrid.innerHTML = '<p class="loader">Помилка зв\'язку з базою.</p>';
+            } finally {
+                isLoading = false;
+                document.getElementById('bottomLoader').style.display = 'none';
+            }
+        }
+
+        function renderArt(artworks, append = false) {
+            if (!append) artGrid.innerHTML = '';
+            if (artworks.length === 0 && !append) {
+                artGrid.innerHTML = '<p class="loader">Творів у цьому періоді не знайдено.</p>';
+                return;
+            }
+            artworks.forEach(work => {
+                if (!work.images?.web?.url) return;
+                const card = document.createElement('div');
+                card.className = 'art-card';
+                card.innerHTML = `
+                    <div class="img-container"><img src="${work.images.web.url}" loading="lazy"></div>
+                    <div class="card-info">
+                        <h3 class="card-title">${work.title}</h3>
+                        <p class="card-artist">${work.creators[0]?.description || 'Невідомий автор'}</p>
+                    </div>
+                `;
+                card.onclick = () => showDetails(work);
+                artGrid.appendChild(card);
             });
         }
 
-        let nextUpdate = 30;
-        setInterval(() => {
-            nextUpdate--;
-            if (nextUpdate < 0) nextUpdate = 30;
-            document.getElementById('update-timer').innerText = `Next: ${nextUpdate}s`;
-            const pct = (nextUpdate / 30) * 100;
-            const pb = document.getElementById('progress-bar');
-            if (pb) pb.style.width = pct + '%';
-        }, 1000);
-        initChart();
-        updateUI();
-        requestAnimationFrame(mainLoop);
-        fetchAllData();
-        setInterval(fetchAllData, 30000);
+        async function showDetails(work) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.getElementById('mImg').src = work.images.web.url;
+            const summaryBox = document.getElementById('mSummary');
+            summaryBox.innerHTML = '<p>Переклад опису...</p>';
 
-        function nmToRGB(wl, intensity = 1) {
-            let r, g, b; if (wl >= 380 && wl < 440) { r = -1 * (wl - 440) / (440 - 380); g = 0; b = 1; }
-            else if (wl >= 440 && wl < 490) { r = 0; g = (wl - 440) / (490 - 440); b = 1; } else if (wl >= 490 && wl < 510) { r = 0; g = 1; b = -1 * (wl - 510) / (510 - 490); }
-            else if (wl >= 510 && wl < 580) { r = (wl - 510) / (580 - 510); g = 1; b = 0; } else if (wl >= 580 && wl < 645) { r = 1; g = -1 * (wl - 645) / (645 - 580); b = 0; }
-            else if (wl >= 645 && wl <= 780) { r = 1; g = 0; b = 0; } else { r = 0; g = 0; b = 0; }
-            let att = (wl < 420) ? 0.3 + 0.7 * (wl - 380) / (420 - 380) : (wl > 700) ? 0.3 + 0.7 * (780 - wl) / (780 - 700) : 1;
-            return `rgba(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)}, ${intensity * att})`;
+            const [tTitle, tArtist, tDate, tTech] = await Promise.all([
+                gTranslate(work.title),
+                gTranslate(work.creators[0]?.description || 'Майстер'),
+                gTranslate(work.creation_date || 'Невідома дата'),
+                gTranslate(translate(work.technique))
+            ]);
+
+            document.getElementById('mTitle').textContent = tTitle;
+            document.getElementById('mArtist').textContent = tArtist;
+            document.getElementById('mMeta').innerHTML = `<span class="tag">${tDate}</span><span class="tag">${tTech}</span>`;
+
+            let desc = "";
+            if (work.wall_description || work.description) {
+                desc = await gTranslate((work.wall_description || "") + " " + (work.description || ""));
+            }
+
+            if (work.creators?.[0]?.full_name) {
+                const name = work.creators[0].full_name;
+                const wikiRes = await fetch(`https://uk.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=8&explaintext=1&titles=${encodeURIComponent(name)}&format=json&origin=*`);
+                const wikiData = await wikiRes.json();
+                const pageId = Object.keys(wikiData.query.pages)[0];
+                if (pageId !== "-1") {
+                    desc += `<div style="margin-top:2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1)"><h4>Вікіпедія:</h4><p>${wikiData.query.pages[pageId].extract}</p></div>`;
+                } else {
+                    const enWikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=8&explaintext=1&titles=${encodeURIComponent(name)}&format=json&origin=*`);
+                    const enData = await enWikiRes.json();
+                    const enId = Object.keys(enData.query.pages)[0];
+                    if (enId !== "-1") {
+                        const enTrans = await gTranslate(enData.query.pages[enId].extract);
+                        desc += `<div style="margin-top:2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1)"><h4>Історична довідка:</h4><p>${enTrans}</p></div>`;
+                    }
+                }
+            }
+
+            summaryBox.innerHTML = desc || '<p>Детального опису не знайдено.</p>';
+            
+            initMagnifier();
         }
+
+        function initMagnifier() {
+            const img = document.getElementById('mImg');
+            const glass = document.getElementById('magnifier');
+            const modalView = document.getElementById('modalView');
+            const zoom = 2.5;
+
+            const setup = () => {
+                glass.style.backgroundImage = `url('${img.src}')`;
+                glass.style.backgroundSize = `${img.width * zoom}px ${img.height * zoom}px`;
+            };
+
+            if (img.complete) setup(); else img.onload = setup;
+
+            const moveMagnifier = (e) => {
+                const pos = getCursorPos(e);
+                let x = pos.x;
+                let y = pos.y;
+
+                // Adjust for lens size
+                const w = glass.offsetWidth / 2;
+                const h = glass.offsetHeight / 2;
+
+                // Set lens position
+                glass.style.left = (x - w) + "px";
+                glass.style.top = (y - h) + "px";
+
+                // Set lens background position
+                // Calculate the ratio between the image display size and the natural size
+                const ratioX = (img.width * zoom) / img.width;
+                const ratioY = (img.height * zoom) / img.height;
+
+                // Find image offset within modalView
+                const imgRect = img.getBoundingClientRect();
+                const viewRect = modalView.getBoundingClientRect();
+                
+                const imgLeft = imgRect.left - viewRect.left;
+                const imgTop = imgRect.top - viewRect.top;
+
+                // Relative position within image
+                let relX = x - imgLeft;
+                let relY = y - imgTop;
+
+                // Only show if inside image boundaries
+                if (relX >= 0 && relX <= img.width && relY >= 0 && relY <= img.height) {
+                    glass.style.display = "block";
+                    glass.style.opacity = "1";
+                    glass.style.backgroundPosition = `-${(relX * zoom) - w}px -${(relY * zoom) - h}px`;
+                    modalView.style.cursor = "none";
+                } else {
+                    glass.style.opacity = "0";
+                    setTimeout(() => { if(glass.style.opacity === "0") glass.style.display = "none"; }, 200);
+                    modalView.style.cursor = "zoom-in";
+                }
+            };
+
+            function getCursorPos(e) {
+                const rect = modalView.getBoundingClientRect();
+                const x = (e.pageX || e.touches?.[0]?.pageX) - rect.left - window.pageXOffset;
+                const y = (e.pageY || e.touches?.[0]?.pageY) - rect.top - window.pageYOffset;
+                return { x, y };
+            }
+
+            modalView.addEventListener("mousemove", moveMagnifier);
+            modalView.addEventListener("touchmove", moveMagnifier);
+            modalView.addEventListener("mouseleave", () => glass.style.display = "none");
+        }
+
+        function openRandom() {
+            if (currentData.length > 0) showDetails(currentData[Math.floor(Math.random() * currentData.length)]);
+        }
+
+        // Epoch Nav logic
+        document.querySelectorAll('#epochNav .epoch-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('#epochNav .epoch-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // If "All Eras" is selected, reset range
+                if (btn.dataset.query === "art") {
+                    currentRange = { start: null, end: null };
+                    document.querySelectorAll('#centuryNav .epoch-btn').forEach(b => b.classList.remove('active'));
+                }
+                
+                currentQuery = btn.dataset.query;
+                fetchArt(currentQuery, false);
+            };
+        });
+
+        // Search logic
+        let searchTimer;
+        searchInput.oninput = (e) => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                currentRange = { start: null, end: null }; // Reset range on manual search
+                document.querySelectorAll('.epoch-btn').forEach(b => b.classList.remove('active'));
+                fetchArt(e.target.value || "art", false);
+            }, 600);
+        };
+
+        // Scroll Effect for Header
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('.main-header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Infinite Scroll
+        const observer = new IntersectionObserver(e => e[0].isIntersecting && fetchArt(currentQuery, true));
+        observer.observe(document.getElementById('scrollAnchor'));
+
+        closeBtn.onclick = () => { modal.classList.remove('active'); document.body.style.overflow = 'auto'; };
+        window.onclick = e => e.target === modal && closeBtn.onclick();
+
+        fetchArt();
     </script>
 </body>
-
 </html>
