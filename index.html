@@ -1,657 +1,174 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARSLIB UNIVERSALIS | Велика Художня Бібліотека</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IBONARIUM · ART · SUNSET · HUB</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #08080a;
-            --panel-bg: #121214;
-            --accent-gold: #d4af37;
-            --accent-gold-glow: rgba(212, 175, 55, 0.4);
-            --text-primary: #f0f0f0;
-            --text-secondary: #a0a0a5;
-            --glass: rgba(18, 18, 20, 0.9);
-            --border-color: rgba(212, 175, 55, 0.25);
-            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.8);
-            --transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            --bg: #030305;
+            --accent: #d4af37;
+            --secondary: #ff007a;
+            --glass: rgba(0, 10, 20, 0.7);
+            --border: rgba(212, 175, 55, 0.2);
+
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+        }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
+            width: 100%;
             overflow-x: hidden;
-            background-image: radial-gradient(circle at 50% 50%, #1a1a1e 0%, #08080a 100%);
-        }
 
-        h1, h2, h3, .logo { font-family: 'Playfair Display', serif; }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 10px; }
-
-        .overlay-texture {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            opacity: 0.1; pointer-events: none; z-index: 1000;
-        }
-
-        /* Header */
-        .main-header {
-            padding: 1rem 5%;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: linear-gradient(to bottom, rgba(8,8,10,1), rgba(8,8,10,0.98));
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .main-header.scrolled {
-            padding: 0.5rem 5%;
-            background: rgba(8, 8, 10, 0.95);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            transition: var(--transition);
-        }
-
-        .main-header.scrolled .header-top { margin-bottom: 0.5rem; }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: var(--transition);
-        }
-
-        .main-header.scrolled .logo { transform: scale(0.85); transform-origin: left; }
-
-        .logo .gold { color: var(--accent-gold); text-shadow: 0 0 20px var(--accent-gold-glow); }
-        .logo .sub { font-size: 0.6rem; opacity: 0.5; font-family: 'Inter'; letter-spacing: 1px; text-transform: uppercase; }
-
-        .search-area input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
+            background: var(--bg);
             color: #fff;
-            padding: 0.5rem 1.2rem;
-            border-radius: 30px;
-            width: 250px;
-            font-size: 0.8rem;
-            font-family: inherit;
-            transition: var(--transition);
-            outline: none;
+
+            font-family: var(--font-main);
         }
 
-        .main-header.scrolled .search-area input { width: 220px; }
-
-        .search-area input:focus {
-            width: 350px;
-            border-color: var(--accent-gold);
+        .hub-container {
+            width: 100%;
         }
 
-        .nav-label {
-            font-size: 0.6rem;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0.8rem 0 0.4rem;
-            font-weight: 700;
-            opacity: 0.6;
-            transition: var(--transition);
+        section {
+            width: 100%;
+            height: 100vh;
+
+            position: relative;
+
+            background: #000;
+
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
         }
 
-        .main-header.scrolled .nav-label { margin: 0.3rem 0 0.2rem; font-size: 0.5rem; }
+        iframe {
+            width: 100%;
+            height: 100%;
 
-        /* Epoch Navigation */
-        .epoch-nav {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-            padding-bottom: 0.3rem;
-            transition: var(--transition);
-        }
-
-        .epoch-btn {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-secondary);
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .epoch-btn:hover, .epoch-btn.active {
-            background: var(--accent-gold);
-            color: #000;
-            border-color: var(--accent-gold);
-            box-shadow: 0 5px 15px var(--accent-gold-glow);
-        }
-
-        /* Hero */
-        .hero-banner {
-            padding: 6rem 10% 4rem;
-            text-align: center;
-        }
-
-        .hero-banner h1 { font-size: 4.5rem; margin-bottom: 1.5rem; letter-spacing: -1px; }
-        .hero-banner p { color: var(--text-secondary); font-size: 1.3rem; max-width: 800px; margin: 0 auto 3rem; font-weight: 300; }
-
-        .btn-random {
-            padding: 1.2rem 2.5rem;
-            background: var(--accent-gold);
-            color: #000;
             border: none;
-            border-radius: 50px;
-            font-weight: 700;
-            text-transform: uppercase;
+            display: block;
+
+            background: #000;
+        }
+
+        /* Overlay Label */
+        .section-label {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+
+            z-index: 10;
+
+            padding: 10px 16px;
+
+            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.45);
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            color: var(--accent);
+
+            font-size: 14px;
             letter-spacing: 2px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .btn-random:hover { transform: scale(1.05); box-shadow: 0 0 40px var(--accent-gold-glow); background: #fff; }
-
-        /* Gallery */
-        .gallery-container { padding: 0 5% 5rem; }
-        .art-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 3rem;
-        }
-
-        .art-card {
-            background: var(--panel-bg);
-            border-radius: 8px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        .art-card:hover { transform: translateY(-15px); border-color: var(--border-color); box-shadow: var(--shadow-lg); }
-        .img-container { height: 400px; overflow: hidden; background: #000; }
-        .art-card img { width: 100%; height: 100%; object-fit: cover; transition: 1.5s ease; }
-        .art-card:hover img { transform: scale(1.1); }
-        .card-info { padding: 2rem; }
-        .card-title { font-size: 1.2rem; margin-bottom: 0.5rem; }
-        .card-artist { color: var(--accent-gold); font-size: 0.9rem; font-weight: 600; opacity: 0.8; }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.98);
-            z-index: 2000;
-            backdrop-filter: blur(20px);
-            opacity: 0; transition: 0.5s;
-        }
-
-        .modal.active { display: block; opacity: 1; }
-        .modal-container {
-            width: 95%; height: 90%; max-width: 1500px;
-            margin: 2.5% auto;
-            background: var(--panel-bg);
-            display: grid; grid-template-columns: 1.2fr 0.8fr;
-            border-radius: 12px; overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .modal-view { 
-            background: #000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 2rem; 
-            position: relative; 
-            overflow: hidden;
-            cursor: zoom-in;
-        }
-        .modal-view img { 
-            max-width: 100%; 
-            max-height: 80vh; 
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); 
-            transition: transform 0.3s ease;
-        }
-        
-        .magnifier-lens {
-            position: absolute;
-            width: 250px;
-            height: 250px;
-            border: 2px solid var(--accent-gold);
-            border-radius: 50%;
-            pointer-events: none;
-            display: none;
-            z-index: 100;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8), inset 0 0 30px rgba(0,0,0,0.5);
-            background-repeat: no-repeat;
-            background-color: #000;
-            transition: opacity 0.2s ease;
-        }
-
-        .zoom-hint {
-            position: absolute;
-            bottom: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            padding: 8px 20px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            color: var(--accent-gold);
-            border: 1px solid var(--border-color);
-            pointer-events: none;
-            z-index: 50;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            animation: fadeInOut 3s infinite;
+
+            font-family: var(--font-mono);
         }
 
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
+        /* Scrollbar */
+        body::-webkit-scrollbar {
+            width: 6px;
         }
 
-        .close-btn { position: absolute; top: 30px; right: 40px; font-size: 3rem; color: #fff; cursor: pointer; transition: 0.3s; z-index: 2100; }
-        .close-btn:hover { color: var(--accent-gold); transform: rotate(90deg); }
+        body::-webkit-scrollbar-track {
+            background: #06020a;
+        }
 
-        .m-title { font-size: 3rem; margin-bottom: 1rem; line-height: 1.1; }
-        .m-artist { color: var(--accent-gold); font-size: 1.4rem; margin-bottom: 2rem; font-style: italic; }
-        .m-meta { display: flex; gap: 1rem; margin-bottom: 3rem; flex-wrap: wrap; }
-        .tag { padding: 0.5rem 1.2rem; background: rgba(212, 175, 55, 0.1); border: 1px solid var(--border-color); border-radius: 20px; color: var(--accent-gold); font-size: 0.85rem; }
-        .m-summary { font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); }
+        body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 10px;
+        }
 
-        /* Loader */
-        .loader { grid-column: 1 / -1; text-align: center; padding: 5rem 0; }
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid var(--accent-gold); border-radius: 50%; animation: spin 1s infinite linear; margin: 0 auto 1.5rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        footer { padding: 4rem; text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-secondary); font-size: 0.9rem; }
-
-        @media (max-width: 1100px) {
-            .modal-container { grid-template-columns: 1fr; height: 95%; overflow-y: auto; }
-            .modal-content { padding: 2rem; border-left: none; }
-            .hero-banner h1 { font-size: 3rem; }
+        /* Mobile */
+        @media (max-width: 768px) {
+            .section-label {
+                font-size: 11px;
+                padding: 8px 12px;
+                letter-spacing: 1px;
+            }
         }
     </style>
 </head>
+
 <body>
-    <div class="overlay-texture"></div>
 
-    <header class="main-header">
-        <div class="header-content">
-            <div class="header-top">
-                <div class="logo" onclick="location.reload()">
-                    <span class="gold">ARSLIB</span>
-                    <span class="sub">Universalis</span>
-                </div>
-                <div class="search-area">
-                    <input type="text" id="searchInput" placeholder="Шукати автора, епоху або назву...">
-                </div>
+    <div class="hub-container">
+
+        <!-- PAGE 1 -->
+        <section id="sunset">
+
+            <div class="section-label">
+                PAGE 01 · SUNSET NOW
             </div>
-            <div class="nav-label">Епохи та Напрямки:</div>
-            <nav class="epoch-nav" id="epochNav">
-                <button class="epoch-btn active" data-query="art">Всі епохи</button>
-                <button class="epoch-btn" data-query="ancient art">Античність</button>
-                <button class="epoch-btn" data-query="renaissance art">Відродження</button>
-                <button class="epoch-btn" data-query="impressionism">Імпресіонізм</button>
-                <button class="epoch-btn" data-query="modern art">Модернізм</button>
-                <button class="epoch-btn" data-query="contemporary art">Сучасність</button>
-                <button class="epoch-btn" data-query="japanese art">Японія</button>
-            </nav>
-            <div class="nav-label">Хронологія за Століттями (I - XXI ст.):</div>
-            <nav class="epoch-nav" id="centuryNav">
-                <!-- Centuries injected by JS -->
-            </nav>
-        </div>
-    </header>
 
-    <section class="hero-banner">
-        <h1>Скарбниця Світового Мистецтва</h1>
-        <p>Досліджуйте історію людства через призму мистецтва кожного століття. Від античних витоків до цифрового сьогодення.</p>
-        <button class="btn-random" onclick="openRandom()">Випадковий шедевр</button>
-    </section>
+            <iframe
+                src="https://lavandaaudit.github.io/ibonarium.sanset.now/"
+                title="Ibonarium Sunset Now"
+                scrolling="yes">
+            </iframe>
 
-    <main class="gallery-container">
-        <div id="artGrid" class="art-grid"></div>
-        <div id="scrollAnchor" style="height: 100px;"></div>
-        <div id="bottomLoader" class="loader" style="display: none;">
-            <div class="spinner"></div>
-            <p>Завантаження нових творів...</p>
-        </div>
-    </main>
+        </section>
 
-    <div id="artModal" class="modal">
-        <span class="close-btn">&times;</span>
-        <div class="modal-container">
-            <div class="modal-view" id="modalView">
-                <img id="mImg" src="" alt="">
-                <div id="magnifier" class="magnifier-lens"></div>
-                <div class="zoom-hint">Наведіть для детального огляду</div>
+        <!-- PAGE 2 -->
+        <section id="telescope">
+
+            <div class="section-label">
+                PAGE 02 · TELE LAB TELESCOPE
             </div>
-            <div class="modal-content">
-                <div class="m-meta" id="mMeta"></div>
-                <h2 class="m-title" id="mTitle"></h2>
-                <h3 class="m-artist" id="mArtist"></h3>
-                <div class="m-summary" id="mSummary"></div>
+
+            <iframe
+                src="https://lavandaaudit.github.io/tele.lab.telescope/"
+                title="Tele Lab Telescope"
+                scrolling="yes">
+            </iframe>
+
+        </section>
+
+        <!-- PAGE 3 -->
+        <section id="art">
+
+            <div class="section-label">
+                PAGE 03 · ART XVIII
             </div>
-        </div>
+
+            <iframe
+                src="https://lavandaaudit.github.io/all0505/"
+                title="Art XVIII"
+                scrolling="yes">
+            </iframe>
+
+        </section>
+
     </div>
 
-    <footer>
-        <p>&copy; 2026 ARSLIB Universalis. Цифрова архівація світової спадщини.</p>
-    </footer>
-
-    <script>
-        const API_URL = "https://openaccess-api.clevelandart.org/api/artworks/";
-        const artGrid = document.getElementById('artGrid');
-        const searchInput = document.getElementById('searchInput');
-        const centuryNav = document.getElementById('centuryNav');
-        const modal = document.getElementById('artModal');
-        const closeBtn = document.querySelector('.close-btn');
-
-        let currentData = [];
-        let currentQuery = "art";
-        let currentRange = { start: null, end: null };
-        let skip = 0;
-        let isLoading = false;
-        let allLoaded = false;
-
-        // Century Buttons Generation
-        const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI"];
-        roman.forEach((r, i) => {
-            const btn = document.createElement('button');
-            btn.className = 'epoch-btn';
-            btn.textContent = `${r} ст.`;
-            const start = i * 100;
-            const end = (i + 1) * 100 - 1;
-            btn.onclick = () => {
-                // Clear active century buttons
-                centuryNav.querySelectorAll('.epoch-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentRange = { start, end };
-                fetchArt(currentQuery, false);
-            };
-            centuryNav.appendChild(btn);
-        });
-
-        const TECHNIQUE_MAP = {
-            "oil on canvas": "Олія на полотні", "oil on wood": "Олія на дереві",
-            "watercolor": "Акварель", "engraving": "Гравюра", "etching": "Офорт",
-            "marble": "Мармур", "bronze": "Бронза", "sculpture": "Скульптура"
-        };
-
-        function translate(text) {
-            if (!text) return "";
-            const lower = text.toLowerCase();
-            for (const [en, ua] of Object.entries(TECHNIQUE_MAP)) {
-                if (lower.includes(en)) return ua;
-            }
-            return text;
-        }
-
-        async function gTranslate(text) {
-            if (!text || text.length < 3) return text;
-            try {
-                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uk&dt=t&q=${encodeURIComponent(text)}`;
-                const res = await fetch(url);
-                const data = await res.json();
-                return data[0].map(item => item[0]).join('');
-            } catch (e) { return text; }
-        }
-
-        async function fetchArt(query = "art", append = false) {
-            if (isLoading || (allLoaded && append)) return;
-            isLoading = true;
-            currentQuery = query;
-
-            if (!append) {
-                skip = 0; allLoaded = false;
-                artGrid.innerHTML = '<div class="loader"><div class="spinner"></div><p>Відкриваємо архіви...</p></div>';
-            } else {
-                document.getElementById('bottomLoader').style.display = 'block';
-            }
-
-            try {
-                let url = `${API_URL}?q=${encodeURIComponent(currentQuery)}&has_image=1&limit=30&skip=${skip}`;
-                if (currentRange.start !== null) {
-                    url += `&created_after=${currentRange.start}&created_before=${currentRange.end}`;
-                }
-                
-                const response = await fetch(url);
-                const data = await response.json();
-                const artworks = data.data || [];
-                if (artworks.length < 30) allLoaded = true;
-
-                if (!append) {
-                    currentData = artworks.sort(() => Math.random() - 0.5);
-                    renderArt(currentData);
-                } else {
-                    currentData = [...currentData, ...artworks];
-                    renderArt(artworks, true);
-                }
-                skip += 30;
-            } catch (e) {
-                if (!append) artGrid.innerHTML = '<p class="loader">Помилка зв\'язку з базою.</p>';
-            } finally {
-                isLoading = false;
-                document.getElementById('bottomLoader').style.display = 'none';
-            }
-        }
-
-        function renderArt(artworks, append = false) {
-            if (!append) artGrid.innerHTML = '';
-            if (artworks.length === 0 && !append) {
-                artGrid.innerHTML = '<p class="loader">Творів у цьому періоді не знайдено.</p>';
-                return;
-            }
-            artworks.forEach(work => {
-                if (!work.images?.web?.url) return;
-                const card = document.createElement('div');
-                card.className = 'art-card';
-                card.innerHTML = `
-                    <div class="img-container"><img src="${work.images.web.url}" loading="lazy"></div>
-                    <div class="card-info">
-                        <h3 class="card-title">${work.title}</h3>
-                        <p class="card-artist">${work.creators[0]?.description || 'Невідомий автор'}</p>
-                    </div>
-                `;
-                card.onclick = () => showDetails(work);
-                artGrid.appendChild(card);
-            });
-        }
-
-        async function showDetails(work) {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            document.getElementById('mImg').src = work.images.web.url;
-            const summaryBox = document.getElementById('mSummary');
-            summaryBox.innerHTML = '<p>Переклад опису...</p>';
-
-            const [tTitle, tArtist, tDate, tTech] = await Promise.all([
-                gTranslate(work.title),
-                gTranslate(work.creators[0]?.description || 'Майстер'),
-                gTranslate(work.creation_date || 'Невідома дата'),
-                gTranslate(translate(work.technique))
-            ]);
-
-            document.getElementById('mTitle').textContent = tTitle;
-            document.getElementById('mArtist').textContent = tArtist;
-            document.getElementById('mMeta').innerHTML = `<span class="tag">${tDate}</span><span class="tag">${tTech}</span>`;
-
-            let desc = "";
-            if (work.wall_description || work.description) {
-                desc = await gTranslate((work.wall_description || "") + " " + (work.description || ""));
-            }
-
-            if (work.creators?.[0]?.full_name) {
-                const name = work.creators[0].full_name;
-                const wikiRes = await fetch(`https://uk.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=8&explaintext=1&titles=${encodeURIComponent(name)}&format=json&origin=*`);
-                const wikiData = await wikiRes.json();
-                const pageId = Object.keys(wikiData.query.pages)[0];
-                if (pageId !== "-1") {
-                    desc += `<div style="margin-top:2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1)"><h4>Вікіпедія:</h4><p>${wikiData.query.pages[pageId].extract}</p></div>`;
-                } else {
-                    const enWikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exsentences=8&explaintext=1&titles=${encodeURIComponent(name)}&format=json&origin=*`);
-                    const enData = await enWikiRes.json();
-                    const enId = Object.keys(enData.query.pages)[0];
-                    if (enId !== "-1") {
-                        const enTrans = await gTranslate(enData.query.pages[enId].extract);
-                        desc += `<div style="margin-top:2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1)"><h4>Історична довідка:</h4><p>${enTrans}</p></div>`;
-                    }
-                }
-            }
-
-            summaryBox.innerHTML = desc || '<p>Детального опису не знайдено.</p>';
-            
-            initMagnifier();
-        }
-
-        function initMagnifier() {
-            const img = document.getElementById('mImg');
-            const glass = document.getElementById('magnifier');
-            const modalView = document.getElementById('modalView');
-            const zoom = 2.5;
-
-            const setup = () => {
-                glass.style.backgroundImage = `url('${img.src}')`;
-                glass.style.backgroundSize = `${img.width * zoom}px ${img.height * zoom}px`;
-            };
-
-            if (img.complete) setup(); else img.onload = setup;
-
-            const moveMagnifier = (e) => {
-                const pos = getCursorPos(e);
-                let x = pos.x;
-                let y = pos.y;
-
-                // Adjust for lens size
-                const w = glass.offsetWidth / 2;
-                const h = glass.offsetHeight / 2;
-
-                // Set lens position
-                glass.style.left = (x - w) + "px";
-                glass.style.top = (y - h) + "px";
-
-                // Set lens background position
-                // Calculate the ratio between the image display size and the natural size
-                const ratioX = (img.width * zoom) / img.width;
-                const ratioY = (img.height * zoom) / img.height;
-
-                // Find image offset within modalView
-                const imgRect = img.getBoundingClientRect();
-                const viewRect = modalView.getBoundingClientRect();
-                
-                const imgLeft = imgRect.left - viewRect.left;
-                const imgTop = imgRect.top - viewRect.top;
-
-                // Relative position within image
-                let relX = x - imgLeft;
-                let relY = y - imgTop;
-
-                // Only show if inside image boundaries
-                if (relX >= 0 && relX <= img.width && relY >= 0 && relY <= img.height) {
-                    glass.style.display = "block";
-                    glass.style.opacity = "1";
-                    glass.style.backgroundPosition = `-${(relX * zoom) - w}px -${(relY * zoom) - h}px`;
-                    modalView.style.cursor = "none";
-                } else {
-                    glass.style.opacity = "0";
-                    setTimeout(() => { if(glass.style.opacity === "0") glass.style.display = "none"; }, 200);
-                    modalView.style.cursor = "zoom-in";
-                }
-            };
-
-            function getCursorPos(e) {
-                const rect = modalView.getBoundingClientRect();
-                const x = (e.pageX || e.touches?.[0]?.pageX) - rect.left - window.pageXOffset;
-                const y = (e.pageY || e.touches?.[0]?.pageY) - rect.top - window.pageYOffset;
-                return { x, y };
-            }
-
-            modalView.addEventListener("mousemove", moveMagnifier);
-            modalView.addEventListener("touchmove", moveMagnifier);
-            modalView.addEventListener("mouseleave", () => glass.style.display = "none");
-        }
-
-        function openRandom() {
-            if (currentData.length > 0) showDetails(currentData[Math.floor(Math.random() * currentData.length)]);
-        }
-
-        // Epoch Nav logic
-        document.querySelectorAll('#epochNav .epoch-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('#epochNav .epoch-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                
-                // If "All Eras" is selected, reset range
-                if (btn.dataset.query === "art") {
-                    currentRange = { start: null, end: null };
-                    document.querySelectorAll('#centuryNav .epoch-btn').forEach(b => b.classList.remove('active'));
-                }
-                
-                currentQuery = btn.dataset.query;
-                fetchArt(currentQuery, false);
-            };
-        });
-
-        // Search logic
-        let searchTimer;
-        searchInput.oninput = (e) => {
-            clearTimeout(searchTimer);
-            searchTimer = setTimeout(() => {
-                currentRange = { start: null, end: null }; // Reset range on manual search
-                document.querySelectorAll('.epoch-btn').forEach(b => b.classList.remove('active'));
-                fetchArt(e.target.value || "art", false);
-            }, 600);
-        };
-
-        // Scroll Effect for Header
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('.main-header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Infinite Scroll
-        const observer = new IntersectionObserver(e => e[0].isIntersecting && fetchArt(currentQuery, true));
-        observer.observe(document.getElementById('scrollAnchor'));
-
-        closeBtn.onclick = () => { modal.classList.remove('active'); document.body.style.overflow = 'auto'; };
-        window.onclick = e => e.target === modal && closeBtn.onclick();
-
-        fetchArt();
-    </script>
 </body>
 </html>
