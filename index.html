@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>IBONARIUM · COSMO · DYNAMICS · HUB</title>
+<title>IBONARIUM · TELE HUB</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
 
 <style>
 
 :root{
-    --bg:#030305;
-    --accent:#00e5ff;
-    --secondary:#ff007a;
-    --border:rgba(0,229,255,.2);
-
-    --font-main:'Outfit',sans-serif;
-    --font-mono:'JetBrains Mono',monospace;
+    --bg:#020204;
+    --border:rgba(0,255,255,.15);
+    --font:'Outfit',sans-serif;
 }
 
 *{
@@ -33,45 +30,37 @@ html,
 body{
     width:100%;
     background:var(--bg);
-    color:#fff;
     overflow-x:hidden;
+    font-family:var(--font);
     scroll-behavior:smooth;
-    font-family:var(--font-main);
 }
 
-/* MAIN */
-.hub-container{
+/* MAIN WRAPPER */
+.wrapper{
     width:100%;
     display:flex;
     flex-direction:column;
 }
 
 /* SECTIONS */
-section{
+.section{
     width:100%;
     position:relative;
     background:#000;
 }
 
-/* PAGE HEIGHTS */
-
-/* LIVE */
-#live{
-    height:100vh;
+/* FIRST SITE */
+/* ВИСОТА ВЕЛИКА ЩОБ НІЧОГО НЕ ОБРІЗАЛО */
+#telescope{
+    height:5200px;
 }
 
-/* ARCHIVE */
-/* ЗБІЛЬШЕНО */
-#archive{
+/* SECOND SITE */
+#museum{
     height:4200px;
 }
 
-/* LIGHTMETER */
-#lightmeter{
-    height:2200px;
-}
-
-/* IFRAMES */
+/* IFRAME */
 iframe{
     width:100%;
     height:100%;
@@ -86,28 +75,23 @@ body::-webkit-scrollbar{
 }
 
 body::-webkit-scrollbar-track{
-    background:#06020a;
+    background:#050505;
 }
 
 body::-webkit-scrollbar-thumb{
     background:var(--border);
-    border-radius:10px;
+    border-radius:20px;
 }
 
 /* MOBILE */
 @media(max-width:768px){
 
-    #live{
-        height:100vh;
+    #telescope{
+        height:7600px;
     }
 
-    /* МОБІЛЬНА ВЕРСІЯ ЩЕ ВИЩА */
-    #archive{
-        height:5200px;
-    }
-
-    #lightmeter{
-        height:3000px;
+    #museum{
+        height:6200px;
     }
 
 }
@@ -117,33 +101,28 @@ body::-webkit-scrollbar-thumb{
 
 <body>
 
-<div class="hub-container">
+<div class="wrapper">
 
-    <!-- PAGE 1 -->
-    <section id="live">
-        <iframe
-            src="https://lavandaaudit.github.io/sunsetnow/"
-            title="Sun Ibonarium Cosmo Dynamics Lab Live"
-            scrolling="no">
-        </iframe>
-    </section>
+    <!-- SITE 1 -->
+    <section class="section" id="telescope">
 
-    <!-- PAGE 2 -->
-    <section id="archive">
         <iframe
             src="https://lavandaaudit.github.io/tele.lab.telescope/"
-            title="Sun 30 Days Archive"
+            title="Tele Lab Telescope"
             scrolling="no">
         </iframe>
+
     </section>
 
-    <!-- PAGE 3 -->
-    <section id="lightmeter">
+    <!-- SITE 2 -->
+    <section class="section" id="museum">
+
         <iframe
-            src="https://lavandaaudit.github.io/all0505/"
-            title="Ibonarium Lightmeter 2.0"
+            src="https://lavandaaudit.github.io/history.musem.ibonarium/"
+            title="History Museum Ibonarium"
             scrolling="no">
         </iframe>
+
     </section>
 
 </div>
