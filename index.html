@@ -20,14 +20,13 @@ html,body{
   width:100%;
   background:#000;
   overflow-x:hidden;
+  overflow-y:auto;
   font-family:Arial,sans-serif;
 }
 
-/* ===== GLOBAL ===== */
+/* ===== FIX START POSITION ===== */
 body{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
+  position:relative;
 }
 
 /* ===== SECTION ===== */
@@ -37,12 +36,10 @@ body{
   display:flex;
   justify-content:center;
   align-items:flex-start;
-  padding:0;
-  margin:0;
   overflow:hidden;
 }
 
-/* ===== IFRAME ===== */
+/* ===== IFRAMES ===== */
 .frame{
   width:100%;
   border:none;
@@ -50,18 +47,17 @@ body{
   background:#000;
 }
 
-/* ===== FIRST SITE ===== */
+/* ===== FIRST PAGE ===== */
 #tvFrame{
   height:100vh;
 }
 
-/* ===== SECOND SITE ===== */
+/* ===== SECOND PAGE ===== */
 #museumFrame{
-  min-height:100vh;
   height:2200px;
 }
 
-/* ===== SMOOTH TRANSITION ===== */
+/* ===== SOFT TRANSITION ===== */
 .fade{
   position:relative;
 }
@@ -77,7 +73,7 @@ body{
   background:linear-gradient(
     to bottom,
     rgba(0,0,0,0),
-    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.5),
     #000
   );
   z-index:5;
@@ -106,7 +102,7 @@ body{
     id="tvFrame"
     class="frame"
     src="https://lavandaaudit.github.io/tv.2/"
-    loading="lazy"
+    loading="eager"
     allowfullscreen>
   </iframe>
 </section>
@@ -123,7 +119,17 @@ body{
 </section>
 
 <script>
-/* ===== AUTO RESIZE FOR BETTER FLOW ===== */
+/* ===== ALWAYS START FROM TOP ===== */
+
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+window.onload = () => {
+  window.scrollTo(0, 0);
+};
+
+/* ===== ADAPTIVE HEIGHT ===== */
 
 const museumFrame = document.getElementById("museumFrame");
 
@@ -141,13 +147,13 @@ adaptiveMuseumHeight();
 
 window.addEventListener("resize", adaptiveMuseumHeight);
 
-/* ===== PARALLAX SOFT FLOW ===== */
+/* ===== SOFT PARALLAX ===== */
 
 window.addEventListener("scroll",()=>{
 
   const scrollY = window.scrollY;
 
-  document.querySelector("#tvFrame").style.transform =
+  document.getElementById("tvFrame").style.transform =
     `translateY(${scrollY * 0.02}px)`;
 
 });
