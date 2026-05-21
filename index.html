@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ibonarium tv · OPERA DLXIII</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ibonarium flow</title>
 
 <style>
 *{
@@ -14,319 +12,145 @@
   box-sizing:border-box;
 }
 
+html{
+  scroll-behavior:smooth;
+}
+
 html,body{
   width:100%;
-  min-height:100%;
   background:#000;
-  color:#d9f4ff;
   overflow-x:hidden;
-  overflow-y:auto;
-  font-family:'Space Grotesk',sans-serif;
+  font-family:Arial,sans-serif;
 }
 
-/* ===== STARFIELD ===== */
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:0;
-}
-
-/* ===== MAIN WRAPPER ===== */
-.wrapper{
-  position:relative;
-  z-index:2;
-  min-height:100vh;
+/* ===== GLOBAL ===== */
+body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  gap:22px;
-  padding:34px 20px 40px;
-  text-align:center;
 }
 
-/* ===== TITLE ===== */
-.title{
+/* ===== SECTION ===== */
+.section{
   position:relative;
-  font-family:'Cinzel',serif;
-  font-size:clamp(30px,5.8vw,62px);
-  font-weight:700;
-  letter-spacing:10px;
-  line-height:1;
-  color:#d8f7ff;
-  text-transform:uppercase;
-  animation:drift 12s ease-in-out infinite;
-  text-shadow:
-    0 0 10px rgba(120,220,255,.25),
-    0 0 30px rgba(120,220,255,.12);
-}
-
-.title::after{
-  content:"SIGNAL TRANSMISSION";
-  display:block;
-  margin-top:10px;
-  font-size:9px;
-  letter-spacing:5px;
-  opacity:.38;
-  font-family:'Space Grotesk',sans-serif;
-}
-
-/* ===== TEXT ===== */
-.subtitle,
-.footer{
-  font-family:'Space Grotesk',sans-serif;
-}
-
-.subtitle{
   width:100%;
-  max-width:900px;
-  font-size:clamp(8px,0.92vw,10px);
-  line-height:1.35;
-  letter-spacing:1.5px;
-  opacity:.68;
-  text-align:center;
-}
-
-/* ===== PLAYER ===== */
-.player{
-  position:relative;
-  width:min(96vw, 1450px);
-  aspect-ratio:16 / 9;
-  border:1px solid rgba(140,230,255,.22);
-  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding:0;
+  margin:0;
   overflow:hidden;
-  box-shadow:
-    0 0 40px rgba(70,170,255,.10),
-    0 0 100px rgba(70,170,255,.06);
 }
 
-.player::before{
+/* ===== IFRAME ===== */
+.frame{
+  width:100%;
+  border:none;
+  display:block;
+  background:#000;
+}
+
+/* ===== FIRST SITE ===== */
+#tvFrame{
+  height:100vh;
+}
+
+/* ===== SECOND SITE ===== */
+#museumFrame{
+  min-height:100vh;
+  height:2200px;
+}
+
+/* ===== SMOOTH TRANSITION ===== */
+.fade{
+  position:relative;
+}
+
+.fade::after{
   content:"";
   position:absolute;
-  inset:0;
-  border:1px solid rgba(255,255,255,.04);
-  pointer-events:none;
-}
-
-.player iframe{
+  left:0;
+  bottom:-1px;
   width:100%;
-  height:100%;
-  border:none;
-}
-
-/* ===== CONTROLS ===== */
-.controls{
-  display:flex;
-  gap:14px;
-  margin-top:4px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-
-.controls button{
-  font-family:'Cinzel',serif;
-  padding:8px 20px;
-  border:1px solid rgba(120,230,255,.7);
-  background:rgba(0,0,0,.35);
-  backdrop-filter:blur(4px);
-  color:#7fe6ff;
-  font-size:10px;
-  letter-spacing:3px;
-  cursor:pointer;
-  transition:.35s;
-}
-
-.controls button:hover{
-  background:rgba(77,210,255,.12);
-  box-shadow:
-    0 0 18px rgba(77,210,255,.35),
-    0 0 40px rgba(77,210,255,.12);
-  transform:translateY(-1px);
-}
-
-/* ===== FOOTER ===== */
-.footer{
-  font-size:8px;
-  letter-spacing:2.2px;
-  opacity:.42;
-  margin-top:8px;
+  height:120px;
+  pointer-events:none;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0),
+    rgba(0,0,0,0.45),
+    #000
+  );
+  z-index:5;
 }
 
 /* ===== MOBILE ===== */
-@media (max-width:900px){
+@media(max-width:900px){
 
-  .wrapper{
-    padding:22px 12px 28px;
-    gap:18px;
+  #tvFrame{
+    height:100svh;
   }
 
-  .title{
-    letter-spacing:6px;
+  #museumFrame{
+    height:2600px;
   }
 
-  .title::after{
-    letter-spacing:3px;
-    font-size:8px;
-  }
-
-  .subtitle{
-    font-size:7px;
-    line-height:1.45;
-  }
-
-  .player{
-    width:100%;
-  }
-
-  .controls button{
-    padding:7px 16px;
-    font-size:9px;
-  }
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes drift{
-  0%,100%{
-    transform:translate(0,0);
-  }
-  50%{
-    transform:translate(4px,-3px);
-  }
-}
-
-.flash{
-  text-shadow:
-    0 0 18px rgba(77,210,255,.85),
-    0 0 28px rgba(77,210,255,.65),
-    0 0 42px rgba(77,210,255,.35);
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="stars"></canvas>
+<!-- ===== FIRST PAGE ===== -->
+<section class="section fade">
+  <iframe
+    id="tvFrame"
+    class="frame"
+    src="https://lavandaaudit.github.io/tv.2/"
+    loading="lazy"
+    allowfullscreen>
+  </iframe>
+</section>
 
-<div class="wrapper">
-
-  <div class="title" id="mainTitle">
-    OPERA DLXIII
-  </div>
-
-  <div class="subtitle">
-    OPERA DLXIII — експерементальний альбом Lavanda space music/2025.<br><br>
-    Це повільно рухлива звукова архітектура, створена зі тиші, відстані та крихкого гармонійного пилу.
-    Альбом не слідує ритму — він спостерігає час як поле, розтягуючи та стискаючи його в шари звуку.
-  </div>
-
-  <div class="player">
-    <iframe
-      id="ytplayer"
-      src=""
-      allow="autoplay; encrypted-media; picture-in-picture"
-      allowfullscreen>
-    </iframe>
-  </div>
-
-  <div class="controls">
-    <button onclick="loadRandom()">NEXT SIGNAL</button>
-  </div>
-
-  <div class="footer">
-    ibonarium tv · lavanda audit · 2026
-  </div>
-
-</div>
+<!-- ===== SECOND PAGE ===== -->
+<section class="section">
+  <iframe
+    id="museumFrame"
+    class="frame"
+    src="https://lavandaaudit.github.io/history.musem.ibonarium/"
+    loading="lazy"
+    allowfullscreen>
+  </iframe>
+</section>
 
 <script>
-/* ===== STAR FIELD ===== */
-const canvas = document.getElementById("stars");
-const ctx = canvas.getContext("2d");
+/* ===== AUTO RESIZE FOR BETTER FLOW ===== */
 
-let W,H,stars=[];
+const museumFrame = document.getElementById("museumFrame");
 
-function resize(){
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+function adaptiveMuseumHeight(){
 
-  stars = Array.from({length:160},()=>({
-    x:Math.random()*W,
-    y:Math.random()*H,
-    z:Math.random()*W
-  }));
+  if(window.innerWidth < 900){
+    museumFrame.style.height = "2600px";
+  }else{
+    museumFrame.style.height = "2200px";
+  }
+
 }
 
-resize();
-window.addEventListener("resize",resize);
+adaptiveMuseumHeight();
 
-function animateStars(){
+window.addEventListener("resize", adaptiveMuseumHeight);
 
-  ctx.fillStyle="#000";
-  ctx.fillRect(0,0,W,H);
+/* ===== PARALLAX SOFT FLOW ===== */
 
-  ctx.fillStyle="rgba(120,210,255,.6)";
+window.addEventListener("scroll",()=>{
 
-  stars.forEach(star=>{
+  const scrollY = window.scrollY;
 
-    star.z -= 0.25;
+  document.querySelector("#tvFrame").style.transform =
+    `translateY(${scrollY * 0.02}px)`;
 
-    if(star.z <= 0){
-      star.z = W;
-    }
-
-    const k = 120 / star.z;
-
-    const x = (star.x - W/2) * k + W/2;
-    const y = (star.y - H/2) * k + H/2;
-
-    if(x > 0 && x < W && y > 0 && y < H){
-
-      const size = (1 - star.z / W) * 2;
-
-      ctx.fillRect(x,y,size,size);
-    }
-
-  });
-
-  requestAnimationFrame(animateStars);
-}
-
-animateStars();
-
-/* ===== VIDEOS ===== */
-/* Перше відео видалено */
-const videos = [
-  "_O_j5pPFIRM",
-  "nBcG1W3qja8",
-  "-PTiRvP0nE4",
-  "InEoc32kI7g",
-  "x0karOim9C4"
-];
-
-const player = document.getElementById("ytplayer");
-
-function loadRandom(){
-
-  const id = videos[Math.floor(Math.random()*videos.length)];
-
-  player.src =
-    `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
-}
-
-loadRandom();
-
-/* ===== TITLE FLASH ===== */
-const mainTitle = document.getElementById("mainTitle");
-
-setInterval(()=>{
-
-  mainTitle.classList.add("flash");
-
-  setTimeout(()=>{
-    mainTitle.classList.remove("flash");
-  },300);
-
-},30000);
+});
 </script>
 
 </body>
