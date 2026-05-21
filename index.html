@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>IBONARIUM · HUB</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBONARIUM · COSMO · DYNAMICS · HUB</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg: #000;
+            --bg: #030305;
+            --accent: #00e5ff;
+            --secondary: #ff007a;
+            --glass: rgba(0, 10, 20, 0.7);
+            --border: rgba(0, 229, 255, 0.2);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
         }
 
         * {
@@ -22,26 +25,32 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-            overflow-y: scroll;
-        }
-
-        body {
-            background: var(--bg);
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg);
+            color: #fff;
+            font-family: var(--font-main);
             overflow-x: hidden;
-            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
         }
 
+        /* Container for sections */
         .hub-container {
             width: 100%;
         }
 
+        /* Section Styling */
         section {
             width: 100%;
             height: 100vh;
             position: relative;
-            overflow: hidden;
+            background: #000;
+        }
+
+        /* Fixed height for Lightmeter to show all data */
+        #lightmeter {
+            height: 1600px;
         }
 
         iframe {
@@ -49,68 +58,39 @@
             height: 100%;
             border: none;
             display: block;
-            overflow: hidden;
+            background: #000;
         }
 
-        /* ЄДИНИЙ ГЛОБАЛЬНИЙ СКРОЛ */
-
+        /* Custom Scrollbar */
         body::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
-
         body::-webkit-scrollbar-track {
-            background: #050505;
+            background: #06020a;
         }
-
         body::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-        }
-
-        /* MOBILE */
-
-        @media (max-width: 768px) {
-
-            section {
-                height: 100svh;
-            }
-
-            iframe {
-                transform: scale(1);
-                transform-origin: top center;
-            }
+            background: var(--border);
+            border-radius: 10px;
         }
     </style>
 </head>
-
 <body>
 
     <div class="hub-container">
-
-        <!-- PAGE 1 -->
-        <section>
-            <iframe
-                src="https://lavandaaudit.github.io/ibonarium.sanset.now/"
-                scrolling="no">
-            </iframe>
+        <!-- PAGE 1: SOLAR LIVE -->
+        <section id="live">
+            <iframe src="https://lavandaaudit.github.io/sunsetnow/" title="Sun Ibonarium Cosmo Dynamics Lab Live" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
 
-        <!-- PAGE 2 -->
-        <section>
-            <iframe
-                src="https://lavandaaudit.github.io/tele.lab.telescope/"
-                scrolling="no">
-            </iframe>
+        <!-- PAGE 2: ARCHIVE -->
+        <section id="archive">
+            <iframe src="https://lavandaaudit.github.io/tele.lab.telescope/" title="Sun 30 Days Archive" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
 
-        <!-- PAGE 3 -->
-        <section>
-            <iframe
-                src="https://lavandaaudit.github.io/all0505/"
-                scrolling="no">
-            </iframe>
+        <!-- PAGE 3: LIGHTMETER -->
+        <section id="lightmeter">
+            <iframe src="https://lavandaaudit.github.io/all0505/" title="Ibonarium Lightmeter 2.0" scrolling="no" style="overflow: hidden;"></iframe>
         </section>
-
     </div>
 
 </body>
