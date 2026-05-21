@@ -1,169 +1,110 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>IBONARIUM · HUB</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TV One + Ibonarium History</title>
 
 <style>
-
-:root{
-    --bg:#020204;
-    --border:rgba(0,255,255,.18);
-    --font:'Outfit',sans-serif;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html,
-body{
-    width:100%;
-    overflow-x:hidden;
-    background:var(--bg);
-    font-family:var(--font);
-    scroll-behavior:smooth;
-}
-
-/* WRAPPER */
-.wrapper{
-    width:100%;
-}
-
-/* BLOCKS */
-.block{
-    width:100%;
-    position:relative;
-    overflow:hidden;
-    background:#000;
-}
-
-/* FIRST PAGE */
-/* НОРМАЛЬНА ВИСОТА */
-#tele{
-    height:3000px;
-}
-
-/* SECOND PAGE */
-#museum{
-    height:2400px;
-}
-
-/* IFRAMES */
-iframe{
-    width:100%;
-    height:100%;
-    border:none;
-    display:block;
-    background:#000;
-}
-
-/* DESKTOP */
-@media(min-width:1400px){
-
-    #tele{
-        height:3400px;
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
     }
 
+    html,body{
+        width:100%;
+        height:100%;
+        overflow-x:hidden;
+        background:#000;
+        font-family:Arial,sans-serif;
+    }
+
+    .site-wrapper{
+        width:100%;
+        position:relative;
+    }
+
+    .frame-container{
+        width:100%;
+        position:relative;
+        overflow:hidden;
+        background:#000;
+    }
+
+    iframe{
+        width:100%;
+        border:none;
+        display:block;
+        background:#000;
+    }
+
+    /* ПЕРШИЙ САЙТ */
+    #tvOne{
+        height:100vh;
+    }
+
+    /* ДРУГИЙ САЙТ */
     #museum{
-        height:2600px;
+        height:100vh;
     }
 
-}
+    /* МОБІЛЬНА АДАПТАЦІЯ */
+    @media (max-width: 768px){
 
-/* TABLET */
-@media(max-width:1024px){
+        #tvOne{
+            height:100vh;
+        }
 
-    #tele{
-        height:3600px;
+        #museum{
+            height:100vh;
+        }
     }
-
-    #museum{
-        height:2900px;
-    }
-
-}
-
-/* MOBILE */
-@media(max-width:768px){
-
-    #tele{
-        height:4600px;
-    }
-
-    #museum{
-        height:3600px;
-    }
-
-}
-
-/* SMALL MOBILE */
-@media(max-width:480px){
-
-    #tele{
-        height:5200px;
-    }
-
-    #museum{
-        height:4200px;
-    }
-
-}
-
-/* SCROLLBAR */
-body::-webkit-scrollbar{
-    width:8px;
-}
-
-body::-webkit-scrollbar-track{
-    background:#050505;
-}
-
-body::-webkit-scrollbar-thumb{
-    background:var(--border);
-    border-radius:20px;
-}
-
 </style>
 </head>
 
 <body>
 
-<div class="wrapper">
+<div class="site-wrapper">
 
-    <!-- FIRST SITE -->
-    <section class="block" id="tele">
-
+    <!-- ПЕРШИЙ САЙТ -->
+    <section class="frame-container">
         <iframe
-            src="https://lavandaaudit.github.io/tele.lab.telescope/"
-            title="Tele Lab Telescope"
-            scrolling="no">
+            id="tvOne"
+            src="https://lavandaaudit.github.io/tv.one/"
+            loading="lazy"
+            allowfullscreen>
         </iframe>
-
     </section>
 
-    <!-- SECOND SITE -->
-    <section class="block" id="museum">
-
+    <!-- ДРУГИЙ САЙТ -->
+    <section class="frame-container">
         <iframe
+            id="museum"
             src="https://lavandaaudit.github.io/history.musem.ibonarium/"
-            title="History Museum Ibonarium"
-            scrolling="no">
+            loading="lazy"
+            allowfullscreen>
         </iframe>
-
     </section>
 
 </div>
+
+<script>
+function resizeIframes() {
+
+    const tv = document.getElementById('tvOne');
+    const museum = document.getElementById('museum');
+
+    // Висота першого сайту
+    tv.style.height = window.innerHeight + 'px';
+
+    // Висота другого сайту
+    museum.style.height = window.innerHeight + 'px';
+}
+
+window.addEventListener('load', resizeIframes);
+window.addEventListener('resize', resizeIframes);
+</script>
 
 </body>
 </html>
