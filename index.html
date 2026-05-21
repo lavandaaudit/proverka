@@ -5,18 +5,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>IBONARIUM · TELE HUB</title>
+<title>IBONARIUM · HUB</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 
 <style>
 
 :root{
     --bg:#020204;
-    --border:rgba(0,255,255,.15);
+    --border:rgba(0,255,255,.18);
     --font:'Outfit',sans-serif;
 }
 
@@ -29,44 +29,95 @@
 html,
 body{
     width:100%;
-    background:var(--bg);
     overflow-x:hidden;
+    background:var(--bg);
     font-family:var(--font);
     scroll-behavior:smooth;
 }
 
-/* MAIN WRAPPER */
+/* WRAPPER */
 .wrapper{
     width:100%;
-    display:flex;
-    flex-direction:column;
 }
 
-/* SECTIONS */
-.section{
+/* BLOCKS */
+.block{
     width:100%;
     position:relative;
+    overflow:hidden;
     background:#000;
 }
 
-/* FIRST SITE */
-/* ВИСОТА ВЕЛИКА ЩОБ НІЧОГО НЕ ОБРІЗАЛО */
-#telescope{
-    height:5200px;
+/* FIRST PAGE */
+/* НОРМАЛЬНА ВИСОТА */
+#tele{
+    height:3000px;
 }
 
-/* SECOND SITE */
+/* SECOND PAGE */
 #museum{
-    height:4200px;
+    height:2400px;
 }
 
-/* IFRAME */
+/* IFRAMES */
 iframe{
     width:100%;
     height:100%;
     border:none;
     display:block;
     background:#000;
+}
+
+/* DESKTOP */
+@media(min-width:1400px){
+
+    #tele{
+        height:3400px;
+    }
+
+    #museum{
+        height:2600px;
+    }
+
+}
+
+/* TABLET */
+@media(max-width:1024px){
+
+    #tele{
+        height:3600px;
+    }
+
+    #museum{
+        height:2900px;
+    }
+
+}
+
+/* MOBILE */
+@media(max-width:768px){
+
+    #tele{
+        height:4600px;
+    }
+
+    #museum{
+        height:3600px;
+    }
+
+}
+
+/* SMALL MOBILE */
+@media(max-width:480px){
+
+    #tele{
+        height:5200px;
+    }
+
+    #museum{
+        height:4200px;
+    }
+
 }
 
 /* SCROLLBAR */
@@ -83,19 +134,6 @@ body::-webkit-scrollbar-thumb{
     border-radius:20px;
 }
 
-/* MOBILE */
-@media(max-width:768px){
-
-    #telescope{
-        height:7600px;
-    }
-
-    #museum{
-        height:6200px;
-    }
-
-}
-
 </style>
 </head>
 
@@ -103,19 +141,19 @@ body::-webkit-scrollbar-thumb{
 
 <div class="wrapper">
 
-    <!-- SITE 1 -->
-    <section class="section" id="telescope">
+    <!-- FIRST SITE -->
+    <section class="block" id="tele">
 
         <iframe
-            src="https://lavandaaudit.github.io/tv.one/"
+            src="https://lavandaaudit.github.io/tele.lab.telescope/"
             title="Tele Lab Telescope"
             scrolling="no">
         </iframe>
 
     </section>
 
-    <!-- SITE 2 -->
-    <section class="section" id="museum">
+    <!-- SECOND SITE -->
+    <section class="block" id="museum">
 
         <iframe
             src="https://lavandaaudit.github.io/history.musem.ibonarium/"
