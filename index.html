@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>ibonarium flow</title>
 
 <style>
 
-/* ========================================= */
+/* ====================================== */
 /* RESET */
-/* ========================================= */
+/* ====================================== */
 
 *{
   margin:0;
@@ -18,67 +18,93 @@
   box-sizing:border-box;
 }
 
-html{
-  scroll-behavior:smooth;
-}
-
 html,
 body{
   width:100%;
+  height:100%;
   background:#000;
   overflow-x:hidden;
   font-family:Arial,sans-serif;
+  scroll-behavior:smooth;
 }
 
-/* ========================================= */
-/* SECTIONS */
-/* ========================================= */
+/* ====================================== */
+/* FIX START */
+/* ====================================== */
 
-.section{
+body{
   position:relative;
-  width:100%;
-  overflow:hidden;
-  background:#000;
 }
 
-/* ========================================= */
+/* ====================================== */
 /* PAGE 1 */
-/* ========================================= */
+/* ====================================== */
 
-#page1{
+.hero-section{
+
+  position:relative;
+
+  width:100%;
   height:100vh;
+
+  min-height:100vh;
+  max-height:100vh;
+
+  overflow:hidden;
+
+  background:#000;
+
 }
 
-#page1 object{
+/* HARD FIXED CONTENT */
+
+.hero-content{
+
+  position:absolute;
+
+  inset:0;
+
   width:100%;
   height:100%;
-  border:none;
-  display:block;
+
+  overflow:hidden;
+
 }
 
-/* ========================================= */
-/* PAGE 2 */
-/* ========================================= */
+/* EMBED */
 
-#museumFrame{
-  width:100%;
-  height:2200px;
-  border:none;
-  display:block;
-  background:#000;
-}
+.hero-content iframe,
+.hero-content object{
 
-/* ========================================= */
-/* FADE */
-/* ========================================= */
-
-.fade::after{
-  content:"";
   position:absolute;
+
+  inset:0;
+
+  width:100%;
+  height:100%;
+
+  border:none;
+
+  display:block;
+
+}
+
+/* ====================================== */
+/* FADE */
+/* ====================================== */
+
+.hero-section::after{
+
+  content:"";
+
+  position:absolute;
+
   left:0;
-  bottom:-1px;
+  bottom:0;
+
   width:100%;
   height:120px;
+
   pointer-events:none;
 
   background:linear-gradient(
@@ -88,30 +114,65 @@ body{
     #000
   );
 
-  z-index:10;
+  z-index:20;
+
 }
 
-/* ========================================= */
+/* ====================================== */
+/* PAGE 2 */
+/* ====================================== */
+
+.page2{
+
+  position:relative;
+
+  width:100%;
+
+  background:#000;
+
+}
+
+#museumFrame{
+
+  width:100%;
+  height:2200px;
+
+  border:none;
+
+  display:block;
+
+  background:#000;
+
+}
+
+/* ====================================== */
 /* SIDE PANEL */
-/* ========================================= */
+/* ====================================== */
 
 .side-panel{
+
   position:fixed;
+
   right:18px;
   top:50%;
+
   transform:translateY(-50%);
-  z-index:9999;
+
+  z-index:99999;
 
   display:flex;
   flex-direction:column;
+
   gap:12px;
+
 }
 
-/* ========================================= */
+/* ====================================== */
 /* BUTTONS */
-/* ========================================= */
+/* ====================================== */
 
 .nav-btn{
+
   width:42px;
   height:42px;
 
@@ -119,9 +180,9 @@ body{
 
   border:1px solid rgba(0,255,255,0.35);
 
-  background:rgba(0,0,0,0.6);
+  background:rgba(0,0,0,0.72);
 
-  color:#7ffcff;
+  color:#8ffcff;
 
   font-size:14px;
   font-weight:bold;
@@ -132,8 +193,6 @@ body{
 
   transition:0.25s ease;
 
-  box-shadow:
-    0 0 12px rgba(0,255,255,0.15);
 }
 
 .nav-btn:hover{
@@ -147,28 +206,30 @@ body{
 
 }
 
-/* ========================================= */
+/* ====================================== */
 /* MOBILE */
-/* ========================================= */
+/* ====================================== */
 
 @media(max-width:900px){
 
-  #page1{
+  .hero-section{
+
     height:100svh;
+    min-height:100svh;
+    max-height:100svh;
+
   }
 
   #museumFrame{
+
     height:2600px;
+
   }
 
   .side-panel{
-    right:10px;
-  }
 
-  .nav-btn{
-    width:38px;
-    height:38px;
-    font-size:13px;
+    right:10px;
+
   }
 
 }
@@ -178,40 +239,54 @@ body{
 
 <body>
 
-<!-- ========================================= -->
-<!-- SIDE NAVIGATION -->
-<!-- ========================================= -->
+<!-- ====================================== -->
+<!-- SIDE NAV -->
+<!-- ====================================== -->
 
 <div class="side-panel">
 
-  <button class="nav-btn" onclick="goPage1()">1</button>
+  <button
+    class="nav-btn"
+    onclick="goPage1()">
+    1
+  </button>
 
-  <button class="nav-btn" onclick="goPage2()">2</button>
+  <button
+    class="nav-btn"
+    onclick="goPage2()">
+    2
+  </button>
 
 </div>
 
-<!-- ========================================= -->
+<!-- ====================================== -->
 <!-- PAGE 1 -->
-<!-- ========================================= -->
+<!-- ====================================== -->
 
 <section
   id="page1"
-  class="section fade">
+  class="hero-section">
 
-  <object
-    data="https://lavandaaudit.github.io/tv.2/"
-    type="text/html">
-  </object>
+  <div class="hero-content">
+
+    <iframe
+      src="https://lavandaaudit.github.io/tv.2/"
+      loading="eager"
+      allow="autoplay; fullscreen"
+      allowfullscreen>
+    </iframe>
+
+  </div>
 
 </section>
 
-<!-- ========================================= -->
+<!-- ====================================== -->
 <!-- PAGE 2 -->
-<!-- ========================================= -->
+<!-- ====================================== -->
 
 <section
   id="page2"
-  class="section">
+  class="page2">
 
   <iframe
     id="museumFrame"
@@ -224,35 +299,39 @@ body{
 
 <script>
 
-/* =========================================
+/* ======================================
    DISABLE RESTORE
-========================================= */
+====================================== */
 
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-/* =========================================
-   FORCE START TOP
-========================================= */
+/* ======================================
+   HARD START TOP
+====================================== */
 
 function forceTop(){
 
-  window.scrollTo({
-    top:0,
-    left:0,
-    behavior:'auto'
-  });
+  window.scrollTo(0,0);
+
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 
 }
 
-/* =========================================
-   START FIX
-========================================= */
+/* instantly */
 
 forceTop();
 
-document.addEventListener('DOMContentLoaded', forceTop);
+/* dom */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  forceTop
+);
+
+/* load */
 
 window.addEventListener('load', () => {
 
@@ -261,52 +340,63 @@ window.addEventListener('load', () => {
   setTimeout(forceTop,100);
   setTimeout(forceTop,300);
   setTimeout(forceTop,700);
+  setTimeout(forceTop,1200);
 
 });
 
-window.addEventListener('pageshow', forceTop);
+/* cache restore */
 
-/* =========================================
+window.addEventListener(
+  'pageshow',
+  forceTop
+);
+
+/* ======================================
    TEMP LOCK
-========================================= */
+====================================== */
 
-document.documentElement.style.overflow = 'hidden';
-document.body.style.overflow = 'hidden';
+document.documentElement.style.overflow='hidden';
+document.body.style.overflow='hidden';
 
 setTimeout(() => {
 
-  document.documentElement.style.overflowY = 'auto';
-  document.body.style.overflowY = 'auto';
+  document.documentElement.style.overflowY='auto';
+  document.body.style.overflowY='auto';
 
   forceTop();
 
-},1800);
+},2000);
 
-/* =========================================
+/* ======================================
    NAVIGATION
-========================================= */
+====================================== */
 
 function goPage1(){
 
-  document.getElementById('page1').scrollIntoView({
-    behavior:'smooth'
-  });
+  document
+    .getElementById('page1')
+    .scrollIntoView({
+      behavior:'smooth'
+    });
 
 }
 
 function goPage2(){
 
-  document.getElementById('page2').scrollIntoView({
-    behavior:'smooth'
-  });
+  document
+    .getElementById('page2')
+    .scrollIntoView({
+      behavior:'smooth'
+    });
 
 }
 
-/* =========================================
+/* ======================================
    ADAPTIVE HEIGHT
-========================================= */
+====================================== */
 
-const museumFrame = document.getElementById('museumFrame');
+const museumFrame =
+  document.getElementById('museumFrame');
 
 function adaptiveMuseumHeight(){
 
@@ -324,7 +414,10 @@ function adaptiveMuseumHeight(){
 
 adaptiveMuseumHeight();
 
-window.addEventListener('resize', adaptiveMuseumHeight);
+window.addEventListener(
+  'resize',
+  adaptiveMuseumHeight
+);
 
 </script>
 
