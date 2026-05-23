@@ -25,7 +25,6 @@ html{
 html,
 body{
   width:100%;
-  min-height:100%;
   background:#000;
   overflow-x:hidden;
   overflow-y:auto;
@@ -33,7 +32,7 @@ body{
 }
 
 /* ========================================= */
-/* BODY */
+/* BLOCK AUTO JUMPS */
 /* ========================================= */
 
 body{
@@ -41,42 +40,46 @@ body{
 }
 
 /* ========================================= */
-/* SECTIONS */
+/* FIRST PAGE */
 /* ========================================= */
 
-.section{
+.tv-wrapper{
+  position:relative;
+  width:100%;
+  height:100vh;
+  overflow:hidden;
+  background:#000;
+}
+
+.tv-wrapper object{
+  width:100%;
+  height:100%;
+  border:none;
+  display:block;
+  pointer-events:auto;
+}
+
+/* ========================================= */
+/* SECOND PAGE */
+/* ========================================= */
+
+.museum-section{
   position:relative;
   width:100%;
   overflow:hidden;
   background:#000;
 }
 
-/* ========================================= */
-/* IFRAMES */
-/* ========================================= */
-
-.frame{
+#museumFrame{
   width:100%;
+  height:2200px;
   border:none;
   display:block;
   background:#000;
 }
 
 /* ========================================= */
-/* PAGE HEIGHTS */
-/* ========================================= */
-
-#tvFrame{
-  height:100vh;
-  min-height:100vh;
-}
-
-#museumFrame{
-  height:2200px;
-}
-
-/* ========================================= */
-/* FADE TRANSITION */
+/* FADE */
 /* ========================================= */
 
 .fade::after{
@@ -104,9 +107,8 @@ body{
 
 @media(max-width:900px){
 
-  #tvFrame{
+  .tv-wrapper{
     height:100svh;
-    min-height:100svh;
   }
 
   #museumFrame{
@@ -122,18 +124,15 @@ body{
 
 <!-- ========================================= -->
 <!-- FIRST PAGE -->
+<!-- NO IFRAME -->
 <!-- ========================================= -->
 
-<section class="section fade">
+<section class="tv-wrapper fade">
 
-  <iframe
-    id="tvFrame"
-    class="frame"
-    src="https://lavandaaudit.github.io/tv.2/"
-    loading="eager"
-    allow="autoplay; fullscreen"
-    allowfullscreen>
-  </iframe>
+  <object
+    data="https://lavandaaudit.github.io/tv.2/"
+    type="text/html">
+  </object>
 
 </section>
 
@@ -141,11 +140,10 @@ body{
 <!-- SECOND PAGE -->
 <!-- ========================================= -->
 
-<section class="section">
+<section class="museum-section">
 
   <iframe
     id="museumFrame"
-    class="frame"
     src="https://lavandaaudit.github.io/history.musem.ibonarium/"
     loading="lazy"
     allowfullscreen>
@@ -156,7 +154,7 @@ body{
 <script>
 
 /* =========================================
-   DISABLE BROWSER SCROLL RESTORE
+   DISABLE RESTORE
 ========================================= */
 
 if ('scrollRestoration' in history) {
@@ -164,13 +162,7 @@ if ('scrollRestoration' in history) {
 }
 
 /* =========================================
-   REMOVE HASH / HISTORY RESTORE
-========================================= */
-
-history.replaceState(null, null, location.pathname);
-
-/* =========================================
-   FORCE PAGE START FROM TOP
+   FORCE TOP
 ========================================= */
 
 function forceTop(){
@@ -187,104 +179,40 @@ function forceTop(){
 }
 
 /* =========================================
-   INSTANT TOP
+   START FROM TOP
 ========================================= */
 
 forceTop();
 
-/* =========================================
-   DOM READY
-========================================= */
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  forceTop();
-
-});
-
-/* =========================================
-   FULL PAGE LOAD
-========================================= */
+document.addEventListener('DOMContentLoaded', forceTop);
 
 window.addEventListener('load', () => {
 
   forceTop();
 
-  /* multiple hard fixes */
-
-  setTimeout(forceTop, 50);
-  setTimeout(forceTop, 150);
+  setTimeout(forceTop, 100);
   setTimeout(forceTop, 300);
-  setTimeout(forceTop, 700);
-  setTimeout(forceTop, 1200);
+  setTimeout(forceTop, 800);
 
 });
 
-/* =========================================
-   CACHE / BACK BUTTON FIX
-========================================= */
-
-window.addEventListener('pageshow', () => {
-
-  forceTop();
-
-});
+window.addEventListener('pageshow', forceTop);
 
 /* =========================================
-   HARD STARTUP LOCK
+   TEMP SCROLL LOCK
 ========================================= */
 
-let startupLock = true;
-
-/* keep first screen locked */
+document.documentElement.style.overflow = 'hidden';
+document.body.style.overflow = 'hidden';
 
 setTimeout(() => {
 
-  startupLock = false;
+  document.documentElement.style.overflowY = 'auto';
+  document.body.style.overflowY = 'auto';
+
+  forceTop();
 
 }, 1800);
-
-/* block any auto scroll */
-
-window.addEventListener('scroll', () => {
-
-  if(startupLock){
-
-    window.scrollTo(0,0);
-
-  }
-
-}, { passive:false });
-
-/* =========================================
-   IFRAME JUMP PROTECTION
-========================================= */
-
-const tvFrame = document.getElementById('tvFrame');
-
-tvFrame.addEventListener('load', () => {
-
-  if(startupLock){
-
-    forceTop();
-
-  }
-
-});
-
-/* =========================================
-   VISIBILITY CHANGE FIX
-========================================= */
-
-document.addEventListener('visibilitychange', () => {
-
-  if(!document.hidden && startupLock){
-
-    forceTop();
-
-  }
-
-});
 
 /* =========================================
    ADAPTIVE HEIGHT
