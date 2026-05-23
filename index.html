@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>ibonarium flow</title>
 
 <style>
+
 *{
   margin:0;
   padding:0;
@@ -16,15 +18,17 @@ html{
   scroll-behavior:auto;
 }
 
-html,body{
+html,
+body{
   width:100%;
+  height:auto;
   background:#000;
   overflow-x:hidden;
   overflow-y:auto;
   font-family:Arial,sans-serif;
 }
 
-/* ===== FIX SCROLL ===== */
+/* ===== GLOBAL ===== */
 
 body{
   position:relative;
@@ -48,7 +52,7 @@ body{
   background:#000;
 }
 
-/* ===== PAGE HEIGHTS ===== */
+/* ===== HEIGHTS ===== */
 
 #tvFrame{
   height:100vh;
@@ -58,7 +62,7 @@ body{
   height:2200px;
 }
 
-/* ===== SOFT TRANSITION ===== */
+/* ===== FADE ===== */
 
 .fade::after{
   content:"";
@@ -76,7 +80,7 @@ body{
     #000
   );
 
-  z-index:5;
+  z-index:10;
 }
 
 /* ===== MOBILE ===== */
@@ -92,12 +96,15 @@ body{
   }
 
 }
+
 </style>
 </head>
 
 <body>
 
-<!-- ===== FIRST PAGE ===== -->
+<!-- ===================================== -->
+<!-- FIRST PAGE -->
+<!-- ===================================== -->
 
 <section class="section fade">
 
@@ -112,7 +119,9 @@ body{
 
 </section>
 
-<!-- ===== SECOND PAGE ===== -->
+<!-- ===================================== -->
+<!-- SECOND PAGE -->
+<!-- ===================================== -->
 
 <section class="section">
 
@@ -127,86 +136,151 @@ body{
 </section>
 
 <script>
-/* =========================================
-   HARD FIX:
-   ALWAYS START FROM TOP
-   NO AUTO JUMPS
-========================================= */
 
-/* disable browser scroll memory */
+/* =========================================
+   DISABLE BROWSER SCROLL MEMORY
+========================================= */
 
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-/* instantly reset BEFORE render */
+/* =========================================
+   REMOVE HASH / RESTORE
+========================================= */
 
-window.history.replaceState(null, null, window.location.pathname);
+history.replaceState(null, null, window.location.pathname);
+
+/* =========================================
+   FORCE TOP IMMEDIATELY
+========================================= */
+
+window.scrollTo(0,0);
 
 document.documentElement.scrollTop = 0;
 document.body.scrollTop = 0;
 
-/* lock initial position */
+/* =========================================
+   FORCE TOP AFTER DOM READY
+========================================= */
 
-window.addEventListener('beforeunload', () => {
-  window.scrollTo(0,0);
+document.addEventListener("DOMContentLoaded", () => {
+
+  window.scrollTo({
+    top:0,
+    left:0,
+    behavior:"auto"
+  });
+
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
 });
 
-/* force top after full load */
+/* =========================================
+   FORCE TOP AFTER FULL LOAD
+========================================= */
 
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
 
-  requestAnimationFrame(() => {
+  setTimeout(() => {
+
+    window.scrollTo({
+      top:0,
+      left:0,
+      behavior:"auto"
+    });
+
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+  },0);
+
+});
+
+/* =========================================
+   PAGESHOW FIX
+========================================= */
+
+window.addEventListener("pageshow", () => {
+
+  window.scrollTo(0,0);
+
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
+});
+
+/* =========================================
+   PREVENT IFRAME REFRESH JUMPS
+========================================= */
+
+let savedScroll = 0;
+
+window.addEventListener("scroll", () => {
+  savedScroll = window.scrollY;
+}, { passive:true });
+
+const tvFrame = document.getElementById("tvFrame");
+
+tvFrame.addEventListener("load", () => {
+
+  if(savedScroll < 50){
 
     window.scrollTo(0,0);
 
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
 
-  });
-
-});
-
-/* extra protection from iframe focus jumps */
-
-let lockScroll = false;
-
-window.addEventListener('scroll', () => {
-
-  if(lockScroll){
-    window.scrollTo(0,0);
-  }
-
-}, { passive:true });
-
-/* stop browser trying to restore position */
-
-window.addEventListener('pageshow', (event) => {
-
-  if(event.persisted){
-
-    lockScroll = true;
-
-    window.scrollTo(0,0);
-
-    setTimeout(() => {
-      lockScroll = false;
-    }, 300);
-
   }
 
 });
 
-/* ===== ADAPTIVE HEIGHT ===== */
+/* =========================================
+   PREVENT VISIBILITY JUMPS
+========================================= */
+
+document.addEventListener("visibilitychange", () => {
+
+  if (!document.hidden) {
+
+    requestAnimationFrame(() => {
+
+      if(savedScroll < 50){
+
+        window.scrollTo(0,0);
+
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+
+      }else{
+
+        window.scrollTo(0, savedScroll);
+
+      }
+
+    });
+
+  }
+
+});
+
+/* =========================================
+   ADAPTIVE HEIGHT
+========================================= */
 
 const museumFrame = document.getElementById("museumFrame");
 
 function adaptiveMuseumHeight(){
 
   if(window.innerWidth < 900){
+
     museumFrame.style.height = "2600px";
+
   }else{
+
     museumFrame.style.height = "2200px";
+
   }
 
 }
@@ -215,39 +289,6 @@ adaptiveMuseumHeight();
 
 window.addEventListener("resize", adaptiveMuseumHeight);
 
-/* ===== PREVENT VIDEO REFRESH JUMPS ===== */
-
-let lastScroll = 0;
-
-window.addEventListener("scroll", () => {
-  lastScroll = window.scrollY;
-}, { passive:true });
-
-document.addEventListener("visibilitychange", () => {
-
-  if (!document.hidden) {
-
-    requestAnimationFrame(() => {
-      window.scrollTo(0, lastScroll);
-    });
-
-  }
-
-});
-
-/* prevent iframe refresh moving page */
-
-const iframe = document.getElementById("tvFrame");
-
-iframe.addEventListener("load", () => {
-
-  const current = window.scrollY;
-
-  requestAnimationFrame(() => {
-    window.scrollTo(0, current);
-  });
-
-});
 </script>
 
 </body>
