@@ -1,149 +1,254 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBONARIUM · MULTI HUB</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ibonarium flow</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
+html{
+  scroll-behavior:auto;
+}
 
-    <style>
-        :root {
-            --bg: #030305;
-            --accent: #d4af37;
-            --glass: rgba(0, 10, 20, 0.7);
-            --border: rgba(212, 175, 55, 0.2);
+html,body{
+  width:100%;
+  background:#000;
+  overflow-x:hidden;
+  overflow-y:auto;
+  font-family:Arial,sans-serif;
+}
 
-            --font-main: 'Outfit', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
+/* ===== FIX SCROLL ===== */
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+body{
+  position:relative;
+}
 
-        html{
-            scroll-behavior:smooth;
-            scroll-snap-type:y mandatory;
-        }
+/* ===== SECTIONS ===== */
 
-        body{
-            width:100%;
-            overflow-x:hidden;
-            background:var(--bg);
-            font-family:var(--font-main);
-            color:white;
-        }
+.section{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  background:#000;
+}
 
-        .hub-container{
-            width:100%;
-        }
+/* ===== IFRAMES ===== */
 
-        section{
-            width:100%;
-            height:100vh;
-            position:relative;
-            overflow:hidden;
+.frame{
+  width:100%;
+  border:none;
+  display:block;
+  background:#000;
+}
 
-            scroll-snap-align:start;
-            scroll-snap-stop:always;
+/* ===== PAGE HEIGHTS ===== */
 
-            background:#000;
-        }
+#tvFrame{
+  height:100vh;
+}
 
-        iframe{
-            width:100%;
-            height:100%;
-            border:none;
-            display:block;
-            background:#000;
-        }
+#museumFrame{
+  height:2200px;
+}
 
-        /* smooth fade between sections */
-        section::after{
-            content:"";
-            position:absolute;
-            bottom:0;
-            left:0;
-            width:100%;
-            height:120px;
-            pointer-events:none;
+/* ===== SOFT TRANSITION ===== */
 
-            background:linear-gradient(
-                to bottom,
-                rgba(0,0,0,0),
-                rgba(0,0,0,0.65)
-            );
-        }
+.fade::after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-1px;
+  width:100%;
+  height:120px;
+  pointer-events:none;
 
-        /* custom scrollbar */
-        body::-webkit-scrollbar{
-            width:6px;
-        }
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,0),
+    rgba(0,0,0,0.45),
+    #000
+  );
 
-        body::-webkit-scrollbar-track{
-            background:#06020a;
-        }
+  z-index:5;
+}
 
-        body::-webkit-scrollbar-thumb{
-            background:var(--border);
-            border-radius:10px;
-        }
+/* ===== MOBILE ===== */
 
-        /* mobile optimization */
-        @media (max-width: 768px){
+@media(max-width:900px){
 
-            section{
-                height:100svh;
-            }
+  #tvFrame{
+    height:100svh;
+  }
 
-            iframe{
-                min-height:100svh;
-            }
-        }
-    </style>
+  #museumFrame{
+    height:2600px;
+  }
+
+}
+</style>
 </head>
 
 <body>
 
-<div class="hub-container">
+<!-- ===== FIRST PAGE ===== -->
 
-    <!-- PAGE 1 -->
-    <section id="sunset">
-        <iframe
-            src="https://lavandaaudit.github.io/ibonarium.sanset.now/"
-            title="IBONARIUM SUNSET NOW"
-            loading="eager"
-            scrolling="yes">
-        </iframe>
-    </section>
+<section class="section fade">
 
-    <!-- PAGE 2 -->
-    <section id="statist">
-        <iframe
-            src="https://lavandaaudit.github.io/statist/"
-            title="IBONARIUM STATIST"
-            loading="lazy"
-            scrolling="yes">
-        </iframe>
-    </section>
+  <iframe
+    id="tvFrame"
+    class="frame"
+    src="https://lavandaaudit.github.io/tv.2/"
+    loading="eager"
+    allow="autoplay; fullscreen"
+    allowfullscreen>
+  </iframe>
 
-    <!-- PAGE 3 -->
-    <section id="telescope">
-        <iframe
-            src="https://lavandaaudit.github.io/tele.lab.telescope/"
-            title="IBONARIUM TELE LAB"
-            loading="lazy"
-            scrolling="yes">
-        </iframe>
-    </section>
+</section>
 
-</div>
+<!-- ===== SECOND PAGE ===== -->
+
+<section class="section">
+
+  <iframe
+    id="museumFrame"
+    class="frame"
+    src="https://lavandaaudit.github.io/history.musem.ibonarium/"
+    loading="lazy"
+    allowfullscreen>
+  </iframe>
+
+</section>
+
+<script>
+/* =========================================
+   HARD FIX:
+   ALWAYS START FROM TOP
+   NO AUTO JUMPS
+========================================= */
+
+/* disable browser scroll memory */
+
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+/* instantly reset BEFORE render */
+
+window.history.replaceState(null, null, window.location.pathname);
+
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+
+/* lock initial position */
+
+window.addEventListener('beforeunload', () => {
+  window.scrollTo(0,0);
+});
+
+/* force top after full load */
+
+window.addEventListener('load', () => {
+
+  requestAnimationFrame(() => {
+
+    window.scrollTo(0,0);
+
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+
+  });
+
+});
+
+/* extra protection from iframe focus jumps */
+
+let lockScroll = false;
+
+window.addEventListener('scroll', () => {
+
+  if(lockScroll){
+    window.scrollTo(0,0);
+  }
+
+}, { passive:true });
+
+/* stop browser trying to restore position */
+
+window.addEventListener('pageshow', (event) => {
+
+  if(event.persisted){
+
+    lockScroll = true;
+
+    window.scrollTo(0,0);
+
+    setTimeout(() => {
+      lockScroll = false;
+    }, 300);
+
+  }
+
+});
+
+/* ===== ADAPTIVE HEIGHT ===== */
+
+const museumFrame = document.getElementById("museumFrame");
+
+function adaptiveMuseumHeight(){
+
+  if(window.innerWidth < 900){
+    museumFrame.style.height = "2600px";
+  }else{
+    museumFrame.style.height = "2200px";
+  }
+
+}
+
+adaptiveMuseumHeight();
+
+window.addEventListener("resize", adaptiveMuseumHeight);
+
+/* ===== PREVENT VIDEO REFRESH JUMPS ===== */
+
+let lastScroll = 0;
+
+window.addEventListener("scroll", () => {
+  lastScroll = window.scrollY;
+}, { passive:true });
+
+document.addEventListener("visibilitychange", () => {
+
+  if (!document.hidden) {
+
+    requestAnimationFrame(() => {
+      window.scrollTo(0, lastScroll);
+    });
+
+  }
+
+});
+
+/* prevent iframe refresh moving page */
+
+const iframe = document.getElementById("tvFrame");
+
+iframe.addEventListener("load", () => {
+
+  const current = window.scrollY;
+
+  requestAnimationFrame(() => {
+    window.scrollTo(0, current);
+  });
+
+});
+</script>
 
 </body>
 </html>
