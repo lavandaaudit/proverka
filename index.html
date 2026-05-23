@@ -19,7 +19,7 @@
 }
 
 html{
-  scroll-behavior:auto !important;
+  scroll-behavior:smooth;
 }
 
 html,
@@ -27,48 +27,38 @@ body{
   width:100%;
   background:#000;
   overflow-x:hidden;
-  overflow-y:auto;
   font-family:Arial,sans-serif;
 }
 
 /* ========================================= */
-/* BLOCK AUTO JUMPS */
+/* SECTIONS */
 /* ========================================= */
 
-body{
-  position:relative;
-}
-
-/* ========================================= */
-/* FIRST PAGE */
-/* ========================================= */
-
-.tv-wrapper{
+.section{
   position:relative;
   width:100%;
-  height:100vh;
   overflow:hidden;
   background:#000;
 }
 
-.tv-wrapper object{
+/* ========================================= */
+/* PAGE 1 */
+/* ========================================= */
+
+#page1{
+  height:100vh;
+}
+
+#page1 object{
   width:100%;
   height:100%;
   border:none;
   display:block;
-  pointer-events:auto;
 }
 
 /* ========================================= */
-/* SECOND PAGE */
+/* PAGE 2 */
 /* ========================================= */
-
-.museum-section{
-  position:relative;
-  width:100%;
-  overflow:hidden;
-  background:#000;
-}
 
 #museumFrame{
   width:100%;
@@ -102,17 +92,83 @@ body{
 }
 
 /* ========================================= */
+/* SIDE PANEL */
+/* ========================================= */
+
+.side-panel{
+  position:fixed;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:9999;
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* ========================================= */
+/* BUTTONS */
+/* ========================================= */
+
+.nav-btn{
+  width:42px;
+  height:42px;
+
+  border-radius:50%;
+
+  border:1px solid rgba(0,255,255,0.35);
+
+  background:rgba(0,0,0,0.6);
+
+  color:#7ffcff;
+
+  font-size:14px;
+  font-weight:bold;
+
+  cursor:pointer;
+
+  backdrop-filter:blur(8px);
+
+  transition:0.25s ease;
+
+  box-shadow:
+    0 0 12px rgba(0,255,255,0.15);
+}
+
+.nav-btn:hover{
+
+  transform:scale(1.08);
+
+  background:rgba(0,255,255,0.12);
+
+  box-shadow:
+    0 0 18px rgba(0,255,255,0.4);
+
+}
+
+/* ========================================= */
 /* MOBILE */
 /* ========================================= */
 
 @media(max-width:900px){
 
-  .tv-wrapper{
+  #page1{
     height:100svh;
   }
 
   #museumFrame{
     height:2600px;
+  }
+
+  .side-panel{
+    right:10px;
+  }
+
+  .nav-btn{
+    width:38px;
+    height:38px;
+    font-size:13px;
   }
 
 }
@@ -123,11 +179,24 @@ body{
 <body>
 
 <!-- ========================================= -->
-<!-- FIRST PAGE -->
-<!-- NO IFRAME -->
+<!-- SIDE NAVIGATION -->
 <!-- ========================================= -->
 
-<section class="tv-wrapper fade">
+<div class="side-panel">
+
+  <button class="nav-btn" onclick="goPage1()">1</button>
+
+  <button class="nav-btn" onclick="goPage2()">2</button>
+
+</div>
+
+<!-- ========================================= -->
+<!-- PAGE 1 -->
+<!-- ========================================= -->
+
+<section
+  id="page1"
+  class="section fade">
 
   <object
     data="https://lavandaaudit.github.io/tv.2/"
@@ -137,10 +206,12 @@ body{
 </section>
 
 <!-- ========================================= -->
-<!-- SECOND PAGE -->
+<!-- PAGE 2 -->
 <!-- ========================================= -->
 
-<section class="museum-section">
+<section
+  id="page2"
+  class="section">
 
   <iframe
     id="museumFrame"
@@ -162,7 +233,7 @@ if ('scrollRestoration' in history) {
 }
 
 /* =========================================
-   FORCE TOP
+   FORCE START TOP
 ========================================= */
 
 function forceTop(){
@@ -173,13 +244,10 @@ function forceTop(){
     behavior:'auto'
   });
 
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-
 }
 
 /* =========================================
-   START FROM TOP
+   START FIX
 ========================================= */
 
 forceTop();
@@ -190,16 +258,16 @@ window.addEventListener('load', () => {
 
   forceTop();
 
-  setTimeout(forceTop, 100);
-  setTimeout(forceTop, 300);
-  setTimeout(forceTop, 800);
+  setTimeout(forceTop,100);
+  setTimeout(forceTop,300);
+  setTimeout(forceTop,700);
 
 });
 
 window.addEventListener('pageshow', forceTop);
 
 /* =========================================
-   TEMP SCROLL LOCK
+   TEMP LOCK
 ========================================= */
 
 document.documentElement.style.overflow = 'hidden';
@@ -212,7 +280,27 @@ setTimeout(() => {
 
   forceTop();
 
-}, 1800);
+},1800);
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function goPage1(){
+
+  document.getElementById('page1').scrollIntoView({
+    behavior:'smooth'
+  });
+
+}
+
+function goPage2(){
+
+  document.getElementById('page2').scrollIntoView({
+    behavior:'smooth'
+  });
+
+}
 
 /* =========================================
    ADAPTIVE HEIGHT
