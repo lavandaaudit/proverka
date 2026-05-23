@@ -2,11 +2,15 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
 <title>ibonarium flow</title>
 
 <style>
+
+/* ========================================= */
+/* RESET */
+/* ========================================= */
 
 *{
   margin:0;
@@ -15,26 +19,30 @@
 }
 
 html{
-  scroll-behavior:auto;
+  scroll-behavior:auto !important;
 }
 
 html,
 body{
   width:100%;
-  height:auto;
+  min-height:100%;
   background:#000;
   overflow-x:hidden;
   overflow-y:auto;
   font-family:Arial,sans-serif;
 }
 
-/* ===== GLOBAL ===== */
+/* ========================================= */
+/* BODY */
+/* ========================================= */
 
 body{
   position:relative;
 }
 
-/* ===== SECTIONS ===== */
+/* ========================================= */
+/* SECTIONS */
+/* ========================================= */
 
 .section{
   position:relative;
@@ -43,7 +51,9 @@ body{
   background:#000;
 }
 
-/* ===== IFRAMES ===== */
+/* ========================================= */
+/* IFRAMES */
+/* ========================================= */
 
 .frame{
   width:100%;
@@ -52,17 +62,22 @@ body{
   background:#000;
 }
 
-/* ===== HEIGHTS ===== */
+/* ========================================= */
+/* PAGE HEIGHTS */
+/* ========================================= */
 
 #tvFrame{
   height:100vh;
+  min-height:100vh;
 }
 
 #museumFrame{
   height:2200px;
 }
 
-/* ===== FADE ===== */
+/* ========================================= */
+/* FADE TRANSITION */
+/* ========================================= */
 
 .fade::after{
   content:"";
@@ -83,12 +98,15 @@ body{
   z-index:10;
 }
 
-/* ===== MOBILE ===== */
+/* ========================================= */
+/* MOBILE */
+/* ========================================= */
 
 @media(max-width:900px){
 
   #tvFrame{
     height:100svh;
+    min-height:100svh;
   }
 
   #museumFrame{
@@ -102,9 +120,9 @@ body{
 
 <body>
 
-<!-- ===================================== -->
+<!-- ========================================= -->
 <!-- FIRST PAGE -->
-<!-- ===================================== -->
+<!-- ========================================= -->
 
 <section class="section fade">
 
@@ -119,9 +137,9 @@ body{
 
 </section>
 
-<!-- ===================================== -->
+<!-- ========================================= -->
 <!-- SECOND PAGE -->
-<!-- ===================================== -->
+<!-- ========================================= -->
 
 <section class="section">
 
@@ -138,7 +156,7 @@ body{
 <script>
 
 /* =========================================
-   DISABLE BROWSER SCROLL MEMORY
+   DISABLE BROWSER SCROLL RESTORE
 ========================================= */
 
 if ('scrollRestoration' in history) {
@@ -146,120 +164,123 @@ if ('scrollRestoration' in history) {
 }
 
 /* =========================================
-   REMOVE HASH / RESTORE
+   REMOVE HASH / HISTORY RESTORE
 ========================================= */
 
-history.replaceState(null, null, window.location.pathname);
+history.replaceState(null, null, location.pathname);
 
 /* =========================================
-   FORCE TOP IMMEDIATELY
+   FORCE PAGE START FROM TOP
 ========================================= */
 
-window.scrollTo(0,0);
-
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
-
-/* =========================================
-   FORCE TOP AFTER DOM READY
-========================================= */
-
-document.addEventListener("DOMContentLoaded", () => {
+function forceTop(){
 
   window.scrollTo({
     top:0,
     left:0,
-    behavior:"auto"
+    behavior:'auto'
   });
 
   document.documentElement.scrollTop = 0;
   document.body.scrollTop = 0;
 
-});
+}
 
 /* =========================================
-   FORCE TOP AFTER FULL LOAD
+   INSTANT TOP
 ========================================= */
 
-window.addEventListener("load", () => {
+forceTop();
 
-  setTimeout(() => {
+/* =========================================
+   DOM READY
+========================================= */
 
-    window.scrollTo({
-      top:0,
-      left:0,
-      behavior:"auto"
-    });
+document.addEventListener('DOMContentLoaded', () => {
 
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-
-  },0);
+  forceTop();
 
 });
 
 /* =========================================
-   PAGESHOW FIX
+   FULL PAGE LOAD
 ========================================= */
 
-window.addEventListener("pageshow", () => {
+window.addEventListener('load', () => {
 
-  window.scrollTo(0,0);
+  forceTop();
 
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
+  /* multiple hard fixes */
+
+  setTimeout(forceTop, 50);
+  setTimeout(forceTop, 150);
+  setTimeout(forceTop, 300);
+  setTimeout(forceTop, 700);
+  setTimeout(forceTop, 1200);
 
 });
 
 /* =========================================
-   PREVENT IFRAME REFRESH JUMPS
+   CACHE / BACK BUTTON FIX
 ========================================= */
 
-let savedScroll = 0;
+window.addEventListener('pageshow', () => {
 
-window.addEventListener("scroll", () => {
-  savedScroll = window.scrollY;
-}, { passive:true });
+  forceTop();
 
-const tvFrame = document.getElementById("tvFrame");
+});
 
-tvFrame.addEventListener("load", () => {
+/* =========================================
+   HARD STARTUP LOCK
+========================================= */
 
-  if(savedScroll < 50){
+let startupLock = true;
+
+/* keep first screen locked */
+
+setTimeout(() => {
+
+  startupLock = false;
+
+}, 1800);
+
+/* block any auto scroll */
+
+window.addEventListener('scroll', () => {
+
+  if(startupLock){
 
     window.scrollTo(0,0);
 
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+  }
+
+}, { passive:false });
+
+/* =========================================
+   IFRAME JUMP PROTECTION
+========================================= */
+
+const tvFrame = document.getElementById('tvFrame');
+
+tvFrame.addEventListener('load', () => {
+
+  if(startupLock){
+
+    forceTop();
 
   }
 
 });
 
 /* =========================================
-   PREVENT VISIBILITY JUMPS
+   VISIBILITY CHANGE FIX
 ========================================= */
 
-document.addEventListener("visibilitychange", () => {
+document.addEventListener('visibilitychange', () => {
 
-  if (!document.hidden) {
+  if(!document.hidden && startupLock){
 
-    requestAnimationFrame(() => {
-
-      if(savedScroll < 50){
-
-        window.scrollTo(0,0);
-
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-
-      }else{
-
-        window.scrollTo(0, savedScroll);
-
-      }
-
-    });
+    forceTop();
 
   }
 
@@ -269,17 +290,17 @@ document.addEventListener("visibilitychange", () => {
    ADAPTIVE HEIGHT
 ========================================= */
 
-const museumFrame = document.getElementById("museumFrame");
+const museumFrame = document.getElementById('museumFrame');
 
 function adaptiveMuseumHeight(){
 
   if(window.innerWidth < 900){
 
-    museumFrame.style.height = "2600px";
+    museumFrame.style.height = '2600px';
 
   }else{
 
-    museumFrame.style.height = "2200px";
+    museumFrame.style.height = '2200px';
 
   }
 
@@ -287,7 +308,7 @@ function adaptiveMuseumHeight(){
 
 adaptiveMuseumHeight();
 
-window.addEventListener("resize", adaptiveMuseumHeight);
+window.addEventListener('resize', adaptiveMuseumHeight);
 
 </script>
 
