@@ -42,7 +42,7 @@ border:none;
 transition:1s;
 }
 
-/* ===== OVERLAY ===== */
+/* ===== EFFECTS ===== */
 
 .scan{
 position:absolute;
@@ -59,6 +59,7 @@ transparent 4px
 
 opacity:.12;
 mix-blend-mode:screen;
+
 pointer-events:none;
 }
 
@@ -81,15 +82,15 @@ pointer-events:none;
 .topbar{
 position:absolute;
 
-top:12px;
+top:10px;
 left:50%;
 
 transform:translateX(-50%);
 
 width:97%;
-height:62px;
+height:58px;
 
-background:rgba(0,0,0,.28);
+background:rgba(0,0,0,.24);
 
 backdrop-filter:blur(12px);
 
@@ -119,7 +120,7 @@ white-space:nowrap;
 /* ===== SEARCH ===== */
 
 .search{
-flex:1;
+width:220px;
 height:34px;
 
 background:#111;
@@ -135,55 +136,20 @@ font-size:12px;
 color:white;
 }
 
-/* ===== CITYS ===== */
-
-.citys{
-display:flex;
-gap:8px;
-
-overflow-x:auto;
-
-scrollbar-width:none;
-}
-
-.citys::-webkit-scrollbar{
-display:none;
-}
-
-.city{
-padding:7px 12px;
-
-background:#101010;
-
-border:
-1px solid rgba(255,255,255,.04);
-
-border-radius:10px;
-
-cursor:pointer;
-
-font-size:11px;
-font-weight:700;
-
-transition:.2s;
-
-white-space:nowrap;
-}
-
-.city:hover{
-background:#1a1a1a;
-}
-
-/* ===== LEFT ===== */
+/* ===== MENU ===== */
 
 .left{
 position:absolute;
 
-left:10px;
-top:84px;
+top:78px;
+left:50%;
 
-display:grid;
-grid-template-columns:1fr 1fr;
+transform:translateX(-50%);
+
+display:flex;
+align-items:center;
+justify-content:center;
+flex-wrap:wrap;
 
 gap:6px;
 
@@ -193,21 +159,25 @@ z-index:100;
 /* ===== BUTTON ===== */
 
 .btn{
-width:108px;
-height:34px;
+width:auto;
+min-width:92px;
 
-background:rgba(0,0,0,.26);
+padding:0 12px;
+
+height:30px;
+
+background:rgba(0,0,0,.24);
 
 backdrop-filter:blur(8px);
 
 border:
 1px solid rgba(255,255,255,.05);
 
-border-radius:10px;
+border-radius:9px;
 
 color:white;
 
-font-size:9px;
+font-size:8px;
 font-weight:700;
 
 cursor:pointer;
@@ -216,18 +186,86 @@ transition:.2s;
 }
 
 .btn:hover{
-background:#161616;
+background:#181818;
 }
 
-/* ===== RIGHT ===== */
+/* ===== CITY GRID ===== */
+
+.citys{
+position:absolute;
+
+top:122px;
+left:14px;
+right:190px;
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fill,minmax(88px,1fr));
+
+gap:6px;
+
+max-height:122px;
+
+overflow:auto;
+
+padding-right:8px;
+
+scrollbar-width:none;
+
+z-index:90;
+}
+
+.citys::-webkit-scrollbar{
+display:none;
+}
+
+/* ===== CITY ===== */
+
+.city{
+display:flex;
+align-items:center;
+justify-content:center;
+
+height:34px;
+
+padding:0 8px;
+
+font-size:9px;
+font-weight:700;
+
+text-align:center;
+
+background:rgba(0,0,0,.22);
+
+border:
+1px solid rgba(255,255,255,.04);
+
+border-radius:10px;
+
+backdrop-filter:blur(6px);
+
+cursor:pointer;
+
+transition:.2s;
+
+white-space:nowrap;
+}
+
+.city:hover{
+background:#1b1b1b;
+transform:scale(1.03);
+}
+
+/* ===== RIGHT INFO ===== */
 
 .right{
 position:absolute;
 
 right:10px;
-top:84px;
+top:122px;
 
-width:170px;
+width:165px;
 
 display:flex;
 flex-direction:column;
@@ -236,14 +274,14 @@ gap:8px;
 z-index:100;
 }
 
-/* ===== CITY TITLE ===== */
+/* ===== TITLE ===== */
 
 .city-title{
 font-size:18px;
 font-weight:900;
 line-height:1;
+
 text-align:right;
-margin-bottom:2px;
 }
 
 /* ===== INFO ===== */
@@ -282,7 +320,7 @@ text-align:right;
 opacity:.75;
 }
 
-/* ===== WALK ===== */
+/* ===== STATUS ===== */
 
 .walk{
 position:absolute;
@@ -292,7 +330,7 @@ bottom:10px;
 
 padding:10px 14px;
 
-background:rgba(0,0,0,.28);
+background:rgba(0,0,0,.24);
 
 backdrop-filter:blur(10px);
 
@@ -357,17 +395,31 @@ transform:translate(0);
 
 @media(max-width:900px){
 
-.bigcity{
-display:none;
+.citys{
+right:10px;
+
+grid-template-columns:
+repeat(auto-fill,minmax(72px,1fr));
+
+max-height:100px;
 }
 
 .btn{
-width:92px;
-font-size:8px;
+min-width:78px;
+font-size:7px;
+height:28px;
 }
 
 .right{
 width:140px;
+}
+
+.bigcity{
+display:none;
+}
+
+.search{
+width:120px;
 }
 
 }
@@ -400,15 +452,13 @@ IBONARIUM RENDER
 <input
 class="search"
 type="text"
-placeholder="Пошук мегаполіса..."
+placeholder="Пошук..."
 onkeyup="filterCities(this.value)"
 >
 
-<div class="citys" id="citys"></div>
-
 </div>
 
-<!-- LEFT -->
+<!-- MENU -->
 
 <div class="left">
 
@@ -425,7 +475,7 @@ AUTO WALK
 </button>
 
 <button class="btn" onclick="stopWalk()">
-STOP WALK
+STOP
 </button>
 
 <button class="btn" onclick="nightMode()">
@@ -453,6 +503,10 @@ RESET
 </button>
 
 </div>
+
+<!-- CITY GRID -->
+
+<div class="citys" id="citys"></div>
 
 <!-- RIGHT -->
 
@@ -529,7 +583,7 @@ standby...
 
 </div>
 
-<!-- WALK -->
+<!-- STATUS -->
 
 <div
 class="walk"
@@ -540,7 +594,7 @@ standby mode
 
 </div>
 
-<!-- BIG CITY -->
+<!-- BIG -->
 
 <div
 class="bigcity"
@@ -552,7 +606,7 @@ TOKYO
 
 <script>
 
-/* ===== 100 CITIES ===== */
+/* ===== CITIES ===== */
 
 const cities=[
 
@@ -660,7 +714,7 @@ const cities=[
 
 ];
 
-/* ===== DATA ===== */
+/* ===== CITY DATA ===== */
 
 const cityData={
 
@@ -738,7 +792,7 @@ citys.appendChild(div);
 
 renderCities(cities);
 
-/* ===== OPEN STREET ===== */
+/* ===== OPEN ===== */
 
 function openStreet(city,index){
 
@@ -833,7 +887,7 @@ clearInterval(autoWalkInterval);
 
 document.getElementById('walk').innerHTML=
 `
-AI AUTO WALK ACTIVE<br>
+AUTO WALK ACTIVE<br>
 urban navigation...
 `;
 
