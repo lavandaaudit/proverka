@@ -392,8 +392,6 @@ repeat(auto-fill,minmax(72px,1fr));
 
 <div class="viewer">
 
-<!-- STREET -->
-
 <iframe
 id="street"
 allowfullscreen>
@@ -494,7 +492,7 @@ class="city-popup"
 id="cityPopup">
 </div>
 
-<!-- RIGHT -->
+<!-- RIGHT INFO -->
 
 <div class="right">
 
@@ -617,7 +615,7 @@ const cities=[
 
 ];
 
-/* ===== DATA ===== */
+/* ===== CITY DATA ===== */
 
 const cityData={
 
@@ -637,6 +635,24 @@ weather:"cloudy",
 air:"52 AQI",
 airText:"moderate quality",
 population:"3M"
+},
+
+London:{
+coords:[51.5072,-0.1276],
+temp:"+17°C",
+weather:"rain",
+air:"48 AQI",
+airText:"stable quality",
+population:"9M"
+},
+
+Paris:{
+coords:[48.8566,2.3522],
+temp:"+21°C",
+weather:"clear sky",
+air:"41 AQI",
+airText:"good quality",
+population:"11M"
 }
 
 };
@@ -650,7 +666,7 @@ let currentIndex=0;
 let autoWalkInterval=null;
 let slowZoom=1;
 
-/* ===== TOGGLE CITIES ===== */
+/* ===== TOGGLE ===== */
 
 function toggleCities(){
 
@@ -697,19 +713,39 @@ cityPopup.appendChild(div);
 }
 
 /* ===== OPEN STREET ===== */
+/* ===== FIXED CITY LOADING ===== */
 
 function openStreet(city,index){
 
 currentIndex=index;
 
 const data=
-cityData[city] || cityData["Tokyo"];
+cityData[city] || {
+
+coords:[35.6895,139.6917],
+temp:"+22°C",
+weather:"urban haze",
+air:"45 AQI",
+airText:"stable quality",
+population:"12M"
+
+};
 
 const lat=data.coords[0];
 const lng=data.coords[1];
 
+/* ===== IMPORTANT FIX ===== */
+
+frame.src="";
+
+setTimeout(()=>{
+
 frame.src=
-`https://www.google.com/maps?q=&layer=c&cbll=${lat},${lng}&cbp=11,0,0,0,0&output=svembed`;
+`https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed&layer=c`;
+
+},100);
+
+/* ===== INFO ===== */
 
 document.getElementById('cityTitle').innerText=
 city.toUpperCase();
@@ -718,19 +754,25 @@ document.getElementById('bigcity').innerText=
 city.toUpperCase();
 
 document.getElementById('temp').innerText=
-data.temp || "+22°C";
+data.temp;
 
 document.getElementById('weatherText').innerText=
-data.weather || "urban haze";
+data.weather;
 
 document.getElementById('air').innerText=
-data.air || "45 AQI";
+data.air;
 
 document.getElementById('airText').innerText=
-data.airText || "stable quality";
+data.airText;
 
 document.getElementById('population').innerText=
-data.population || "12M";
+data.population;
+
+document.getElementById('guide').innerHTML=
+`
+AI WALK<br>
+${city.toUpperCase()} loaded
+`;
 
 }
 
@@ -753,9 +795,12 @@ cityPopup.style.display="grid";
 
 function randomStreet(){
 
+const randomIndex=
+Math.floor(Math.random()*cities.length);
+
 openStreet(
-cities[Math.floor(Math.random()*cities.length)],
-0
+cities[randomIndex],
+randomIndex
 );
 
 }
@@ -780,7 +825,6 @@ currentIndex
 }
 
 /* ===== AUTO WALK ===== */
-/* ===== NOW MOVES LIKE ARROWS FORWARD ===== */
 
 function autoWalk(){
 
@@ -822,7 +866,7 @@ const newLng=
 lng + Math.sin(heading*Math.PI/180)*forwardDistance;
 
 frame.src=
-`https://www.google.com/maps?q=&layer=c&cbll=${newLat},${newLng}&cbp=12,${heading},0,0,0&output=svembed`;
+`https://maps.google.com/maps?q=${newLat},${newLng}&z=16&output=embed&layer=c`;
 
 const routes=[
 
@@ -891,7 +935,7 @@ moveStreet(0.00015);
 
 }
 
-/* ===== MOVE STREET ===== */
+/* ===== MOVE ===== */
 
 function moveStreet(speed){
 
@@ -904,12 +948,6 @@ cityData[city] || cityData["Tokyo"];
 const lat=data.coords[0];
 const lng=data.coords[1];
 
-const heading=
-Math.floor(Math.random()*360);
-
-const zoom=
-Math.floor(Math.random()*2);
-
 const rLat=
 (lat+(Math.random()-.5)*speed).toFixed(6);
 
@@ -917,7 +955,7 @@ const rLng=
 (lng+(Math.random()-.5)*speed).toFixed(6);
 
 frame.src=
-`https://www.google.com/maps?q=&layer=c&cbll=${rLat},${rLng}&cbp=11,${heading},0,${zoom},0&output=svembed`;
+`https://maps.google.com/maps?q=${rLat},${rLng}&z=16&output=embed&layer=c`;
 
 const routes=[
 
