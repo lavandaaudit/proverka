@@ -708,14 +708,8 @@ cityData[city] || cityData["Tokyo"];
 const lat=data.coords[0];
 const lng=data.coords[1];
 
-const rLat=
-(lat+(Math.random()-.5)/100).toFixed(6);
-
-const rLng=
-(lng+(Math.random()-.5)/100).toFixed(6);
-
 frame.src=
-`https://www.google.com/maps?q=&layer=c&cbll=${rLat},${rLng}&cbp=11,0,0,0,0&output=svembed`;
+`https://www.google.com/maps?q=&layer=c&cbll=${lat},${lng}&cbp=11,0,0,0,0&output=svembed`;
 
 document.getElementById('cityTitle').innerText=
 city.toUpperCase();
@@ -786,6 +780,7 @@ currentIndex
 }
 
 /* ===== AUTO WALK ===== */
+/* ===== NOW MOVES LIKE ARROWS FORWARD ===== */
 
 function autoWalk(){
 
@@ -796,14 +791,70 @@ frame.style.transform='scale(1)';
 document.getElementById('walk').innerHTML=
 `
 AUTO WALK ACTIVE<br>
-urban navigation...
+forward street movement...
 `;
+
+let heading=0;
+let step=0;
 
 autoWalkInterval=setInterval(()=>{
 
-moveStreet(0.002);
+step++;
 
-},9000);
+heading += Math.floor(Math.random()*18)-9;
+
+const city=
+cities[currentIndex];
+
+const data=
+cityData[city] || cityData["Tokyo"];
+
+const lat=data.coords[0];
+const lng=data.coords[1];
+
+const forwardDistance=
+step * 0.00008;
+
+const newLat=
+lat + Math.cos(heading*Math.PI/180)*forwardDistance;
+
+const newLng=
+lng + Math.sin(heading*Math.PI/180)*forwardDistance;
+
+frame.src=
+`https://www.google.com/maps?q=&layer=c&cbll=${newLat},${newLng}&cbp=12,${heading},0,0,0&output=svembed`;
+
+const routes=[
+
+"walking forward...",
+"moving down street...",
+"crossing avenue...",
+"approaching intersection...",
+"urban navigation...",
+"following road...",
+"moving through downtown...",
+"street forward motion..."
+
+];
+
+const random=
+routes[
+Math.floor(Math.random()*routes.length)
+];
+
+document.getElementById('guide').innerHTML=
+`
+AI WALK<br>
+${random}
+`;
+
+document.getElementById('walk').innerHTML=
+`
+AUTO WALK ACTIVE<br>
+${random}
+`;
+
+},5000);
 
 }
 
