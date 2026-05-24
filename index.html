@@ -39,8 +39,9 @@ iframe{
 width:100%;
 height:100%;
 border:none;
-transition:1.2s;
+transition:3s;
 filter:contrast(1.1);
+transform:scale(1);
 }
 
 /* ===== EFFECTS ===== */
@@ -147,7 +148,7 @@ color:white;
 flex:none;
 }
 
-/* ===== TOP BUTTON ===== */
+/* ===== BUTTON ===== */
 
 .topbtn{
 height:32px;
@@ -612,17 +613,7 @@ const cities=[
 "Cape Town","Johannesburg","Nairobi","Lagos","Casablanca",
 "Tunis","Algiers","Jerusalem","Tel Aviv","Doha","Riyadh",
 "Tehran","Baghdad","Karachi","Delhi","Kathmandu","Hong Kong",
-"Taipei","Jakarta","Beijing","Osaka","Nagoya","Fukuoka",
-"Busan","Manila","Kuala Lumpur","Ho Chi Minh City","Hanoi",
-"Shenzhen","Guangzhou","Chengdu","Wuhan","Chongqing",
-"Tianjin","Melbourne","Perth","Auckland","Vancouver",
-"Montreal","Ottawa","Philadelphia","San Diego","Orlando",
-"Charlotte","Minneapolis","Salt Lake City","Anchorage",
-"Brasilia","Recife","Medellin","Quito","La Paz","Montevideo",
-"Kingston","San Juan","Abu Dhabi","Kuwait City","Muscat",
-"Amman","Beirut","Damascus","Tbilisi","Yerevan","Baku",
-"Moscow","Saint Petersburg","Kazan","Ulaanbaatar",
-"Islamabad","Lahore","Dhaka"
+"Taipei","Jakarta"
 
 ];
 
@@ -657,6 +648,7 @@ const cityPopup=document.getElementById('cityPopup');
 
 let currentIndex=0;
 let autoWalkInterval=null;
+let slowZoom=1;
 
 /* ===== TOGGLE CITIES ===== */
 
@@ -799,6 +791,8 @@ function autoWalk(){
 
 clearInterval(autoWalkInterval);
 
+frame.style.transform='scale(1)';
+
 document.getElementById('walk').innerHTML=
 `
 AUTO WALK ACTIVE<br>
@@ -807,9 +801,9 @@ urban navigation...
 
 autoWalkInterval=setInterval(()=>{
 
-moveStreet(0.003);
+moveStreet(0.002);
 
-},7000);
+},9000);
 
 }
 
@@ -819,17 +813,30 @@ function slowDrive(){
 
 clearInterval(autoWalkInterval);
 
+slowZoom=1;
+
 document.getElementById('walk').innerHTML=
 `
 SLOW DRIVE ACTIVE<br>
-smooth cinematic movement...
+cinematic forward movement...
 `;
 
 autoWalkInterval=setInterval(()=>{
 
-moveStreet(0.0008);
+slowZoom += 0.01;
 
-},3500);
+if(slowZoom > 1.18){
+
+slowZoom = 1;
+
+}
+
+frame.style.transform=
+`scale(${slowZoom})`;
+
+moveStreet(0.00015);
+
+},12000);
 
 }
 
@@ -850,7 +857,7 @@ const heading=
 Math.floor(Math.random()*360);
 
 const zoom=
-Math.floor(Math.random()*3);
+Math.floor(Math.random()*2);
 
 const rLat=
 (lat+(Math.random()-.5)*speed).toFixed(6);
@@ -863,13 +870,12 @@ frame.src=
 
 const routes=[
 
-"walking forward...",
-"crossing avenue...",
-"moving slowly...",
-"urban cinematic mode...",
-"driving through district...",
-"approaching downtown...",
-"moving toward neon zone..."
+"moving slowly forward...",
+"cinematic urban drift...",
+"approaching avenue...",
+"slow panoramic motion...",
+"navigating downtown...",
+"urban cinematic mode..."
 
 ];
 
@@ -897,6 +903,8 @@ ${random}
 function stopWalk(){
 
 clearInterval(autoWalkInterval);
+
+frame.style.transform='scale(1)';
 
 document.getElementById('walk').innerHTML=
 `
