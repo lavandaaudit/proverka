@@ -20,8 +20,8 @@ html,body{
 width:100%;
 height:100%;
 overflow:hidden;
+background:#000;
 font-family:'Inter',sans-serif;
-background:black;
 color:white;
 }
 
@@ -42,7 +42,7 @@ border:none;
 transition:1s;
 }
 
-/* ===== OVERLAYS ===== */
+/* ===== OVERLAY ===== */
 
 .scan{
 position:absolute;
@@ -57,15 +57,15 @@ transparent 2px,
 transparent 4px
 );
 
-mix-blend-mode:screen;
 opacity:.14;
+mix-blend-mode:screen;
+
 pointer-events:none;
 }
 
 .vignette{
 position:absolute;
 inset:0;
-pointer-events:none;
 
 background:
 radial-gradient(
@@ -73,42 +73,46 @@ circle at center,
 transparent 35%,
 rgba(0,0,0,.45)
 );
+
+pointer-events:none;
 }
 
-/* ===== TOP ===== */
+/* ===== TOPBAR ===== */
 
 .topbar{
 position:absolute;
-top:24px;
+
+top:14px;
 left:50%;
+
 transform:translateX(-50%);
 
-width:94%;
-height:92px;
+width:96%;
+height:74px;
 
-background:rgba(0,0,0,.42);
-backdrop-filter:blur(18px);
+background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(16px);
 
 border:
 1px solid rgba(255,255,255,.08);
 
-border-radius:28px;
+border-radius:24px;
 
 display:flex;
 align-items:center;
-gap:20px;
+gap:14px;
 
-padding:0 24px;
+padding:0 16px;
 
-z-index:50;
+z-index:100;
 }
 
 /* ===== LOGO ===== */
 
 .logo{
-font-size:34px;
+font-size:22px;
 font-weight:900;
-letter-spacing:2px;
 white-space:nowrap;
 }
 
@@ -116,26 +120,26 @@ white-space:nowrap;
 
 .search{
 flex:1;
-height:58px;
+height:44px;
 
 background:#111;
 
 border:none;
 outline:none;
 
-border-radius:18px;
+border-radius:14px;
 
-padding:0 20px;
+padding:0 16px;
 
-font-size:18px;
+font-size:14px;
 color:white;
 }
 
-/* ===== CITYS ===== */
+/* ===== CITY LIST ===== */
 
 .citys{
 display:flex;
-gap:12px;
+gap:10px;
 overflow-x:auto;
 scrollbar-width:none;
 }
@@ -145,47 +149,50 @@ display:none;
 }
 
 .city{
-padding:16px 22px;
+padding:10px 16px;
 
-background:#121212;
+background:#111;
 
 border:
-1px solid rgba(255,255,255,.07);
+1px solid rgba(255,255,255,.06);
 
-border-radius:18px;
-
-font-size:18px;
-font-weight:700;
+border-radius:14px;
 
 cursor:pointer;
 
+font-size:13px;
+font-weight:700;
+
 transition:.25s;
+
+white-space:nowrap;
 }
 
 .city:hover{
-background:#1d1d1d;
-transform:translateY(-4px);
+background:#1a1a1a;
+transform:translateY(-3px);
 }
 
-/* ===== LEFT PANEL ===== */
+/* ===== LEFT ===== */
 
 .left{
 position:absolute;
-left:25px;
-top:135px;
+
+left:14px;
+top:98px;
 
 display:flex;
 flex-direction:column;
-gap:14px;
+gap:8px;
 
-z-index:50;
+z-index:100;
 }
 
 /* ===== BUTTON ===== */
 
 .btn{
-width:190px;
-height:58px;
+width:145px;
+height:42px;
 
 background:rgba(0,0,0,.45);
 
@@ -194,11 +201,11 @@ backdrop-filter:blur(14px);
 border:
 1px solid rgba(255,255,255,.08);
 
-border-radius:18px;
+border-radius:14px;
 
 color:white;
 
-font-size:14px;
+font-size:11px;
 font-weight:700;
 
 cursor:pointer;
@@ -207,49 +214,44 @@ transition:.25s;
 }
 
 .btn:hover{
-transform:translateX(6px);
-background:#181818;
+background:#191919;
+transform:translateX(5px);
 }
 
-/* ===== RIGHT PANEL ===== */
+/* ===== RIGHT ===== */
 
 .right{
 position:absolute;
-right:25px;
-top:135px;
 
-width:340px;
+right:14px;
+top:98px;
 
-background:rgba(0,0,0,.5);
+width:235px;
 
-backdrop-filter:blur(18px);
+background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(16px);
 
 border:
 1px solid rgba(255,255,255,.08);
 
-border-radius:28px;
+border-radius:22px;
 
-padding:24px;
+padding:14px;
 
-z-index:50;
+z-index:100;
 }
 
 /* ===== CITY TITLE ===== */
 
 .city-title{
-font-size:36px;
+font-size:24px;
 font-weight:900;
 line-height:1;
-margin-bottom:20px;
+margin-bottom:14px;
 }
 
-/* ===== INFO ===== */
-
-.info{
-display:flex;
-flex-direction:column;
-gap:16px;
-}
+/* ===== CARD ===== */
 
 .card{
 background:#111;
@@ -257,135 +259,149 @@ background:#111;
 border:
 1px solid rgba(255,255,255,.05);
 
-border-radius:18px;
+border-radius:14px;
 
-padding:18px;
+padding:12px;
+
+margin-bottom:10px;
 }
 
 .label{
-font-size:12px;
+font-size:10px;
 opacity:.5;
-margin-bottom:8px;
+margin-bottom:5px;
 letter-spacing:1px;
 }
 
 .value{
-font-size:28px;
+font-size:18px;
 font-weight:800;
 }
 
 .small{
-font-size:13px;
+font-size:11px;
 opacity:.65;
-margin-top:5px;
+margin-top:4px;
 line-height:1.5;
 }
 
-/* ===== AI GUIDE ===== */
+/* ===== GUIDE ===== */
 
 .guide{
-margin-top:18px;
+margin-top:12px;
 
-padding:18px;
+padding:12px;
 
 background:
 linear-gradient(
 135deg,
-rgba(0,140,255,.18),
+rgba(0,120,255,.16),
 rgba(0,255,180,.08)
 );
 
-border-radius:18px;
+border-radius:14px;
 
 border:
 1px solid rgba(255,255,255,.08);
 
-font-size:14px;
-line-height:1.7;
+font-size:11px;
+line-height:1.5;
 }
 
-/* ===== WALK HUD ===== */
+/* ===== WALK ===== */
 
 .walk{
 position:absolute;
 
-bottom:30px;
-left:30px;
+left:14px;
+bottom:14px;
 
-padding:20px 24px;
+padding:12px 16px;
 
-background:rgba(0,0,0,.5);
+background:rgba(0,0,0,.45);
 
 backdrop-filter:blur(14px);
 
 border:
 1px solid rgba(255,255,255,.08);
 
-border-radius:22px;
+border-radius:16px;
 
-z-index:50;
+font-size:11px;
+line-height:1.5;
 
-font-size:14px;
-line-height:1.7;
+z-index:100;
 }
 
-/* ===== CITY LABEL ===== */
+/* ===== BIG CITY ===== */
 
 .bigcity{
 position:absolute;
 
-right:35px;
-bottom:35px;
+right:18px;
+bottom:18px;
 
-font-size:72px;
+font-size:40px;
 font-weight:900;
 
-opacity:.15;
+opacity:.12;
 
 pointer-events:none;
 }
 
+/* ===== GLITCH ===== */
+
+.glitch{
+animation:glitch .15s infinite;
+}
+
+@keyframes glitch{
+
+0%{
+transform:translate(0);
+}
+
+25%{
+transform:translate(2px,-2px);
+}
+
+50%{
+transform:translate(-2px,2px);
+}
+
+75%{
+transform:translate(2px,2px);
+}
+
+100%{
+transform:translate(0);
+}
+
+}
+
 /* ===== MOBILE ===== */
-
-@media(max-width:1100px){
-
-.right{
-width:280px;
-}
-
-.city-title{
-font-size:28px;
-}
-
-.bigcity{
-font-size:42px;
-}
-
-}
 
 @media(max-width:900px){
 
-.topbar{
-flex-direction:column;
-height:auto;
-padding:18px;
-align-items:stretch;
-}
-
-.left{
-bottom:20px;
-top:auto;
-}
-
 .right{
-top:auto;
-bottom:20px;
-right:20px;
-width:300px;
+width:190px;
+}
+
+.city-title{
+font-size:18px;
+}
+
+.value{
+font-size:15px;
 }
 
 .bigcity{
 display:none;
+}
+
+.btn{
+width:120px;
+font-size:10px;
 }
 
 }
@@ -407,12 +423,12 @@ allowfullscreen>
 <div class="scan"></div>
 <div class="vignette"></div>
 
-<!-- TOP -->
+<!-- TOPBAR -->
 
 <div class="topbar">
 
 <div class="logo">
-MEGACITY AI
+MEGACITY
 </div>
 
 <input
@@ -442,6 +458,10 @@ NEXT CITY
 AUTO WALK AI
 </button>
 
+<button class="btn" onclick="stopWalk()">
+STOP WALK
+</button>
+
 <button class="btn" onclick="nightMode()">
 NIGHT MODE
 </button>
@@ -450,8 +470,8 @@ NIGHT MODE
 CINEMA MODE
 </button>
 
-<button class="btn" onclick="droneMode()">
-DRONE MODE
+<button class="btn" onclick="matrixMode()">
+MATRIX MODE
 </button>
 
 <button class="btn" onclick="cyberpunkMode()">
@@ -474,8 +494,6 @@ id="cityTitle">
 TOKYO
 </div>
 
-<div class="info">
-
 <div class="card">
 
 <div class="label">
@@ -485,7 +503,7 @@ WEATHER
 <div
 class="value"
 id="temp">
-+22°C
++24°C
 </div>
 
 <div
@@ -505,7 +523,7 @@ AIR QUALITY
 <div
 class="value"
 id="air">
-42 AQI
+38 AQI
 </div>
 
 <div
@@ -529,20 +547,18 @@ id="population">
 </div>
 
 <div class="small">
-megapolis urban zone
+megapolis urban node
 </div>
 
 </div>
 
-</div>
+<div
+class="guide"
+id="guide">
 
-<div class="guide" id="guide">
+AI GUIDE<br><br>
 
-AI GUIDE:<br><br>
-
-Walk forward 120m.<br>
-Turn right near crossing.<br>
-Continue toward illuminated avenue.
+waiting for navigation route...
 
 </div>
 
@@ -550,16 +566,20 @@ Continue toward illuminated avenue.
 
 <!-- WALK -->
 
-<div class="walk" id="walk">
+<div
+class="walk"
+id="walk">
 
 AI WALK SYSTEM ONLINE<br>
-waiting for navigation route...
+standby mode
 
 </div>
 
 <!-- BIG -->
 
-<div class="bigcity" id="bigcity">
+<div
+class="bigcity"
+id="bigcity">
 TOKYO
 </div>
 
@@ -639,11 +659,15 @@ population:"11M"
 
 /* ===== ELEMENTS ===== */
 
-const frame=document.getElementById('street');
+const frame=
+document.getElementById('street');
 
-const citys=document.getElementById('citys');
+const citys=
+document.getElementById('citys');
 
 let currentIndex=0;
+
+let autoWalkInterval=null;
 
 /* ===== RENDER ===== */
 
@@ -669,7 +693,7 @@ citys.appendChild(div);
 
 renderCities(cities);
 
-/* ===== OPEN ===== */
+/* ===== OPEN STREET ===== */
 
 function openStreet(city,index){
 
@@ -756,36 +780,108 @@ currentIndex
 
 }
 
-/* ===== AI WALK ===== */
+/* ===== AUTO WALK ===== */
 
 function autoWalk(){
 
+clearInterval(autoWalkInterval);
+
+document.getElementById('walk').innerHTML=
+`
+AI AUTO WALK ACTIVE<br>
+autonomous navigation...
+`;
+
+autoWalkInterval=setInterval(()=>{
+
+const city=
+cities[currentIndex];
+
+const data=
+cityData[city] || cityData["Tokyo"];
+
+const lat=data.coords[0];
+const lng=data.coords[1];
+
+const headings=[
+
+0,
+45,
+90,
+135,
+180,
+225,
+270,
+315
+
+];
+
+const heading=
+headings[
+Math.floor(Math.random()*headings.length)
+];
+
+const zooms=[0,2,5];
+
+const zoom=
+zooms[
+Math.floor(Math.random()*zooms.length)
+];
+
+const rLat=
+(lat+(Math.random()-.5)/300).toFixed(6);
+
+const rLng=
+(lng+(Math.random()-.5)/300).toFixed(6);
+
+frame.src=
+`https://www.google.com/maps?q=&layer=c&cbll=${rLat},${rLng}&cbp=11,${heading},0,${zoom},0&output=svembed`;
+
 const routes=[
 
-"Move forward 80m toward central avenue.",
-"Turn left after traffic lights.",
-"Continue through neon district.",
-"Walk toward illuminated crossing.",
-"Enter pedestrian boulevard.",
-"Move ahead to next intersection."
+"walking forward...",
+"crossing avenue...",
+"turning right...",
+"moving through district...",
+"approaching intersection...",
+"navigating downtown...",
+"scanning urban sector...",
+"moving toward neon zone..."
 
 ];
 
 const random=
-routes[Math.floor(Math.random()*routes.length)];
-
-document.getElementById('walk').innerHTML=
-`
-AI WALK ACTIVE<br>
-${random}
-`;
+routes[
+Math.floor(Math.random()*routes.length)
+];
 
 document.getElementById('guide').innerHTML=
 `
-AI GUIDE:<br><br>
+AI GUIDE<br><br>
 ${random}<br><br>
-Panorama route generated.<br>
-Urban exploration mode active.
+autonomous route generation active
+`;
+
+document.getElementById('walk').innerHTML=
+`
+AI AUTO WALK ACTIVE<br>
+${random}
+`;
+
+},7000);
+
+}
+
+/* ===== STOP ===== */
+
+function stopWalk(){
+
+clearInterval(autoWalkInterval);
+
+document.getElementById('walk').innerHTML=
+`
+AI WALK STOPPED<br>
+manual control restored
 `;
 
 }
@@ -806,10 +902,12 @@ frame.style.filter=
 
 }
 
-function droneMode(){
+function matrixMode(){
 
 frame.style.filter=
-'grayscale(.35) contrast(1.4)';
+'hue-rotate(90deg) saturate(1.5) brightness(.8)';
+
+document.body.classList.add('glitch');
 
 }
 
