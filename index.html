@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>MEGACITY 175 ULTRA</title>
+<title>MEGACITY AI EXPLORER</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
@@ -21,11 +21,11 @@ width:100%;
 height:100%;
 overflow:hidden;
 font-family:'Inter',sans-serif;
-background:#000;
+background:black;
 color:white;
 }
 
-/* ===== MAP ===== */
+/* ===== VIEWER ===== */
 
 .viewer{
 position:relative;
@@ -47,7 +47,6 @@ transition:1s;
 .scan{
 position:absolute;
 inset:0;
-pointer-events:none;
 
 background:
 repeating-linear-gradient(
@@ -59,7 +58,8 @@ transparent 4px
 );
 
 mix-blend-mode:screen;
-opacity:.15;
+opacity:.14;
+pointer-events:none;
 }
 
 .vignette{
@@ -75,30 +75,32 @@ rgba(0,0,0,.45)
 );
 }
 
-/* ===== TOP BAR ===== */
+/* ===== TOP ===== */
 
 .topbar{
 position:absolute;
-top:25px;
+top:24px;
 left:50%;
 transform:translateX(-50%);
-width:92%;
-height:90px;
 
-background:rgba(0,0,0,.45);
+width:94%;
+height:92px;
+
+background:rgba(0,0,0,.42);
 backdrop-filter:blur(18px);
 
 border:
 1px solid rgba(255,255,255,.08);
 
-border-radius:30px;
+border-radius:28px;
 
 display:flex;
 align-items:center;
-padding:0 25px;
-gap:22px;
+gap:20px;
 
-z-index:20;
+padding:0 24px;
+
+z-index:50;
 }
 
 /* ===== LOGO ===== */
@@ -116,78 +118,74 @@ white-space:nowrap;
 flex:1;
 height:58px;
 
+background:#111;
+
 border:none;
 outline:none;
 
-background:#111;
-
 border-radius:18px;
 
-padding:0 22px;
+padding:0 20px;
 
 font-size:18px;
 color:white;
 }
 
-/* ===== CITY SELECT ===== */
+/* ===== CITYS ===== */
 
-.city-select{
+.citys{
 display:flex;
-gap:14px;
+gap:12px;
 overflow-x:auto;
 scrollbar-width:none;
 }
 
-.city-select::-webkit-scrollbar{
+.citys::-webkit-scrollbar{
 display:none;
 }
 
 .city{
-min-width:max-content;
-
-padding:16px 24px;
+padding:16px 22px;
 
 background:#121212;
 
 border:
-1px solid rgba(255,255,255,.06);
+1px solid rgba(255,255,255,.07);
 
 border-radius:18px;
 
-cursor:pointer;
-
 font-size:18px;
 font-weight:700;
+
+cursor:pointer;
 
 transition:.25s;
 }
 
 .city:hover{
+background:#1d1d1d;
 transform:translateY(-4px);
-background:#1b1b1b;
 }
 
-/* ===== LEFT MENU ===== */
+/* ===== LEFT PANEL ===== */
 
-.left-menu{
+.left{
 position:absolute;
 left:25px;
-top:140px;
+top:135px;
 
 display:flex;
 flex-direction:column;
 gap:14px;
 
-z-index:20;
+z-index:50;
 }
 
 /* ===== BUTTON ===== */
 
-.mode-btn{
-width:180px;
+.btn{
+width:190px;
 height:58px;
-
-border:none;
 
 background:rgba(0,0,0,.45);
 
@@ -200,7 +198,7 @@ border-radius:18px;
 
 color:white;
 
-font-size:15px;
+font-size:14px;
 font-weight:700;
 
 cursor:pointer;
@@ -208,22 +206,115 @@ cursor:pointer;
 transition:.25s;
 }
 
-.mode-btn:hover{
+.btn:hover{
 transform:translateX(6px);
-background:rgba(20,20,20,.9);
+background:#181818;
 }
 
-/* ===== STATUS ===== */
+/* ===== RIGHT PANEL ===== */
 
-.status{
+.right{
+position:absolute;
+right:25px;
+top:135px;
+
+width:340px;
+
+background:rgba(0,0,0,.5);
+
+backdrop-filter:blur(18px);
+
+border:
+1px solid rgba(255,255,255,.08);
+
+border-radius:28px;
+
+padding:24px;
+
+z-index:50;
+}
+
+/* ===== CITY TITLE ===== */
+
+.city-title{
+font-size:36px;
+font-weight:900;
+line-height:1;
+margin-bottom:20px;
+}
+
+/* ===== INFO ===== */
+
+.info{
+display:flex;
+flex-direction:column;
+gap:16px;
+}
+
+.card{
+background:#111;
+
+border:
+1px solid rgba(255,255,255,.05);
+
+border-radius:18px;
+
+padding:18px;
+}
+
+.label{
+font-size:12px;
+opacity:.5;
+margin-bottom:8px;
+letter-spacing:1px;
+}
+
+.value{
+font-size:28px;
+font-weight:800;
+}
+
+.small{
+font-size:13px;
+opacity:.65;
+margin-top:5px;
+line-height:1.5;
+}
+
+/* ===== AI GUIDE ===== */
+
+.guide{
+margin-top:18px;
+
+padding:18px;
+
+background:
+linear-gradient(
+135deg,
+rgba(0,140,255,.18),
+rgba(0,255,180,.08)
+);
+
+border-radius:18px;
+
+border:
+1px solid rgba(255,255,255,.08);
+
+font-size:14px;
+line-height:1.7;
+}
+
+/* ===== WALK HUD ===== */
+
+.walk{
 position:absolute;
 
-bottom:28px;
-left:28px;
+bottom:30px;
+left:30px;
 
-padding:18px 22px;
+padding:20px 24px;
 
-background:rgba(0,0,0,.45);
+background:rgba(0,0,0,.5);
 
 backdrop-filter:blur(14px);
 
@@ -232,101 +323,69 @@ border:
 
 border-radius:22px;
 
-font-size:15px;
-line-height:1.7;
+z-index:50;
 
-z-index:20;
+font-size:14px;
+line-height:1.7;
 }
 
 /* ===== CITY LABEL ===== */
 
-.city-label{
+.bigcity{
 position:absolute;
 
 right:35px;
 bottom:35px;
 
-font-size:64px;
+font-size:72px;
 font-weight:900;
 
-letter-spacing:2px;
+opacity:.15;
 
-text-shadow:
-0 0 25px rgba(255,255,255,.18);
-
-z-index:20;
-}
-
-/* ===== MODES ===== */
-
-.glitch{
-animation:glitch .15s infinite;
-}
-
-@keyframes glitch{
-
-0%{
-transform:translate(0);
-}
-
-25%{
-transform:translate(2px,-2px);
-}
-
-50%{
-transform:translate(-2px,2px);
-}
-
-75%{
-transform:translate(2px,2px);
-}
-
-100%{
-transform:translate(0);
-}
-
+pointer-events:none;
 }
 
 /* ===== MOBILE ===== */
 
-@media(max-width:1000px){
+@media(max-width:1100px){
+
+.right{
+width:280px;
+}
+
+.city-title{
+font-size:28px;
+}
+
+.bigcity{
+font-size:42px;
+}
+
+}
+
+@media(max-width:900px){
 
 .topbar{
+flex-direction:column;
 height:auto;
 padding:18px;
-flex-direction:column;
 align-items:stretch;
-gap:14px;
 }
 
-.logo{
-font-size:24px;
-}
-
-.search{
-height:52px;
-font-size:16px;
-}
-
-.city{
-font-size:15px;
-padding:12px 18px;
-}
-
-.left-menu{
+.left{
+bottom:20px;
 top:auto;
-bottom:120px;
-left:15px;
 }
 
-.mode-btn{
-width:150px;
-height:52px;
-font-size:13px;
+.right{
+top:auto;
+bottom:20px;
+right:20px;
+width:300px;
 }
 
-.city-label{
-font-size:42px;
+.bigcity{
+display:none;
 }
 
 }
@@ -338,7 +397,7 @@ font-size:42px;
 
 <div class="viewer">
 
-<!-- STREET VIEW -->
+<!-- STREET -->
 
 <iframe
 id="street"
@@ -348,12 +407,12 @@ allowfullscreen>
 <div class="scan"></div>
 <div class="vignette"></div>
 
-<!-- TOP BAR -->
+<!-- TOP -->
 
 <div class="topbar">
 
 <div class="logo">
-MEGACITY 175
+MEGACITY AI
 </div>
 
 <input
@@ -363,62 +422,144 @@ placeholder="Пошук мегаполіса..."
 onkeyup="filterCities(this.value)"
 >
 
-<div class="city-select" id="citySelect"></div>
+<div class="citys" id="citys"></div>
 
 </div>
 
-<!-- LEFT MENU -->
+<!-- LEFT -->
 
-<div class="left-menu">
+<div class="left">
 
-<button class="mode-btn" onclick="randomStreet()">
+<button class="btn" onclick="randomStreet()">
 RANDOM STREET
 </button>
 
-<button class="mode-btn" onclick="nextCity()">
+<button class="btn" onclick="nextCity()">
 NEXT CITY
 </button>
 
-<button class="mode-btn" onclick="nightMode()">
+<button class="btn" onclick="autoWalk()">
+AUTO WALK AI
+</button>
+
+<button class="btn" onclick="nightMode()">
 NIGHT MODE
 </button>
 
-<button class="mode-btn" onclick="cinemaMode()">
+<button class="btn" onclick="cinemaMode()">
 CINEMA MODE
 </button>
 
-<button class="mode-btn" onclick="matrixMode()">
-MATRIX MODE
-</button>
-
-<button class="mode-btn" onclick="vhsMode()">
-VHS MODE
-</button>
-
-<button class="mode-btn" onclick="cyberpunkMode()">
-CYBERPUNK
-</button>
-
-<button class="mode-btn" onclick="droneMode()">
+<button class="btn" onclick="droneMode()">
 DRONE MODE
 </button>
 
-<button class="mode-btn" onclick="resetMode()">
+<button class="btn" onclick="cyberpunkMode()">
+CYBERPUNK
+</button>
+
+<button class="btn" onclick="resetMode()">
 RESET
 </button>
 
 </div>
 
-<!-- STATUS -->
+<!-- RIGHT -->
 
-<div class="status" id="status">
-SYSTEM ONLINE<br>
-3D STREET NODE CONNECTED
+<div class="right">
+
+<div
+class="city-title"
+id="cityTitle">
+TOKYO
 </div>
 
-<!-- CITY -->
+<div class="info">
 
-<div class="city-label" id="cityLabel">
+<div class="card">
+
+<div class="label">
+WEATHER
+</div>
+
+<div
+class="value"
+id="temp">
++22°C
+</div>
+
+<div
+class="small"
+id="weatherText">
+clear sky
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="label">
+AIR QUALITY
+</div>
+
+<div
+class="value"
+id="air">
+42 AQI
+</div>
+
+<div
+class="small"
+id="airText">
+good air quality
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="label">
+POPULATION
+</div>
+
+<div
+class="value"
+id="population">
+37M
+</div>
+
+<div class="small">
+megapolis urban zone
+</div>
+
+</div>
+
+</div>
+
+<div class="guide" id="guide">
+
+AI GUIDE:<br><br>
+
+Walk forward 120m.<br>
+Turn right near crossing.<br>
+Continue toward illuminated avenue.
+
+</div>
+
+</div>
+
+<!-- WALK -->
+
+<div class="walk" id="walk">
+
+AI WALK SYSTEM ONLINE<br>
+waiting for navigation route...
+
+</div>
+
+<!-- BIG -->
+
+<div class="bigcity" id="bigcity">
 TOKYO
 </div>
 
@@ -438,67 +579,61 @@ const cities=[
 "Berlin",
 "Rome",
 "Barcelona",
-"Amsterdam",
-"Prague",
-"Warsaw",
 "Dubai",
 "Istanbul",
 "Bangkok",
 "Singapore",
 "Seoul",
-"Hong Kong",
 "Sydney",
 "Toronto",
-"Rio de Janeiro",
-"Mexico City",
 "Cairo",
 "Mumbai",
 "Shanghai",
 "Los Angeles",
 "Chicago",
-"San Francisco",
-"Miami",
-"Lviv",
-"Odessa",
-"Kharkiv"
+"Lviv"
 
 ];
 
-/* ===== COORDS ===== */
+/* ===== DATA ===== */
 
-const coords={
+const cityData={
 
-Tokyo:[35.6895,139.6917],
-Kyiv:[50.4501,30.5234],
-"New York":[40.7128,-74.0060],
-London:[51.5072,-0.1276],
-Paris:[48.8566,2.3522],
-Berlin:[52.52,13.405],
-Rome:[41.9028,12.4964],
-Barcelona:[41.3874,2.1686],
-Amsterdam:[52.3676,4.9041],
-Prague:[50.0755,14.4378],
-Warsaw:[52.2297,21.0122],
-Dubai:[25.2048,55.2708],
-Istanbul:[41.0082,28.9784],
-Bangkok:[13.7563,100.5018],
-Singapore:[1.3521,103.8198],
-Seoul:[37.5665,126.9780],
-"Hong Kong":[22.3193,114.1694],
-Sydney:[-33.8688,151.2093],
-Toronto:[43.6532,-79.3832],
-"Rio de Janeiro":[-22.9068,-43.1729],
-"Mexico City":[19.4326,-99.1332],
-Cairo:[30.0444,31.2357],
-Mumbai:[19.0760,72.8777],
-Shanghai:[31.2304,121.4737],
-"Los Angeles":[34.0522,-118.2437],
-Chicago:[41.8781,-87.6298],
-"San Francisco":[37.7749,-122.4194],
-Miami:[25.7617,-80.1918],
-Lviv:[49.8397,24.0297],
-Odessa:[46.4825,30.7233],
-Kharkiv:[49.9935,36.2304]
+Tokyo:{
+coords:[35.6895,139.6917],
+temp:"+24°C",
+weather:"clear sky",
+air:"38 AQI",
+airText:"good air quality",
+population:"37M"
+},
+
+Kyiv:{
+coords:[50.4501,30.5234],
+temp:"+20°C",
+weather:"cloudy",
+air:"52 AQI",
+airText:"moderate air quality",
+population:"3M"
+},
+
+London:{
+coords:[51.5072,-0.1276],
+temp:"+17°C",
+weather:"rain",
+air:"48 AQI",
+airText:"stable air quality",
+population:"9M"
+},
+
+Paris:{
+coords:[48.8566,2.3522],
+temp:"+21°C",
+weather:"clear sky",
+air:"41 AQI",
+airText:"good air quality",
+population:"11M"
+}
 
 };
 
@@ -506,7 +641,7 @@ Kharkiv:[49.9935,36.2304]
 
 const frame=document.getElementById('street');
 
-const citySelect=document.getElementById('citySelect');
+const citys=document.getElementById('citys');
 
 let currentIndex=0;
 
@@ -514,7 +649,7 @@ let currentIndex=0;
 
 function renderCities(list){
 
-citySelect.innerHTML='';
+citys.innerHTML='';
 
 list.forEach((city,index)=>{
 
@@ -526,7 +661,7 @@ div.innerText=city;
 
 div.onclick=()=>openStreet(city,index);
 
-citySelect.appendChild(div);
+citys.appendChild(div);
 
 });
 
@@ -534,14 +669,17 @@ citySelect.appendChild(div);
 
 renderCities(cities);
 
-/* ===== OPEN STREET ===== */
+/* ===== OPEN ===== */
 
 function openStreet(city,index){
 
 currentIndex=index;
 
-const lat=coords[city][0];
-const lng=coords[city][1];
+const data=
+cityData[city] || cityData["Tokyo"];
+
+const lat=data.coords[0];
+const lng=data.coords[1];
 
 const rLat=
 (lat+(Math.random()-.5)/100).toFixed(6);
@@ -552,14 +690,26 @@ const rLng=
 frame.src=
 `https://www.google.com/maps?q=&layer=c&cbll=${rLat},${rLng}&cbp=11,0,0,0,0&output=svembed`;
 
-document.getElementById('cityLabel').innerText=
+document.getElementById('cityTitle').innerText=
 city.toUpperCase();
 
-document.getElementById('status').innerHTML=
-`
-CONNECTED: ${city}<br>
-3D PANORAMA ACTIVE
-`;
+document.getElementById('bigcity').innerText=
+city.toUpperCase();
+
+document.getElementById('temp').innerText=
+data.temp;
+
+document.getElementById('weatherText').innerText=
+data.weather;
+
+document.getElementById('air').innerText=
+data.air;
+
+document.getElementById('airText').innerText=
+data.airText;
+
+document.getElementById('population').innerText=
+data.population;
 
 }
 
@@ -567,8 +717,9 @@ CONNECTED: ${city}<br>
 
 function filterCities(text){
 
-const filtered=cities.filter(city=>
-city.toLowerCase().includes(text.toLowerCase())
+const filtered=
+cities.filter(c=>
+c.toLowerCase().includes(text.toLowerCase())
 );
 
 renderCities(filtered);
@@ -605,6 +756,40 @@ currentIndex
 
 }
 
+/* ===== AI WALK ===== */
+
+function autoWalk(){
+
+const routes=[
+
+"Move forward 80m toward central avenue.",
+"Turn left after traffic lights.",
+"Continue through neon district.",
+"Walk toward illuminated crossing.",
+"Enter pedestrian boulevard.",
+"Move ahead to next intersection."
+
+];
+
+const random=
+routes[Math.floor(Math.random()*routes.length)];
+
+document.getElementById('walk').innerHTML=
+`
+AI WALK ACTIVE<br>
+${random}
+`;
+
+document.getElementById('guide').innerHTML=
+`
+AI GUIDE:<br><br>
+${random}<br><br>
+Panorama route generated.<br>
+Urban exploration mode active.
+`;
+
+}
+
 /* ===== MODES ===== */
 
 function nightMode(){
@@ -621,21 +806,10 @@ frame.style.filter=
 
 }
 
-function matrixMode(){
+function droneMode(){
 
 frame.style.filter=
-'hue-rotate(90deg) saturate(1.5) brightness(.8)';
-
-document.body.classList.add('glitch');
-
-}
-
-function vhsMode(){
-
-document.querySelector('.scan').style.opacity='.35';
-
-frame.style.filter=
-'contrast(1.3) saturate(.6) blur(.3px)';
+'grayscale(.35) contrast(1.4)';
 
 }
 
@@ -643,13 +817,6 @@ function cyberpunkMode(){
 
 frame.style.filter=
 'hue-rotate(-40deg) saturate(1.8) contrast(1.2)';
-
-}
-
-function droneMode(){
-
-frame.style.filter=
-'grayscale(.4) contrast(1.5) brightness(.9)';
 
 }
 
