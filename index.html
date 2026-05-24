@@ -1,188 +1,222 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>ibonarium flow</title>
+<title>MEGACITY 175 — 3D WORLD TOUR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
 
-/* ====================================== */
-/* RESET */
-/* ====================================== */
-
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
-html,
-body{
-  width:100%;
-  height:100%;
-  overflow:hidden; /* NO SCROLL */
-  background:#000;
-  font-family:Arial,sans-serif;
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+font-family:'Inter',sans-serif;
+background:#000;
+color:white;
 }
 
-/* ====================================== */
-/* MAIN WRAPPER */
-/* ====================================== */
+/* ===== MAIN ===== */
 
-.wrapper{
-
-  position:relative;
-
-  width:100%;
-  height:100vh;
-
-  overflow:hidden;
-
-  background:#000;
-
+.main{
+display:flex;
+width:100%;
+height:100vh;
 }
 
-/* ====================================== */
-/* PAGES */
-/* ====================================== */
+/* ===== SIDEBAR ===== */
 
-.page{
-
-  position:absolute;
-
-  inset:0;
-
-  width:100%;
-  height:100%;
-
-  opacity:0;
-
-  visibility:hidden;
-
-  transition:
-    opacity 0.6s ease,
-    visibility 0.6s ease;
-
+.sidebar{
+width:340px;
+height:100%;
+background:#050505;
+border-right:1px solid rgba(255,255,255,.08);
+overflow-y:auto;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:16px;
 }
 
-/* ACTIVE PAGE */
+/* ===== TITLE ===== */
 
-.page.active{
-
-  opacity:1;
-
-  visibility:visible;
-
-  z-index:5;
-
+.title{
+font-size:28px;
+font-weight:800;
+line-height:1.1;
+margin-bottom:10px;
 }
 
-/* ====================================== */
-/* EMBEDS */
-/* ====================================== */
-
-.page iframe{
-
-  position:absolute;
-
-  inset:0;
-
-  width:100%;
-  height:100%;
-
-  border:none;
-
-  background:#000;
-
+.sub{
+font-size:12px;
+opacity:.55;
+line-height:1.6;
+margin-bottom:10px;
 }
 
-/* ====================================== */
-/* SIDE PANEL */
-/* ====================================== */
+/* ===== SEARCH ===== */
 
-.side-panel{
-
-  position:fixed;
-
-  right:18px;
-  top:50%;
-
-  transform:translateY(-50%);
-
-  z-index:99999;
-
-  display:flex;
-  flex-direction:column;
-
-  gap:12px;
-
+.search{
+width:100%;
+height:48px;
+border:none;
+outline:none;
+background:#111;
+border-radius:14px;
+padding:0 16px;
+color:white;
+font-size:14px;
+margin-bottom:8px;
 }
 
-/* ====================================== */
-/* BUTTONS */
-/* ====================================== */
+/* ===== CITY LIST ===== */
 
-.nav-btn{
-
-  width:42px;
-  height:42px;
-
-  border-radius:50%;
-
-  border:1px solid rgba(0,255,255,0.35);
-
-  background:rgba(0,0,0,0.72);
-
-  color:#8ffcff;
-
-  font-size:14px;
-  font-weight:bold;
-
-  cursor:pointer;
-
-  backdrop-filter:blur(8px);
-
-  transition:0.25s ease;
-
+.city-list{
+display:flex;
+flex-direction:column;
+gap:10px;
 }
 
-.nav-btn:hover{
-
-  transform:scale(1.08);
-
-  background:rgba(0,255,255,0.12);
-
-  box-shadow:
-    0 0 18px rgba(0,255,255,0.4);
-
+.city{
+background:#111;
+border:1px solid rgba(255,255,255,.06);
+padding:14px;
+border-radius:16px;
+cursor:pointer;
+transition:.25s;
 }
 
-/* ACTIVE BUTTON */
-
-.nav-btn.active{
-
-  background:rgba(0,255,255,0.18);
-
-  box-shadow:
-    0 0 20px rgba(0,255,255,0.45);
-
+.city:hover{
+transform:translateX(5px);
+background:#181818;
+border-color:rgba(255,255,255,.15);
 }
 
-/* ====================================== */
-/* MOBILE */
-/* ====================================== */
+.city-name{
+font-weight:700;
+font-size:15px;
+}
+
+.country{
+font-size:12px;
+opacity:.55;
+margin-top:4px;
+}
+
+/* ===== MAP ===== */
+
+.viewer{
+position:relative;
+flex:1;
+height:100%;
+overflow:hidden;
+}
+
+.viewer iframe{
+width:100%;
+height:100%;
+border:none;
+}
+
+/* ===== HUD ===== */
+
+.hud{
+position:absolute;
+top:25px;
+right:25px;
+width:280px;
+background:rgba(0,0,0,.55);
+backdrop-filter:blur(12px);
+border:1px solid rgba(255,255,255,.08);
+border-radius:22px;
+padding:20px;
+z-index:10;
+}
+
+.hud-title{
+font-size:20px;
+font-weight:800;
+margin-bottom:12px;
+}
+
+.stat{
+display:flex;
+justify-content:space-between;
+margin-bottom:10px;
+font-size:13px;
+opacity:.82;
+}
+
+.controls{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:18px;
+}
+
+button{
+height:44px;
+border:none;
+border-radius:12px;
+background:#181818;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:.25s;
+}
+
+button:hover{
+background:#262626;
+transform:translateY(-2px);
+}
+
+/* ===== OVERLAY ===== */
+
+.scan{
+position:absolute;
+inset:0;
+pointer-events:none;
+background:
+repeating-linear-gradient(
+to bottom,
+rgba(255,255,255,.025) 0px,
+rgba(255,255,255,.025) 1px,
+transparent 2px,
+transparent 4px
+);
+mix-blend-mode:screen;
+opacity:.18;
+}
+
+/* ===== MOBILE ===== */
 
 @media(max-width:900px){
 
-  .wrapper{
-    height:100svh;
-  }
+.main{
+flex-direction:column;
+}
 
-  .side-panel{
-    right:10px;
-  }
+.sidebar{
+width:100%;
+height:38%;
+}
+
+.viewer{
+height:62%;
+}
+
+.hud{
+width:240px;
+}
 
 }
 
@@ -191,122 +225,382 @@ body{
 
 <body>
 
-<!-- ====================================== -->
-<!-- SIDE NAVIGATION -->
-<!-- ====================================== -->
+<div class="main">
 
-<div class="side-panel">
+<!-- SIDEBAR -->
 
-  <button
-    id="btn1"
-    class="nav-btn active"
-    onclick="showPage(1)">
-    1
-  </button>
+<div class="sidebar">
 
-  <button
-    id="btn2"
-    class="nav-btn"
-    onclick="showPage(2)">
-    2
-  </button>
+<div class="title">
+MEGACITY 175
+</div>
+
+<div class="sub">
+3D interactive world tour system<br>
+Google Maps / Satellite / Megapolis Explorer
+</div>
+
+<input
+class="search"
+type="text"
+placeholder="Пошук міста..."
+onkeyup="filterCities(this.value)"
+>
+
+<div class="city-list" id="cityList"></div>
 
 </div>
 
-<!-- ====================================== -->
-<!-- WRAPPER -->
-<!-- ====================================== -->
+<!-- VIEWER -->
 
-<div class="wrapper">
+<div class="viewer">
 
-  <!-- PAGE 1 -->
+<iframe
+id="mapFrame"
+src="https://www.google.com/maps?q=Tokyo&output=embed">
+</iframe>
 
-  <section
-    id="page1"
-    class="page active">
+<div class="scan"></div>
 
-    <iframe
-      src="https://lavandaaudit.github.io/tv.2/"
-      loading="eager"
-      allow="autoplay; fullscreen"
-      allowfullscreen>
-    </iframe>
+<div class="hud">
 
-  </section>
+<div class="hud-title" id="currentCity">
+Tokyo
+</div>
 
-  <!-- PAGE 2 -->
+<div class="stat">
+<span>MODE</span>
+<span>3D SATELLITE</span>
+</div>
 
-  <section
-    id="page2"
-    class="page">
+<div class="stat">
+<span>STATUS</span>
+<span>ONLINE</span>
+</div>
 
-    <iframe
-      src="https://lavandaaudit.github.io/history.musem.ibonarium/"
-      loading="lazy"
-      allowfullscreen>
-    </iframe>
+<div class="stat">
+<span>WORLD NODE</span>
+<span id="nodeId">001</span>
+</div>
 
-  </section>
+<div class="stat">
+<span>VISITORS</span>
+<span>02</span>
+</div>
+
+<div class="controls">
+
+<button onclick="satelliteMode()">
+SATELLITE
+</button>
+
+<button onclick="streetMode()">
+STREET
+</button>
+
+<button onclick="nightMode()">
+NIGHT
+</button>
+
+<button onclick="resetView()">
+RESET
+</button>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
 <script>
 
-/* ======================================
-   DISABLE SCROLL
-====================================== */
+/* ===== 175 MEGACITIES ===== */
 
-document.body.style.overflow = 'hidden';
+const cities = [
 
-window.scrollTo(0,0);
+["Tokyo","Japan"],
+["New York","USA"],
+["London","UK"],
+["Kyiv","Ukraine"],
+["Paris","France"],
+["Berlin","Germany"],
+["Los Angeles","USA"],
+["Chicago","USA"],
+["Toronto","Canada"],
+["Mexico City","Mexico"],
+["Rio de Janeiro","Brazil"],
+["São Paulo","Brazil"],
+["Buenos Aires","Argentina"],
+["Lima","Peru"],
+["Santiago","Chile"],
+["Cairo","Egypt"],
+["Cape Town","South Africa"],
+["Lagos","Nigeria"],
+["Nairobi","Kenya"],
+["Dubai","UAE"],
+["Istanbul","Turkey"],
+["Moscow","Russia"],
+["Beijing","China"],
+["Shanghai","China"],
+["Hong Kong","China"],
+["Seoul","South Korea"],
+["Bangkok","Thailand"],
+["Singapore","Singapore"],
+["Delhi","India"],
+["Mumbai","India"],
+["Jakarta","Indonesia"],
+["Sydney","Australia"],
+["Melbourne","Australia"],
+["Auckland","New Zealand"],
+["Rome","Italy"],
+["Madrid","Spain"],
+["Barcelona","Spain"],
+["Amsterdam","Netherlands"],
+["Brussels","Belgium"],
+["Vienna","Austria"],
+["Prague","Czech Republic"],
+["Warsaw","Poland"],
+["Budapest","Hungary"],
+["Athens","Greece"],
+["Stockholm","Sweden"],
+["Oslo","Norway"],
+["Helsinki","Finland"],
+["Copenhagen","Denmark"],
+["Zurich","Switzerland"],
+["Lisbon","Portugal"],
 
-/* ======================================
-   PAGE SWITCHER
-====================================== */
+["Dublin","Ireland"],
+["Edinburgh","Scotland"],
+["Glasgow","Scotland"],
+["Manchester","UK"],
+["Birmingham","UK"],
+["Liverpool","UK"],
+["Leeds","UK"],
+["Bristol","UK"],
+["Cardiff","Wales"],
+["Belfast","Northern Ireland"],
 
-const page1 = document.getElementById('page1');
-const page2 = document.getElementById('page2');
+["San Francisco","USA"],
+["Seattle","USA"],
+["Miami","USA"],
+["Boston","USA"],
+["Philadelphia","USA"],
+["Houston","USA"],
+["Dallas","USA"],
+["Atlanta","USA"],
+["Las Vegas","USA"],
+["Detroit","USA"],
 
-const btn1 = document.getElementById('btn1');
-const btn2 = document.getElementById('btn2');
+["Phoenix","USA"],
+["San Diego","USA"],
+["Portland","USA"],
+["Denver","USA"],
+["New Orleans","USA"],
+["Orlando","USA"],
+["Charlotte","USA"],
+["Minneapolis","USA"],
+["Kansas City","USA"],
+["Austin","USA"],
 
-function showPage(page){
+["Montreal","Canada"],
+["Vancouver","Canada"],
+["Ottawa","Canada"],
+["Calgary","Canada"],
+["Quebec City","Canada"],
 
-  /* remove active */
+["Havana","Cuba"],
+["Panama City","Panama"],
+["Bogotá","Colombia"],
+["Caracas","Venezuela"],
+["Quito","Ecuador"],
+["Montevideo","Uruguay"],
 
-  page1.classList.remove('active');
-  page2.classList.remove('active');
+["Reykjavik","Iceland"],
+["Tallinn","Estonia"],
+["Riga","Latvia"],
+["Vilnius","Lithuania"],
+["Belgrade","Serbia"],
+["Zagreb","Croatia"],
+["Sarajevo","Bosnia"],
+["Skopje","North Macedonia"],
+["Sofia","Bulgaria"],
+["Bucharest","Romania"],
 
-  btn1.classList.remove('active');
-  btn2.classList.remove('active');
+["Jerusalem","Israel"],
+["Tel Aviv","Israel"],
+["Riyadh","Saudi Arabia"],
+["Doha","Qatar"],
+["Kuwait City","Kuwait"],
+["Tehran","Iran"],
+["Baghdad","Iraq"],
+["Amman","Jordan"],
+["Beirut","Lebanon"],
 
-  /* activate */
+["Kathmandu","Nepal"],
+["Dhaka","Bangladesh"],
+["Colombo","Sri Lanka"],
+["Karachi","Pakistan"],
+["Islamabad","Pakistan"],
 
-  if(page === 1){
+["Manila","Philippines"],
+["Hanoi","Vietnam"],
+["Ho Chi Minh City","Vietnam"],
+["Kuala Lumpur","Malaysia"],
+["Taipei","Taiwan"],
 
-    page1.classList.add('active');
-    btn1.classList.add('active');
+["Ulaanbaatar","Mongolia"],
+["Almaty","Kazakhstan"],
+["Tashkent","Uzbekistan"],
 
-  }
+["Casablanca","Morocco"],
+["Algiers","Algeria"],
+["Tunis","Tunisia"],
+["Accra","Ghana"],
+["Addis Ababa","Ethiopia"],
+["Kinshasa","DR Congo"],
 
-  if(page === 2){
+["Johannesburg","South Africa"],
+["Pretoria","South Africa"],
+["Durban","South Africa"],
 
-    page2.classList.add('active');
-    btn2.classList.add('active');
+["Perth","Australia"],
+["Brisbane","Australia"],
+["Adelaide","Australia"],
 
-  }
+["Antarctica Research Station","Antarctica"],
+
+["Venice","Italy"],
+["Milan","Italy"],
+["Naples","Italy"],
+["Florence","Italy"],
+
+["Munich","Germany"],
+["Hamburg","Germany"],
+["Frankfurt","Germany"],
+
+["Lyon","France"],
+["Marseille","France"],
+["Nice","France"],
+
+["Valencia","Spain"],
+["Seville","Spain"],
+
+["Rotterdam","Netherlands"],
+
+["Osaka","Japan"],
+["Kyoto","Japan"],
+["Nagoya","Japan"],
+
+["Busan","South Korea"],
+
+["Shenzhen","China"],
+["Guangzhou","China"],
+["Chengdu","China"],
+
+["Macau","China"],
+
+["Pattaya","Thailand"],
+["Phuket","Thailand"],
+
+["Bali","Indonesia"],
+
+["Tbilisi","Georgia"],
+["Yerevan","Armenia"],
+["Baku","Azerbaijan"],
+
+["Odessa","Ukraine"],
+["Lviv","Ukraine"],
+["Kharkiv","Ukraine"],
+["Dnipro","Ukraine"]
+
+];
+
+/* ===== RENDER ===== */
+
+const cityList=document.getElementById('cityList');
+
+function renderCities(list){
+
+cityList.innerHTML='';
+
+list.forEach((city,index)=>{
+
+const div=document.createElement('div');
+
+div.className='city';
+
+div.innerHTML=`
+<div class="city-name">${city[0]}</div>
+<div class="country">${city[1]}</div>
+`;
+
+div.onclick=()=>openCity(city[0],index);
+
+cityList.appendChild(div);
+
+});
 
 }
 
-/* ======================================
-   FORCE START PAGE 1
-====================================== */
+renderCities(cities);
 
-window.addEventListener('load', () => {
+/* ===== OPEN CITY ===== */
 
-  showPage(1);
+function openCity(city,index){
 
-});
+document.getElementById('mapFrame').src=
+`https://www.google.com/maps?q=${city}&output=embed`;
+
+document.getElementById('currentCity').innerText=city;
+
+document.getElementById('nodeId').innerText=
+String(index+1).padStart(3,'0');
+
+}
+
+/* ===== SEARCH ===== */
+
+function filterCities(text){
+
+const filtered=cities.filter(c=>
+c[0].toLowerCase().includes(text.toLowerCase())
+);
+
+renderCities(filtered);
+
+}
+
+/* ===== MODES ===== */
+
+function satelliteMode(){
+
+document.getElementById('mapFrame').style.filter=
+'contrast(1.05) saturate(1.1)';
+
+}
+
+function streetMode(){
+
+document.getElementById('mapFrame').style.filter=
+'brightness(1.05)';
+
+}
+
+function nightMode(){
+
+document.body.style.background='#000';
+
+document.querySelector('.scan').style.opacity='.28';
+
+}
+
+function resetView(){
+
+location.reload();
+
+}
 
 </script>
 
