@@ -39,7 +39,7 @@ iframe{
 width:100%;
 height:100%;
 border:none;
-transition:1s;
+transition:1.2s;
 filter:contrast(1.1);
 }
 
@@ -432,6 +432,10 @@ NEXT
 AUTO WALK
 </button>
 
+<button class="topbtn" onclick="slowDrive()">
+SLOW DRIVE
+</button>
+
 <button class="topbtn" onclick="stopWalk()">
 STOP
 </button>
@@ -622,7 +626,7 @@ const cities=[
 
 ];
 
-/* ===== CITY DATA ===== */
+/* ===== DATA ===== */
 
 const cityData={
 
@@ -642,24 +646,6 @@ weather:"cloudy",
 air:"52 AQI",
 airText:"moderate quality",
 population:"3M"
-},
-
-London:{
-coords:[51.5072,-0.1276],
-temp:"+17°C",
-weather:"rain",
-air:"48 AQI",
-airText:"stable quality",
-population:"9M"
-},
-
-Paris:{
-coords:[48.8566,2.3522],
-temp:"+21°C",
-weather:"clear sky",
-air:"41 AQI",
-airText:"good quality",
-population:"11M"
 }
 
 };
@@ -746,19 +732,19 @@ document.getElementById('bigcity').innerText=
 city.toUpperCase();
 
 document.getElementById('temp').innerText=
-data.temp;
+data.temp || "+22°C";
 
 document.getElementById('weatherText').innerText=
-data.weather;
+data.weather || "urban haze";
 
 document.getElementById('air').innerText=
-data.air;
+data.air || "45 AQI";
 
 document.getElementById('airText').innerText=
-data.airText;
+data.airText || "stable quality";
 
 document.getElementById('population').innerText=
-data.population;
+data.population || "12M";
 
 }
 
@@ -821,6 +807,36 @@ urban navigation...
 
 autoWalkInterval=setInterval(()=>{
 
+moveStreet(0.003);
+
+},7000);
+
+}
+
+/* ===== SLOW DRIVE ===== */
+
+function slowDrive(){
+
+clearInterval(autoWalkInterval);
+
+document.getElementById('walk').innerHTML=
+`
+SLOW DRIVE ACTIVE<br>
+smooth cinematic movement...
+`;
+
+autoWalkInterval=setInterval(()=>{
+
+moveStreet(0.0008);
+
+},3500);
+
+}
+
+/* ===== MOVE STREET ===== */
+
+function moveStreet(speed){
+
 const city=
 cities[currentIndex];
 
@@ -830,25 +846,17 @@ cityData[city] || cityData["Tokyo"];
 const lat=data.coords[0];
 const lng=data.coords[1];
 
-const headings=[0,45,90,135,180,225,270,315];
-
 const heading=
-headings[
-Math.floor(Math.random()*headings.length)
-];
-
-const zooms=[0,2,5];
+Math.floor(Math.random()*360);
 
 const zoom=
-zooms[
-Math.floor(Math.random()*zooms.length)
-];
+Math.floor(Math.random()*3);
 
 const rLat=
-(lat+(Math.random()-.5)/300).toFixed(6);
+(lat+(Math.random()-.5)*speed).toFixed(6);
 
 const rLng=
-(lng+(Math.random()-.5)/300).toFixed(6);
+(lng+(Math.random()-.5)*speed).toFixed(6);
 
 frame.src=
 `https://www.google.com/maps?q=&layer=c&cbll=${rLat},${rLng}&cbp=11,${heading},0,${zoom},0&output=svembed`;
@@ -857,11 +865,10 @@ const routes=[
 
 "walking forward...",
 "crossing avenue...",
-"turning right...",
-"moving through district...",
-"approaching intersection...",
-"navigating downtown...",
-"scanning urban sector...",
+"moving slowly...",
+"urban cinematic mode...",
+"driving through district...",
+"approaching downtown...",
 "moving toward neon zone..."
 
 ];
@@ -879,11 +886,9 @@ ${random}
 
 document.getElementById('walk').innerHTML=
 `
-AUTO WALK ACTIVE<br>
+SYSTEM ACTIVE<br>
 ${random}
 `;
-
-},7000);
 
 }
 
@@ -895,7 +900,7 @@ clearInterval(autoWalkInterval);
 
 document.getElementById('walk').innerHTML=
 `
-AUTO WALK STOPPED<br>
+SYSTEM STOPPED<br>
 manual control
 `;
 
@@ -925,7 +930,6 @@ hue-rotate(90deg)
 contrast(1.6)
 brightness(.72)
 saturate(1.8)
-grayscale(.1)
 `;
 
 document.querySelector('.scan').style.opacity='.32';
