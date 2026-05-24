@@ -39,9 +39,8 @@ iframe{
 width:100%;
 height:100%;
 border:none;
-transition:3s;
+transition:1s;
 filter:contrast(1.1);
-transform:scale(1);
 }
 
 /* ===== EFFECTS ===== */
@@ -148,7 +147,7 @@ color:white;
 flex:none;
 }
 
-/* ===== BUTTON ===== */
+/* ===== TOP BUTTON ===== */
 
 .topbtn{
 height:32px;
@@ -392,9 +391,13 @@ repeat(auto-fill,minmax(72px,1fr));
 
 <div class="viewer">
 
+<!-- STREET -->
+
 <iframe
 id="street"
-allowfullscreen>
+allowfullscreen
+loading="eager"
+referrerpolicy="no-referrer-when-downgrade">
 </iframe>
 
 <div class="scan"></div>
@@ -429,10 +432,6 @@ NEXT
 
 <button class="topbtn" onclick="autoWalk()">
 AUTO WALK
-</button>
-
-<button class="topbtn" onclick="slowDrive()">
-SLOW DRIVE
 </button>
 
 <button class="topbtn" onclick="stopWalk()">
@@ -492,7 +491,7 @@ class="city-popup"
 id="cityPopup">
 </div>
 
-<!-- RIGHT INFO -->
+<!-- RIGHT -->
 
 <div class="right">
 
@@ -611,7 +610,17 @@ const cities=[
 "Cape Town","Johannesburg","Nairobi","Lagos","Casablanca",
 "Tunis","Algiers","Jerusalem","Tel Aviv","Doha","Riyadh",
 "Tehran","Baghdad","Karachi","Delhi","Kathmandu","Hong Kong",
-"Taipei","Jakarta"
+"Taipei","Jakarta","Beijing","Osaka","Nagoya","Fukuoka",
+"Busan","Manila","Kuala Lumpur","Ho Chi Minh City","Hanoi",
+"Shenzhen","Guangzhou","Chengdu","Wuhan","Chongqing",
+"Tianjin","Melbourne","Perth","Auckland","Vancouver",
+"Montreal","Ottawa","Philadelphia","San Diego","Orlando",
+"Charlotte","Minneapolis","Salt Lake City","Anchorage",
+"Brasilia","Recife","Medellin","Quito","La Paz","Montevideo",
+"Kingston","San Juan","Abu Dhabi","Kuwait City","Muscat",
+"Amman","Beirut","Damascus","Tbilisi","Yerevan","Baku",
+"Moscow","Saint Petersburg","Kazan","Ulaanbaatar",
+"Islamabad","Lahore","Dhaka"
 
 ];
 
@@ -657,6 +666,35 @@ population:"11M"
 
 };
 
+/* ===== DEFAULT COORDS ===== */
+
+function generateCoords(city){
+
+const defaults={
+
+"New York":[40.7128,-74.0060],
+"Berlin":[52.5200,13.4050],
+"Rome":[41.9028,12.4964],
+"Barcelona":[41.3874,2.1686],
+"Dubai":[25.2048,55.2708],
+"Istanbul":[41.0082,28.9784],
+"Bangkok":[13.7563,100.5018],
+"Singapore":[1.3521,103.8198],
+"Seoul":[37.5665,126.9780],
+"Sydney":[-33.8688,151.2093],
+"Toronto":[43.6532,-79.3832],
+"Cairo":[30.0444,31.2357],
+"Mumbai":[19.0760,72.8777],
+"Shanghai":[31.2304,121.4737],
+"Los Angeles":[34.0522,-118.2437],
+"Chicago":[41.8781,-87.6298]
+
+};
+
+return defaults[city] || [35.6895,139.6917];
+
+}
+
 /* ===== ELEMENTS ===== */
 
 const frame=document.getElementById('street');
@@ -664,9 +702,8 @@ const cityPopup=document.getElementById('cityPopup');
 
 let currentIndex=0;
 let autoWalkInterval=null;
-let slowZoom=1;
 
-/* ===== TOGGLE ===== */
+/* ===== TOGGLE CITIES ===== */
 
 function toggleCities(){
 
@@ -690,7 +727,7 @@ function renderCities(list){
 
 cityPopup.innerHTML='';
 
-list.forEach((city,index)=>{
+list.forEach((city)=>{
 
 const div=document.createElement('div');
 
@@ -699,6 +736,8 @@ div.className='city';
 div.innerText=city;
 
 div.onclick=()=>{
+
+const index=cities.indexOf(city);
 
 openStreet(city,index);
 
@@ -712,40 +751,45 @@ cityPopup.appendChild(div);
 
 }
 
+/* ===== BUILD STREET URL ===== */
+
+function buildStreetURL(lat,lng,heading=0,zoom=0){
+
+return `https://maps.google.com/maps?q=&layer=c&cbll=${lat},${lng}&cbp=11,${heading},0,${zoom},0&output=svembed`;
+
+}
+
 /* ===== OPEN STREET ===== */
-/* ===== FIXED CITY LOADING ===== */
 
 function openStreet(city,index){
 
 currentIndex=index;
 
 const data=
-cityData[city] || {
+cityData[city] || {};
 
-coords:[35.6895,139.6917],
-temp:"+22°C",
-weather:"urban haze",
-air:"45 AQI",
-airText:"stable quality",
-population:"12M"
+const coords=
+data.coords || generateCoords(city);
 
-};
+const lat=coords[0];
+const lng=coords[1];
 
-const lat=data.coords[0];
-const lng=data.coords[1];
+const rLat=
+(lat+(Math.random()-.5)/500).toFixed(6);
 
-/* ===== IMPORTANT FIX ===== */
+const rLng=
+(lng+(Math.random()-.5)/500).toFixed(6);
 
-frame.src="";
+/* FORCE RELOAD */
+
+frame.src="about:blank";
 
 setTimeout(()=>{
 
 frame.src=
-`https://maps.google.com/maps?q=${lat},${lng}&z=16&output=embed&layer=c`;
+buildStreetURL(rLat,rLng,0,0);
 
-},100);
-
-/* ===== INFO ===== */
+},120);
 
 document.getElementById('cityTitle').innerText=
 city.toUpperCase();
@@ -754,25 +798,19 @@ document.getElementById('bigcity').innerText=
 city.toUpperCase();
 
 document.getElementById('temp').innerText=
-data.temp;
+data.temp || "--";
 
 document.getElementById('weatherText').innerText=
-data.weather;
+data.weather || "live stream";
 
 document.getElementById('air').innerText=
-data.air;
+data.air || "--";
 
 document.getElementById('airText').innerText=
-data.airText;
+data.airText || "urban data";
 
 document.getElementById('population').innerText=
-data.population;
-
-document.getElementById('guide').innerHTML=
-`
-AI WALK<br>
-${city.toUpperCase()} loaded
-`;
+data.population || "--";
 
 }
 
@@ -795,13 +833,13 @@ cityPopup.style.display="grid";
 
 function randomStreet(){
 
-const randomIndex=
-Math.floor(Math.random()*cities.length);
+const city=
+cities[Math.floor(Math.random()*cities.length)];
 
-openStreet(
-cities[randomIndex],
-randomIndex
-);
+const index=
+cities.indexOf(city);
+
+openStreet(city,index);
 
 }
 
@@ -830,54 +868,59 @@ function autoWalk(){
 
 clearInterval(autoWalkInterval);
 
-frame.style.transform='scale(1)';
-
 document.getElementById('walk').innerHTML=
 `
 AUTO WALK ACTIVE<br>
-forward street movement...
+urban navigation...
 `;
 
-let heading=0;
-let step=0;
-
 autoWalkInterval=setInterval(()=>{
-
-step++;
-
-heading += Math.floor(Math.random()*18)-9;
 
 const city=
 cities[currentIndex];
 
 const data=
-cityData[city] || cityData["Tokyo"];
+cityData[city] || {};
 
-const lat=data.coords[0];
-const lng=data.coords[1];
+const coords=
+data.coords || generateCoords(city);
 
-const forwardDistance=
-step * 0.00008;
+const lat=coords[0];
+const lng=coords[1];
 
-const newLat=
-lat + Math.cos(heading*Math.PI/180)*forwardDistance;
+const headings=[0,45,90,135,180,225,270,315];
 
-const newLng=
-lng + Math.sin(heading*Math.PI/180)*forwardDistance;
+const heading=
+headings[
+Math.floor(Math.random()*headings.length)
+];
+
+const zooms=[0,2,5];
+
+const zoom=
+zooms[
+Math.floor(Math.random()*zooms.length)
+];
+
+const rLat=
+(lat+(Math.random()-.5)/300).toFixed(6);
+
+const rLng=
+(lng+(Math.random()-.5)/300).toFixed(6);
 
 frame.src=
-`https://maps.google.com/maps?q=${newLat},${newLng}&z=16&output=embed&layer=c`;
+buildStreetURL(rLat,rLng,heading,zoom);
 
 const routes=[
 
 "walking forward...",
-"moving down street...",
 "crossing avenue...",
+"turning right...",
+"moving through district...",
 "approaching intersection...",
-"urban navigation...",
-"following road...",
-"moving through downtown...",
-"street forward motion..."
+"navigating downtown...",
+"scanning urban sector...",
+"moving toward neon zone..."
 
 ];
 
@@ -898,92 +941,7 @@ AUTO WALK ACTIVE<br>
 ${random}
 `;
 
-},5000);
-
-}
-
-/* ===== SLOW DRIVE ===== */
-
-function slowDrive(){
-
-clearInterval(autoWalkInterval);
-
-slowZoom=1;
-
-document.getElementById('walk').innerHTML=
-`
-SLOW DRIVE ACTIVE<br>
-cinematic forward movement...
-`;
-
-autoWalkInterval=setInterval(()=>{
-
-slowZoom += 0.01;
-
-if(slowZoom > 1.18){
-
-slowZoom = 1;
-
-}
-
-frame.style.transform=
-`scale(${slowZoom})`;
-
-moveStreet(0.00015);
-
-},12000);
-
-}
-
-/* ===== MOVE ===== */
-
-function moveStreet(speed){
-
-const city=
-cities[currentIndex];
-
-const data=
-cityData[city] || cityData["Tokyo"];
-
-const lat=data.coords[0];
-const lng=data.coords[1];
-
-const rLat=
-(lat+(Math.random()-.5)*speed).toFixed(6);
-
-const rLng=
-(lng+(Math.random()-.5)*speed).toFixed(6);
-
-frame.src=
-`https://maps.google.com/maps?q=${rLat},${rLng}&z=16&output=embed&layer=c`;
-
-const routes=[
-
-"moving slowly forward...",
-"cinematic urban drift...",
-"approaching avenue...",
-"slow panoramic motion...",
-"navigating downtown...",
-"urban cinematic mode..."
-
-];
-
-const random=
-routes[
-Math.floor(Math.random()*routes.length)
-];
-
-document.getElementById('guide').innerHTML=
-`
-AI WALK<br>
-${random}
-`;
-
-document.getElementById('walk').innerHTML=
-`
-SYSTEM ACTIVE<br>
-${random}
-`;
+},7000);
 
 }
 
@@ -993,11 +951,9 @@ function stopWalk(){
 
 clearInterval(autoWalkInterval);
 
-frame.style.transform='scale(1)';
-
 document.getElementById('walk').innerHTML=
 `
-SYSTEM STOPPED<br>
+AUTO WALK STOPPED<br>
 manual control
 `;
 
@@ -1027,6 +983,7 @@ hue-rotate(90deg)
 contrast(1.6)
 brightness(.72)
 saturate(1.8)
+grayscale(.1)
 `;
 
 document.querySelector('.scan').style.opacity='.32';
@@ -1127,6 +1084,8 @@ location.reload();
 }
 
 /* ===== START ===== */
+
+renderCities(cities);
 
 openStreet("Tokyo",0);
 
