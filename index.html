@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>MEGACITY 175 — 3D WORLD TOUR</title>
+<title>MEGACITY 175 — STREET VIEW PORTAL</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -20,8 +20,8 @@ html,body{
 width:100%;
 height:100%;
 overflow:hidden;
-font-family:'Inter',sans-serif;
 background:#000;
+font-family:'Inter',sans-serif;
 color:white;
 }
 
@@ -41,32 +41,30 @@ height:100%;
 background:#050505;
 border-right:1px solid rgba(255,255,255,.08);
 overflow-y:auto;
-padding:20px;
+padding:22px;
 display:flex;
 flex-direction:column;
-gap:16px;
 }
 
 /* ===== TITLE ===== */
 
 .title{
-font-size:28px;
+font-size:30px;
 font-weight:800;
-line-height:1.1;
-margin-bottom:10px;
+line-height:1;
+margin-bottom:12px;
 }
 
 .sub{
 font-size:12px;
 opacity:.55;
-line-height:1.6;
-margin-bottom:10px;
+line-height:1.7;
+margin-bottom:20px;
 }
 
 /* ===== SEARCH ===== */
 
 .search{
-width:100%;
 height:48px;
 border:none;
 outline:none;
@@ -75,7 +73,7 @@ border-radius:14px;
 padding:0 16px;
 color:white;
 font-size:14px;
-margin-bottom:8px;
+margin-bottom:18px;
 }
 
 /* ===== CITY LIST ===== */
@@ -85,6 +83,8 @@ display:flex;
 flex-direction:column;
 gap:10px;
 }
+
+/* ===== CITY ===== */
 
 .city{
 background:#111;
@@ -96,9 +96,9 @@ transition:.25s;
 }
 
 .city:hover{
-transform:translateX(5px);
-background:#181818;
-border-color:rgba(255,255,255,.15);
+background:#191919;
+transform:translateX(6px);
+border-color:rgba(255,255,255,.14);
 }
 
 .city-name{
@@ -112,13 +112,14 @@ opacity:.55;
 margin-top:4px;
 }
 
-/* ===== MAP ===== */
+/* ===== VIEWER ===== */
 
 .viewer{
 position:relative;
 flex:1;
 height:100%;
 overflow:hidden;
+background:black;
 }
 
 .viewer iframe{
@@ -127,31 +128,63 @@ height:100%;
 border:none;
 }
 
+/* ===== OVERLAYS ===== */
+
+.scanlines{
+position:absolute;
+inset:0;
+pointer-events:none;
+
+background:
+repeating-linear-gradient(
+to bottom,
+rgba(255,255,255,.03) 0px,
+rgba(255,255,255,.03) 1px,
+transparent 2px,
+transparent 4px
+);
+
+opacity:.16;
+mix-blend-mode:screen;
+}
+
+.noise{
+position:absolute;
+inset:0;
+pointer-events:none;
+background:
+radial-gradient(
+circle at center,
+transparent 20%,
+rgba(0,0,0,.35)
+);
+}
+
 /* ===== HUD ===== */
 
 .hud{
 position:absolute;
-top:25px;
-right:25px;
-width:280px;
+top:24px;
+right:24px;
+width:290px;
 background:rgba(0,0,0,.55);
 backdrop-filter:blur(12px);
 border:1px solid rgba(255,255,255,.08);
 border-radius:22px;
-padding:20px;
-z-index:10;
+padding:22px;
+z-index:20;
 }
 
 .hud-title{
-font-size:20px;
+font-size:22px;
 font-weight:800;
-margin-bottom:12px;
+margin-bottom:16px;
 }
 
 .stat{
 display:flex;
 justify-content:space-between;
-margin-bottom:10px;
+margin-bottom:12px;
 font-size:13px;
 opacity:.82;
 }
@@ -160,11 +193,11 @@ opacity:.82;
 display:grid;
 grid-template-columns:1fr 1fr;
 gap:10px;
-margin-top:18px;
+margin-top:20px;
 }
 
 button{
-height:44px;
+height:46px;
 border:none;
 border-radius:12px;
 background:#181818;
@@ -179,27 +212,23 @@ background:#262626;
 transform:translateY(-2px);
 }
 
-/* ===== OVERLAY ===== */
+/* ===== STATUS ===== */
 
-.scan{
+.status{
 position:absolute;
-inset:0;
-pointer-events:none;
-background:
-repeating-linear-gradient(
-to bottom,
-rgba(255,255,255,.025) 0px,
-rgba(255,255,255,.025) 1px,
-transparent 2px,
-transparent 4px
-);
-mix-blend-mode:screen;
-opacity:.18;
+left:25px;
+bottom:25px;
+padding:14px 18px;
+background:rgba(0,0,0,.5);
+border:1px solid rgba(255,255,255,.08);
+border-radius:14px;
+font-size:13px;
+backdrop-filter:blur(10px);
 }
 
 /* ===== MOBILE ===== */
 
-@media(max-width:900px){
+@media(max-width:950px){
 
 .main{
 flex-direction:column;
@@ -207,11 +236,11 @@ flex-direction:column;
 
 .sidebar{
 width:100%;
-height:38%;
+height:40%;
 }
 
 .viewer{
-height:62%;
+height:60%;
 }
 
 .hud{
@@ -236,8 +265,8 @@ MEGACITY 175
 </div>
 
 <div class="sub">
-3D interactive world tour system<br>
-Google Maps / Satellite / Megapolis Explorer
+3D Street View portal.<br>
+Обирай мегаполіс і система автоматично відкриє панораму випадкової вулиці.
 </div>
 
 <input
@@ -256,11 +285,13 @@ onkeyup="filterCities(this.value)"
 <div class="viewer">
 
 <iframe
-id="mapFrame"
-src="https://www.google.com/maps?q=Tokyo&output=embed">
+id="streetFrame"
+src=""
+allowfullscreen>
 </iframe>
 
-<div class="scan"></div>
+<div class="scanlines"></div>
+<div class="noise"></div>
 
 <div class="hud">
 
@@ -270,7 +301,7 @@ Tokyo
 
 <div class="stat">
 <span>MODE</span>
-<span>3D SATELLITE</span>
+<span>STREET VIEW</span>
 </div>
 
 <div class="stat">
@@ -279,35 +310,39 @@ Tokyo
 </div>
 
 <div class="stat">
-<span>WORLD NODE</span>
-<span id="nodeId">001</span>
+<span>CAMERA</span>
+<span>LIVE</span>
 </div>
 
 <div class="stat">
-<span>VISITORS</span>
-<span>02</span>
+<span>NODE</span>
+<span id="nodeId">001</span>
 </div>
 
 <div class="controls">
 
-<button onclick="satelliteMode()">
-SATELLITE
+<button onclick="randomStreet()">
+RANDOM
 </button>
 
-<button onclick="streetMode()">
-STREET
+<button onclick="nextCity()">
+NEXT
 </button>
 
 <button onclick="nightMode()">
 NIGHT
 </button>
 
-<button onclick="resetView()">
+<button onclick="reloadView()">
 RESET
 </button>
 
 </div>
 
+</div>
+
+<div class="status" id="statusText">
+Connected to Tokyo node...
 </div>
 
 </div>
@@ -316,210 +351,93 @@ RESET
 
 <script>
 
-/* ===== 175 MEGACITIES ===== */
+/* ===== CITIES ===== */
 
 const cities = [
 
 ["Tokyo","Japan"],
+["Kyiv","Ukraine"],
 ["New York","USA"],
 ["London","UK"],
-["Kyiv","Ukraine"],
 ["Paris","France"],
 ["Berlin","Germany"],
-["Los Angeles","USA"],
-["Chicago","USA"],
-["Toronto","Canada"],
-["Mexico City","Mexico"],
-["Rio de Janeiro","Brazil"],
-["São Paulo","Brazil"],
-["Buenos Aires","Argentina"],
-["Lima","Peru"],
-["Santiago","Chile"],
-["Cairo","Egypt"],
-["Cape Town","South Africa"],
-["Lagos","Nigeria"],
-["Nairobi","Kenya"],
-["Dubai","UAE"],
-["Istanbul","Turkey"],
-["Moscow","Russia"],
-["Beijing","China"],
-["Shanghai","China"],
-["Hong Kong","China"],
-["Seoul","South Korea"],
-["Bangkok","Thailand"],
-["Singapore","Singapore"],
-["Delhi","India"],
-["Mumbai","India"],
-["Jakarta","Indonesia"],
-["Sydney","Australia"],
-["Melbourne","Australia"],
-["Auckland","New Zealand"],
 ["Rome","Italy"],
 ["Madrid","Spain"],
 ["Barcelona","Spain"],
 ["Amsterdam","Netherlands"],
-["Brussels","Belgium"],
-["Vienna","Austria"],
 ["Prague","Czech Republic"],
 ["Warsaw","Poland"],
-["Budapest","Hungary"],
-["Athens","Greece"],
-["Stockholm","Sweden"],
-["Oslo","Norway"],
-["Helsinki","Finland"],
-["Copenhagen","Denmark"],
-["Zurich","Switzerland"],
-["Lisbon","Portugal"],
-
-["Dublin","Ireland"],
-["Edinburgh","Scotland"],
-["Glasgow","Scotland"],
-["Manchester","UK"],
-["Birmingham","UK"],
-["Liverpool","UK"],
-["Leeds","UK"],
-["Bristol","UK"],
-["Cardiff","Wales"],
-["Belfast","Northern Ireland"],
-
+["Dubai","UAE"],
+["Istanbul","Turkey"],
+["Bangkok","Thailand"],
+["Singapore","Singapore"],
+["Seoul","South Korea"],
+["Hong Kong","China"],
+["Sydney","Australia"],
+["Toronto","Canada"],
+["Rio de Janeiro","Brazil"],
+["Mexico City","Mexico"],
+["Cairo","Egypt"],
+["Mumbai","India"],
+["Shanghai","China"],
+["Los Angeles","USA"],
+["Chicago","USA"],
 ["San Francisco","USA"],
-["Seattle","USA"],
 ["Miami","USA"],
-["Boston","USA"],
-["Philadelphia","USA"],
-["Houston","USA"],
-["Dallas","USA"],
-["Atlanta","USA"],
-["Las Vegas","USA"],
-["Detroit","USA"],
-
-["Phoenix","USA"],
-["San Diego","USA"],
-["Portland","USA"],
-["Denver","USA"],
-["New Orleans","USA"],
-["Orlando","USA"],
-["Charlotte","USA"],
-["Minneapolis","USA"],
-["Kansas City","USA"],
-["Austin","USA"],
-
-["Montreal","Canada"],
-["Vancouver","Canada"],
-["Ottawa","Canada"],
-["Calgary","Canada"],
-["Quebec City","Canada"],
-
-["Havana","Cuba"],
-["Panama City","Panama"],
-["Bogotá","Colombia"],
-["Caracas","Venezuela"],
-["Quito","Ecuador"],
-["Montevideo","Uruguay"],
-
-["Reykjavik","Iceland"],
-["Tallinn","Estonia"],
-["Riga","Latvia"],
-["Vilnius","Lithuania"],
-["Belgrade","Serbia"],
-["Zagreb","Croatia"],
-["Sarajevo","Bosnia"],
-["Skopje","North Macedonia"],
-["Sofia","Bulgaria"],
-["Bucharest","Romania"],
-
-["Jerusalem","Israel"],
-["Tel Aviv","Israel"],
-["Riyadh","Saudi Arabia"],
-["Doha","Qatar"],
-["Kuwait City","Kuwait"],
-["Tehran","Iran"],
-["Baghdad","Iraq"],
-["Amman","Jordan"],
-["Beirut","Lebanon"],
-
-["Kathmandu","Nepal"],
-["Dhaka","Bangladesh"],
-["Colombo","Sri Lanka"],
-["Karachi","Pakistan"],
-["Islamabad","Pakistan"],
-
-["Manila","Philippines"],
-["Hanoi","Vietnam"],
-["Ho Chi Minh City","Vietnam"],
-["Kuala Lumpur","Malaysia"],
-["Taipei","Taiwan"],
-
-["Ulaanbaatar","Mongolia"],
-["Almaty","Kazakhstan"],
-["Tashkent","Uzbekistan"],
-
-["Casablanca","Morocco"],
-["Algiers","Algeria"],
-["Tunis","Tunisia"],
-["Accra","Ghana"],
-["Addis Ababa","Ethiopia"],
-["Kinshasa","DR Congo"],
-
-["Johannesburg","South Africa"],
-["Pretoria","South Africa"],
-["Durban","South Africa"],
-
-["Perth","Australia"],
-["Brisbane","Australia"],
-["Adelaide","Australia"],
-
-["Antarctica Research Station","Antarctica"],
-
-["Venice","Italy"],
-["Milan","Italy"],
-["Naples","Italy"],
-["Florence","Italy"],
-
-["Munich","Germany"],
-["Hamburg","Germany"],
-["Frankfurt","Germany"],
-
-["Lyon","France"],
-["Marseille","France"],
-["Nice","France"],
-
-["Valencia","Spain"],
-["Seville","Spain"],
-
-["Rotterdam","Netherlands"],
-
-["Osaka","Japan"],
-["Kyoto","Japan"],
-["Nagoya","Japan"],
-
-["Busan","South Korea"],
-
-["Shenzhen","China"],
-["Guangzhou","China"],
-["Chengdu","China"],
-
-["Macau","China"],
-
-["Pattaya","Thailand"],
-["Phuket","Thailand"],
-
-["Bali","Indonesia"],
-
-["Tbilisi","Georgia"],
-["Yerevan","Armenia"],
-["Baku","Azerbaijan"],
-
-["Odessa","Ukraine"],
 ["Lviv","Ukraine"],
-["Kharkiv","Ukraine"],
-["Dnipro","Ukraine"]
+["Odessa","Ukraine"],
+["Kharkiv","Ukraine"]
 
 ];
 
-/* ===== RENDER ===== */
+/* ===== RANDOM COORDS ===== */
+
+const coords = {
+
+Tokyo:["35.6895","139.6917"],
+Kyiv:["50.4501","30.5234"],
+"New York":["40.7128","-74.0060"],
+London:["51.5072","-0.1276"],
+Paris:["48.8566","2.3522"],
+Berlin:["52.5200","13.4050"],
+Rome:["41.9028","12.4964"],
+Madrid:["40.4168","-3.7038"],
+Barcelona:["41.3874","2.1686"],
+Amsterdam:["52.3676","4.9041"],
+Prague:["50.0755","14.4378"],
+Warsaw:["52.2297","21.0122"],
+Dubai:["25.2048","55.2708"],
+Istanbul:["41.0082","28.9784"],
+Bangkok:["13.7563","100.5018"],
+Singapore:["1.3521","103.8198"],
+Seoul:["37.5665","126.9780"],
+"Hong Kong":["22.3193","114.1694"],
+Sydney:["-33.8688","151.2093"],
+Toronto:["43.6532","-79.3832"],
+"Rio de Janeiro":["-22.9068","-43.1729"],
+"Mexico City":["19.4326","-99.1332"],
+Cairo:["30.0444","31.2357"],
+Mumbai:["19.0760","72.8777"],
+Shanghai:["31.2304","121.4737"],
+"Los Angeles":["34.0522","-118.2437"],
+Chicago:["41.8781","-87.6298"],
+"San Francisco":["37.7749","-122.4194"],
+Miami:["25.7617","-80.1918"],
+Lviv:["49.8397","24.0297"],
+Odessa:["46.4825","30.7233"],
+Kharkiv:["49.9935","36.2304"]
+
+};
+
+/* ===== ELEMENTS ===== */
 
 const cityList=document.getElementById('cityList');
+
+const frame=document.getElementById('streetFrame');
+
+let currentIndex=0;
+
+/* ===== RENDER ===== */
 
 function renderCities(list){
 
@@ -536,7 +454,7 @@ div.innerHTML=`
 <div class="country">${city[1]}</div>
 `;
 
-div.onclick=()=>openCity(city[0],index);
+div.onclick=()=>openStreet(city[0],index);
 
 cityList.appendChild(div);
 
@@ -546,17 +464,35 @@ cityList.appendChild(div);
 
 renderCities(cities);
 
-/* ===== OPEN CITY ===== */
+/* ===== OPEN STREET VIEW ===== */
 
-function openCity(city,index){
+function openStreet(city,index){
 
-document.getElementById('mapFrame').src=
-`https://www.google.com/maps?q=${city}&output=embed`;
+currentIndex=index;
+
+const lat=coords[city][0];
+const lng=coords[city][1];
+
+/* random street offsets */
+
+const randomLat=
+(Number(lat)+(Math.random()-.5)/100).toFixed(6);
+
+const randomLng=
+(Number(lng)+(Math.random()-.5)/100).toFixed(6);
+
+/* street view */
+
+frame.src=
+`https://www.google.com/maps?q=&layer=c&cbll=${randomLat},${randomLng}&cbp=11,0,0,0,0&output=svembed`;
 
 document.getElementById('currentCity').innerText=city;
 
 document.getElementById('nodeId').innerText=
 String(index+1).padStart(3,'0');
+
+document.getElementById('statusText').innerText=
+`Connected to ${city} street node...`;
 
 }
 
@@ -572,35 +508,55 @@ renderCities(filtered);
 
 }
 
+/* ===== RANDOM ===== */
+
+function randomStreet(){
+
+const city=cities[currentIndex][0];
+
+openStreet(city,currentIndex);
+
+}
+
+/* ===== NEXT ===== */
+
+function nextCity(){
+
+currentIndex++;
+
+if(currentIndex>=cities.length){
+currentIndex=0;
+}
+
+openStreet(
+cities[currentIndex][0],
+currentIndex
+);
+
+}
+
 /* ===== MODES ===== */
-
-function satelliteMode(){
-
-document.getElementById('mapFrame').style.filter=
-'contrast(1.05) saturate(1.1)';
-
-}
-
-function streetMode(){
-
-document.getElementById('mapFrame').style.filter=
-'brightness(1.05)';
-
-}
 
 function nightMode(){
 
 document.body.style.background='#000';
 
-document.querySelector('.scan').style.opacity='.28';
+frame.style.filter=
+'brightness(.6) contrast(1.2) saturate(.7)';
 
 }
 
-function resetView(){
+/* ===== RESET ===== */
+
+function reloadView(){
 
 location.reload();
 
 }
+
+/* ===== START ===== */
+
+openStreet("Tokyo",0);
 
 </script>
 
