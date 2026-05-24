@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<title>MEGACITY AI EXPLORER</title>
+<title>IBONARIUM RENDER</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
 
@@ -51,15 +51,14 @@ inset:0;
 background:
 repeating-linear-gradient(
 to bottom,
-rgba(255,255,255,.03) 0px,
-rgba(255,255,255,.03) 1px,
+rgba(255,255,255,.025) 0px,
+rgba(255,255,255,.025) 1px,
 transparent 2px,
 transparent 4px
 );
 
-opacity:.14;
+opacity:.12;
 mix-blend-mode:screen;
-
 pointer-events:none;
 }
 
@@ -82,28 +81,28 @@ pointer-events:none;
 .topbar{
 position:absolute;
 
-top:14px;
+top:12px;
 left:50%;
 
 transform:translateX(-50%);
 
-width:96%;
-height:74px;
+width:97%;
+height:62px;
 
-background:rgba(0,0,0,.45);
+background:rgba(0,0,0,.28);
 
-backdrop-filter:blur(16px);
+backdrop-filter:blur(12px);
 
 border:
-1px solid rgba(255,255,255,.08);
+1px solid rgba(255,255,255,.05);
 
-border-radius:24px;
+border-radius:18px;
 
 display:flex;
 align-items:center;
-gap:14px;
+gap:10px;
 
-padding:0 16px;
+padding:0 12px;
 
 z-index:100;
 }
@@ -111,8 +110,9 @@ z-index:100;
 /* ===== LOGO ===== */
 
 .logo{
-font-size:22px;
+font-size:16px;
 font-weight:900;
+letter-spacing:1px;
 white-space:nowrap;
 }
 
@@ -120,27 +120,29 @@ white-space:nowrap;
 
 .search{
 flex:1;
-height:44px;
+height:34px;
 
 background:#111;
 
 border:none;
 outline:none;
 
-border-radius:14px;
+border-radius:10px;
 
-padding:0 16px;
+padding:0 12px;
 
-font-size:14px;
+font-size:12px;
 color:white;
 }
 
-/* ===== CITY LIST ===== */
+/* ===== CITYS ===== */
 
 .citys{
 display:flex;
-gap:10px;
+gap:8px;
+
 overflow-x:auto;
+
 scrollbar-width:none;
 }
 
@@ -149,28 +151,27 @@ display:none;
 }
 
 .city{
-padding:10px 16px;
+padding:7px 12px;
 
-background:#111;
+background:#101010;
 
 border:
-1px solid rgba(255,255,255,.06);
+1px solid rgba(255,255,255,.04);
 
-border-radius:14px;
+border-radius:10px;
 
 cursor:pointer;
 
-font-size:13px;
+font-size:11px;
 font-weight:700;
 
-transition:.25s;
+transition:.2s;
 
 white-space:nowrap;
 }
 
 .city:hover{
 background:#1a1a1a;
-transform:translateY(-3px);
 }
 
 /* ===== LEFT ===== */
@@ -178,8 +179,55 @@ transform:translateY(-3px);
 .left{
 position:absolute;
 
-left:14px;
-top:98px;
+left:10px;
+top:84px;
+
+display:grid;
+grid-template-columns:1fr 1fr;
+
+gap:6px;
+
+z-index:100;
+}
+
+/* ===== BUTTON ===== */
+
+.btn{
+width:108px;
+height:34px;
+
+background:rgba(0,0,0,.26);
+
+backdrop-filter:blur(8px);
+
+border:
+1px solid rgba(255,255,255,.05);
+
+border-radius:10px;
+
+color:white;
+
+font-size:9px;
+font-weight:700;
+
+cursor:pointer;
+
+transition:.2s;
+}
+
+.btn:hover{
+background:#161616;
+}
+
+/* ===== RIGHT ===== */
+
+.right{
+position:absolute;
+
+right:10px;
+top:84px;
+
+width:170px;
 
 display:flex;
 flex-direction:column;
@@ -188,124 +236,50 @@ gap:8px;
 z-index:100;
 }
 
-/* ===== BUTTON ===== */
-
-.btn{
-width:145px;
-height:42px;
-
-background:rgba(0,0,0,.45);
-
-backdrop-filter:blur(14px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-border-radius:14px;
-
-color:white;
-
-font-size:11px;
-font-weight:700;
-
-cursor:pointer;
-
-transition:.25s;
-}
-
-.btn:hover{
-background:#191919;
-transform:translateX(5px);
-}
-
-/* ===== RIGHT ===== */
-
-.right{
-position:absolute;
-
-right:14px;
-top:98px;
-
-width:235px;
-
-background:rgba(0,0,0,.45);
-
-backdrop-filter:blur(16px);
-
-border:
-1px solid rgba(255,255,255,.08);
-
-border-radius:22px;
-
-padding:14px;
-
-z-index:100;
-}
-
 /* ===== CITY TITLE ===== */
 
 .city-title{
-font-size:24px;
+font-size:18px;
 font-weight:900;
 line-height:1;
-margin-bottom:14px;
+text-align:right;
+margin-bottom:2px;
 }
 
-/* ===== CARD ===== */
+/* ===== INFO ===== */
 
-.card{
-background:#111;
-
-border:
-1px solid rgba(255,255,255,.05);
-
-border-radius:14px;
-
-padding:12px;
-
-margin-bottom:10px;
+.info-line{
+text-align:right;
+line-height:1.45;
 }
 
 .label{
-font-size:10px;
-opacity:.5;
-margin-bottom:5px;
+font-size:9px;
+opacity:.45;
 letter-spacing:1px;
 }
 
 .value{
-font-size:18px;
+font-size:14px;
 font-weight:800;
 }
 
 .small{
-font-size:11px;
-opacity:.65;
-margin-top:4px;
-line-height:1.5;
+font-size:10px;
+opacity:.6;
 }
 
 /* ===== GUIDE ===== */
 
 .guide{
-margin-top:12px;
+margin-top:8px;
 
-padding:12px;
-
-background:
-linear-gradient(
-135deg,
-rgba(0,120,255,.16),
-rgba(0,255,180,.08)
-);
-
-border-radius:14px;
-
-border:
-1px solid rgba(255,255,255,.08);
-
-font-size:11px;
+font-size:10px;
 line-height:1.5;
+
+text-align:right;
+
+opacity:.75;
 }
 
 /* ===== WALK ===== */
@@ -313,21 +287,21 @@ line-height:1.5;
 .walk{
 position:absolute;
 
-left:14px;
-bottom:14px;
+left:10px;
+bottom:10px;
 
-padding:12px 16px;
+padding:10px 14px;
 
-background:rgba(0,0,0,.45);
+background:rgba(0,0,0,.28);
 
-backdrop-filter:blur(14px);
+backdrop-filter:blur(10px);
 
 border:
-1px solid rgba(255,255,255,.08);
+1px solid rgba(255,255,255,.05);
 
-border-radius:16px;
+border-radius:12px;
 
-font-size:11px;
+font-size:10px;
 line-height:1.5;
 
 z-index:100;
@@ -383,25 +357,17 @@ transform:translate(0);
 
 @media(max-width:900px){
 
-.right{
-width:190px;
-}
-
-.city-title{
-font-size:18px;
-}
-
-.value{
-font-size:15px;
-}
-
 .bigcity{
 display:none;
 }
 
 .btn{
-width:120px;
-font-size:10px;
+width:92px;
+font-size:8px;
+}
+
+.right{
+width:140px;
 }
 
 }
@@ -428,7 +394,7 @@ allowfullscreen>
 <div class="topbar">
 
 <div class="logo">
-MEGACITY
+IBONARIUM RENDER
 </div>
 
 <input
@@ -447,15 +413,15 @@ onkeyup="filterCities(this.value)"
 <div class="left">
 
 <button class="btn" onclick="randomStreet()">
-RANDOM STREET
+RANDOM
 </button>
 
 <button class="btn" onclick="nextCity()">
-NEXT CITY
+NEXT
 </button>
 
 <button class="btn" onclick="autoWalk()">
-AUTO WALK AI
+AUTO WALK
 </button>
 
 <button class="btn" onclick="stopWalk()">
@@ -463,19 +429,23 @@ STOP WALK
 </button>
 
 <button class="btn" onclick="nightMode()">
-NIGHT MODE
+NIGHT
 </button>
 
 <button class="btn" onclick="cinemaMode()">
-CINEMA MODE
+CINEMA
 </button>
 
 <button class="btn" onclick="matrixMode()">
-MATRIX MODE
+MATRIX
 </button>
 
 <button class="btn" onclick="cyberpunkMode()">
-CYBERPUNK
+CYBER
+</button>
+
+<button class="btn" onclick="droneMode()">
+DRONE
 </button>
 
 <button class="btn" onclick="resetMode()">
@@ -494,7 +464,7 @@ id="cityTitle">
 TOKYO
 </div>
 
-<div class="card">
+<div class="info-line">
 
 <div class="label">
 WEATHER
@@ -514,10 +484,10 @@ clear sky
 
 </div>
 
-<div class="card">
+<div class="info-line">
 
 <div class="label">
-AIR QUALITY
+AIR
 </div>
 
 <div
@@ -529,12 +499,12 @@ id="air">
 <div
 class="small"
 id="airText">
-good air quality
+good quality
 </div>
 
 </div>
 
-<div class="card">
+<div class="info-line">
 
 <div class="label">
 POPULATION
@@ -546,19 +516,14 @@ id="population">
 37M
 </div>
 
-<div class="small">
-megapolis urban node
-</div>
-
 </div>
 
 <div
 class="guide"
 id="guide">
 
-AI GUIDE<br><br>
-
-waiting for navigation route...
+AI WALK<br>
+standby...
 
 </div>
 
@@ -570,12 +535,12 @@ waiting for navigation route...
 class="walk"
 id="walk">
 
-AI WALK SYSTEM ONLINE<br>
+AI SYSTEM ONLINE<br>
 standby mode
 
 </div>
 
-<!-- BIG -->
+<!-- BIG CITY -->
 
 <div
 class="bigcity"
@@ -587,7 +552,7 @@ TOKYO
 
 <script>
 
-/* ===== CITIES ===== */
+/* ===== 100 CITIES ===== */
 
 const cities=[
 
@@ -611,7 +576,87 @@ const cities=[
 "Shanghai",
 "Los Angeles",
 "Chicago",
-"Lviv"
+"Lviv",
+"Odessa",
+"Kharkiv",
+"Dnipro",
+"Warsaw",
+"Prague",
+"Vienna",
+"Amsterdam",
+"Brussels",
+"Copenhagen",
+"Stockholm",
+"Helsinki",
+"Oslo",
+"Lisbon",
+"Madrid",
+"Valencia",
+"Seville",
+"Milan",
+"Naples",
+"Florence",
+"Munich",
+"Hamburg",
+"Frankfurt",
+"Zurich",
+"Budapest",
+"Athens",
+"Bucharest",
+"Sofia",
+"Belgrade",
+"Zagreb",
+"Sarajevo",
+"Skopje",
+"Tirana",
+"Reykjavik",
+"Dublin",
+"Edinburgh",
+"Manchester",
+"Liverpool",
+"Glasgow",
+"Birmingham",
+"San Francisco",
+"Seattle",
+"Miami",
+"Boston",
+"Houston",
+"Dallas",
+"Atlanta",
+"Detroit",
+"Phoenix",
+"Las Vegas",
+"Portland",
+"Denver",
+"Mexico City",
+"Rio de Janeiro",
+"Sao Paulo",
+"Buenos Aires",
+"Lima",
+"Santiago",
+"Bogota",
+"Caracas",
+"Havana",
+"Panama City",
+"Cape Town",
+"Johannesburg",
+"Nairobi",
+"Lagos",
+"Casablanca",
+"Tunis",
+"Algiers",
+"Jerusalem",
+"Tel Aviv",
+"Doha",
+"Riyadh",
+"Tehran",
+"Baghdad",
+"Karachi",
+"Delhi",
+"Kathmandu",
+"Hong Kong",
+"Taipei",
+"Jakarta"
 
 ];
 
@@ -624,7 +669,7 @@ coords:[35.6895,139.6917],
 temp:"+24°C",
 weather:"clear sky",
 air:"38 AQI",
-airText:"good air quality",
+airText:"good quality",
 population:"37M"
 },
 
@@ -633,7 +678,7 @@ coords:[50.4501,30.5234],
 temp:"+20°C",
 weather:"cloudy",
 air:"52 AQI",
-airText:"moderate air quality",
+airText:"moderate quality",
 population:"3M"
 },
 
@@ -642,7 +687,7 @@ coords:[51.5072,-0.1276],
 temp:"+17°C",
 weather:"rain",
 air:"48 AQI",
-airText:"stable air quality",
+airText:"stable quality",
 population:"9M"
 },
 
@@ -651,7 +696,7 @@ coords:[48.8566,2.3522],
 temp:"+21°C",
 weather:"clear sky",
 air:"41 AQI",
-airText:"good air quality",
+airText:"good quality",
 population:"11M"
 }
 
@@ -789,7 +834,7 @@ clearInterval(autoWalkInterval);
 document.getElementById('walk').innerHTML=
 `
 AI AUTO WALK ACTIVE<br>
-autonomous navigation...
+urban navigation...
 `;
 
 autoWalkInterval=setInterval(()=>{
@@ -857,14 +902,13 @@ Math.floor(Math.random()*routes.length)
 
 document.getElementById('guide').innerHTML=
 `
-AI GUIDE<br><br>
-${random}<br><br>
-autonomous route generation active
+AI WALK<br>
+${random}
 `;
 
 document.getElementById('walk').innerHTML=
 `
-AI AUTO WALK ACTIVE<br>
+AUTO WALK ACTIVE<br>
 ${random}
 `;
 
@@ -880,8 +924,8 @@ clearInterval(autoWalkInterval);
 
 document.getElementById('walk').innerHTML=
 `
-AI WALK STOPPED<br>
-manual control restored
+AUTO WALK STOPPED<br>
+manual control
 `;
 
 }
@@ -915,6 +959,13 @@ function cyberpunkMode(){
 
 frame.style.filter=
 'hue-rotate(-40deg) saturate(1.8) contrast(1.2)';
+
+}
+
+function droneMode(){
+
+frame.style.filter=
+'grayscale(.35) contrast(1.4)';
 
 }
 
