@@ -1,159 +1,2249 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IBONARIUM · MULTI HUB</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-
+    <title>IBONARIUM · CHRONOS 7D · SUBIECTIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <style>
-        :root{
-            --bg:#030305;
-            --accent:#d4af37;
-            --glass:rgba(0,10,20,0.7);
-            --border:rgba(212,175,55,0.2);
-
-            --font-main:'Outfit',sans-serif;
-            --font-mono:'JetBrains Mono',monospace;
+        /* ------------------------------------------------------------------
+           AESTHETIC: DEEP VOID & DATA DENSITY
+           ------------------------------------------------------------------ */
+        :root {
+            --bg-deep: #020205;
+            --accent-pri: #80f;
+            --accent-sec: #0ff;
+            --accent-warn: #f04;
+            --white: #eef;
+            --glass-panel: rgba(5, 5, 10, 0.7);
+            --border-subtle: rgba(100, 100, 255, 0.1);
+            --font-mono: 'Space Mono', monospace;
+            --font-ui: 'Inter', sans-serif;
+            --pad-outer: 40px;
         }
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--white);
+            font-family: var(--font-mono);
+            overflow: hidden;
+            height: 100vh;
+            font-size: 10px;
         }
 
-        html{
-            scroll-behavior:smooth;
-            scroll-snap-type:y mandatory;
+        canvas#bg-stars {
+            position: fixed; inset: 0; z-index: 0;
+            pointer-events: none; opacity: 0.3;
         }
 
-        body{
-            width:100%;
-            overflow-x:hidden;
-            background:var(--bg);
-            font-family:var(--font-main);
-            color:white;
+        /* LAYOUT */
+        .app-container {
+            position: relative; z-index: 10;
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px; height: 100vh;
+            padding: var(--pad-outer);
+            max-width: 1920px; margin: 0 auto;
         }
 
-        .hub-container{
-            width:100%;
+        .header {
+            grid-column: 1 / -1;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 10px; margin-bottom: 10px;
         }
 
-        section{
-            width:100%;
-            height:100vh;
-            position:relative;
-            overflow:hidden;
+        .brand-box { display: flex; flex-direction: column; gap: 2px; }
+        .brand {
+            font-size: 12px; letter-spacing: 6px; color: var(--accent-sec);
+            text-transform: uppercase; text-shadow: 0 0 15px rgba(0,255,255,0.3);
+        }
+        .sub-brand { font-size: 9px; color: #668; }
 
-            scroll-snap-align:start;
-            scroll-snap-stop:always;
-
-            background:#000;
+        .col-left, .col-right {
+            display: flex; flex-direction: column; gap: 15px;
+            overflow-y: auto; padding-right: 5px;
         }
 
-        iframe{
-            width:100%;
-            height:100%;
-            border:none;
-            display:block;
-            background:#000;
+        .col-center {
+            position: relative; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            border: 1px solid var(--border-subtle);
+            background: radial-gradient(circle at center, rgba(20,10,30,0.3), transparent 70%);
+            border-radius: 4px;
         }
 
-        /* smooth fade between sections */
-        section::after{
-            content:"";
-            position:absolute;
-            bottom:0;
-            left:0;
-            width:100%;
-            height:120px;
-            pointer-events:none;
-
-            background:linear-gradient(
-                to bottom,
-                rgba(0,0,0,0),
-                rgba(0,0,0,0.65)
-            );
+        .card {
+            background: var(--glass-panel);
+            border: 1px solid var(--border-subtle);
+            backdrop-filter: blur(5px);
+            padding: 12px; border-radius: 2px;
         }
 
-        /* custom scrollbar */
-        body::-webkit-scrollbar{
-            width:6px;
+        .card-h {
+            font-size: 9px; color: var(--accent-sec); text-transform: uppercase;
+            letter-spacing: 1px; margin-bottom: 10px;
+            border-left: 2px solid var(--accent-pri); padding-left: 6px;
+            display: flex; justify-content: space-between;
         }
 
-        body::-webkit-scrollbar-track{
-            background:#06020a;
+        .m-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 9px;
+        }
+        .m-lbl { color: #779; }
+        .m-val { color: #eef; font-weight: bold; }
+        .m-unit { color: #556; font-size: 8px; margin-left: 2px; }
+        .m-inf { display: block; font-size: 8px; color: #446; margin-top: 1px; font-weight: normal; line-height: 1.2; }
+
+        /* TREND INDICATORS */
+        .trend-up { color: #0fa; font-weight: bold; margin-left: 4px; font-size: 10px; }
+        .trend-down { color: #f04; font-weight: bold; margin-left: 4px; font-size: 10px; }
+        .trend-flat { color: #556; margin-left: 4px; font-size: 10px; }
+
+        .zone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .z-item {
+            background: rgba(255,255,255,0.02); padding: 5px;
+            cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+        }
+        .z-item:hover { border-color: var(--accent-pri); background: rgba(100,0,255,0.1); }
+        .z-head { font-size: 8px; color: #668; display: flex; justify-content: space-between; }
+        .z-score { font-size: 14px; font-weight: bold; color: #fff; margin: 2px 0; }
+        .z-det { font-size: 8px; color: #aaa; }
+
+        canvas#spiral-3d { width: 100%; height: 100%; position: absolute; inset: 0; }
+
+        .center-hud { position: absolute; bottom: 20px; left: 20px; pointer-events: none; text-align: left; }
+        .big-idx {
+            font-size: 42px; font-weight: 300; color: #fff;
+            text-shadow: 0 0 20px var(--accent-pri); line-height: 1;
+        }
+        .idx-lbl { color: var(--accent-sec); font-size: 10px; letter-spacing: 2px; }
+
+        /* ALERT OVERLAY */
+        #alert-overlay {
+            display: none; position: absolute; inset: 0; z-index: 50;
+            pointer-events: none; border-radius: 4px;
+            animation: alertPulse 1.5s ease-in-out infinite;
+        }
+        #alert-overlay.active { display: block; }
+        #alert-overlay.level-shock { border: 2px solid rgba(255,0,68,0.6); box-shadow: inset 0 0 60px rgba(255,0,68,0.1); }
+        #alert-overlay.level-cascade { border: 2px solid rgba(255,100,0,0.6); box-shadow: inset 0 0 60px rgba(255,100,0,0.1); }
+        #alert-overlay.level-anomaly { border: 2px solid rgba(255,200,0,0.5); box-shadow: inset 0 0 40px rgba(255,200,0,0.08); }
+
+        @keyframes alertPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
         }
 
-        body::-webkit-scrollbar-thumb{
-            background:var(--border);
-            border-radius:10px;
+        .alert-badge {
+            position: absolute; top: 15px; left: 15px; z-index: 51;
+            padding: 4px 10px; border-radius: 2px; font-size: 9px;
+            font-weight: bold; letter-spacing: 1px;
+            font-family: var(--font-mono); pointer-events: none;
         }
+        .alert-badge.level-shock { background: rgba(255,0,68,0.2); color: #f04; border: 1px solid #f04; }
+        .alert-badge.level-cascade { background: rgba(255,100,0,0.2); color: #f80; border: 1px solid #f80; }
+        .alert-badge.level-anomaly { background: rgba(255,200,0,0.15); color: #fc0; border: 1px solid #fc0; }
 
-        /* mobile optimization */
-        @media (max-width:768px){
+        /* LOG BOX */
+        .log-box {
+            font-family: var(--font-ui); font-size: 9px; color: #88a;
+            max-height: 150px; overflow-y: auto; line-height: 1.4;
+        }
+        .log-entry { margin-bottom: 4px; padding-left: 8px; border-left: 1px solid #333; }
+        .log-time { color: #556; margin-right: 5px; font-family: var(--font-mono); }
+        .log-alert { color: #f04; border-left-color: #f04 !important; }
+        .log-warn { color: #f80; border-left-color: #f80 !important; }
+        .log-osint { color: #0ff; border-left-color: #0ff !important; font-size: 8px; }
 
-            section{
-                height:100svh;
+        /* REALITY GAP CARD */
+        .gap-card { margin-top: 8px; padding: 8px; background: rgba(255,255,255,0.03); border-radius: 2px; border-left: 2px solid #80f; }
+        .gap-card .gap-title { font-size: 8px; color: #80f; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+        .gap-card .gap-val { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
+        .gap-card .gap-desc { font-size: 9px; color: #99a; line-height: 1.5; font-family: var(--font-ui); }
+        .gap-bar { height: 3px; background: #112; margin-top: 6px; border-radius: 1px; overflow: hidden; }
+        .gap-bar-fill { height: 100%; transition: width 1s, background 1s; border-radius: 1px; }
+
+        /* META ROW */
+        .meta-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .meta-item { flex: 1; }
+        .meta-item .lbl { font-size: 8px; color: #556; display: block; }
+        .meta-item .val { font-size: 16px; font-weight: bold; color: #eef; display: block; }
+
+        /* FINANCIAL ROW */
+        .fin-grid { display: flex; gap: 8px; margin-top: 6px; }
+        .fin-item {
+            flex: 1; text-align: center; padding: 4px 2px;
+            background: rgba(255,255,255,0.02); border-radius: 2px;
+        }
+        .fin-item .fin-lbl { font-size: 7px; color: #556; display: block; margin-bottom: 2px; }
+        .fin-item .fin-val { font-size: 11px; font-weight: bold; color: #cdf; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: #335; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1100px) {
+            body { overflow-y: auto; height: auto; }
+            .app-container {
+                grid-template-columns: 1fr; grid-template-rows: auto;
+                padding: 10px; height: auto; display: flex;
+                flex-direction: column; gap: 10px;
             }
-
-            iframe{
-                min-height:100svh;
-            }
+            .col-left, .col-right { order: 2; overflow: visible; height: auto; padding: 0; }
+            .col-center { order: 1; height: 50vh; margin: 5px 0; min-height: 350px; }
+            canvas#spiral-3d { height: 100%; }
+            :root { --pad-outer: 15px; }
         }
+    
+        /* SYSTEM ANALYTICS GRID */
+        .sa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+        .sa-item {
+            padding: 6px; background: rgba(255,255,255,0.02); border-radius: 2px;
+            border-left: 2px solid #335;
+        }
+        .sa-item .sa-lbl { font-size: 7px; color: #556; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
+        .sa-item .sa-val { font-size: 13px; font-weight: bold; color: #cdf; display: block; }
+        .sa-item .sa-sub { font-size: 7px; color: #668; display: block; margin-top: 1px; }
+        .sa-item.stressed { border-left-color: #f04; }
+        .sa-item.warning { border-left-color: #fa0; }
+        .sa-item.ok { border-left-color: #0fa; }
+        .sa-item.cascade { border-left-color: #80f; }
+
+        /* NARRATIVE CHIPS */
+        .narr-chips { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+        .narr-chip {
+            font-size: 7px; padding: 2px 5px; border-radius: 1px;
+            background: rgba(255,255,255,0.03); border: 1px solid #335; color: #88a;
+        }
+        .narr-chip.global { border-color: #f04; color: #f04; background: rgba(255,0,68,0.08); }
+        .narr-chip.elevated { border-color: #fa0; color: #fa0; background: rgba(255,160,0,0.06); }
+
+        /* EXPANDED REALITY GAP */
+        .gap-block { margin-bottom: 8px; padding: 6px 8px; background: rgba(255,255,255,0.015); border-radius: 2px; border-left: 2px solid #335; }
+        .gap-block-title { font-size: 8px; color: #88a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .gap-block-val { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+        .gap-block-desc { font-size: 8px; color: #778; line-height: 1.45; font-family: var(--font-ui); }
+
+        /* CYBER THREAT LIST */
+        .cyber-threat { font-size: 7px; color: #f80; padding: 2px 0; border-bottom: 1px solid rgba(255,100,0,0.1); font-family: var(--font-ui); }
+
     </style>
 </head>
 
 <body>
+    <canvas id="bg-stars"></canvas>
 
-<div class="hub-container">
+    <div class="app-container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="brand-box">
+                <div class="brand">IBONARIUM·CHRONOS 7D·module.2.OSINT.lavandaaudit.project.2026</div>
+                <div class="sub-brand">7-DAY SUBJECTIVE REALITY HELIX · OSINT-POWERED</div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:20px; font-weight:bold; color:#fff;" id="clock-main">00:00:00</div>
+                <div style="font-size:9px; color:#668;">UTC+2 (LOCAL)</div>
+            </div>
+        </div>
 
-    <!-- PAGE 1 -->
-    <section id="sunset">
-        <iframe
-            src="https://lavandaaudit.github.io/ibonarium.sanset.now/"
-            title="IBONARIUM SUNSET NOW"
-            loading="eager"
-            scrolling="yes">
-        </iframe>
-    </section>
+        <!-- LEFT COLUMN -->
+        <div class="col-left">
+            <div class="card">
+                <div class="card-h">
+                    <span>СЕНСОРИ ПЛАНЕТАРНОГО СТАНУ</span>
+                    <span id="update-tick">ОНЛАЙН</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">ІНФОРМАЦІЙНА ШВИДКІСТЬ</span>
+                        <span class="m-inf">Швидкість подійного потоку (articles/min proxy)</span>
+                    </div>
+                    <span class="m-val" id="v-net">---</span>
+                    <span id="t-net" class="trend-flat">--</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">ФІНАНСОВА ТРИВОГА</span>
+                        <span class="m-inf">Композитний фінансовий стрес (VIX+BTC+DXY+OIL)</span>
+                    </div>
+                    <span class="m-val" id="v-vol">---</span>
+                    <span id="t-vol" class="trend-flat">--</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">СОЦІАЛЬНА КОГЕРЕНТНІСТЬ</span>
+                        <span class="m-inf">Рівень синхронізації суспільних настроїв (%)</span>
+                    </div>
+                    <span class="m-val" id="v-noo">---</span>
+                    <span id="t-noo" class="trend-flat">--</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">БІОСФЕРНИЙ РЕЗОНАНС</span>
+                        <span class="m-inf">Стійкість до геомагнітних та сейсмо-атак</span>
+                    </div>
+                    <span class="m-val" id="v-bio-res">---</span>
+                    <span id="t-bio" class="trend-flat">--</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">ТЕХНОСФЕРНИЙ ТИСК</span>
+                        <span class="m-inf">Кібер-навантаження + інформаційна насиченість</span>
+                    </div>
+                    <span class="m-val" id="v-tech-press">---</span>
+                    <span id="t-tech" class="trend-flat">--</span>
+                </div>
+                <div class="m-row">
+                    <div style="flex:1">
+                        <span class="m-lbl">ЩІЛЬНІСТЬ ЧАСУ</span>
+                        <span class="m-inf">Кількість подій на одиницю сприйняття</span>
+                    </div>
+                    <span class="m-val" id="v-dens">---</span>
+                    <span id="t-dens" class="trend-flat">--</span>
+                </div>
+            </div>
 
-    <!-- PAGE 2 -->
-    <section id="megapolis">
-        <iframe
-            src="https://lavandaaudit.github.io/megapolis/"
-            title="IBONARIUM MEGAPOLIS"
-            loading="lazy"
-            scrolling="yes">
-        </iframe>
-    </section>
+            <!-- FINANCIAL MODULE CARD -->
+            <div class="card">
+                <div class="card-h">
+                    <span>MOD 4: ФІНАНСОВИЙ СИГНАЛ</span>
+                    <span id="fin-status">--</span>
+                </div>
+                <div class="fin-grid">
+                    <div class="fin-item">
+                        <span class="fin-lbl">СТРАХ-ІНДЕКС</span>
+                        <span class="fin-val" id="v-vix">--</span>
+                    </div>
+                    <div class="fin-item">
+                        <span class="fin-lbl">СИЛА ДОЛАРА</span>
+                        <span class="fin-val" id="v-dxy">--</span>
+                    </div>
+                    <div class="fin-item">
+                        <span class="fin-lbl">НАФТЯНИЙ ТИСК</span>
+                        <span class="fin-val" id="v-oil">--</span>
+                    </div>
+                    <div class="fin-item">
+                        <span class="fin-lbl">BTC (24H %)</span>
+                        <span class="fin-val" id="v-btc">--</span>
+                    </div>
+                </div>
+            </div>
 
-    <!-- PAGE 3 -->
-    <section id="statist">
-        <iframe
-            src="https://lavandaaudit.github.io/informsunset/"
-            title="IBONARIUM STATIST"
-            loading="lazy"
-            scrolling="yes">
-        </iframe>
-    </section>
+            <div class="card" style="flex:1">
+                <div class="card-h">
+                    <span>ГЕОПОЛІТИЧНІ ЗОНИ (OSINT)</span>
+                    <span id="osint-sources">0 SRC</span>
+                </div>
+                <div class="zone-grid" id="zones-list"></div>
+            </div>
+        </div>
 
-    <!-- PAGE 4 -->
-    <section id="telescope">
-        <iframe
-            src="https://lavandaaudit.github.io/tele.lab.telescope/"
-            title="IBONARIUM TELE LAB"
-            loading="lazy"
-            scrolling="yes">
-        </iframe>
-    </section>
+        <!-- CENTER: 3D SPIRAL -->
+        <div class="col-center" id="center-panel">
+            <canvas id="spiral-3d"></canvas>
 
-</div>
+            <!-- ALERT OVERLAY -->
+            <div id="alert-overlay"></div>
+            <div class="alert-badge" id="alert-badge" style="display:none;"></div>
 
+            <div class="center-hud">
+                <div class="idx-lbl">ГЛОБАЛЬНИЙ СУБ'ЄКТИВНИЙ ІНДЕКС</div>
+                <div class="big-idx" id="main-idx">--</div>
+                <div style="font-size:10px; color:#aaa; margin-top:5px; max-width:240px; min-height:40px;"
+                    id="main-desc">
+                    ІНІЦІАЛІЗАЦІЯ ПОЛЯ ХРОНОСУ...
+                </div>
+            </div>
+
+            <div style="position:absolute; top:20px; right:20px; text-align:right;">
+                <div style="font-size:9px; color:#88a;">ГЛИБИНА СПІРАЛІ: 7 ДНІВ</div>
+                <div style="font-size:9px; color:#556;">Z-Вісь: РОЗПАД ЧАСУ</div>
+                <div style="margin-top:5px;">
+                    <span style="display:inline-block; width:8px; height:8px; background:#0fa; margin-right:4px;"></span>
+                    <span style="font-size:9px; color:#fff;">ОПТИМАЛЬНО</span>
+                </div>
+                <div>
+                    <span style="display:inline-block; width:8px; height:8px; background:#f04; margin-right:4px;"></span>
+                    <span style="font-size:9px; color:#fff;">КРИТИЧНО</span>
+                </div>
+                <div style="margin-top:8px; font-size:8px; color:#556;" id="trend-summary"></div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="col-right">
+            <div class="card">
+                <div class="card-h"><span>ОБЧИСЛЮВАЛЬНІ МЕТРИКИ</span></div>
+                <div class="meta-row">
+                    <div class="meta-item">
+                        <span class="lbl">СЕРЕДНЄ (24г)</span>
+                        <span class="val" id="m-avg">--</span>
+                        <span class="m-inf">Добовий тренд</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="lbl">ПІК ЕНТРОПІЇ</span>
+                        <span class="val" id="m-peak">--:--</span>
+                        <span class="m-inf">Макс. напруга</span>
+                    </div>
+                    <div class="meta-item" style="flex:1.5">
+                        <span class="lbl">РОЗРИВ РЕАЛЬНОСТІ</span>
+                        <span class="val" id="m-bio">--</span>
+                        <span class="m-inf">Дисонанс Фактів/Емоцій</span>
+                    </div>
+                </div>
+                <!-- TREND ANALYTICS -->
+                <div class="meta-row" style="border-top: 1px solid rgba(100,100,255,0.1); padding-top: 8px;">
+                    <div class="meta-item">
+                        <span class="lbl">ДЕЛЬТА/ГОД</span>
+                        <span class="val" id="m-delta">--</span>
+                        <span class="m-inf">Швидкість зміни</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="lbl">ПРискорення</span>
+                        <span class="val" id="m-accel">--</span>
+                        <span class="m-inf">Зміна швидкості</span>
+                    </div>
+                    <div class="meta-item" style="flex:1.5">
+                        <span class="lbl">Z-SCORE</span>
+                        <span class="val" id="m-zscore">--</span>
+                        <span class="m-inf">Відхилення від норми</span>
+                    </div>
+                </div>
+                <div class="logs">
+                    <div class="log-entry"><span class="log-time">[SYSTEM]</span> Ініціалізація суб'єктивного ядра...</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-h"><span>АНАЛІЗ СИСТЕМИ</span></div>
+                <div style="font-size:10px; color:#cdf; line-height:1.5; margin-bottom:10px;" id="sys-analysis-text">
+                    Розрахунок багатофакторної кореляції між глобальними аномаліями та суб'єктивним цифровим настроєм...
+                </div>
+                <div style="height:4px; width:100%; background:#112;">
+                    <div style="height:100%; width:0%; background:#80f; transition:width 1s;" id="calc-bar"></div>
+                </div>
+            </div>
+
+            <!-- REALITY GAP ANALYSIS -->
+            <div class="card" id="gap-card">
+                <div class="card-h"><span>РОЗРИВ РЕАЛЬНОСТІ · 5D АНАЛІЗ</span><span id="gap-level">--</span></div>
+                <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
+                    <span style="font-size:24px; font-weight:bold;" id="gap-index">--</span>
+                    <span style="font-size:9px; color:#556;" id="gap-sub-label">КОГНІТИВНИЙ ДИСОНАНС</span>
+                    <span style="flex:1;"></span>
+                    <div style="width:80px; height:3px; background:#112; border-radius:1px; overflow:hidden;">
+                        <div id="gap-bar-fill" style="height:100%; width:0%; background:#0fa; transition:width 1s;"></div>
+                    </div>
+                </div>
+                <div id="gap-blocks">
+                    <div class="gap-block" id="gb1">
+                        <div class="gap-block-title">01 · ФАКТИЧНА vs СУБ'ЄКТИВНА РЕАЛЬНІСТЬ</div>
+                        <div class="gap-block-val" id="gb1-val">--</div>
+                        <div class="gap-block-desc" id="gb1-desc">Обчислення...</div>
+                    </div>
+                    <div class="gap-block" id="gb2">
+                        <div class="gap-block-title">02 · НАРИТИВНИЙ ТИСК</div>
+                        <div class="gap-block-val" id="gb2-val">--</div>
+                        <div class="gap-block-desc" id="gb2-desc">Обчислення...</div>
+                    </div>
+                    <div class="gap-block" id="gb3">
+                        <div class="gap-block-title">03 · ІНФОРМАЦІЙНА ПЕРЕВАНТАЖЕНІСТЬ</div>
+                        <div class="gap-block-val" id="gb3-val">--</div>
+                        <div class="gap-block-desc" id="gb3-desc">Обчислення...</div>
+                    </div>
+                    <div class="gap-block" id="gb4">
+                        <div class="gap-block-title">04 · ФІНАНСОВО-ГЕОПОЛІТИЧНИЙ РЕЗОНАНС</div>
+                        <div class="gap-block-val" id="gb4-val">--</div>
+                        <div class="gap-block-desc" id="gb4-desc">Обчислення...</div>
+                    </div>
+                    <div class="gap-block" id="gb5">
+                        <div class="gap-block-title">05 · ПРОГНОЗ КАСКАДАЦІЇ</div>
+                        <div class="gap-block-val" id="gb5-val">--</div>
+                        <div class="gap-block-desc" id="gb5-desc">Обчислення...</div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="card" id="sa-card">
+                <div class="card-h"><span>СИСТЕМНА АНАЛІТИКА</span><span id="sa-status">v3</span></div>
+                <div class="sa-grid">
+                    <div class="sa-item" id="sa-infovel">
+                        <span class="sa-lbl">ІНФО ШВИДКІСТЬ</span>
+                        <span class="sa-val" id="sa-iv-val">--</span>
+                        <span class="sa-sub" id="sa-iv-sub">статей/цикл vs базова лінія</span>
+                    </div>
+                    <div class="sa-item" id="sa-cyber">
+                        <span class="sa-lbl">КИБЕР-ПУЛЬС</span>
+                        <span class="sa-val" id="sa-cy-val">--</span>
+                        <span class="sa-sub" id="sa-cy-sub">загрози з спеціалізованих джерел</span>
+                    </div>
+                    <div class="sa-item" id="sa-cascade">
+                        <span class="sa-lbl">КАСКАД МОДУЛІВ</span>
+                        <span class="sa-val" id="sa-cas-val">--</span>
+                        <span class="sa-sub" id="sa-cas-sub">напружених доменів</span>
+                    </div>
+                    <div class="sa-item" id="sa-swan">
+                        <span class="sa-lbl">ЧОРНИЙ ЛЕБІДЬ</span>
+                        <span class="sa-val" id="sa-sw-val">--</span>
+                        <span class="sa-sub" id="sa-sw-sub">ймовірність рідкісної події</span>
+                    </div>
+                </div>
+                <div class="narr-chips" id="narr-chips"></div>
+                <div id="cyber-threats-list" style="margin-top:6px;"></div>
+            </div>
+
+            <div class="card" style="flex:1; display:flex; flex-direction:column;">
+                <div class="card-h"><span>ЖУРНАЛ ПОДІЙ (7D BUFFER)</span><span id="osint-articles">0 ART</span></div>
+                <div class="log-box" id="sys-log"></div>
+
+                <div style="margin-top:15px; padding-top:10px; border-top:1px solid #112; font-size:8px; color:#446; line-height:1.4; font-family:var(--font-ui);">
+                    <div style="color:var(--accent-sec); margin-bottom:4px; font-weight:bold; letter-spacing:1px;">
+                        ПРИНЦИПИ ОБЧИСЛЕННЯ (GSI-26v3)</div>
+                    Ядро IBONARIUM v3 — 10-модульна платформа ситуаційної обізнаності:<br><br>
+                    <b style="color:#668;">MOD 1 (ГЕОПОЛІТИКА):</b> 4 RSS-джерела OSINT, 6 категорій, 11 зон.<br>
+                    <b style="color:#668;">MOD 2 (СОЦІУМ):</b> BBC World RSS, fear/hope sentiment analysis.<br>
+                    <b style="color:#668;">MOD 3 (БІОСФЕРА):</b> NOAA KP-index + USGS землетруси.<br>
+                    <b style="color:#668;">MOD 4 (ФІНАНСИ):</b> VIX, DXY, Brent, BTC + RSS estimation.<br>
+                    <b style="color:#668;">MOD 5 (КІБЕР-ПУЛЬС):</b> The Hacker News, Krebs, BleepingComputer — zero-day, ransomware, APT, critical infra.<br>
+                    <b style="color:#668;">MOD 6 (ІНФО ШВИДКІСТЬ):</b> Articles/cycle vs baseline, Z-score, burst detection.<br>
+                    <b style="color:#668;">MOD 7 (НАРИТИВНИЙ РАДАР):</b> Cross-zone narrative correlation, global wave detection.<br>
+                    <b style="color:#668;">MOD 8 (КАСКАД-ДЕТЕКТОР):</b> 6-модульна cross-domain stress analysis.<br>
+                    <b style="color:#668;">MOD 9 (ЧОРНИЙ ЛЕБІДЬ):</b> Rare combination probability engine.<br>
+                    <b style="color:#668;">MOD 10 (АДАПТИВНА ВАГА):</b> Time-zone + volatility driven dynamic coefficients.<br><br>
+                    <b style="color:#668;">АНАЛІТИКА:</b> Trend, Z-score, Alerts, 5D Reality Gap, Persistence 7D.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // CONFIG & STATE
+        // ============================================================================
+
+        const ZONES_CFG = [
+            { id: 'nam', name: 'ПІВНІЧНА АМЕРИКА (США/КАН)', lat: 45.0, lon: -100.0 },
+            { id: 'lat', name: 'ЛАТИНСЬКА АМЕРИКА', lat: -15.0, lon: -60.0 },
+            { id: 'euw', name: 'ЗАХІДНА ЄВРОПА (ЄС)', lat: 48.0, lon: 10.0 },
+            { id: 'eue', name: 'СХІДНА ЄВРОПА (БУФЕР)', lat: 50.0, lon: 30.0 },
+            { id: 'rus', name: 'ЦЕНТРАЛЬНА ЄВРАЗІЯ (РФ)', lat: 55.0, lon: 80.0 },
+            { id: 'mea', name: 'БЛИЗЬКИЙ СХІД / GULF', lat: 25.0, lon: 45.0 },
+            { id: 'afr', name: 'СУБСАХАРСЬКА АФРИКА', lat: 0.0, lon: 20.0 },
+            { id: 'chn', name: 'СХІДНА АЗІЯ (КНР)', lat: 35.0, lon: 110.0 },
+            { id: 'ind', name: 'ПІВДЕННА АЗІЯ (ІНДІЯ)', lat: 20.0, lon: 77.0 },
+            { id: 'sea', name: 'ПІВДЕННО-СХІДНА АЗІЯ', lat: 10.0, lon: 110.0 },
+            { id: 'aus', name: 'ОКЕАНІЯ / АВСТРАЛІЯ', lat: -25.0, lon: 135.0 }
+        ];
+
+        // Zone-specific keyword filters for regional OSINT
+        const ZONE_KEYWORDS = {
+            nam: ['us ', 'usa ', 'american', 'washington', 'congress', 'pentagon', 'canada', 'trump', 'biden', 'america'],
+            lat: ['brazil', 'argentina', 'mexico', 'colombia', 'venezuela', 'latin america', 'caribbean', 'chile', 'peru'],
+            euw: ['europe', 'eu ', 'european union', 'brussels', 'paris', 'berlin', 'london', 'macron', 'scholz', 'nato'],
+            eue: ['ukraine', 'kyiv', 'poland', 'baltic', 'romania', 'moldova', 'belarus', 'nato east', 'frontline'],
+            rus: ['russia', 'moscow', 'putin', 'kremlin', 'russian', 'eurasia', 'cis '],
+            mea: ['gaza', 'israel', 'iran', 'saudi', 'yemen', 'syria', 'iraq', 'lebanon', 'hezbollah', 'hamas', 'gulf', 'middle east'],
+            afr: ['africa', 'nigeria', 'sudan', 'congo', 'ethiopia', 'somalia', 'kenya', 'south africa', 'sahel', 'coup'],
+            chn: ['china', 'beijing', 'xi ', 'taiwan', 'shanghai', 'chinese', 'south china sea', 'semiconductor'],
+            ind: ['india', 'modi', 'new delhi', 'pakistan', 'kashmir', 'bangladesh', 'sri lanka', 'south asia'],
+            sea: ['southeast asia', 'vietnam', 'thailand', 'indonesia', 'philippines', 'myanmar', 'asean'],
+            aus: ['australia', 'sydney', 'canberra', 'new zealand', 'pacific', 'oceania']
+        };
+
+        const MAX_POINTS = 7 * 24 * 6; // 1008
+
+        const STATE = {
+            history: [],
+            zones: {},
+            global: {
+                index: 50, netTraffic: 0, volatility: 0,
+                noosphere: 0, biosphere: 85, technosphere: 40,
+                density: 0, gap: 0,
+                // MOD 4
+                vix: null, dxy: null, oil: null, btcChg: 0, finStress: 0
+            },
+            trend: {
+                delta: 0, prevDelta: 0, direction: '\u2192',
+                acceleration: 0, zScore: 0
+            },
+            alerts: {
+                active: [], lastShock: null, cascadeCount: 0, anomalyCount: 0
+            },
+            cam: { rot: 0, pitch: 0.4 },
+            lastScan: null,
+            totalArticlesScanned: 0
+        };
+
+        // DOM
+        const elLogs = document.getElementById('sys-log');
+        const elClock = document.getElementById('clock-main');
+        const canSpiral = document.getElementById('spiral-3d');
+        const ctxSpy = canSpiral.getContext('2d');
+
+        // ============================================================================
+        // MODULE 0: PERSISTENCE ENGINE (localStorage)
+        // ============================================================================
+
+        const PERSISTENCE = {
+            KEY: 'ibonium_chronos_v3',
+
+            save() {
+                try {
+                    const data = {
+                        history: STATE.history.slice(-MAX_POINTS),
+                        lastScan: STATE.lastScan,
+                        totalArticles: STATE.totalArticlesScanned,
+                        savedAt: Date.now()
+                    };
+                    localStorage.setItem(this.KEY, JSON.stringify(data));
+                } catch (e) { /* quota exceeded, ignore */ }
+            },
+
+            load() {
+                try {
+                    const raw = localStorage.getItem(this.KEY);
+                    if (!raw) return false;
+                    const data = JSON.parse(raw);
+                    if (data.history && data.history.length > 0) {
+                        STATE.history = data.history.slice(-MAX_POINTS);
+                        STATE.totalArticlesScanned = data.totalArticles || 0;
+                        STATE.lastScan = data.lastScan;
+                        return true;
+                    }
+                } catch (e) { /* corrupt data, ignore */ }
+                return false;
+            }
+        };
+
+        // ============================================================================
+        // MODULE 1: GEOPOLITICAL (OSINT — Real Open Source Intelligence)
+        // ============================================================================
+
+        const GEO_PARSER = {
+            data: {
+                stability: 84.1, volatility: 1.2, impact: 4.8, sentiment: -1.2,
+                conflict: 142, unrest: 82, cyber: 77, supply_tension: 38.5,
+                propaganda: 68.1, network: 81,
+                sources_fetched: 0, articles_scanned: 0, headlines: [],
+                zoneScores: {} // per-zone conflict scores
+            },
+
+            // Trimmed to 4 fastest + most geopolitically diverse feeds
+            feeds: [
+                'https://www.aljazeera.com/xml/rss/all.xml',
+                'https://rss.nytimes.com/services/xml/rss/nyt/World.xml',
+                'https://www.theguardian.com/world/rss',
+                'https://rss.cnn.com/rss/edition_world.rss'
+            ],
+
+            // In-memory cache: 5 min TTL to avoid re-fetching same data every cycle
+            _cache: new Map(),
+            _CACHE_TTL: 5 * 60 * 1000,
+
+            keywords: {
+                conflict: ['war', 'attack', 'strike', 'military', 'missile', 'bomb', 'troops', 'combat', 'firefight', 'casualt', 'killed', 'warfare', 'offensive', 'defense', 'airstrik', 'artillery', 'drone strike', 'naval', 'invasion', 'frontline', 'shell', 'explosi'],
+                unrest: ['protest', 'riot', 'demonstr', 'clash', 'unrest', 'uprising', 'revolt', 'mobs', 'violent', 'loot', 'curfew', 'crackdown', 'police', 'arrested', 'dissident', 'opposition', 'march', 'rally', 'civil disorder', 'mutiny'],
+                cyber: ['cyber', 'hack', 'breach', 'ransomware', 'malware', 'phishing', 'ddos', 'vulnerab', 'cve-', 'data leak', 'espionage', 'surveillance', 'apt', 'cyberattack', 'infosec', 'zero-day', 'backdoor'],
+                supply: ['sanction', 'tariff', 'trade war', 'embargo', 'supply chain', 'shortage', 'blockade', 'export ban', 'import', 'logistics', 'port', 'shipping', 'oil price', 'energy crisis', 'famine', 'food crisis', 'commodity', 'semiconductor', 'chip ban'],
+                propaganda: ['disinformation', 'misinformation', 'propaganda', 'fake news', 'censorship', 'state media', 'narrative', 'influence', 'troll', 'deepfake', 'information war', 'psycholog', 'hybrid', 'media control', 'banned', 'blacklist'],
+                network: ['diplom', 'treaty', 'summit', 'alliance', 'agreement', 'cooperation', 'negotiat', 'peace talk', 'ceasefire', 'deal', 'pact', 'un ', 'nato', 'eu ', 'asean', 'g7 ', 'g20', 'bilateral', 'trilateral', 'framework']
+            },
+
+            async scanFeed(url) {
+                // Check cache
+                const cached = this._cache.get(url);
+                if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
+                try {
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 8000);
+                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    if (data.status !== 'ok' || !data.items) return null;
+                    const items = data.items.map(item => ({
+                        title: item.title || '',
+                        description: (item.description || '').replace(/<[^>]*>/g, ''),
+                        pubDate: item.pubDate || ''
+                    }));
+                    this._cache.set(url, { data: items, ts: Date.now() });
+                    return items;
+                } catch (e) { return null; }
+            },
+
+            async scan() {
+                const results = await Promise.allSettled(this.feeds.map(url => this.scanFeed(url)));
+                let allArticles = [];
+                let sourcesOk = 0;
+                results.forEach(r => {
+                    if (r.status === 'fulfilled' && r.value && r.value.length > 0) {
+                        allArticles = allArticles.concat(r.value);
+                        sourcesOk++;
+                    }
+                });
+
+                this.data.sources_fetched = sourcesOk;
+                this.data.articles_scanned = allArticles.length;
+                STATE.totalArticlesScanned = allArticles.length;
+
+                if (allArticles.length === 0) {
+                    console.warn("GEO OSINT: All feeds offline, fallback.");
+                    const rnd = () => Math.random() - 0.5;
+                    this.data.conflict = Math.floor(120 + rnd() * 30);
+                    this.data.unrest = Math.floor(70 + rnd() * 20);
+                    this.data.cyber = Math.floor(60 + rnd() * 20);
+                    this.data.supply_tension = 35 + rnd() * 10;
+                    this.data.propaganda = 60 + rnd() * 15;
+                    this.data.network = 75 + rnd() * 10;
+                    this.data.headlines = ['OSINT OFFLINE'];
+                    this.data.zoneScores = {};
+                    return;
+                }
+
+                // De-duplicate
+                const seen = new Set();
+                const unique = allArticles.filter(a => {
+                    const key = a.title.toLowerCase().trim().substring(0, 40);
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                // Global scores
+                const scores = { conflict: 0, unrest: 0, cyber: 0, supply: 0, propaganda: 0, network: 0 };
+
+                // Zone-specific scores
+                const zoneHits = {};
+                ZONES_CFG.forEach(z => { zoneHits[z.id] = { conflict: 0, total: 0 }; });
+
+                unique.forEach(article => {
+                    const text = (article.title + ' ' + article.description).toLowerCase();
+                    for (const [cat, words] of Object.entries(this.keywords)) {
+                        let catHits = 0;
+                        words.forEach(w => {
+                            const regex = new RegExp('\\b' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                            const matches = text.match(regex);
+                            if (matches) catHits += matches.length;
+                        });
+                        if (catHits > 0) scores[cat] += catHits;
+                    }
+                    // Zone classification
+                    for (const [zid, zkw] of Object.entries(ZONE_KEYWORDS)) {
+                        let zMatch = 0;
+                        zkw.forEach(w => {
+                            if (text.includes(w)) zMatch++;
+                        });
+                        if (zMatch > 0) {
+                            zoneHits[zid].total += zMatch;
+                            // Count conflict keywords in zone-matching articles
+                            this.keywords.conflict.forEach(w => {
+                                if (text.includes(w)) zoneHits[zid].conflict++;
+                            });
+                        }
+                    }
+                });
+
+                this.data.zoneScores = zoneHits;
+                const normFactor = Math.max(unique.length, 1);
+
+                this.data.conflict = Math.floor(80 + (scores.conflict / normFactor) * 15);
+                this.data.unrest = Math.floor(40 + (scores.unrest / normFactor) * 18);
+                this.data.cyber = Math.floor(30 + (scores.cyber / normFactor) * 20);
+                this.data.supply_tension = clamp(20 + (scores.supply / normFactor) * 8, 0, 100);
+                this.data.propaganda = clamp(40 + (scores.propaganda / normFactor) * 10, 0, 100);
+                this.data.network = clamp(60 + (scores.network / normFactor) * 5, 0, 100);
+
+                const instability = (this.data.conflict / 300) + (this.data.unrest / 200) + (this.data.propaganda / 150);
+                this.data.stability = clamp(95 - instability * 10, 10, 99);
+                this.data.sentiment = clamp(50 - (scores.conflict / normFactor) * 3 + (scores.network / normFactor) * 2, -20, 20);
+                this.data.impact = clamp((scores.conflict + scores.unrest) / normFactor * 2, 0, 15);
+                this.data.volatility = clamp((scores.conflict + scores.cyber + scores.supply) / normFactor * 1.5, 0.1, 8);
+                this.data.headlines = unique.slice(0, 5).map(a => a.title);
+
+                // Log OSINT headlines
+                if (this.data.headlines.length > 0) {
+                    logOSINT(`GEO/OSINT: ${this.data.headlines[0].substring(0, 80)}`);
+                    if (this.data.headlines.length > 1) {
+                        logOSINT(`GEO/OSINT: ${this.data.headlines[1].substring(0, 80)}`);
+                    }
+                }
+            },
+
+            tick(btc_vol, finStress) {
+                const btcAmplifier = 1 + (btc_vol * 0.08);
+                const finAmplifier = 1 + (finStress * 0.005);
+                this.data.conflict = Math.floor(this.data.conflict * btcAmplifier * finAmplifier);
+                this.data.unrest = Math.floor(this.data.unrest * (1 + btc_vol * 0.04 + finStress * 0.003));
+                this.data.supply_tension = clamp(this.data.supply_tension + btc_vol * 1.5 + finStress * 0.3, 0, 100);
+                return (this.data.conflict / 500 * 30) + (this.data.unrest / 200 * 20) + (this.data.propaganda / 100 * 10);
+            }
+        };
+
+        // ============================================================================
+        // MODULE 2: SOCIAL SENTIMENT (Live Analysis — BBC World only)
+        // ============================================================================
+
+        const SOCIAL_PARSER = {
+            data: { score: 50, keywords: [] },
+
+            async scan() {
+                try {
+                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/world/rss.xml');
+                    const data = await res.json();
+                    let fearWords = ['war', 'dead', 'kill', 'crisis', 'crash', 'ban', 'attack', 'virus', 'threat', 'death'];
+                    let hopeWords = ['peace', 'win', 'new', 'love', 'safe', 'good', 'growth', 'joy', 'deal', 'help'];
+                    let fearCount = 0, hopeCount = 0, trends = [];
+                    data.items.slice(0, 5).forEach(item => {
+                        const txt = (item.title + " " + item.description).toLowerCase();
+                        fearWords.forEach(w => { if (txt.includes(w)) fearCount++; });
+                        hopeWords.forEach(w => { if (txt.includes(w)) hopeCount++; });
+                        trends.push(item.title.split(" ").slice(0, 2).join(" "));
+                    });
+                    let sentiment = 50 - (fearCount * 8) + (hopeCount * 4);
+                    sentiment = clamp(sentiment, 10, 90);
+                    this.data.score = sentiment;
+                    this.data.keywords = trends;
+                    return sentiment;
+                } catch (e) {
+                    console.warn("Social Scan Offline, Simulating...");
+                    return 50 + (Math.random() - 0.5) * 10;
+                }
+            }
+        };
+
+        // ============================================================================
+        // MODULE 3: BIOSPHERE (Planetary Physics)
+        // ============================================================================
+
+        const BIOS_PARSER = {
+            data: { kp: 2, quakes: 0, solar_flux: 0 },
+            async scan() {
+                try {
+                    const [kpRes, qRes] = await Promise.all([
+                        fetchWithTimeout('https://services.swpc.noaa.gov/products/noaa-scales.json', 6000),
+                        fetchWithTimeout('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson', 6000)
+                    ]);
+                    const [kpData, qData] = await Promise.all([kpRes.json(), qRes.json()]);
+                    const kpVal = parseInt(kpData['0'].G.metric) || 1;
+                    const quakeCount = qData.metadata.count;
+                    this.data.kp = kpVal;
+                    this.data.quakes = quakeCount;
+                    return { kp: kpVal, quakes: quakeCount };
+                } catch (e) {
+                    console.warn("Biosphere Scan Offline, using base values.");
+                    return { kp: 2, quakes: 5 };
+                }
+            }
+        };
+
+        // ============================================================================
+        // MODULE 4: FINANCIAL (VIX + DXY + OIL + BTC)
+        // ============================================================================
+
+        const FIN_PARSER = {
+            data: { vix: null, dxy: null, oil: null, btcChg: 0, finStress: 0, sourcesOk: 0 },
+
+            // Try multiple CORS proxies in order
+            async fetchViaProxy(url, timeoutMs) {
+                const proxies = [
+                    'https://corsproxy.io/?' + encodeURIComponent(url),
+                    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+                    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url)
+                ];
+                for (const proxyUrl of proxies) {
+                    try {
+                        const res = await fetchWithTimeout(proxyUrl, timeoutMs);
+                        if (!res.ok) continue;
+                        const text = await res.text();
+                        if (!text || text.length < 50) continue;
+                        return JSON.parse(text);
+                    } catch (e) { continue; }
+                }
+                return null;
+            },
+
+            async fetchYahoo(ticker) {
+                try {
+                    const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(ticker) + '?range=5d&interval=1d';
+                    const json = await this.fetchViaProxy(url, 7000);
+                    if (!json || !json.chart || !json.chart.result) return null;
+                    const result = json.chart.result[0];
+                    const closes = result.indicators.quote[0].close.filter(c => c !== null);
+                    if (closes.length < 2) return null;
+                    const current = closes[closes.length - 1];
+                    const prev = closes[closes.length - 2];
+                    return { current: current, previous: prev, change: current - prev, changePct: ((current - prev) / prev) * 100 };
+                } catch (e) { return null; }
+            },
+
+            // Fallback: extract financial sentiment from RSS headlines (no API needed)
+            async fetchFinRSS() {
+                const feeds = [
+                    'https://feeds.bbci.co.uk/news/business/rss.xml',
+                    'https://www.aljazeera.com/xml/rss/all.xml',
+                    'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',
+                    'https://feeds.reuters.com/reuters/businessNews'
+                ];
+                let finFear = 0, finHope = 0, oilMentions = 0, dollarMentions = 0;
+                for (const feed of feeds) {
+                    try {
+                        const res = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed), 5000);
+                        const data = await res.json();
+                        if (data.status !== 'ok' || !data.items) continue;
+                        data.items.slice(0, 10).forEach(item => {
+                            const txt = (item.title + ' ' + (item.description || '')).toLowerCase();
+                            if (/\boil\b|brent|crude|opec|petrol|energy/i.test(txt)) oilMentions++;
+                            if (/\bdollar\b|dxy|usd|fed |federal reserve|treasury/i.test(txt)) dollarMentions++;
+                            if (/\bcrash\b|recession|inflation|rate hike|bear market|crisis\b|plunge|slump|panic|fear|volatil|selloff|sell-off|downturn|collapse|bubble|default|debt/i.test(txt)) finFear++;
+                            if (/\brally\b|recovery|growth|surge|bull|gain|soar|boom|record high|optimis/i.test(txt)) finHope++;
+                        });
+                    } catch (e) { continue; }
+                }
+                return { finFear, finHope, oilMentions, dollarMentions };
+            },
+
+            async scan() {
+                let ok = 0;
+
+                // BTC from CoinGecko (direct, no proxy needed)
+                try {
+                    const cRes = await fetchWithTimeout('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true', 5000);
+                    const cData = await cRes.json();
+                    this.data.btcChg = cData.bitcoin.usd_24h_change || 0;
+                    ok++;
+                } catch (e) { this.data.btcChg = 0; }
+
+                // VIX (try multiple tickers), DXY, Brent + RSS in parallel
+                const [vix1, vix2, dxy, oil, rssSentiment] = await Promise.allSettled([
+                    this.fetchYahoo('^VIX'),
+                    this.fetchYahoo('VXX'),
+                    this.fetchYahoo('DX-Y.NYB'),
+                    this.fetchYahoo('BZ=F'),
+                    this.fetchFinRSS()
+                ]);
+
+                // VIX: prefer ^VIX, fallback to VXX ETF (trades ~2x VIX)
+                if (vix1.status === 'fulfilled' && vix1.value) { this.data.vix = vix1.value; ok++; }
+                else if (vix2.status === 'fulfilled' && vix2.value) {
+                    // VXX is ~2x short-term VIX futures; approximate VIX = VXX_price * 3
+                    const approxVix = vix2.value.current * 3;
+                    this.data.vix = { current: Math.min(approxVix, 80), previous: approxVix * 0.98, change: approxVix * 0.02, changePct: 2 };
+                    this.data.vix._estimated = true;
+                    ok++;
+                }
+
+                if (dxy.status === 'fulfilled' && dxy.value) { this.data.dxy = dxy.value; ok++; }
+                if (oil.status === 'fulfilled' && oil.value) { this.data.oil = oil.value; ok++; }
+
+                // RSS fallback: always estimate missing values from news + BTC
+                const rss = rssSentiment.status === 'fulfilled' ? rssSentiment.value : { finFear: 0, finHope: 0, oilMentions: 0, dollarMentions: 0 };
+
+                // VIX estimation: ALWAYS provide if Yahoo failed (no finFear > 0 gate)
+                if (!this.data.vix) {
+                    const btcVol = Math.abs(this.data.btcChg);
+                    const sentimentBoost = rss.finFear * 2.5;
+                    const sentimentDampen = rss.finHope * 1.5;
+                    const estVix = 13 + btcVol * 0.4 + sentimentBoost - sentimentDampen;
+                    const clamped = Math.max(10, Math.min(estVix, 45));
+                    this.data.vix = { current: clamped, previous: clamped - 0.2, change: 0.2, changePct: 0.1 };
+                    this.data.vix._estimated = true;
+                    ok++;
+                }
+                if (!this.data.dxy) {
+                    const estDxy = 104 + (rss.finFear - rss.finHope) * 0.5 + (this.data.btcChg > 0 ? -0.3 : 0.3);
+                    this.data.dxy = { current: estDxy, previous: estDxy + 0.1, change: -0.1, changePct: -0.1 };
+                    this.data.dxy._estimated = true;
+                    ok++;
+                }
+                if (!this.data.oil) {
+                    const estOil = 78 + (rss.finFear - rss.finHope) * 2 + (rss.oilMentions > 0 ? 3 : 0);
+                    this.data.oil = { current: estOil, previous: estOil + 0.5, change: -0.5, changePct: -0.6 };
+                    this.data.oil._estimated = true;
+                    ok++;
+                }
+
+                this.data.sourcesOk = ok;
+
+                // Composite Financial Stress Index (0-100)
+                let stress = 0;
+                let factors = 0;
+
+                if (this.data.vix) {
+                    stress += clamp((this.data.vix.current - 12) / 50 * 100, 0, 100);
+                    factors++;
+                }
+                if (this.data.btcChg) {
+                    stress += clamp(Math.abs(this.data.btcChg) / 15 * 100, 0, 100);
+                    factors++;
+                }
+                if (this.data.oil) {
+                    stress += clamp(Math.abs(this.data.oil.changePct) / 10 * 100, 0, 100);
+                    factors++;
+                }
+                if (this.data.dxy) {
+                    stress += clamp(Math.abs(this.data.dxy.changePct) / 3 * 100, 0, 100);
+                    factors++;
+                }
+                // Add RSS sentiment as direct stress factor
+                if (rss.finFear > 0) {
+                    stress += clamp(rss.finFear / 8 * 100, 0, 100);
+                    factors++;
+                }
+
+                this.data.finStress = factors > 0 ? stress / factors : 25;
+                return this.data;
+            }
+        };
+
+        // ============================================================================
+        // UTILITY: fetch with timeout
+        // ============================================================================
+
+        async function fetchWithTimeout(url, ms) {
+            const ctrl = new AbortController();
+            const timer = setTimeout(() => ctrl.abort(), ms);
+            try {
+                const res = await fetch(url, { signal: ctrl.signal });
+                clearTimeout(timer);
+                return res;
+            } catch (e) {
+                clearTimeout(timer);
+                throw e;
+            }
+        }
+
+        // ============================================================================
+        // MODULE 5: TREND ENGINE (Deltas, Direction, Z-Score, Acceleration)
+        // ============================================================================
+
+        const TREND_ENGINE = {
+            compute() {
+                const h = STATE.history;
+                if (h.length < 2) return;
+
+                const current = h[h.length - 1].val;
+                const now = Date.now();
+
+                // Find point ~1 hour ago (6 points at 10min interval)
+                const oneHourAgo = now - 60 * 60 * 1000;
+                let hourAgoVal = current;
+                for (let i = h.length - 1; i >= 0; i--) {
+                    if (h[i].t <= oneHourAgo) {
+                        hourAgoVal = h[i].val;
+                        break;
+                    }
+                }
+
+                // Delta per hour
+                const delta = current - hourAgoVal;
+                STATE.trend.prevDelta = STATE.trend.delta;
+                STATE.trend.delta = delta;
+
+                // Direction
+                if (delta > 3) STATE.trend.direction = '\u2191';
+                else if (delta < -3) STATE.trend.direction = '\u2193';
+                else STATE.trend.direction = '\u2192';
+
+                // Acceleration (change of delta)
+                STATE.trend.acceleration = delta - STATE.trend.prevDelta;
+
+                // Z-Score: how many std deviations from 24h mean
+                const last24h = h.filter(p => (now - p.t) < 24 * 60 * 60 * 1000);
+                if (last24h.length > 5) {
+                    const vals = last24h.map(p => p.val);
+                    const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+                    const stdDev = Math.sqrt(vals.reduce((sum, v) => sum + (v - mean) ** 2, 0) / vals.length);
+                    STATE.trend.zScore = stdDev > 0 ? (current - mean) / stdDev : 0;
+                }
+            },
+
+            // Find real peak entropy in last 24h
+            findPeak24h() {
+                const h = STATE.history;
+                if (h.length < 2) return { time: '--:--', val: 0 };
+                const now = Date.now();
+                const last24h = h.filter(p => (now - p.t) < 24 * 60 * 60 * 1000);
+                if (last24h.length === 0) return { time: '--:--', val: 0 };
+
+                let minVal = Infinity, minTime = 0;
+                last24h.forEach(p => {
+                    if (p.val < minVal) { minVal = p.val; minTime = p.t; }
+                });
+                const d = new Date(minTime);
+                const hh = d.getHours().toString().padStart(2, '0');
+                const mm = d.getMinutes().toString().padStart(2, '0');
+                return { time: hh + ':' + mm + ' UTC', val: minVal };
+            }
+        };
+
+        // ============================================================================
+        // MODULE 6: ALERT ENGINE (Thresholds + Cascade Detection)
+        // ============================================================================
+
+        const ALERT_ENGINE = {
+            config: {
+                SHOCK_THRESHOLD: 35,       // Index below this = SHOCK
+                CASCADE_DROP: 15,          // Drop > this in 1 hour = CASCADE
+                ANOMALY_ZSCORE: 2.0,       // |z-score| above this = ANOMALY
+                COOLDOWN_MS: 10 * 60 * 1000 // 10 min cooldown between same-type alerts
+            },
+
+            check() {
+                const idx = STATE.global.index;
+                const z = STATE.trend.zScore;
+                const delta = STATE.trend.delta;
+                const now = Date.now();
+                let triggered = [];
+
+                // SHOCK: index below threshold
+                if (idx < this.config.SHOCK_THRESHOLD) {
+                    if (!STATE.alerts.lastShock || (now - STATE.alerts.lastShock > this.config.COOLDOWN_MS)) {
+                        triggered.push({ type: 'SHOCK', level: 'shock', msg: `СИСТЕМНИЙ ШОК: Індекс ${idx.toFixed(0)} < ${this.config.SHOCK_THRESHOLD}` });
+                        STATE.alerts.lastShock = now;
+                    }
+                }
+
+                // CASCADE: rapid drop
+                if (delta < -this.config.CASCADE_DROP) {
+                    STATE.alerts.cascadeCount++;
+                    if (STATE.alerts.cascadeCount >= 2) {
+                        triggered.push({ type: 'CASCADE', level: 'cascade', msg: `КАСКАД: Падіння ${delta.toFixed(1)}/год (x${STATE.alerts.cascadeCount})` });
+                    }
+                } else {
+                    // Reset cascade counter if drop stops
+                    if (delta > 0) STATE.alerts.cascadeCount = 0;
+                }
+
+                // ANOMALY: z-score
+                if (Math.abs(z) > this.config.ANOMALY_ZSCORE) {
+                    STATE.alerts.anomalyCount++;
+                    if (STATE.alerts.anomalyCount >= 2) {
+                        const dir = z > 0 ? 'ВИЩЕ НОРМИ' : 'НИЖЧЕ НОРМИ';
+                        triggered.push({ type: 'ANOMALY', level: 'anomaly', msg: `АНОМАЛІЯ: Z=${z.toFixed(1)} (${dir})` });
+                    }
+                } else {
+                    STATE.alerts.anomalyCount = 0;
+                }
+
+                // Process triggered alerts
+                triggered.forEach(alert => {
+                    this.fire(alert);
+                });
+
+                // Clear overlay if no active alerts
+                if (triggered.length === 0) {
+                    this.clearOverlay();
+                }
+            },
+
+            fire(alert) {
+                STATE.alerts.active = [alert];
+
+                // Log
+                const el = document.createElement('div');
+                el.className = 'log-entry log-alert';
+                el.innerHTML = `<span class="log-time">[${alert.type}]</span> ${alert.msg}`;
+                elLogs.prepend(el);
+                if (elLogs.children.length > 30) elLogs.lastChild.remove();
+
+                // Overlay
+                const overlay = document.getElementById('alert-overlay');
+                const badge = document.getElementById('alert-badge');
+                overlay.className = 'active level-' + alert.level;
+                badge.style.display = 'block';
+                badge.className = 'alert-badge level-' + alert.level;
+                badge.textContent = '\u26A0 ' + alert.type;
+            },
+
+            clearOverlay() {
+                // Keep last alert visible for a while, then fade
+                const overlay = document.getElementById('alert-overlay');
+                if (!overlay.classList.contains('active')) return;
+                // Auto-clear after 5 minutes of no new alerts
+                setTimeout(() => {
+                    if (STATE.alerts.active.length > 0) {
+                        const age = Date.now() - (STATE.alerts.active[0]._firedAt || Date.now());
+                        if (age > 5 * 60 * 1000) {
+                            overlay.className = '';
+                            document.getElementById('alert-badge').style.display = 'none';
+                            STATE.alerts.active = [];
+                        }
+                    }
+                }, 60000);
+                STATE.alerts.active.forEach(a => { a._firedAt = Date.now(); });
+            }
+        };
+
+
+        // ============================================================================
+        // MODULE 7: INFORMATION VELOCITY ENGINE
+        // ============================================================================
+
+        const INFO_VELOCITY = {
+            history: [],
+            _CACHE_TTL: 24 * 60 * 60 * 1000,
+
+            compute(articlesCount) {
+                const now = Date.now();
+                this.history.push({ t: now, count: articlesCount });
+                const cutoff = now - this._CACHE_TTL;
+                this.history = this.history.filter(p => p.t > cutoff);
+
+                if (this.history.length < 3) return { velocity: articlesCount, baseline: 0, zScore: 0, burst: false, status: 'ФОРМУВАННЯ' };
+
+                const vals = this.history.map(p => p.count);
+                const baseline = vals.reduce((a, b) => a + b, 0) / vals.length;
+                const stdDev = Math.sqrt(vals.reduce((s, v) => s + (v - baseline) ** 2, 0) / vals.length);
+                const current = articlesCount;
+                const zScore = stdDev > 0 ? (current - baseline) / stdDev : 0;
+                const burst = zScore > 1.5;
+
+                // Rate of change: compare last 3 cycles to previous 3
+                let rateOfChange = 0;
+                if (vals.length >= 6) {
+                    const recent = vals.slice(-3).reduce((a, b) => a + b, 0) / 3;
+                    const prev = vals.slice(-6, -3).reduce((a, b) => a + b, 0) / 3;
+                    rateOfChange = prev > 0 ? ((recent - prev) / prev) * 100 : 0;
+                }
+
+                let status = 'НОРМА';
+                if (zScore > 2.5) status = 'ВИБУХ';
+                else if (zScore > 1.5) status = 'СПЛАСК';
+                else if (zScore > 0.8) status = 'ПІДВИЩЕНА';
+                else if (zScore < -1.5) status = 'ТИША';
+
+                return { velocity: current, baseline: baseline.toFixed(1), zScore: zScore.toFixed(2), burst, status, rateOfChange: rateOfChange.toFixed(0) };
+            }
+        };
+
+        // ============================================================================
+        // MODULE 8: NARRATIVE RADAR (Cross-Zone Correlation)
+        // ============================================================================
+
+        const NARRATIVE_RADAR = {
+            compute() {
+                const geoData = GEO_PARSER.data;
+                const zoneScores = geoData.zoneScores || {};
+
+                const categories = {
+                    'CONFLICT': geoData.conflict,
+                    'UNREST': geoData.unrest,
+                    'CYBER': geoData.cyber,
+                    'SUPPLY': geoData.supply_tension,
+                    'PROPAGANDA': geoData.propaganda
+                };
+
+                // Count active zones (zones with any keyword hits)
+                let activeZones = 0;
+                let highStressZones = 0;
+                ZONES_CFG.forEach(z => {
+                    const zd = zoneScores[z.id] || { total: 0, conflict: 0 };
+                    if (zd.total > 1) activeZones++;
+                    if (zd.total > 4) highStressZones++;
+                });
+
+                // Find which categories are "global waves" (spread across many zones)
+                const globalWaves = [];
+                const elevatedCategories = [];
+
+                for (const [cat, score] of Object.entries(categories)) {
+                    const threshold = cat === 'PROPAGANDA' ? 70 : cat === 'SUPPLY' ? 40 : cat === 'CYBER' ? 55 : cat === 'UNREST' ? 70 : 140;
+                    if (score > threshold * 1.3) globalWaves.push(cat);
+                    else if (score > threshold) elevatedCategories.push(cat);
+                }
+
+                // Narrative intensity: how many categories are simultaneously elevated
+                const totalActive = globalWaves.length + elevatedCategories.length;
+                let narrativePressure = 0;
+                if (totalActive >= 4) narrativePressure = 90;
+                else if (totalActive >= 3) narrativePressure = 70;
+                else if (totalActive >= 2) narrativePressure = 45;
+                else if (totalActive >= 1) narrativePressure = 25;
+                else narrativePressure = 10;
+
+                // Dominant category
+                let dominant = null;
+                let maxScore = 0;
+                for (const [cat, score] of Object.entries(categories)) {
+                    const normScore = cat === 'CONFLICT' ? score / 300 : cat === 'UNREST' ? score / 200 : score / 100;
+                    if (normScore > maxScore) { maxScore = normScore; dominant = cat; }
+                }
+
+                return {
+                    categories, activeZones, highStressZones,
+                    globalWaves, elevatedCategories,
+                    narrativePressure, dominant,
+                    totalActive, zoneActivityPct: (activeZones / ZONES_CFG.length * 100).toFixed(0)
+                };
+            }
+        };
+
+        // ============================================================================
+        // MODULE 9: CROSS-MODULE CASCADE DETECTOR
+        // ============================================================================
+
+        const CASCADE_DETECTOR = {
+            compute(geoStability, socialScore, bioRes, finStress, cyberPulse, infoBurst) {
+                const modules = [
+                    { name: 'GEO', value: geoStability, inverted: true, threshold: 55, label: 'Геополітика' },
+                    { name: 'SOCIAL', value: socialScore, inverted: true, threshold: 42, label: 'Соціум' },
+                    { name: 'BIO', value: bioRes, inverted: true, threshold: 70, label: 'Біосфера' },
+                    { name: 'FIN', value: finStress, inverted: false, threshold: 45, label: 'Фінанси' },
+                    { name: 'CYBER', value: cyberPulse, inverted: false, threshold: 35, label: 'Кібер' },
+                    { name: 'INFO', value: infoBurst ? 75 : 15, inverted: false, threshold: 55, label: 'Інфо-швидкість' }
+                ];
+
+                let stressedCount = 0;
+                const stressedModules = [];
+                const moduleStates = [];
+
+                modules.forEach(m => {
+                    const isStressed = m.inverted ? m.value < m.threshold : m.value > m.threshold;
+                    moduleStates.push({ ...m, isStressed });
+                    if (isStressed) { stressedCount++; stressedModules.push(m.label); }
+                });
+
+                let level = 'НОРМА', color = '#0fa', cssClass = 'ok';
+                if (stressedCount >= 4) { level = 'СИСТЕМНА КОНВЕРГЕНЦІЯ'; color = '#f04'; cssClass = 'stressed'; }
+                else if (stressedCount === 3) { level = 'ТРОЙОВИЙ ТИСК'; color = '#fa0'; cssClass = 'warning'; }
+                else if (stressedCount === 2) { level = 'ДВОЙОВИЙ ТИСК'; color = '#fc0'; cssClass = 'cascade'; }
+                else if (stressedCount === 1) { level = 'ІЗОЛЬОВАНИЙ ТИСК'; color = '#88a'; cssClass = 'ok'; }
+
+                return { stressedCount, stressedModules, level, color, cssClass, moduleStates };
+            }
+        };
+
+        // ============================================================================
+        // MODULE 10: BLACK SWAN DETECTOR
+        // ============================================================================
+
+        const BLACKSWAN = {
+            compute(vix, kp, quakes, finStress, infoBurst, cascadeCount, cyberPulse) {
+                let rarity = 0;
+                const factors = [];
+
+                if (vix && vix.current > 25) { rarity += 2.5; factors.push('VIX>25'); }
+                else if (vix && vix.current > 20) { rarity += 1.0; factors.push('VIX>20'); }
+                if (kp > 5) { rarity += 2.0; factors.push('GEOMAG ШТОРМ'); }
+                else if (kp > 4) { rarity += 0.8; factors.push('KP>4'); }
+                if (quakes > 15) { rarity += 1.5; factors.push('ЗЕМЛЕТРУСИ>15'); }
+                if (finStress > 60) { rarity += 1.5; factors.push('FIN-СТРЕС>60'); }
+                else if (finStress > 40) { rarity += 0.5; factors.push('FIN-СТРЕС>40'); }
+                if (infoBurst) { rarity += 1.0; factors.push('ІНФО-ВИБУХ'); }
+                if (cascadeCount >= 3) { rarity += 2.0; factors.push('КАСКАД≥3'); }
+                else if (cascadeCount >= 2) { rarity += 0.8; factors.push('КАСКАД≥2'); }
+                if (cyberPulse > 50) { rarity += 1.0; factors.push('КИБЕР>50'); }
+
+                const probability = Math.min(92, Math.round(rarity * 6.5));
+
+                let level = 'НОРМА', color = '#0fa';
+                if (probability > 55) { level = 'ВИСОКА ЙМОВІРНІСТЬ'; color = '#f04'; }
+                else if (probability > 30) { level = 'ПІДВИЩЕНА УВАГА'; color = '#fa0'; }
+                else if (probability > 12) { level = 'МОНИТОРИНГ'; color = '#fc0'; }
+
+                return { probability, factors, level, color, rarity };
+            }
+        };
+
+        // ============================================================================
+        // MODULE 11: ADAPTIVE WEIGHTS ENGINE
+        // ============================================================================
+
+        const ADAPTIVE_WEIGHTS = {
+            compute(utcHour, dayOfWeek, geoVol, finStress) {
+                const w = { geo: 0.35, social: 0.25, bio: 0.15, fin: 0.15, tech: 0.05, balance: 0.05 };
+
+                // Time-zone adjustments
+                if (dayOfWeek < 5) {
+                    if (utcHour >= 14 && utcHour <= 21) {
+                        // US market hours: finance up, bio down
+                        w.fin = 0.22; w.geo = 0.30; w.social = 0.20; w.bio = 0.13; w.tech = 0.05; w.balance = 0.10;
+                    } else if (utcHour >= 0 && utcHour <= 8) {
+                        // Asia hours: geo up, finance down
+                        w.geo = 0.38; w.social = 0.22; w.fin = 0.12; w.bio = 0.14; w.tech = 0.07; w.balance = 0.07;
+                    } else if (utcHour >= 7 && utcHour <= 15) {
+                        // Europe hours: social up
+                        w.geo = 0.33; w.social = 0.28; w.fin = 0.17; w.bio = 0.12; w.tech = 0.05; w.balance = 0.05;
+                    }
+                } else {
+                    // Weekend: finance down, social/bio up
+                    w.fin = 0.08; w.social = 0.28; w.bio = 0.18; w.geo = 0.34; w.tech = 0.06; w.balance = 0.06;
+                }
+
+                // Volatility-driven adjustment: amplify most volatile module
+                if (geoVol > 5) {
+                    const boost = Math.min(0.05, geoVol * 0.005);
+                    w.geo += boost; w.social -= boost * 0.5; w.balance -= boost * 0.5;
+                }
+                if (finStress > 50) {
+                    const boost = Math.min(0.06, finStress * 0.001);
+                    w.fin += boost; w.bio -= boost * 0.3; w.balance -= boost * 0.7;
+                }
+
+                // Normalize to 1.0
+                const total = Object.values(w).reduce((a, b) => a + b, 0);
+                for (const k in w) w[k] = w[k] / total;
+
+                return w;
+            }
+        };
+
+        // ============================================================================
+        // MODULE 12: CYBER THREAT PULSE (Specialized OSINT)
+        // ============================================================================
+
+        const CYBER_PULSE = {
+            feeds: [
+                'https://feeds.feedburner.com/TheHackersNews',
+                'https://krebsonsecurity.com/feed/',
+                'https://www.bleepingcomputer.com/feed/'
+            ],
+            _cache: new Map(),
+            _CACHE_TTL: 5 * 60 * 1000,
+
+            keywords: {
+                zero_day: ['zero-day', '0-day', 'cve-', 'vulnerability', 'exploit', 'n-day'],
+                ransomware: ['ransomware', 'ransom', 'decrypt', 'lockbit', 'blackcat', 'alphv', 'cl0p', 'akira'],
+                data_breach: ['data breach', 'data leak', 'stolen data', 'database exposed', 'credential leak'],
+                apt: ['apt ', 'advanced persistent', 'nation-state', 'state-sponsored', 'cyber espionage', 'china-based'],
+                critical_infra: ['critical infrastructure', 'power grid', 'hospital', 'scada', 'ot network', 'water treatment']
+            },
+
+            async scanFeed(url) {
+                const cached = this._cache.get(url);
+                if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
+                try {
+                    const ctrl = new AbortController();
+                    const timer = setTimeout(() => ctrl.abort(), 8000);
+                    const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) return null;
+                    const data = await res.json();
+                    if (data.status !== 'ok' || !data.items) return null;
+                    const items = data.items.map(item => ({
+                        title: item.title || '',
+                        description: (item.description || '').replace(/<[^>]*>/g, '')
+                    }));
+                    this._cache.set(url, { data: items, ts: Date.now() });
+                    return items;
+                } catch (e) { return null; }
+            },
+
+            async scan() {
+                const results = await Promise.allSettled(this.feeds.map(url => this.scanFeed(url)));
+                let articles = [];
+                let sourcesOk = 0;
+
+                results.forEach(r => {
+                    if (r.status === 'fulfilled' && r.value && r.value.length > 0) {
+                        articles = articles.concat(r.value);
+                        sourcesOk++;
+                    }
+                });
+
+                const scores = { zero_day: 0, ransomware: 0, data_breach: 0, apt: 0, critical_infra: 0 };
+                const topThreats = [];
+
+                articles.forEach(article => {
+                    const txt = (article.title + ' ' + article.description).toLowerCase();
+                    let isCritical = false;
+                    for (const [cat, words] of Object.entries(this.keywords)) {
+                        words.forEach(w => {
+                            if (txt.includes(w)) {
+                                scores[cat]++;
+                                if (cat === 'ransomware' || cat === 'zero_day' || cat === 'critical_infra') isCritical = true;
+                            }
+                        });
+                    }
+                    if (isCritical && topThreats.length < 4) {
+                        topThreats.push(article.title.substring(0, 70));
+                    }
+                });
+
+                const totalHits = Object.values(scores).reduce((s, v) => s + v, 0);
+                const threatPulse = clamp(totalHits * 4, 0, 100);
+
+                // Determine most dangerous category
+                let topCat = null;
+                let topCatScore = 0;
+                for (const [cat, score] of Object.entries(scores)) {
+                    if (score > topCatScore) { topCatScore = score; topCat = cat; }
+                }
+
+                return { scores, threatPulse, sourcesOk, articles: articles.length, topThreats, topCat, topCatScore };
+            }
+        };
+
+        // ============================================================================
+        // MAIN DATA PIPELINE
+        // ============================================================================
+
+        async function fetchLiveData() {
+            document.getElementById('update-tick').innerText = "СИНХРОНІЗАЦІЯ...";
+            document.getElementById('calc-bar').style.width = "10%";
+
+            try {
+                // ALL MODULES IN PARALLEL (6 modules now)
+                document.getElementById('calc-bar').style.width = "20%";
+                const [finData, , socialScore, bioSignals, cyberData] = await Promise.all([
+                    FIN_PARSER.scan(),
+                    GEO_PARSER.scan(),
+                    SOCIAL_PARSER.scan(),
+                    BIOS_PARSER.scan(),
+                    CYBER_PULSE.scan()
+                ]);
+
+                document.getElementById('calc-bar').style.width = "50%";
+
+                const volatilityIndex = Math.abs(finData.btcChg);
+                const finStress = finData.finStress;
+
+                // GEO ENTROPY (injected with financial data)
+                const geoEntropy = GEO_PARSER.tick(volatilityIndex, finStress);
+
+                // NEW: Information Velocity
+                const infoVel = INFO_VELOCITY.compute(GEO_PARSER.data.articles_scanned + (cyberData ? cyberData.articles : 0));
+
+                // NEW: Narrative Radar
+                const narrative = NARRATIVE_RADAR.compute();
+
+                // REGIONAL FUSION
+                document.getElementById('calc-bar').style.width = "70%";
+                let sumStability = 0;
+
+                ZONES_CFG.forEach(z => {
+                    let stab = 0;
+                    const zoneData = GEO_PARSER.data.zoneScores[z.id] || { conflict: 0, total: 0 };
+                    const zoneStress = zoneData.total > 0 ? zoneData.conflict / zoneData.total : 0;
+
+                    // Cyber pulse impact on zones with high cyber keyword density
+                    const cyberMod = cyberData && cyberData.scores.critical_infra > 0 ? -cyberData.scores.critical_infra * 0.8 : 0;
+
+                    if (z.id === 'nam' || z.id === 'euw') {
+                        stab = 95 - (volatilityIndex * 2.5) - (GEO_PARSER.data.propaganda * 0.15) + cyberMod;
+                    } else if (z.id === 'rus' || z.id === 'eue' || z.id === 'mea') {
+                        stab = 85 - (GEO_PARSER.data.conflict / 4) - (zoneStress * 15) + cyberMod;
+                    } else if (z.id === 'chn' || z.id === 'sea') {
+                        stab = 98 - GEO_PARSER.data.supply_tension - (100 - GEO_PARSER.data.network) * 0.5 + cyberMod;
+                    } else if (z.id === 'lat' || z.id === 'afr' || z.id === 'ind') {
+                        stab = 88 - (GEO_PARSER.data.unrest / 5) - (volatilityIndex * 1.2) - (zoneStress * 10) + cyberMod;
+                    } else if (z.id === 'aus') {
+                        stab = 92 - (volatilityIndex * 0.8);
+                    }
+
+                    const socialImpact = (socialScore - 50) * 0.35;
+                    stab += socialImpact;
+                    stab = clamp(stab, 5, 100);
+
+                    STATE.zones[z.id] = { sc: stab };
+                    sumStability += stab;
+
+                    const elVal = document.getElementById(`zval-${z.id}`);
+                    const elT = document.getElementById(`zt-${z.id}`);
+                    const elD = document.getElementById(`zdet-${z.id}`);
+
+                    if (elVal) {
+                        elVal.innerText = stab.toFixed(0);
+                        let color = stab < 40 ? "#f04" : stab < 65 ? "#fa0" : "#0fa";
+                        elVal.style.color = color;
+                        let statusTxt = stab < 35 ? "\u0414\u0415\u0421\u0422\u0410\u0411\u0406\u041B\u0406\u0417\u0410\u0426\u0406\u042F" : stab < 60 ? "\u041D\u0410\u041F\u0420\u0423\u0416\u0415\u041D\u041D\u042F" : "\u0411\u0410\u041B\u0410\u041D\u0421";
+                        if (elT) { elT.innerText = statusTxt; elT.style.color = color; }
+                        if (elD) {
+                            if (z.id === 'chn' || z.id === 'sea') elD.innerText = 'SUP:' + GEO_PARSER.data.supply_tension.toFixed(0);
+                            else if (z.id === 'rus' || z.id === 'mea') elD.innerText = 'CFL:' + GEO_PARSER.data.conflict;
+                            else if (zoneData.total > 0) elD.innerText = 'ZR:' + (zoneStress * 100).toFixed(0) + '%';
+                            else elD.innerText = 'GSI:' + (stab / 10).toFixed(1);
+                        }
+                    }
+                });
+
+                // PLANETARY INDICES
+                document.getElementById('calc-bar').style.width = "80%";
+                const avgRegionStab = sumStability / ZONES_CFG.length;
+                const biosRes = 95 - (bioSignals.kp * 4) - (clamp(bioSignals.quakes, 0, 20) * 0.5) - (GEO_PARSER.data.unrest * 0.05);
+                const cyberPulseVal = cyberData ? cyberData.threatPulse : 0;
+                const techPress = (GEO_PARSER.data.network * 0.3) + (GEO_PARSER.data.cyber * 0.2) + (volatilityIndex * 2) + (cyberPulseVal * 0.15);
+
+                // NEW: Cross-Module Cascade Detection
+                const cascade = CASCADE_DETECTOR.compute(avgRegionStab, socialScore, biosRes, finStress, cyberPulseVal, infoVel.burst);
+
+                // NEW: Black Swan Detector
+                const blackSwan = BLACKSWAN.compute(
+                    finData.vix, bioSignals.kp, bioSignals.quakes, finStress,
+                    infoVel.burst, cascade.stressedCount, cyberPulseVal
+                );
+
+                // NEW: Adaptive Weights
+                const nowUtc = new Date();
+                const aw = ADAPTIVE_WEIGHTS.compute(
+                    nowUtc.getUTCHours(), nowUtc.getUTCDay(),
+                    volatilityIndex, finStress
+                );
+
+                // GLOBAL SUBJECTIVE INDEX (Adaptive Weighted Formula)
+                document.getElementById('calc-bar').style.width = "90%";
+                let finalIdx = (avgRegionStab * aw.geo)
+                    + (socialScore * aw.social)
+                    + (biosRes * aw.bio)
+                    - (geoEntropy * 0.7)
+                    - (finStress * aw.fin)
+                    - (techPress * aw.tech);
+
+                // Cascade amplification: if multi-domain stress, depress index further
+                if (cascade.stressedCount >= 3) finalIdx -= cascade.stressedCount * 2.5;
+                else if (cascade.stressedCount === 2) finalIdx -= 3;
+
+                // Black swan depression
+                if (blackSwan.probability > 50) finalIdx -= (blackSwan.probability - 50) * 0.15;
+
+                finalIdx = clamp(finalIdx, 5, 100);
+
+                // COMPUTED METRICS
+                document.getElementById('calc-bar').style.width = "95%";
+                const temporalDensity = (GEO_PARSER.data.conflict + volatilityIndex * 12 + (100 - socialScore) * 0.8 + (techPress * 0.5) + finStress + cyberPulseVal * 0.3) / 4;
+                const realityGap = Math.abs(avgRegionStab - socialScore);
+
+                STATE.global.index = finalIdx;
+                STATE.global.volatility = volatilityIndex * 10;
+                STATE.global.netTraffic = infoVel.velocity.toString();
+                STATE.global.noosphere = socialScore.toFixed(0);
+                STATE.global.biosphere = biosRes.toFixed(1);
+                STATE.global.technosphere = techPress.toFixed(1);
+                STATE.global.density = temporalDensity.toFixed(1);
+                STATE.global.gap = realityGap.toFixed(1);
+                STATE.global.vix = finData.vix;
+                STATE.global.dxy = finData.dxy;
+                STATE.global.oil = finData.oil;
+                STATE.global.btcChg = finData.btcChg;
+                STATE.global.finStress = finStress;
+                // Store new modules data for UI
+                STATE.global._infoVel = infoVel;
+                STATE.global._narrative = narrative;
+                STATE.global._cascade = cascade;
+                STATE.global._blackSwan = blackSwan;
+                STATE.global._cyberData = cyberData;
+                STATE.global._adaptiveWeights = aw;
+                STATE.global._avgRegionStab = avgRegionStab;
+                STATE.global._biosRes = biosRes;
+
+                // History point
+                const now = Date.now();
+                let r = 0, g = 255, b = 200;
+                if (finalIdx < 45) { r = 255; g = 0; b = 50; }
+                else if (finalIdx < 70) { r = 255; g = 160; b = 0; }
+
+                STATE.history.push({ t: now, val: finalIdx, c: `rgb(${r},${g},${b})` });
+                if (STATE.history.length > MAX_POINTS) STATE.history.shift();
+
+                STATE.lastScan = now;
+
+                // POST-PROCESSING
+                TREND_ENGINE.compute();
+                ALERT_ENGINE.check();
+                updateTextUI();
+
+                // Log new module outputs periodically
+                if (Math.random() > 0.5) {
+                    log(`КАСКАД: ${cascade.level} (${cascade.stressedCount}/6 модулів)`);
+                    if (blackSwan.probability > 15) log(`ЛЕБІДЬ: ${blackSwan.probability}% | ${blackSwan.factors.join(', ')}`);
+                    if (cyberData && cyberData.topCatScore > 0) log(`КИБЕР: ${cyberData.topCat}=${cyberData.topCatScore} | ${cyberData.sourcesOk}/3 SRC`);
+                    if (infoVel.burst) log(`\u26A1 ІНФО-ВИБУХ: ${infoVel.velocity} статей (базова ${infoVel.baseline})`);
+                }
+
+                // PERSIST
+                PERSISTENCE.save();
+
+            } catch (e) {
+                console.warn('fetchLiveData error:', e);
+                log('\u041F\u041E\u041C\u0418\u041B\u041A\u0410 \u0421\u0418\u041D\u0425\u0420\u041E\u041D\u0406\u0417\u0410\u0426\u0406\u0407: ' + e.message);
+            }
+
+            document.getElementById('update-tick').innerText = "\u041E\u041D\u041B\u0410\u0419\u041D";
+            document.getElementById('calc-bar').style.width = "0%";
+        }
+
+        // ============================================================================
+        // UI UPDATE
+        // ============================================================================
+
+        function trendClass(val, id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (val > 0.5) { el.className = 'trend-up'; el.textContent = '\u2191'; }
+            else if (val < -0.5) { el.className = 'trend-down'; el.textContent = '\u2193'; }
+            else { el.className = 'trend-flat'; el.textContent = '\u2192'; }
+        }
+
+        function updateTextUI() {
+            const g = STATE.global;
+            const t = STATE.trend;
+
+            document.getElementById('main-idx').innerText = g.index.toFixed(0);
+            document.getElementById('v-net').innerText = g.netTraffic;
+            document.getElementById('v-vol').innerText = g.volatility.toFixed(1);
+            document.getElementById('v-noo').innerText = g.noosphere;
+            document.getElementById('v-bio-res').innerText = g.biosphere;
+            document.getElementById('v-tech-press').innerText = g.technosphere;
+            document.getElementById('v-dens').innerText = g.density;
+
+            // Trend indicators
+            trendClass(t.delta, 't-net');
+            trendClass(t.delta > 0 ? -1 : 1, 't-vol'); // Inverse: high vol = bad
+            trendClass(t.delta, 't-noo');
+            trendClass(-t.delta * 0.3, 't-bio');
+            trendClass(-t.delta * 0.5, 't-tech');
+            trendClass(t.delta, 't-dens');
+
+            // Financial card
+            if (g.vix) document.getElementById('v-vix').innerText = (g.vix._estimated ? '~' : '') + g.vix.current.toFixed(1);
+            if (g.dxy) document.getElementById('v-dxy').innerText = (g.dxy._estimated ? '~' : '') + g.dxy.current.toFixed(1);
+            if (g.oil) document.getElementById('v-oil').innerText = (g.oil._estimated ? '~$' : '$') + g.oil.current.toFixed(1);
+            document.getElementById('v-btc').innerText = (g.btcChg >= 0 ? '+' : '') + g.btcChg.toFixed(1) + '%';
+            document.getElementById('v-btc').style.color = g.btcChg >= 0 ? '#0fa' : '#f04';
+            document.getElementById('fin-status').innerText = FIN_PARSER.data.sourcesOk + '/4 OK';
+            document.getElementById('osint-sources').innerText = GEO_PARSER.data.sources_fetched + ' SRC';
+            document.getElementById('osint-articles').innerText = GEO_PARSER.data.articles_scanned + ' ART';
+
+            // === NEW MODULES UI ===
+            const iv = g._infoVel || { velocity: 0, baseline: 0, zScore: 0, burst: false, status: '--' };
+            const nrr = g._narrative || { narrativePressure: 0, globalWaves: [], elevatedCategories: [], zoneActivityPct: 0 };
+            const cas = g._cascade || { stressedCount: 0, stressedModules: [], level: '--', color: '#0fa', cssClass: 'ok' };
+            const sw = g._blackSwan || { probability: 0, factors: [], level: '--', color: '#0fa' };
+            const cyd = g._cyberData || { threatPulse: 0, sourcesOk: 0, topThreats: [], scores: {}, topCat: '--', topCatScore: 0 };
+
+            // Information Velocity
+            const ivEl = document.getElementById('sa-iv-val');
+            const ivSubEl = document.getElementById('sa-iv-sub');
+            if (ivEl) {
+                ivEl.innerText = iv.velocity + ' art/cyc';
+                ivEl.style.color = iv.burst ? '#f04' : parseFloat(iv.zScore) > 0.8 ? '#fa0' : '#cdf';
+                ivSubEl.textContent = `базова: ${iv.baseline} | Z:${iv.zScore} | ${iv.status}`;
+            }
+            const ivCard = document.getElementById('sa-infovel');
+            if (ivCard) ivCard.className = 'sa-item ' + (iv.burst ? 'stressed' : parseFloat(iv.zScore) > 0.8 ? 'warning' : 'ok');
+
+            // Cyber Pulse
+            const cyEl = document.getElementById('sa-cy-val');
+            const cySubEl = document.getElementById('sa-cy-sub');
+            if (cyEl) {
+                cyEl.innerText = (cyd.threatPulse || 0).toFixed(0) + '/100';
+                cyEl.style.color = cyd.threatPulse > 50 ? '#f04' : cyd.threatPulse > 25 ? '#fa0' : '#cdf';
+                cySubEl.textContent = `${cyd.sourcesOk}/3 SRC | ${cyd.topCat || 'N/A'}:${cyd.topCatScore || 0}`;
+            }
+            const cyCard = document.getElementById('sa-cyber');
+            if (cyCard) cyCard.className = 'sa-item ' + (cyd.threatPulse > 50 ? 'stressed' : cyd.threatPulse > 25 ? 'warning' : 'ok');
+
+            // Cyber threats list
+            const cyListEl = document.getElementById('cyber-threats-list');
+            if (cyListEl && cyd.topThreats && cyd.topThreats.length > 0) {
+                cyListEl.innerHTML = cyd.topThreats.map(t => '<div class="cyber-threat">⚠ ' + t + '</div>').join('');
+            } else if (cyListEl) {
+                cyListEl.innerHTML = '';
+            }
+
+            // Cascade
+            const casEl = document.getElementById('sa-cas-val');
+            const casSubEl = document.getElementById('sa-cas-sub');
+            if (casEl) {
+                casEl.innerText = cas.stressedCount + '/6';
+                casEl.style.color = cas.color;
+                casSubEl.textContent = cas.level + (cas.stressedModules.length > 0 ? ' [' + cas.stressedModules.join('+') + ']' : '');
+            }
+            const casCard = document.getElementById('sa-cascade');
+            if (casCard) casCard.className = 'sa-item ' + cas.cssClass;
+
+            // Black Swan
+            const swEl = document.getElementById('sa-sw-val');
+            const swSubEl = document.getElementById('sa-sw-sub');
+            if (swEl) {
+                swEl.innerText = sw.probability + '%';
+                swEl.style.color = sw.color;
+                swSubEl.textContent = sw.level + (sw.factors.length > 0 ? ' | ' + sw.factors.slice(0, 3).join(', ') : '');
+            }
+            const swCard = document.getElementById('sa-swan');
+            if (swCard) swCard.className = 'sa-item ' + (sw.probability > 55 ? 'stressed' : sw.probability > 30 ? 'warning' : 'ok');
+
+            // Narrative chips
+            const chipsEl = document.getElementById('narr-chips');
+            if (chipsEl) {
+                let chips = '';
+                nrr.globalWaves.forEach(c => { chips += '<span class="narr-chip global">' + c + ' ★</span>'; });
+                nrr.elevatedCategories.forEach(c => { chips += '<span class="narr-chip elevated">' + c + ' ▲</span>'; });
+                chipsEl.innerHTML = chips || '<span class="narr-chip">ВСІ НАРИТИВИ В НОРМІ</span>';
+            }
+
+            // Metrics
+            const histVals = STATE.history.map(x => x.val);
+            const avg = histVals.reduce((a, b) => a + b, 0) / histVals.length;
+            document.getElementById('m-avg').innerText = avg.toFixed(1);
+
+            const peak = TREND_ENGINE.findPeak24h();
+            document.getElementById('m-peak').innerText = peak.time;
+            document.getElementById('m-bio').innerText = g.gap;
+
+            // Trend metrics
+            document.getElementById('m-delta').innerText = (t.delta >= 0 ? '+' : '') + t.delta.toFixed(1);
+            document.getElementById('m-delta').style.color = t.delta < -5 ? '#f04' : t.delta > 5 ? '#0fa' : '#eef';
+
+            document.getElementById('m-accel').innerText = (t.acceleration >= 0 ? '+' : '') + t.acceleration.toFixed(1);
+            document.getElementById('m-accel').style.color = t.acceleration < -2 ? '#f04' : t.acceleration > 2 ? '#0fa' : '#eef';
+
+            document.getElementById('m-zscore').innerText = (t.zScore >= 0 ? '+' : '') + t.zScore.toFixed(2);
+            document.getElementById('m-zscore').style.color = Math.abs(t.zScore) > 2 ? '#fc0' : '#eef';
+
+            // Trend summary on spiral
+            const ts = document.getElementById('trend-summary');
+            if (t.delta < -5) ts.innerHTML = '<span style="color:#f04">\u25BC СПАД ' + Math.abs(t.delta).toFixed(1) + '/год</span>';
+            else if (t.delta > 5) ts.innerHTML = '<span style="color:#0fa">\u25B2 ЗРОСТАННЯ ' + t.delta.toFixed(1) + '/год</span>';
+            else ts.innerHTML = '<span style="color:#556">\u25CF СТАБІЛЬНО ' + t.delta.toFixed(1) + '/год</span>';
+
+            // Main index + mood
+            const idx = g.index;
+            let mood = "", desc = "";
+            const keywords = SOCIAL_PARSER.data.keywords.slice(0, 2).join(", ").toUpperCase();
+            const trendTxt = t.direction + ' ' + Math.abs(t.delta).toFixed(1) + '/\u0433\u043E\u0434';
+
+            if (idx > 80) {
+                mood = "\u0413\u0410\u0420\u041C\u041E\u041D\u0406\u042F";
+                desc = `\u0413\u043B\u043E\u0431\u0430\u043B\u044C\u043D\u0430 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0456\u0437\u0430\u0446\u0456\u044F. \u0415\u043D\u0442\u0440\u043E\u043F\u0456\u044F \u043C\u0456\u043D\u0456\u043C\u0430\u043B\u044C\u043D\u0430. \u0422\u0440\u0435\u043D\u0434: ${keywords} | ${trendTxt}`;
+            } else if (idx > 60) {
+                mood = "\u0421\u0422\u0410\u0411\u0406\u041B\u042C\u041D\u0406\u0421\u0422\u042C";
+                desc = `\u0411\u0430\u0437\u043E\u0432\u0456 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0438 \u0432 \u043D\u043E\u0440\u043C\u0456. \u041B\u043E\u043A\u0430\u043B\u044C\u043D\u0456 \u0444\u043B\u0443\u043A\u0442\u0443\u0430\u0446\u0456\u0457. \u0424\u043E\u043A\u0443\u0441: ${keywords} | ${trendTxt}`;
+            } else if (idx > 40) {
+                mood = "\u0422\u0420\u0418\u0412\u041E\u0413\u0410";
+                desc = `\u0412\u0438\u044F\u0432\u043B\u0435\u043D\u043E \u0441\u043E\u0446\u0456\u0430\u043B\u044C\u043D\u0435 \u0442\u0435\u0440\u0442\u044F. \u0417\u0440\u043E\u0441\u0442\u0430\u043D\u043D\u044F \u0435\u043D\u0442\u0440\u043E\u043F\u0456\u0457. \u0422\u0440\u0435\u043D\u0434: ${keywords} | ${trendTxt}`;
+            } else {
+                mood = "\u0421\u0418\u0421\u0422\u0415\u041C\u041D\u0418\u0419 \u0428\u041E\u041A";
+                desc = `\u041A\u0440\u0438\u0442\u0438\u0447\u043D\u0430 \u0434\u0435\u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0456\u0437\u0430\u0446\u0456\u044F. \u0417\u0430\u0433\u0440\u043E\u0437\u0430 \u043A\u0430\u0441\u043A\u0430\u0434\u0443. \u0423\u0432\u0430\u0433\u0430: ${keywords} | ${trendTxt}`;
+            }
+
+            document.getElementById('main-desc').innerHTML = '<span style="color:#fff; font-weight:bold">' + mood + '</span> // ' + desc;
+            document.getElementById('main-idx').style.color = idx > 60 ? '#fff' : '#f04';
+
+            // System analysis text — enriched with new modules
+            const casInfo = g._cascade || { stressedCount: 0, level: '--' };
+            const swInfo = g._blackSwan || { probability: 0, level: '--' };
+            const ivInfo = g._infoVel || { status: '--' };
+            if (Math.abs(t.zScore) > 2) {
+                document.getElementById('sys-analysis-text').innerHTML =
+                    `<span style="color:#fc0">\u26A0 АНОМАЛІЯ</span> Z=${t.zScore.toFixed(2)} | ${mood} | ` +
+                    `КАСКАД: ${casInfo.level} | ЛЕБІДЬ: ${swInfo.probability}% | ІНФО: ${ivInfo.status} | ` +
+                    `VIX: ${g.vix ? g.vix.current.toFixed(1) : '--'} | ART: ${GEO_PARSER.data.articles_scanned}`;
+            } else {
+                document.getElementById('sys-analysis-text').innerHTML =
+                    `GSI ${g.index.toFixed(0)} | ${mood} | \u0414\u0435\u043B\u044C\u0442\u0430: ${t.delta.toFixed(1)}/\u0433\u043E\u0434 | ` +
+                    `КАСКАД: ${casInfo.level} | ЛЕБІДЬ: ${swInfo.probability}% | ` +
+                    `VIX: ${g.vix ? g.vix.current.toFixed(1) : '--'} | ART: ${GEO_PARSER.data.articles_scanned} | Z: ${t.zScore.toFixed(2)}`;
+            }
+
+            // Periodic detailed log
+            if (Math.random() > 0.6) {
+                log(`\u0411\u0456\u043E: KP=${BIOS_PARSER.data.kp}, \u0417\u0435\u043C\u043B\u0435\u0442\u0440\u0443\u0441\u0438=${BIOS_PARSER.data.quakes}`);
+                log(`\u0424\u0456\u043D\u0430\u043D\u0441\u0438: VIX=${g.vix ? g.vix.current.toFixed(1) : '--'}, Stress=${g.finStress.toFixed(0)}/100`);
+                log(`OSINT: ${GEO_PARSER.data.sources_fetched}/${GEO_PARSER.feeds.length} \u0434\u0436\u0435\u0440\u0435\u043B, ${GEO_PARSER.data.articles_scanned} \u0441\u0442\u0430\u0442\u0435\u0439`);
+            }
+
+            // REALITY GAP ANALYSIS BLOCK
+            updateRealityGap();
+        }
+
+        function updateRealityGap() {
+            const g = STATE.global;
+            const gap = parseFloat(g.gap);
+            const noo = parseFloat(g.noosphere);
+            const avgStab = g._avgRegionStab || Object.values(STATE.zones).reduce((s, z) => s + (z.sc || 50), 0) / ZONES_CFG.length;
+            const finStress = g.finStress;
+            const bioRes = g._biosRes || 80;
+            const iv = g._infoVel || { velocity: 0, baseline: 0, zScore: 0, burst: false, status: '--', rateOfChange: 0 };
+            const nrr = g._narrative || { narrativePressure: 0, globalWaves: [], elevatedCategories: [], zoneActivityPct: 0, dominant: '--', activeZones: 0 };
+            const cas = g._cascade || { stressedCount: 0, stressedModules: [], level: '--', moduleStates: [] };
+            const sw = g._blackSwan || { probability: 0, factors: [], level: '--' };
+            const cyd = g._cyberData || { threatPulse: 0, topCat: '--', topCatScore: 0 };
+            const aw = g._adaptiveWeights || { geo: 0.35, social: 0.25, bio: 0.15, fin: 0.15 };
+            const biosData = BIOS_PARSER.data;
+
+            var elIdx = document.getElementById('gap-index');
+            var elLevel = document.getElementById('gap-level');
+            var elBar = document.getElementById('gap-bar-fill');
+            var elSubLabel = document.getElementById('gap-sub-label');
+            if (!elIdx) return;
+
+            elIdx.innerText = gap.toFixed(1);
+            elBar.style.width = clamp(gap / 60 * 100, 0, 100) + '%';
+
+            var level, color;
+            if (gap < 8) { level = 'СИНХРОНІЗАЦІЯ'; color = '#0fa'; }
+            else if (gap < 20) { level = 'ЛЕГКИЙ ДИСОНАНС'; color = '#afa'; }
+            else if (gap < 35) { level = 'КОГНІТИВНИЙ РОЗРИВ'; color = '#fa0'; }
+            else { level = 'ДЕЗІНТЕГРАЦІЯ РЕАЛЬНОСТІ'; color = '#f04'; }
+
+            elIdx.style.color = color;
+            elLevel.innerText = level;
+            elLevel.style.color = color;
+            elBar.style.background = color;
+            if (elSubLabel) elSubLabel.textContent = level;
+
+            // === BLOCK 1: FACTUAL vs SUBJECTIVE ===
+            var b1v = document.getElementById('gb1-val');
+            var b1d = document.getElementById('gb1-desc');
+            var b1 = document.getElementById('gb1');
+            var gapDir = noo < avgStab ? 'ПАНІКА БЕЗ ПІДСТАВ' : 'СПОКІЙ ПРИ ЗАГРОЗІ';
+            if (b1v) b1v.innerText = gap.toFixed(0) + ' ПУНКТІВ — ' + gapDir;
+            if (b1v) b1v.style.color = color;
+            if (b1d) {
+                var b1text = '';
+                if (gap < 8) {
+                    b1text = 'Об\'єктивна стабільність регіонів (' + avgStab.toFixed(0) + '/100) та емоційний фон ноосфери (' + noo + '/100) практично збігаються. Колективне сприйняття відповідає фактичному стану речей. Когнітивний дисонанс мінімальний — інформаційне поле гомеостатичне.';
+                } else if (noo < avgStab) {
+                    b1text = 'Ноосфера (' + noo + ') значно нижча за фактичну стабільність (' + avgStab.toFixed(0) + '). Це класичний "паніка без підстав" — медіа-нарративи генерують тривогу, яка не підтримується об\'єктивними параметрами. Приймаються субоптимальні рішення на основі спотвореного сприйняття.';
+                } else {
+                    b1text = 'Ноосфера (' + noo + ') значно вища за фактичну стабільність (' + avgStab.toFixed(0) + '). Це "спокій перед бурею" — система може вже бути під загрозою, але колективна свідомість ще не інтегрувала цю інформацію. Реакція буде раптовою та непропорційною коли масова свідомість "прокинеться".';
+                }
+                b1d.textContent = b1text;
+            }
+            if (b1) b1.style.borderLeftColor = color;
+
+            // === BLOCK 2: NARRATIVE PRESSURE ===
+            var b2v = document.getElementById('gb2-val');
+            var b2d = document.getElementById('gb2-desc');
+            var b2 = document.getElementById('gb2');
+            var nPressure = nrr.narrativePressure || 0;
+            var nColor = nPressure > 70 ? '#f04' : nPressure > 45 ? '#fa0' : '#0fa';
+            if (b2v) {
+                b2v.innerText = nPressure + '/100 — ' + (nrr.globalWaves && nrr.globalWaves.length > 0 ? nrr.globalWaves.length + ' ГЛОБАЛЬНИХ ХВИЛЬ' : 'ЛОКАЛЬНІ НАРИТИВИ');
+                b2v.style.color = nColor;
+            }
+            if (b2d) {
+                var b2text = '';
+                if (nPressure > 70) {
+                    b2text = 'Одночасно активні ' + (nrr.totalActive || 0) + ' категорії наративів, з них ' + (nrr.globalWaves ? nrr.globalWaves.length : 0) + ' мають статус глобальної хвилі. Домінантний наратив: ' + (nrr.dominant || 'N/A') + '. Це свідчить про мультивекторну кризу — когнітивна ємність ноосфери перевантажена.';
+                } else if (nPressure > 40) {
+                    b2text = 'Активні ' + (nrr.totalActive || 0) + ' категорії наративів. Домінантний фокус: ' + (nrr.dominant || 'N/A') + '. Система обробляє помірне навантаження — наративи локалізовані.';
+                } else {
+                    b2text = 'Наративний тиск мінімальний. Активні категорії: ' + (nrr.totalActive || 0) + '. Інформаційне поле відносно рівномірне.';
+                }
+                b2d.textContent = b2text;
+            }
+            if (b2) b2.style.borderLeftColor = nColor;
+
+            // === BLOCK 3: INFORMATION OVERLOAD ===
+            var b3v = document.getElementById('gb3-val');
+            var b3d = document.getElementById('gb3-desc');
+            var b3 = document.getElementById('gb3');
+            var ivZ = parseFloat(iv.zScore) || 0;
+            var ivColor = iv.burst ? '#f04' : ivZ > 0.8 ? '#fa0' : '#0fa';
+            var ivRoc = parseFloat(iv.rateOfChange) || 0;
+            if (b3v) {
+                b3v.innerText = (iv.status || '--') + (iv.burst ? ' \u26A1' : '') + ' (Z=' + (iv.zScore || 0) + ')';
+                b3v.style.color = ivColor;
+            }
+            if (b3d) {
+                var b3text = '';
+                if (iv.burst) {
+                    b3text = 'ВИБУХ ІНФОРМАЦІЇ: поточний потік ' + iv.velocity + ' статей/цикл значно перевищує базову лінію ' + iv.baseline + '. Це найраніший індикатор "щось відбувається" — інформаційні спалахи передують видимим подіям на 2-6 годин. Когнітивна перевантаженість ноосфери зростає.';
+                } else if (ivZ > 0.8) {
+                    b3text = 'ПІДВИЩЕНА АКТИВНІСТЬ: ' + iv.velocity + ' статей/цикл при базовій лінії ' + iv.baseline + '. Потік вищий за норму, але ще не досяг порогу вибуху. Тенденція: ' + (ivRoc > 0 ? 'зростання на ' + ivRoc + '%/цикл' : 'стабільна') + '.';
+                } else {
+                    b3text = 'Інформаційний потік у нормі: ' + iv.velocity + ' статей/цикл (базова лінія ' + iv.baseline + '). Ноосфера справляється з обсягом інформації.';
+                }
+                b3d.textContent = b3text;
+            }
+            if (b3) b3.style.borderLeftColor = ivColor;
+
+            // === BLOCK 4: FINANCIAL-GEOPOLITICAL RESONANCE ===
+            var b4v = document.getElementById('gb4-val');
+            var b4d = document.getElementById('gb4-desc');
+            var b4 = document.getElementById('gb4');
+            var vixVal = g.vix ? g.vix.current : 0;
+            var finGeoRes = Math.abs(finStress - (100 - avgStab));
+            var resColor = finGeoRes > 30 ? '#f04' : finGeoRes > 15 ? '#fa0' : '#0fa';
+            var resStatus = finGeoRes < 10 ? 'ДЕЗИНХРОН' : finGeoRes < 20 ? 'СЛАБКИЙ ЗВ\'ЯЗОК' : finGeoRes < 35 ? 'РЕЗОНАНС' : 'СИЛЬНИЙ РЕЗОНАНС';
+            if (b4v) {
+                b4v.innerText = resStatus + ' (VIX:' + (vixVal ? vixVal.toFixed(1) : '--') + ' GEO:' + avgStab.toFixed(0) + ')';
+                b4v.style.color = resColor;
+            }
+            if (b4d) {
+                var finIsStressed = finStress > 40;
+                var geoIsStressed = avgStab < 60;
+                var b4text = '';
+                if (finIsStressed && geoIsStressed) {
+                    b4text = 'СИНХРОННИЙ СТРЕС: фінансові ринки (VIX ' + (vixVal ? vixVal.toFixed(1) : '?') + ', стрес ' + finStress.toFixed(0) + '/100) та геополітична стабільність (' + avgStab.toFixed(0) + '/100) одночасно в зоні напруги. Фінанси та геополітика посилюють одне одного.';
+                } else if (finIsStressed) {
+                    b4text = 'ФІНАНСОВА ІЗОЛЯЦІЯ: ринки в стресі (VIX ' + (vixVal ? vixVal.toFixed(1) : '?') + '), але геополітика відносно стабільна (' + avgStab.toFixed(0) + '). Внутрішньо-економічні проблеми або ринкова корекція без геополітичного каталізатора.';
+                } else if (geoIsStressed) {
+                    b4text = 'ГЕОПОЛІТИЧНА ІЗОЛЯЦІЯ: OSINT фіксує напругу (' + avgStab.toFixed(0) + '/100), але ринки спокійні. Ринки ще не цінують ризики — можливий "наздоганяючий" рух.';
+                } else {
+                    b4text = 'БАЛАНС ДОМЕНІВ: фінанси (VIX ' + (vixVal ? vixVal.toFixed(1) : '?') + ') та геополітика (' + avgStab.toFixed(0) + '/100) обидва в нормі. Домени функціонують незалежно, без зворотного посилення.';
+                }
+                b4d.textContent = b4text;
+            }
+            if (b4) b4.style.borderLeftColor = resColor;
+
+            // === BLOCK 5: CASCADE PROGNOSIS ===
+            var b5v = document.getElementById('gb5-val');
+            var b5d = document.getElementById('gb5-desc');
+            var b5 = document.getElementById('gb5');
+            var swP = sw.probability || 0;
+            var casN = cas.stressedCount || 0;
+            var progColor = swP > 55 ? '#f04' : swP > 30 ? '#fa0' : swP > 12 ? '#fc0' : '#0fa';
+            var cascadeStatus = casN >= 4 ? 'ВИСОКИЙ РИЗИК КАСКАДУ' : casN === 3 ? 'ПОГРОЗА МУЛЬТИПЛІКАЦІЇ' : casN === 2 ? 'ПОДВОЙНА НАПРУГА' : casN === 1 ? 'ІЗОЛЬОВАНИЙ ФАКТОР' : 'СТІЙКІСТЬ СИСТЕМИ';
+            if (b5v) {
+                b5v.innerText = cascadeStatus + ' (Птиця: ' + swP + '%)';
+                b5v.style.color = progColor;
+            }
+            if (b5d) {
+                var b5text = '';
+                if (casN >= 3) {
+                    b5text = casN + '/6 модулів одночасно в стресі: ' + (cas.stressedModules ? cas.stressedModules.join(', ') : '?') + '. Ймовірність рідкісної події: ' + swP + '%. Фактори: ' + (sw.factors ? sw.factors.join(', ') : 'немає') + '. Система в зоні каскадної вразливості.';
+                } else if (casN === 2) {
+                    b5text = 'Подвійний стрес: ' + (cas.stressedModules ? cas.stressedModules.join(' + ') : '?') + '. Чорний лебідь: ' + swP + '%. Два напружених домени створюють потенціал для крос-доменної каскадації.';
+                } else if (casN === 1) {
+                    b5text = 'Ізольований стрес: ' + (cas.stressedModules ? cas.stressedModules[0] : '?') + '. Інші 5 модулів в нормі. Система має значні буфери стабільності.';
+                } else {
+                    b5text = 'Всі 6 модулів в нормі. Система стійка. Чорний лебідь: ' + swP + '% — мінімальний. Адаптивні ваги: GEO=' + ((aw.geo || 0.35) * 100).toFixed(0) + '% SOC=' + ((aw.social || 0.25) * 100).toFixed(0) + '% FIN=' + ((aw.fin || 0.15) * 100).toFixed(0) + '%.';
+                }
+                b5d.textContent = b5text;
+            }
+            if (b5) b5.style.borderLeftColor = progColor;
+        }
+
+        // ============================================================================
+        // VISUALIZATION (3D SPIRAL + CLOCK)
+        // ============================================================================
+
+        function animLoop() {
+            STATE.cam.rot += 0.002;
+            drawSpiral();
+            requestAnimationFrame(animLoop);
+        }
+
+        function drawSpiral() {
+            const w = canSpiral.clientWidth;
+            const h = canSpiral.clientHeight;
+            if (canSpiral.width !== w) { canSpiral.width = w; canSpiral.height = h; }
+
+            ctxSpy.clearRect(0, 0, w, h);
+            const cx = w / 2;
+            const cy = h / 2;
+            const camPitch = STATE.cam.pitch;
+            const scale = Math.min(w, h) * 0.4;
+            const fov = 600;
+
+            function project(x, y, z) {
+                const cp = Math.cos(camPitch);
+                const sp = Math.sin(camPitch);
+                const ry = y * cp - z * sp;
+                const rz = y * sp + z * cp;
+                if (rz > fov - 10) return null;
+                const s = fov / (fov - rz);
+                return { x: cx + x * s, y: cy + ry * s, s: s, z: rz };
+            }
+
+            const FIXED_NOW_ANGLE = -Math.PI / 2;
+            const now = new Date();
+            const sec = now.getSeconds() + now.getMilliseconds() / 1000;
+            const min = now.getMinutes() + sec / 60;
+            const hr = now.getHours() + min / 60;
+            const currentTimeAngle = (hr / 24) * Math.PI * 2;
+            const worldOffset = -currentTimeAngle - Math.PI / 2;
+
+            // CLOCK RING
+            const rRing = scale * 1.1;
+            for (let i = 0; i < 24; i++) {
+                const theta = (i / 24) * Math.PI * 2;
+                const angle = theta + worldOffset;
+                const wx = Math.cos(angle) * rRing;
+                const wy = Math.sin(angle) * rRing;
+                const wz = 10;
+                const p = project(wx, wy, wz);
+                if (!p) continue;
+                const isMajor = (i % 3 === 0);
+                ctxSpy.textAlign = 'center'; ctxSpy.textBaseline = 'middle';
+                if (isMajor) {
+                    ctxSpy.fillStyle = `rgba(255,255,255,${0.8 * p.s})`;
+                    ctxSpy.font = (12 * p.s) + 'px Space Mono';
+                    ctxSpy.fillText(i.toString().padStart(2, '0'), p.x, p.y);
+                } else {
+                    ctxSpy.fillStyle = `rgba(100,100,150,${0.5 * p.s})`;
+                    ctxSpy.beginPath(); ctxSpy.arc(p.x, p.y, 1.5 * p.s, 0, Math.PI * 2); ctxSpy.fill();
+                }
+            }
+
+            // SECONDS DOT
+            const secVisAngle = (sec / 60) * Math.PI * 2 - Math.PI / 2;
+            const sRx = Math.cos(secVisAngle) * (rRing * 0.95);
+            const sRy = Math.sin(secVisAngle) * (rRing * 0.95);
+            const sp2 = project(sRx, sRy, 10);
+            if (sp2) {
+                ctxSpy.shadowBlur = 15; ctxSpy.shadowColor = '#f04';
+                ctxSpy.fillStyle = '#f04';
+                ctxSpy.beginPath(); ctxSpy.arc(sp2.x, sp2.y, 3 * sp2.s, 0, Math.PI * 2); ctxSpy.fill();
+                ctxSpy.shadowBlur = 0;
+            }
+
+            // SPIRAL
+            const points3d = [];
+            const len = STATE.history.length;
+            for (let i = 0; i < len; i++) {
+                const pt = STATE.history[i];
+                const d = new Date(pt.t);
+                const h2 = d.getHours() + d.getMinutes() / 60;
+                const ptTheta = (h2 / 24) * Math.PI * 2;
+                const finalTheta = ptTheta + worldOffset;
+                const age = i / (len - 1);
+                const revAge = 1 - age;
+                const r = (0.2 + 0.8 * age) * scale;
+                const z = revAge * -500;
+                const wx = Math.cos(finalTheta) * r;
+                const wy = Math.sin(finalTheta) * r;
+                const p = project(wx, wy, z);
+                if (p) points3d.push({ ...p, c: pt.c });
+            }
+
+            ctxSpy.lineWidth = 2; ctxSpy.lineCap = 'round';
+            if (points3d.length > 1) {
+                for (let i = 0; i < points3d.length - 1; i++) {
+                    const p1 = points3d[i];
+                    const p2 = points3d[i + 1];
+                    const alpha = Math.max(0.1, i / points3d.length);
+                    ctxSpy.beginPath(); ctxSpy.moveTo(p1.x, p1.y); ctxSpy.lineTo(p2.x, p2.y);
+                    ctxSpy.strokeStyle = p2.c.replace('rgb', 'rgba').replace(')', `,${alpha})`);
+                    ctxSpy.lineWidth = 2 * p2.s;
+                    ctxSpy.stroke();
+                }
+            }
+
+            // HEAD (NOW)
+            const head = points3d[points3d.length - 1];
+            if (head) {
+                ctxSpy.shadowBlur = 20; ctxSpy.shadowColor = '#fff';
+                ctxSpy.fillStyle = '#fff';
+                ctxSpy.beginPath(); ctxSpy.arc(head.x, head.y, 4 * head.s, 0, Math.PI * 2); ctxSpy.fill();
+                ctxSpy.fillStyle = '#fff'; ctxSpy.font = (9 * head.s) + 'px Space Mono';
+                ctxSpy.fillText("NOW", head.x, head.y - 15);
+                ctxSpy.shadowBlur = 0;
+                const cp3 = project(0, 0, 0);
+                if (cp3) {
+                    ctxSpy.strokeStyle = 'rgba(255,255,255,0.4)';
+                    ctxSpy.lineWidth = 1;
+                    ctxSpy.beginPath(); ctxSpy.moveTo(cp3.x, cp3.y); ctxSpy.lineTo(head.x, head.y); ctxSpy.stroke();
+                }
+            }
+
+            const cp4 = project(0, 0, 0);
+            if (cp4) {
+                ctxSpy.fillStyle = 'rgba(255,255,255,0.8)';
+                ctxSpy.beginPath(); ctxSpy.arc(cp4.x, cp4.y, 2 * cp4.s, 0, Math.PI * 2); ctxSpy.fill();
+            }
+        }
+
+        // ============================================================================
+        // UTILITY & INIT
+        // ============================================================================
+
+        function renderZonesInit() {
+            const list = document.getElementById('zones-list');
+            list.innerHTML = ZONES_CFG.map(z => `
+                <div class="z-item">
+                    <div class="z-head" style="margin-bottom:4px;"><span>${z.name}</span> <span id="zt-${z.id}" style="font-weight:bold; font-size:9px;">CALCULATING</span></div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-end">
+                        <div class="z-score" id="zval-${z.id}" style="font-size:18px;">--</div>
+                        <div class="z-det" id="zdet-${z.id}" style="font-size:8px; opacity:0.7">IDX</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function tickClock() {
+            const now = new Date();
+            elClock.innerText = now.toLocaleTimeString('uk-UA');
+        }
+
+        function log(msg) {
+            const t = new Date().toLocaleTimeString('uk-UA', { hour12: false });
+            const d = document.createElement('div');
+            d.className = 'log-entry';
+            d.innerHTML = `<span class="log-time">[${t}]</span> ${msg}`;
+            elLogs.prepend(d);
+            if (elLogs.children.length > 30) elLogs.lastChild.remove();
+        }
+
+        function logOSINT(msg) {
+            const t = new Date().toLocaleTimeString('uk-UA', { hour12: false });
+            const d = document.createElement('div');
+            d.className = 'log-entry log-osint';
+            d.innerHTML = `<span class="log-time">[${t}]</span> ${msg}`;
+            elLogs.prepend(d);
+            if (elLogs.children.length > 30) elLogs.lastChild.remove();
+        }
+
+        function mockHistory() {
+            // Try to load from persistence first
+            if (PERSISTENCE.load()) {
+                log('\u0412\u0456\u0434\u043D\u043E\u0432\u043B\u0435\u043D\u043E ' + STATE.history.length + ' \u0442\u043E\u0447\u043E\u043A \u0456\u0437 localStorage');
+                return;
+            }
+
+            // Generate mock data
+            const now = Date.now();
+            const interval = 10 * 60 * 1000;
+            for (let i = MAX_POINTS; i > 0; i--) {
+                const t = now - (i * interval);
+                const date = new Date(t);
+                const hrs = date.getUTCHours();
+                let base = 50 + Math.sin((hrs / 24) * Math.PI * 2) * 20;
+                let noise = (Math.random() - 0.5) * 15;
+                if (Math.random() > 0.98) noise -= 30;
+                let val = Math.max(0, Math.min(100, base + noise));
+                let r = 0, g = 255, b = 200;
+                if (val < 40) { r = 255; g = 0; b = 100; }
+                else if (val < 60) { r = 255; g = 180; b = 0; }
+                STATE.history.push({ t: t, val: val, c: `rgb(${r},${g},${b})` });
+            }
+        }
+
+        // Background stars
+        const bgC = document.getElementById('bg-stars');
+        const bgCtx = bgC.getContext('2d');
+        let stars = [];
+        for (let i = 0; i < 150; i++) stars.push({ x: Math.random() * innerWidth, y: Math.random() * innerHeight, s: Math.random() * 1.5, a: Math.random() });
+
+        function animStars() {
+            bgC.width = innerWidth; bgC.height = innerHeight;
+            bgCtx.clearRect(0, 0, innerWidth, innerHeight);
+            bgCtx.fillStyle = '#fff';
+            stars.forEach(s => {
+                bgCtx.globalAlpha = s.a * 0.4;
+                bgCtx.beginPath(); bgCtx.arc(s.x, s.y, s.s, 0, Math.PI * 2); bgCtx.fill();
+                s.y += 0.1; if (s.y > innerHeight) s.y = 0;
+            });
+            requestAnimationFrame(animStars);
+        }
+        animStars();
+
+        async function init() {
+            mockHistory();
+            renderZonesInit();
+            setInterval(tickClock, 1000);
+            setInterval(fetchLiveData, 60000);
+            requestAnimationFrame(animLoop);
+            await fetchLiveData();
+            log('System v3 Initialized. 10-Module SA Platform + 5D Reality Gap + Adaptive Weights.');
+        }
+
+        init();
+    </script>
 </body>
 </html>
