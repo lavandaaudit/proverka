@@ -1,0 +1,799 @@
+/* ============================================================
+   LIVE MODULARXIII — Modular Ambient Synthesizer
+   Per-channel architecture: each osc = full channel strip
+   ============================================================ */
+
+:root {
+    --bg-color: #050505;
+    --panel-bg: #0e0e0e;
+    --panel-bg-2: #131313;
+    --text-color: #e0e0e0;
+    --text-dim: #888;
+    --accent-color: #00ffcc;
+    --accent-glow: 0 0 8px rgba(0, 255, 204, 0.5);
+    --secondary-accent: #ff0055;
+    --secondary-glow: 0 0 8px rgba(255, 0, 85, 0.5);
+    --warn-accent: #ffaa00;
+    --border-color: #2a2a2a;
+    --border-bright: #444;
+    --font-heading: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+}
+
+html, body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-body);
+    height: 100vh;
+    overflow: hidden;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    padding: 4px;
+    gap: 4px;
+    background: #000;
+    overflow: hidden;
+}
+
+/* ---------- Header ---------- */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 12px;
+    background: var(--panel-bg);
+    border-bottom: 2px solid var(--accent-color);
+    box-shadow: var(--accent-glow);
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.top-bar h1 {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    color: var(--accent-color);
+    text-shadow: 0 0 5px var(--accent-color);
+    letter-spacing: 2px;
+}
+
+.master-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.master-knob-group {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    background: #050505;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid var(--border-color);
+}
+
+/* ---------- Buttons ---------- */
+button {
+    background: #111;
+    border: 1px solid var(--border-color);
+    color: var(--text-dim);
+    font-family: var(--font-heading);
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    border-radius: 2px;
+}
+
+button:hover {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: 0 0 4px var(--accent-color);
+}
+
+button.active {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-color);
+}
+
+button.warn.active {
+    background: var(--warn-accent);
+    color: #000;
+    border-color: var(--warn-accent);
+    box-shadow: 0 0 8px var(--warn-accent);
+}
+
+button.danger {
+    border-color: var(--secondary-accent);
+    color: var(--secondary-accent);
+}
+
+button.danger:hover {
+    background: var(--secondary-accent);
+    color: #fff;
+    box-shadow: var(--secondary-glow);
+}
+
+button.add-btn {
+    background: #0a1a18;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+button.add-btn:hover {
+    background: var(--accent-color);
+    color: #000;
+}
+
+/* ---------- Sections ---------- */
+section.module {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+section.module > h2 {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-color);
+    letter-spacing: 1px;
+    background: var(--panel-bg-2);
+    flex-shrink: 0;
+}
+
+/* ---------- Transport / Sequencer ---------- */
+.seq-section {
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.seq-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: var(--panel-bg-2);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tempo-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+}
+
+.tempo-control input {
+    width: 50px;
+    background: #050505;
+    color: var(--accent-color);
+    border: 1px solid var(--border-color);
+    padding: 2px 4px;
+    font-family: var(--font-heading);
+    text-align: center;
+}
+
+.step-grid {
+    display: grid;
+    grid-template-columns: repeat(32, 1fr);
+    grid-template-rows: 1fr;
+    gap: 2px;
+    padding: 6px 8px;
+    flex: 1;
+    min-height: 50px;
+}
+
+.step-btn {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: bold;
+    overflow: hidden;
+    position: relative;
+    min-height: 30px;
+    transition: all 0.05s;
+}
+
+.step-btn:nth-child(4n+1) {
+    border-left: 2px solid #444;
+}
+
+.step-btn.enabled {
+    background: var(--accent-color);
+    color: #000;
+    box-shadow: 0 0 4px var(--accent-color);
+}
+
+.step-btn.current {
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px #fff;
+}
+
+.step-label {
+    z-index: 2;
+    text-shadow: 0 0 2px rgba(0,0,0,0.7);
+    pointer-events: none;
+}
+
+/* ---------- Main Layout ---------- */
+.main-area {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 4px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+/* ---------- Oscillator Bank (horizontal scroll of channel columns) ---------- */
+.osc-bank-section {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.osc-bank-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    background: var(--panel-bg-2);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.osc-bank-header h2 {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+}
+
+.osc-bank-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 6px;
+}
+
+.osc-bank {
+    display: flex;
+    gap: 6px;
+    height: 100%;
+    min-width: max-content;
+}
+
+/* ---------- Channel Column ---------- */
+.channel-col {
+    width: 180px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.channel-col.selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 6px rgba(0, 255, 204, 0.3);
+}
+
+.channel-col.muted {
+    opacity: 0.5;
+}
+
+.channel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 6px;
+    background: var(--panel-bg-2);
+    border-bottom: 1px solid var(--border-color);
+    font-family: var(--font-heading);
+    font-size: 0.65rem;
+    color: var(--accent-color);
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.channel-head .del-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    padding: 0 4px;
+    font-size: 0.9rem;
+    line-height: 1;
+}
+
+.channel-head .del-btn:hover {
+    color: var(--secondary-accent);
+    box-shadow: none;
+    background: transparent;
+}
+
+.channel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.channel-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.channel-body::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 2px;
+}
+
+/* ---------- Channel Sections (sub-blocks inside column) ---------- */
+.ch-section {
+    background: #0a0a0a;
+    border: 1px solid #1f1f1f;
+    border-radius: 2px;
+    padding: 4px;
+}
+
+.ch-section-title {
+    font-family: var(--font-heading);
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    text-align: center;
+    border-bottom: 1px solid #1a1a1a;
+    padding-bottom: 2px;
+}
+
+.ch-knob-row {
+    display: flex;
+    justify-content: space-around;
+    gap: 2px;
+    flex-wrap: wrap;
+}
+
+.ch-toggle-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.ch-toggle-row button {
+    flex: 1;
+    padding: 3px 4px;
+    font-size: 0.55rem;
+}
+
+.ch-select {
+    width: 100%;
+    background: #050505;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 3px;
+    font-family: var(--font-heading);
+    font-size: 0.6rem;
+    border-radius: 2px;
+    margin-bottom: 4px;
+}
+
+/* ---------- Knob ---------- */
+.knob-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 38px;
+    margin: 2px 0;
+}
+
+.knob-dial {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #2a2a2a, #0a0a0a);
+    border: 1px solid var(--border-bright);
+    position: relative;
+    cursor: ns-resize;
+    box-shadow: inset 0 0 4px #000, 0 0 2px rgba(0,0,0,0.8);
+    transition: box-shadow 0.15s;
+}
+
+.knob-dial:hover {
+    border-color: var(--accent-color);
+    box-shadow: inset 0 0 4px #000, 0 0 4px var(--accent-color);
+}
+
+.knob-indicator {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    width: 2px;
+    height: 8px;
+    background: var(--accent-color);
+    transform: translateX(-50%);
+    pointer-events: none;
+    box-shadow: 0 0 2px var(--accent-color);
+}
+
+.knob-label {
+    font-size: 0.5rem;
+    color: var(--text-dim);
+    margin-top: 2px;
+    text-align: center;
+    white-space: nowrap;
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+}
+
+.knob-value {
+    font-size: 0.5rem;
+    color: var(--accent-color);
+    font-family: var(--font-heading);
+    margin-top: 1px;
+    min-height: 8px;
+}
+
+/* ---------- FX Slot ---------- */
+.fx-slot {
+    background: #050505;
+    border: 1px solid #1a1a1a;
+    border-radius: 2px;
+    padding: 3px;
+    margin-bottom: 3px;
+}
+
+.fx-slot-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.fx-slot-head .fx-slot-name {
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    font-family: var(--font-heading);
+    letter-spacing: 0.5px;
+}
+
+.fx-slot-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #222;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.fx-slot-dot.active {
+    background: var(--accent-color);
+    box-shadow: 0 0 4px var(--accent-color);
+}
+
+.fx-slot-select {
+    width: 100%;
+    background: #050505;
+    color: var(--text-color);
+    border: 1px solid #1a1a1a;
+    padding: 2px;
+    font-size: 0.55rem;
+    font-family: var(--font-heading);
+    border-radius: 2px;
+    margin-bottom: 3px;
+}
+
+/* ---------- Sidebar (visualizer + keyboard) ---------- */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+}
+
+.visualizer-module {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.visualizer-container {
+    flex: 1;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: black;
+}
+
+.keyboard-section {
+    flex-shrink: 0;
+    height: 110px;
+    display: flex;
+    flex-direction: column;
+}
+
+.keyboard-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background: var(--panel-bg-2);
+    border-bottom: 1px solid var(--border-color);
+    gap: 6px;
+}
+
+.octave-control {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+}
+
+#current-octave {
+    color: var(--accent-color);
+    font-family: var(--font-heading);
+    min-width: 50px;
+    text-align: center;
+}
+
+.hold-indicator {
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    font-family: var(--font-heading);
+}
+
+.hold-indicator.active {
+    color: var(--warn-accent);
+    text-shadow: 0 0 4px var(--warn-accent);
+}
+
+.keys-container {
+    flex: 1;
+    position: relative;
+    background: #050505;
+    overflow: hidden;
+}
+
+.piano-key {
+    position: absolute;
+    border: 1px solid #333;
+    border-radius: 0 0 3px 3px;
+    cursor: pointer;
+    transition: background 0.08s, box-shadow 0.08s;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 2px;
+    font-size: 0.5rem;
+    color: #555;
+}
+
+.piano-key.white {
+    background: #d8d8d8;
+    z-index: 10;
+    color: #444;
+}
+
+.piano-key.black {
+    background: #1a1a1a;
+    color: #888;
+    z-index: 20;
+}
+
+.piano-key.active-note {
+    background: var(--accent-color) !important;
+    color: #000 !important;
+    box-shadow: 0 0 8px var(--accent-color);
+}
+
+.piano-key.held-note {
+    background: var(--warn-accent) !important;
+    color: #000 !important;
+    box-shadow: 0 0 6px var(--warn-accent);
+}
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* ---------- Modal (patch library) ---------- */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: var(--panel-bg);
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 25px rgba(0, 255, 204, 0.25);
+    border-radius: 4px;
+    padding: 16px;
+    width: 540px;
+    max-width: 92vw;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-header h3 {
+    font-family: var(--font-heading);
+    color: var(--accent-color);
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.6rem;
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: var(--secondary-accent);
+    box-shadow: none;
+    background: transparent;
+}
+
+.patch-slot {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.patch-slot input.patch-name {
+    flex: 1;
+    background: #050505;
+    color: var(--accent-color);
+    border: 1px solid var(--border-color);
+    padding: 4px 8px;
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    border-radius: 2px;
+    min-width: 100px;
+}
+
+.patch-info {
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    min-width: 140px;
+    text-align: center;
+    font-family: var(--font-heading);
+}
+
+.patch-slot button {
+    padding: 4px 8px;
+    font-size: 0.6rem;
+    min-width: 50px;
+}
+
+.patch-slot button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ---------- REC button ---------- */
+button.rec.active {
+    background: var(--secondary-accent);
+    color: #fff;
+    border-color: var(--secondary-accent);
+    box-shadow: 0 0 10px var(--secondary-accent);
+    animation: rec-pulse 1s infinite;
+}
+
+@keyframes rec-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.55; }
+    100% { opacity: 1; }
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .main-area {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 220px;
+    }
+    
+    .sidebar {
+        flex-direction: row;
+    }
+    
+    .visualizer-module {
+        flex: 2;
+    }
+    
+    .keyboard-section {
+        flex: 3;
+        height: auto;
+    }
+    
+    .channel-col {
+        width: 160px;
+    }
+    
+    .step-grid {
+        grid-template-columns: repeat(16, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+    }
+}
