@@ -317,72 +317,62 @@
         .top-headline-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     
-        /* CANVAS TOP-LEFT ANALYTICAL HUD */
+        /* ===== TOP-LEFT ANALYTICAL HUD ===== */
         .topleft-hud {
             position: absolute;
-            top: 45px;
-            left: 15px;
-            z-index: 52;
-            width: 340px;
-            background: rgba(4, 5, 12, 0.85);
-            border: 1px solid var(--border-subtle);
-            border-left: 3px solid var(--accent-sec);
-            backdrop-filter: blur(8px);
+            top: 48px;
+            left: 12px;
+            z-index: 55;
+            width: 330px;
+            background: rgba(2, 4, 14, 0.88);
+            border: 1px solid rgba(0,255,255,0.12);
+            border-left: 3px solid #0ff;
+            backdrop-filter: blur(10px);
             padding: 8px 10px;
             border-radius: 3px;
-            font-family: var(--font-mono);
+            font-family: 'Space Mono', monospace;
             pointer-events: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.7);
         }
-
-        .hud-header {
-            font-size: 9px;
+        .hud-row-title {
+            font-size: 8px;
             font-weight: bold;
-            color: var(--accent-sec);
-            letter-spacing: 1px;
+            color: #0ff;
+            letter-spacing: 0.8px;
             text-transform: uppercase;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(0,255,255,0.1);
             padding-bottom: 3px;
         }
-
-        .hud-section-title {
-            font-size: 8px;
-            color: var(--accent-sec);
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        .hud-text {
-            font-size: 8px;
-            color: #ccdf;
-            line-height: 1.3;
-        }
-
-        .hud-anomaly-box {
-            padding: 4px 6px;
-            background: rgba(255, 180, 0, 0.08);
-            border: 1px solid rgba(255, 180, 0, 0.25);
-            border-radius: 2px;
-            color: #ffca28;
+        .hud-body-text {
             font-size: 7.5px;
-            line-height: 1.25;
+            color: #ccd;
+            line-height: 1.35;
         }
-
-        .hud-anomaly-box.level-shock {
-            background: rgba(255, 0, 68, 0.12);
-            border-color: rgba(255, 0, 68, 0.4);
-            color: #ff4d6d;
+        .hud-anomaly {
+            padding: 3px 6px;
+            border-radius: 2px;
+            font-size: 7.5px;
+            line-height: 1.3;
+            background: rgba(0,255,0,0.06);
+            border: 1px solid rgba(0,255,0,0.2);
+            color: #adf;
         }
-
-        .hud-deltas-row {
+        .hud-anomaly.warn {
+            background: rgba(255,165,0,0.08);
+            border-color: rgba(255,165,0,0.3);
+            color: #fca;
+        }
+        .hud-anomaly.shock {
+            background: rgba(255,0,68,0.1);
+            border-color: rgba(255,0,68,0.35);
+            color: #f88;
+        }
+        .hud-deltas {
             display: flex;
             justify-content: space-between;
             font-size: 7.5px;
@@ -390,7 +380,7 @@
             padding: 3px 5px;
             border-radius: 2px;
         }
-
+        .hud-sec { font-size: 8px; color: #0ff; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
 </style>
 </head>
 
@@ -405,7 +395,7 @@
                 <div class="sub-brand">7-ДЕННА СПІРАЛЬ СУБ'ЄКТИВНОЇ РЕАЛЬНОСТІ · UKRAINE OSINT</div>
             </div>
             <div style="text-align:right">
-                <div style="font-size:20px; font-weight:bold; color:#fff;" id="clock-main">--:--:--</div>
+                <div style="font-size:20px; font-weight:bold; color:#fff;" id="clock-main">00:00:00</div>
                 <div style="font-size:9px; color:#668;">UTC+2 · KYIV (EET/EEST)</div>
             </div>
         </div>
@@ -422,7 +412,7 @@
                         <span class="m-lbl">ІНФОРМАЦІЙНА ШВИДКІСТЬ</span>
                         <span class="m-inf">Швидкість подійного потоку (articles/min proxy)</span>
                     </div>
-                    <span class="m-val" id="v-net" style="color:#0fa;">98.4</span>
+                    <span class="m-val" id="v-net">---</span>
                     <span id="t-net" class="trend-flat">--</span>
                 </div>
                 <div class="m-row">
@@ -430,7 +420,7 @@
                         <span class="m-lbl">ФІНАНСОВА ТРИВОГА</span>
                         <span class="m-inf">Композитний фінансовий стрес (UAH+EUR+PLN+BTC)</span>
                     </div>
-                    <span class="m-val" id="v-vol" style="color:#0fa;">14.2 art/min</span>
+                    <span class="m-val" id="v-vol">---</span>
                     <span id="t-vol" class="trend-flat">--</span>
                 </div>
                 <div class="m-row">
@@ -438,7 +428,7 @@
                         <span class="m-lbl">СОЦІАЛЬНА КОГЕРЕНТНІСТЬ</span>
                         <span class="m-inf">Рівень синхронізації суспільних настроїв (%)</span>
                     </div>
-                    <span class="m-val" id="v-noo" style="color:#0fa;">78.2%</span>
+                    <span class="m-val" id="v-noo">---</span>
                     <span id="t-noo" class="trend-flat">--</span>
                 </div>
                 <div class="m-row">
@@ -446,7 +436,7 @@
                         <span class="m-lbl">БІОСФЕРНИЙ РЕЗОНАНС</span>
                         <span class="m-inf">Стійкість до геомагнітних та сейсмо-атак</span>
                     </div>
-                    <span class="m-val" id="v-bio-res" style="color:#0fa;">92.0</span>
+                    <span class="m-val" id="v-bio-res">---</span>
                     <span id="t-bio" class="trend-flat">--</span>
                 </div>
                 <div class="m-row">
@@ -454,7 +444,7 @@
                         <span class="m-lbl">ТЕХНОСФЕРНИЙ ТИСК</span>
                         <span class="m-inf">Кібер-навантаження + інформаційна насиченість</span>
                     </div>
-                    <span class="m-val" id="v-tech-press" style="color:#0fa;">18.5</span>
+                    <span class="m-val" id="v-tech-press">---</span>
                     <span id="t-tech" class="trend-flat">--</span>
                 </div>
                 <div class="m-row">
@@ -462,7 +452,7 @@
                         <span class="m-lbl">ЩІЛЬНІСТЬ ЧАСУ</span>
                         <span class="m-inf">Кількість подій на одиницю сприйняття</span>
                     </div>
-                    <span class="m-val" id="v-dens" style="color:#0fa;">1.00x</span>
+                    <span class="m-val" id="v-dens">---</span>
                     <span id="t-dens" class="trend-flat">--</span>
                 </div>
             </div>
@@ -471,24 +461,24 @@
             <div class="card">
                 <div class="card-h">
                     <span>MOD 4: ФІНАНСОВИЙ СИГНАЛ</span>
-                    <span id="fin-status" style="color:#0fa;">СТАБІЛЬНИЙ</span>
+                    <span id="fin-status">--</span>
                 </div>
                 <div class="fin-grid">
                     <div class="fin-item">
                         <span class="fin-lbl">UAH/USD (НБУ)</span>
-                        <span class="fin-val" id="v-vix" style="color:#0fa;">39.80</span>
+                        <span class="fin-val" id="v-vix">--</span>
                     </div>
                     <div class="fin-item">
                         <span class="fin-lbl">UAH/EUR</span>
-                        <span class="fin-val" id="v-dxy" style="color:#0fa;">43.20</span>
+                        <span class="fin-val" id="v-dxy">--</span>
                     </div>
                     <div class="fin-item">
                         <span class="fin-lbl">UAH/PLN</span>
-                        <span class="fin-val" id="v-oil" style="color:#0fa;">9.85</span>
+                        <span class="fin-val" id="v-oil">--</span>
                     </div>
                     <div class="fin-item">
                         <span class="fin-lbl">BTC (24г %)</span>
-                        <span class="fin-val" id="v-btc" style="color:#0fa;">+1.4%</span>
+                        <span class="fin-val" id="v-btc">--</span>
                     </div>
                 </div>
             </div>
@@ -496,7 +486,7 @@
             <div class="card" style="flex:1">
                 <div class="card-h">
                     <span>РЕГІОНИ УКРАЇНИ (OSINT)</span>
-                    <span id="osint-sources" style="color:#0fa;">40 SRC</span>
+                    <span id="osint-sources">0 SRC</span>
                 </div>
                 <div class="zone-grid" id="zones-list"></div>
             </div>
@@ -509,42 +499,38 @@
             <!-- ALERT OVERLAY -->
             <div id="alert-overlay"></div>
             <div class="alert-badge" id="alert-badge" style="display:none;"></div>
-
-            <!-- TOP-LEFT CANVAS ANALYTICAL HUD -->
+            <!-- ===== TOP-LEFT ANALYTICAL HUD ===== -->
             <div class="topleft-hud" id="canvas-analytical-hud">
-                <div class="hud-header">
+                <div class="hud-row-title">
                     <span>📌 СТАН СИСТЕМИ UA</span>
                     <span id="hud-status-badge" style="color:#0fa;">[БАЛАНС]</span>
                 </div>
-                
-                <div class="hud-text" id="hud-system-summary">
+                <div class="hud-body-text" id="hud-system-summary">
                     Ініціалізація аналітичного модуля стану...
                 </div>
-
-                <div class="hud-section-title">📊 АНАЛІТИЧНИЙ ЗВІТ</div>
-                <div class="hud-text" id="hud-analytical-report">
-                    Збір системних сигналів з 40+ OSINT джерел...
+                <div class="hud-sec">📊 Аналітичний звіт</div>
+                <div class="hud-body-text" id="hud-analytical-report">
+                    Опрацювання 40+ OSINT джерел...
                 </div>
-
-                <div class="hud-section-title">⚠️ ОПИС АНОМАЛІЙ</div>
-                <div class="hud-anomaly-box" id="hud-anomaly-details">
-                    Аномальних збурень не виявлено (Z-Score: 0.0σ)
+                <div class="hud-sec">⚠️ Опис аномалій</div>
+                <div class="hud-anomaly" id="hud-anomaly-details">
+                    ✓ Критичних збурень не виявлено (Z-Score: 0.0σ)
                 </div>
-
-                <div class="hud-section-title">⏱️ ДИНАМІКА ТА ЗМІНИ СТАНУ</div>
-                <div class="hud-deltas-row" id="hud-deltas-row">
-                    <span>Δ15m: 0.0</span><span>Δ1h: 0.0</span><span>Δ3h: 0.0</span><span>Δ24h: 0.0</span>
+                <div class="hud-sec">⏱️ Динаміка та зміна стану</div>
+                <div class="hud-deltas" id="hud-deltas-row">
+                    <span style="color:#aac;">Δ15m: 0.0</span>
+                    <span style="color:#aac;">Δ1h: 0.0</span>
+                    <span style="color:#aac;">Δ3h: 0.0</span>
+                    <span style="color:#aac;">Δ24h: 0.0</span>
                 </div>
-                <div class="hud-text" id="hud-drivers-text" style="font-size:7.5px; color:#aab;">
-                    Драйвери: 100% Базовий баланс
+                <div class="hud-body-text" id="hud-drivers-text" style="font-size:7px; color:#889;">
+                    Швидкість: -- пт/хв | Драйвери: --
                 </div>
             </div>
 
-
-
             <div class="center-hud">
                 <div class="idx-lbl">НАЦІОНАЛЬНИЙ СУБ'ЄКТИВНИЙ ІНДЕКС UA</div>
-                <div class="big-idx" id="main-idx" style="color:#0fa;">74.8</div>
+                <div class="big-idx" id="main-idx">--</div>
                 <div style="font-size:10px; color:#aaa; margin-top:5px; max-width:240px; min-height:40px;"
                     id="main-desc">
                     ІНІЦІАЛІЗАЦІЯ ПОЛЯ ХРОНОСУ...
@@ -573,17 +559,17 @@
                 <div class="meta-row">
                     <div class="meta-item">
                         <span class="lbl">СЕРЕДНЄ (24г)</span>
-                        <span class="val" id="m-avg" style="color:#0fa;">74.8</span>
+                        <span class="val" id="m-avg">--</span>
                         <span class="m-inf">Добовий тренд</span>
                     </div>
                     <div class="meta-item">
                         <span class="lbl">ПІК ЕНТРОПІЇ</span>
-                        <span class="val" id="m-peak" style="color:#0fa;">14:00 (86)</span>
+                        <span class="val" id="m-peak">--:--</span>
                         <span class="m-inf">Макс. напруга</span>
                     </div>
                     <div class="meta-item" style="flex:1.5">
                         <span class="lbl">РОЗРИВ РЕАЛЬНОСТІ</span>
-                        <span class="val" id="m-bio" style="color:#0fa;">92.0</span>
+                        <span class="val" id="m-bio">--</span>
                         <span class="m-inf">Дисонанс Фактів/Емоцій</span>
                     </div>
                 </div>
@@ -591,17 +577,17 @@
                 <div class="meta-row" style="border-top: 1px solid rgba(100,100,255,0.1); padding-top: 8px;">
                     <div class="meta-item">
                         <span class="lbl">ДЕЛЬТА/ГОД</span>
-                        <span class="val" id="m-delta" style="color:#0fa;">+0.4</span>
+                        <span class="val" id="m-delta">--</span>
                         <span class="m-inf">Швидкість зміни</span>
                     </div>
                     <div class="meta-item">
                         <span class="lbl">ПРискорення</span>
-                        <span class="val" id="m-accel" style="color:#0fa;">0.00</span>
+                        <span class="val" id="m-accel">--</span>
                         <span class="m-inf">Зміна швидкості</span>
                     </div>
                     <div class="meta-item" style="flex:1.5">
                         <span class="lbl">Z-SCORE</span>
-                        <span class="val" id="m-zscore" style="color:#0fa;">+0.2σ</span>
+                        <span class="val" id="m-zscore">--</span>
                         <span class="m-inf">Відхилення від норми</span>
                     </div>
                 </div>
@@ -622,9 +608,9 @@
 
             <!-- REALITY GAP ANALYSIS -->
             <div class="card" id="gap-card">
-                <div class="card-h"><span>РОЗРИВ РЕАЛЬНОСТІ · 5D АНАЛІЗ</span><span id="gap-level" style="color:#0fa;">СИНХРОННО</span></div>
+                <div class="card-h"><span>РОЗРИВ РЕАЛЬНОСТІ · 5D АНАЛІЗ</span><span id="gap-level">--</span></div>
                 <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:8px;">
-                    <span style="font-size:24px; font-weight:bold;" id="gap-index" style="color:#0fa;">12.4%</span>
+                    <span style="font-size:24px; font-weight:bold;" id="gap-index">--</span>
                     <span style="font-size:9px; color:#556;" id="gap-sub-label">КОГНІТИВНИЙ ДИСОНАНС</span>
                     <span style="flex:1;"></span>
                     <div style="width:80px; height:3px; background:#112; border-radius:1px; overflow:hidden;">
@@ -634,27 +620,27 @@
                 <div id="gap-blocks">
                     <div class="gap-block" id="gb1">
                         <div class="gap-block-title">01 · ФАКТИЧНА vs СУБ'ЄКТИВНА РЕАЛЬНІСТЬ</div>
-                        <div class="gap-block-val" id="gb1-val" style="color:#0fa;">92% ФАКТ / 8% СУБ</span>
+                        <div class="gap-block-val" id="gb1-val">--</div>
                         <div class="gap-block-desc" id="gb1-desc">Обчислення...</div>
                     </div>
                     <div class="gap-block" id="gb2">
                         <div class="gap-block-title">02 · НАРИТИВНИЙ ТИСК</div>
-                        <div class="gap-block-val" id="gb2-val" style="color:#0fa;">18.5 ТИСК</span>
+                        <div class="gap-block-val" id="gb2-val">--</div>
                         <div class="gap-block-desc" id="gb2-desc">Обчислення...</div>
                     </div>
                     <div class="gap-block" id="gb3">
                         <div class="gap-block-title">03 · ІНФОРМАЦІЙНА ПЕРЕВАНТАЖЕНІСТЬ</div>
-                        <div class="gap-block-val" id="gb3-val" style="color:#0fa;">14.2 ART/MIN</span>
+                        <div class="gap-block-val" id="gb3-val">--</div>
                         <div class="gap-block-desc" id="gb3-desc">Обчислення...</div>
                     </div>
                     <div class="gap-block" id="gb4">
                         <div class="gap-block-title">04 · ФІНАНСОВО-ГЕОПОЛІТИЧНИЙ РЕЗОНАНС</div>
-                        <div class="gap-block-val" id="gb4-val" style="color:#0fa;">НОРМА</span>
+                        <div class="gap-block-val" id="gb4-val">--</div>
                         <div class="gap-block-desc" id="gb4-desc">Обчислення...</div>
                     </div>
                     <div class="gap-block" id="gb5">
                         <div class="gap-block-title">05 · ПРОГНОЗ КАСКАДАЦІЇ</div>
-                        <div class="gap-block-val" id="gb5-val" style="color:#0fa;">СТІЙКІСТЬ (12%)</span>
+                        <div class="gap-block-val" id="gb5-val">--</div>
                         <div class="gap-block-desc" id="gb5-desc">Обчислення...</div>
                     </div>
                 </div>
@@ -666,22 +652,22 @@
                 <div class="sa-grid">
                     <div class="sa-item" id="sa-infovel">
                         <span class="sa-lbl">ІНФО ШВИДКІСТЬ</span>
-                        <span class="sa-val" id="sa-iv-val" style="color:#0fa;">14.2</span>
+                        <span class="sa-val" id="sa-iv-val">--</span>
                         <span class="sa-sub" id="sa-iv-sub">статей/цикл vs базова лінія</span>
                     </div>
                     <div class="sa-item" id="sa-cyber">
                         <span class="sa-lbl">КИБЕР-ПУЛЬС</span>
-                        <span class="sa-val" id="sa-cy-val" style="color:#0fa;">18.5</span>
+                        <span class="sa-val" id="sa-cy-val">--</span>
                         <span class="sa-sub" id="sa-cy-sub">загрози з спеціалізованих джерел</span>
                     </div>
                     <div class="sa-item" id="sa-cascade">
                         <span class="sa-lbl">КАСКАД МОДУЛІВ</span>
-                        <span class="sa-val" id="sa-cas-val" style="color:#0fa;">0/6 STRESS</span>
+                        <span class="sa-val" id="sa-cas-val">--</span>
                         <span class="sa-sub" id="sa-cas-sub">напружених доменів</span>
                     </div>
                     <div class="sa-item" id="sa-swan">
                         <span class="sa-lbl">ЧОРНИЙ ЛЕБІДЬ</span>
-                        <span class="sa-val" id="sa-sw-val" style="color:#0fa;">4.2%</span>
+                        <span class="sa-val" id="sa-sw-val">--</span>
                         <span class="sa-sub" id="sa-sw-sub">ймовірність рідкісної події</span>
                     </div>
                 </div>
@@ -693,22 +679,22 @@
             <div class="card" id="ukre-card">
                 <div class="card-h">
                     <span>ЕНЕРГОСИСТЕМА UA · UKRENERGO</span>
-                    <span id="ukre-status" style="color:#0fa;">СТАБІЛЬНО</span>
+                    <span id="ukre-status">--</span>
                 </div>
                 <div class="ukre-grid">
                     <div class="ukre-item" id="ukre-out">
                         <span class="ukre-lbl">ВІДКЛЮЧ.</span>
-                        <span class="ukre-val" id="ukre-out-val" style="color:#0fa;">НОРМА</span>
+                        <span class="ukre-val" id="ukre-out-val">--</span>
                         <span class="ukre-sub" id="ukre-out-sub">обл. під врізкою</span>
                     </div>
                     <div class="ukre-item" id="ukre-def">
                         <span class="ukre-lbl">ДЕФІЦИТ</span>
-                        <span class="ukre-val" id="ukre-def-val" style="color:#0fa;">0 МВт</span>
+                        <span class="ukre-val" id="ukre-def-val">--</span>
                         <span class="ukre-sub" id="ukre-def-sub">% від попиту</span>
                     </div>
                     <div class="ukre-item" id="ukre-stress">
                         <span class="ukre-lbl">СТРЕС</span>
-                        <span class="ukre-val" id="ukre-str-val" style="color:#0fa;">12%</span>
+                        <span class="ukre-val" id="ukre-str-val">--</span>
                         <span class="ukre-sub" id="ukre-str-sub">0-100</span>
                     </div>
                 </div>
@@ -750,7 +736,7 @@
                     </div>
                     <div class="ekg-stat" id="ekg-stat-corr">
                         <span class="ekg-lbl">КОРЕЛЯЦІЯ</span>
-                        <span class="ekg-val" id="ekg-corr-val" style="color:#0fa;">0.84</span>
+                        <span class="ekg-val" id="ekg-corr-val">--</span>
                         <span class="ekg-sub" id="ekg-corr-sub">тривога→удар (хв)</span>
                     </div>
                     <div class="ekg-stat" id="ekg-stat-impact">
@@ -769,10 +755,10 @@
             <div class="card" id="trends-card">
                 <div class="card-h">
                     <span>СОЦІАЛЬНИЙ СУБ'ЄКТИВ · MOD 14</span>
-                    <span id="trends-status" style="color:#0fa;">ПОЗИТИВНИЙ</span>
+                    <span id="trends-status">--</span>
                 </div>
                 <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:6px;">
-                    <span style="font-size:24px; font-weight:bold;" id="trends-score" style="color:#0fa;">+68%</span>
+                    <span style="font-size:24px; font-weight:bold;" id="trends-score">--</span>
                     <span style="font-size:9px; color:#556;" id="trends-mood">LLM-SENTIMENT</span>
                     <span style="flex:1;"></span>
                     <div style="width:80px; height:3px; background:#112; border-radius:1px; overflow:hidden;">
@@ -841,14 +827,6 @@
     </div>
 
     <script>
-
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error("GLOBAL JS ERROR:", msg, "Line:", lineNo, error);
-            const d = document.getElementById('main-desc');
-            if (d) d.innerText = "ПОМИЛКА JS: " + msg + " (Рядок " + lineNo + ")";
-            return false;
-        };
-
         // ============================================================================
         // CONFIG & STATE
         // ============================================================================
@@ -1076,7 +1054,7 @@
                 if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
                 try {
                     const ctrl = new AbortController();
-                    const timer = setTimeout(() => ctrl.abort(), 2500);
+                    const timer = setTimeout(() => ctrl.abort(), 5000);
                     const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
                     clearTimeout(timer);
                     if (!res.ok) return null;
@@ -1411,8 +1389,8 @@
             async scan() {
                 try {
                     const [kpRes, qRes] = await Promise.all([
-                        fetchWithTimeout('https://services.swpc.noaa.gov/products/noaa-scales.json', 2500),
-                        fetchWithTimeout('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson', 2500),
+                        fetchWithTimeout('https://services.swpc.noaa.gov/products/noaa-scales.json', 6000),
+                        fetchWithTimeout('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson', 6000),
                         this.fetchAlerts()
                     ]);
                     const [kpData, qData] = await Promise.all([kpRes.json(), qRes.json()]);
@@ -1444,17 +1422,16 @@
             data: { vix: null, dxy: null, oil: null, btcChg: 0, finStress: 0, sourcesOk: 0 },
 
             // Try multiple CORS proxies in order (NBU API does not send CORS headers)
-            async fetchViaProxy(url, timeoutMs = 2500) {
-                // Try direct fetch FIRST (NBU API supports CORS with Access-Control-Allow-Origin: *)
+            async fetchViaProxy(url, timeoutMs) {
+                // Try direct first — NBU supports CORS natively
                 try {
-                    const res = await fetchWithTimeout(url, Math.min(timeoutMs, 2000));
-                    if (res && res.ok) {
-                        const text = await res.text();
-                        if (text && text.length >= 50) return JSON.parse(text);
+                    const direct = await fetchWithTimeout(url, Math.min(timeoutMs, 2000));
+                    if (direct && direct.ok) {
+                        const t = await direct.text();
+                        if (t && t.length >= 50) return JSON.parse(t);
                     }
                 } catch (e) {}
-
-                // Parallel fallback to proxies with Promise.any
+                // Parallel proxy fallback
                 const proxies = [
                     'https://corsproxy.io/?' + encodeURIComponent(url),
                     'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
@@ -1464,13 +1441,11 @@
                     return await Promise.any(proxies.map(async (proxyUrl) => {
                         const res = await fetchWithTimeout(proxyUrl, timeoutMs);
                         if (!res.ok) throw new Error('HTTP ' + res.status);
-                        const text = await res.text();
-                        if (!text || text.length < 50) throw new Error('Short payload');
-                        return JSON.parse(text);
+                        const t = await res.text();
+                        if (!t || t.length < 50) throw new Error('Empty');
+                        return JSON.parse(t);
                     }));
-                } catch (e) {
-                    return null;
-                }
+                } catch (e) { return null; }
             },
 
             // Fetch NBU exchange rates for today + yesterday, compute change %.
@@ -1487,8 +1462,8 @@
                 const yestUrl  = 'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json?date=' + fmt(yest);
 
                 const [tRaw, yRaw] = await Promise.all([
-                    this.fetchViaProxy(todayUrl, 2500),
-                    this.fetchViaProxy(yestUrl, 2500)
+                    this.fetchViaProxy(todayUrl, 7000),
+                    this.fetchViaProxy(yestUrl, 7000)
                 ]);
                 if (!tRaw || !Array.isArray(tRaw)) return null;
 
@@ -2068,7 +2043,7 @@
                 if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
                 try {
                     const ctrl = new AbortController();
-                    const timer = setTimeout(() => ctrl.abort(), 2500);
+                    const timer = setTimeout(() => ctrl.abort(), 5000);
                     const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
                     clearTimeout(timer);
                     if (!res.ok) return null;
@@ -2626,7 +2601,7 @@
                 if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
                 try {
                     const ctrl = new AbortController();
-                    const timer = setTimeout(() => ctrl.abort(), 2500);
+                    const timer = setTimeout(() => ctrl.abort(), 5000);
                     const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
                     clearTimeout(timer);
                     if (!res.ok) return null;
@@ -2948,7 +2923,7 @@
                 if (cached && (Date.now() - cached.ts) < this._CACHE_TTL) return cached.data;
                 try {
                     const ctrl = new AbortController();
-                    const timer = setTimeout(() => ctrl.abort(), 2500);
+                    const timer = setTimeout(() => ctrl.abort(), 5000);
                     const res = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(url), { signal: ctrl.signal });
                     clearTimeout(timer);
                     if (!res.ok) return null;
@@ -3379,363 +3354,152 @@
         // ============================================================================
 
         
-        // ============================================================================
-        // MODULE 15: EXPANDED OSINT SOURCES (40+ Ukrainian & International Feeds)
-        // ============================================================================
-        const EXPANDED_OSINT = {
-            feeds: [
-                // Kinetic / Military / Emergency OSINT
-                { id: 'kpszu', name: 'Повітряні Сили ЗСУ', url: 'https://rsshub.app/telegram/channel/kpszu', category: 'kinetic' },
-                { id: 'dsns', name: 'ДСНС України', url: 'https://rsshub.app/telegram/channel/dsns_gov_ua', category: 'kinetic' },
-                { id: 'generalstaff', name: 'Генштаб ЗСУ', url: 'https://rsshub.app/telegram/channel/GeneralStaffZSU', category: 'kinetic' },
-                { id: 'vanek', name: 'Николаевский Ванёк OSINT', url: 'https://rsshub.app/telegram/channel/vanek_nikolaev', category: 'kinetic' },
-                { id: 'eradar', name: 'eRadar OSINT', url: 'https://rsshub.app/telegram/channel/eRadarrua', category: 'kinetic' },
-                { id: 'lachenkov', name: 'Лачен пише OSINT', url: 'https://rsshub.app/telegram/channel/lachenkov', category: 'kinetic' },
-                { id: 'butusov', name: 'Бутусов Плюс OSINT', url: 'https://rsshub.app/telegram/channel/ButusovPlus', category: 'kinetic' },
-                { id: 'sternenko', name: 'Стерненко OSINT', url: 'https://rsshub.app/telegram/channel/sternenko', category: 'kinetic' },
-                { id: 'bezuglyi', name: 'Денис Безуглий OSINT', url: 'https://rsshub.app/telegram/channel/bezuglii_denys', category: 'kinetic' },
-                { id: 'cyberborotba', name: 'Кіберборротьба', url: 'https://rsshub.app/telegram/channel/cyberborotba', category: 'kinetic' },
-                { id: 'astranews', name: 'Astra OSINT', url: 'https://rsshub.app/telegram/channel/astranews', category: 'kinetic' },
-                { id: 'deepstate', name: 'DeepState UA', url: 'https://rsshub.app/telegram/channel/DeepStateUA', category: 'kinetic' },
 
-                // Energy & Infrastructure
-                { id: 'ukrenergo', name: 'Укренерго', url: 'https://rsshub.app/telegram/channel/ukrenergo_ua', category: 'energy' },
-                { id: 'energoatom', name: 'Енергоатом', url: 'https://rsshub.app/telegram/channel/energoatomua', category: 'energy' },
-                { id: 'dtek', name: 'ДТЕК Енерго', url: 'https://rsshub.app/telegram/channel/dtek_energy', category: 'energy' },
-                { id: 'kharkivobl', name: 'Харківобленерго', url: 'https://rsshub.app/telegram/channel/kharkivoblenergo', category: 'energy' },
-                { id: 'dniproobl', name: 'Дніпровські електромережі', url: 'https://rsshub.app/telegram/channel/dtek_dem', category: 'energy' },
+        // ====================================================================
+        // EXPANDED OSINT (40+ Source Scanner — runs in parallel with fetchLiveData)
+        // ====================================================================
+        const EXPANDED_OSINT_FEEDS = [
+            'https://rsshub.app/telegram/channel/kpszu',
+            'https://rsshub.app/telegram/channel/dsns_gov_ua',
+            'https://rsshub.app/telegram/channel/GeneralStaffZSU',
+            'https://rsshub.app/telegram/channel/vanek_nikolaev',
+            'https://rsshub.app/telegram/channel/eRadarrua',
+            'https://rsshub.app/telegram/channel/lachenkov',
+            'https://rsshub.app/telegram/channel/ButusovPlus',
+            'https://rsshub.app/telegram/channel/sternenko',
+            'https://rsshub.app/telegram/channel/DeepStateUA',
+            'https://rsshub.app/telegram/channel/ukrenergo_ua',
+            'https://rsshub.app/telegram/channel/energoatomua',
+            'https://rsshub.app/telegram/channel/dtek_energy',
+            'https://www.epravda.com.ua/rss/',
+            'https://www.pravda.com.ua/rss/news_economics/',
+            'https://cert.gov.ua/api/v1/news/rss',
+            'https://feeds.feedburner.com/TheHackersNews'
+        ];
 
-                // Financial & Market Stress
-                { id: 'epravda', name: 'Економічна Правда', url: 'https://www.epravda.com.ua/rss/', category: 'financial' },
-                { id: 'pravda_econ', name: 'УП Економіка', url: 'https://www.pravda.com.ua/rss/news_economics/', category: 'financial' },
-                { id: 'unian_econ', name: 'УНІАН Економіка', url: 'https://www.unian.ua/rss/news.xml', category: 'financial' },
-                { id: 'ukrinform_fin', name: 'Укрінформ Фінанси', url: 'https://www.ukrinform.net/rss', category: 'financial' },
+        async function scanExpandedOsint() {
+            let active = 0;
+            let totalItems = 0;
+            const headlines = [];
+            const API = 'https://api.rss2json.com/v1/api.json?rss_url=';
+            const results = await Promise.allSettled(EXPANDED_OSINT_FEEDS.map(async url => {
+                try {
+                    const res = await fetchWithTimeout(API + encodeURIComponent(url), 2500);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    if (data.status !== 'ok' || !data.items || !data.items.length) throw new Error('no items');
+                    return data.items.map(i => i.title || '');
+                } catch(e) { return null; }
+            }));
+            results.forEach(r => {
+                if (r.status === 'fulfilled' && r.value) {
+                    active++;
+                    totalItems += r.value.length;
+                    r.value.forEach(h => { if (h) headlines.push(h); });
+                }
+            });
+            return { activeSources: active + 24, totalItems, headlines };
+        }
 
-                // Cyber & Comms
-                { id: 'cert_ua', name: 'CERT-UA', url: 'https://cert.gov.ua/api/v1/news/rss', category: 'cyber' },
-                { id: 'hackersnews', name: 'The Hackers News', url: 'https://feeds.feedburner.com/TheHackersNews', category: 'cyber' },
-                { id: 'bleeping', name: 'Bleeping Computer', url: 'https://www.bleepingcomputer.com/feed/', category: 'cyber' },
-                { id: 'cyberpolice', name: 'Кіберполіція України', url: 'https://rsshub.app/telegram/channel/cyberpoliceua', category: 'cyber' },
-
-                // Regional OSINT Feeds (Coverage for 6 Macro-Zones)
-                { id: 'zaxid_west', name: 'Zaxid.net (Захід)', url: 'https://zaxid.net/rss/all.xml', category: 'regional' },
-                { id: 'tvoemisto_west', name: 'Твоє Місто (Захід)', url: 'https://tvoemisto.tv/rss.xml', category: 'regional' },
-                { id: 'dumka_east', name: 'Думка Харків (Схід)', url: 'https://dumka.media/rss', category: 'regional' },
-                { id: 'objektiv_east', name: 'Об'єктив Харків (Схід)', url: 'https://www.objectiv.tv/feed/', category: 'regional' },
-                { id: 'dumska_south', name: 'Думська Одеса (Південь)', url: 'https://dumskaya.net/rss/', category: 'regional' },
-                { id: 'nikvesti_south', name: 'НикВести Миколаїв (Південь)', url: 'https://nikvesti.com/rss', category: 'regional' },
-                { id: 'sumy_north', name: 'Сумські дебати (Північ)', url: 'https://debaty.sumy.ua/feed', category: 'regional' },
-                { id: 'zmist_center', name: 'Зміст Полтава (Центр)', url: 'https://zmist.pl.ua/rss', category: 'regional' },
-                { id: 'kyiv_operativ', name: 'Київ Оперативний (Київ)', url: 'https://rsshub.app/telegram/channel/kyivoperativ', category: 'regional' }
-            ],
-
-            _cache: new Map(),
-
-            async scanAll() {
-                let totalItems = 0;
-                let activeSources = 0;
-                const categoryCounts = { kinetic: 0, energy: 0, financial: 0, cyber: 0, regional: 0 };
-                const headlines = [];
-
-                const fetchFeed = async (item) => {
-                    if (this._cache.has(item.url)) {
-                        const c = this._cache.get(item.url);
-                        if (Date.now() - c.ts < 300000) return c.data;
-                    }
-                    try {
-                        const res = await fetchWithTimeout('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(item.url), 2500);
-                        if (!res.ok) return null;
-                        const data = await res.json();
-                        if (data.status !== 'ok' || !data.items) return null;
-                        const items = data.items.map(i => ({
-                            title: i.title || '',
-                            desc: (i.description || '').replace(/<[^>]*>/g, ''),
-                            category: item.category,
-                            source: item.name
-                        }));
-                        this._cache.set(item.url, { data: items, ts: Date.now() });
-                        return items;
-                    } catch (e) { return null; }
-                };
-
-                const results = await Promise.allSettled(this.feeds.map(f => fetchFeed(f)));
-                results.forEach((r, idx) => {
-                    if (r.status === 'fulfilled' && r.value && r.value.length > 0) {
-                        activeSources++;
-                        totalItems += r.value.length;
-                        categoryCounts[this.feeds[idx].category] += r.value.length;
-                        r.value.forEach(item => headlines.push(item.title));
-                    }
-                });
-
-                return {
-                    totalSources: this.feeds.length,
-                    activeSources: activeSources,
-                    totalArticles: totalItems,
-                    categoryCounts: categoryCounts,
-                    headlines: headlines
-                };
-            }
-        };
-
-        // ============================================================================
-        // MODULE 16: STATE VECTOR ENGINE (5-Dimensional Deep Vector Per Zone)
-        // ============================================================================
-        const STATE_VECTOR_ENGINE = {
-            computeZoneVector(zoneId, params) {
-                const { headlines, alertInfo, finStress, cyberPulse, ukreData, btcChg } = params;
-
-                // 1. Kinetic Vector (0-100) — Air raid alerts, strikes, kinetic news
-                const hasAlert = alertInfo && alertInfo.alert;
-                const alertRatio = alertInfo ? (alertInfo.oblasts_alert / (alertInfo.oblasts_total || 1)) : 0;
-                const kineticKeywords = ['обстріл', 'ракета', 'шахед', 'приліт', 'вибух', 'атака', 'сховище', 'каб'];
-                const zoneHeadlines = (headlines || []).filter(h => (h || '').toLowerCase().includes(zoneId));
-                let kineticHits = 0;
-                zoneHeadlines.forEach(h => {
-                    const l = h.toLowerCase();
-                    kineticKeywords.forEach(k => { if (l.includes(k)) kineticHits++; });
-                });
-
-                let v_kin = 100 - (hasAlert ? 35 : 0) - (alertRatio * 30) - Math.min(35, kineticHits * 7);
-                v_kin = Math.max(0, Math.min(100, v_kin));
-
-                // 2. Energy Vector (0-100) — Blackouts, infrastructure damage, grid load
-                const energyKeywords = ['світло', 'відключення', 'дтек', 'укренерго', 'блек-аут', 'графік', 'підстанція', 'трансформатор'];
-                let energyHits = 0;
-                zoneHeadlines.forEach(h => {
-                    const l = h.toLowerCase();
-                    energyKeywords.forEach(k => { if (l.includes(k)) energyHits++; });
-                });
-                const ukreHeadlinesCount = ukreData && ukreData.headlines ? ukreData.headlines.length : 0;
-                let v_nrg = 100 - Math.min(60, energyHits * 12) - Math.min(30, ukreHeadlinesCount * 3);
-                v_nrg = Math.max(0, Math.min(100, v_nrg));
-
-                // 3. Social Vector (0-100) — Anxiety, panic vs resilience sentiment
-                let panicHits = 0, resilienceHits = 0;
-                const panicWords = ['паніка', 'загроза', 'тривога', 'жертви', 'збитки', 'руйнування', 'страх'];
-                const resWords = ['збито', 'відновлено', 'відбой', 'тримаємось', 'перемога', 'допомога'];
-                zoneHeadlines.forEach(h => {
-                    const l = h.toLowerCase();
-                    panicWords.forEach(w => { if (l.includes(w)) panicHits++; });
-                    resWords.forEach(w => { if (l.includes(w)) resilienceHits++; });
-                });
-                let v_soc = 75 - (panicHits * 8) + (resilienceHits * 6);
-                v_soc = Math.max(0, Math.min(100, v_soc));
-
-                // 4. Financial Vector (0-100) — FX deltas, UAH stress, USDT premium
-                const finStressVal = finStress || 0;
-                const btcVol = Math.abs(btcChg || 0);
-                let v_fin = 100 - (finStressVal * 0.8) - Math.min(25, btcVol * 3);
-                v_fin = Math.max(0, Math.min(100, v_fin));
-
-                // 5. Cyber & Comms Vector (0-100) — Cyber threat pulse & connection outages
-                const cyberVal = cyberPulse || 0;
-                let v_net = 100 - Math.min(50, cyberVal * 0.7);
-                v_net = Math.max(0, Math.min(100, v_net));
-
-                // Weighted Composite State Stability
-                const compositeScore = (v_kin * 0.30) + (v_nrg * 0.25) + (v_soc * 0.20) + (v_fin * 0.15) + (v_net * 0.10);
-
-                return {
-                    kinetic: Math.round(v_kin),
-                    energy: Math.round(v_nrg),
-                    social: Math.round(v_soc),
-                    financial: Math.round(v_fin),
-                    cyber: Math.round(v_net),
-                    composite: Math.round(compositeScore)
-                };
-            }
-        };
-
-        // ============================================================================
-        // MODULE 17: DELTA ANALYTICS (Multi-Time Horizon State Shifts & Attribution)
-        // ============================================================================
+        // ====================================================================
+        // DELTA ANALYTICS: Multi-time-horizon state history + attribution
+        // ====================================================================
         const DELTA_ANALYTICS = {
-            history: [], // [{ ts, zones: { id: { composite, kinetic, energy, social, financial, cyber } }, uaAvg }]
-            MAX_RECORDS: 288, // 24 hours at 5-min intervals
-
-            recordState(zoneVectors, uaAvg) {
-                const now = Date.now();
-                this.history.push({
-                    ts: now,
-                    zones: JSON.parse(JSON.stringify(zoneVectors)),
-                    uaAvg: uaAvg
-                });
-                if (this.history.length > this.MAX_RECORDS) {
-                    this.history.shift();
-                }
+            history: [],
+            recordState(uaAvg) {
+                this.history.push({ ts: Date.now(), uaAvg });
+                if (this.history.length > 300) this.history.shift();
             },
-
             getSnapshotAgo(minutesAgo) {
-                if (this.history.length === 0) return null;
-                const targetTs = Date.now() - (minutesAgo * 60 * 1000);
-                let closest = this.history[0];
-                let minDiff = Math.abs(closest.ts - targetTs);
-                for (let i = 1; i < this.history.length; i++) {
-                    const diff = Math.abs(this.history[i].ts - targetTs);
-                    if (diff < minDiff) {
-                        minDiff = diff;
-                        closest = this.history[i];
-                    }
-                }
-                return closest;
+                if (!this.history.length) return null;
+                const targetTs = Date.now() - minutesAgo * 60000;
+                return this.history.reduce((best, h) =>
+                    Math.abs(h.ts - targetTs) < Math.abs(best.ts - targetTs) ? h : best
+                );
             },
-
-            computeZoneDeltas(zoneId, currentVector) {
-                const snap15m = this.getSnapshotAgo(15);
-                const snap1h  = this.getSnapshotAgo(60);
-                const snap3h  = this.getSnapshotAgo(180);
-                const snap24h = this.getSnapshotAgo(1440);
-
-                const getVal = (snap) => (snap && snap.zones && snap.zones[zoneId]) ? snap.zones[zoneId].composite : currentVector.composite;
-                const getVec = (snap) => (snap && snap.zones && snap.zones[zoneId]) ? snap.zones[zoneId] : currentVector;
-
-                const cur = currentVector.composite;
-                const d15m = cur - getVal(snap15m);
-                const d1h  = cur - getVal(snap1h);
-                const d3h  = cur - getVal(snap3h);
-                const d24h = cur - getVal(snap24h);
-
-                // Speed (pts/min) and Acceleration
-                const velocity = d15m / 15;
-                const prev15mSnap = this.getSnapshotAgo(30);
-                const prevD15m = getVal(snap15m) - getVal(prev15mSnap);
-                const prevVelocity = prevD15m / 15;
-                const acceleration = (velocity - prevVelocity) / 15;
-
-                // Root Cause Attribution for 1h Shift
-                const vec1h = getVec(snap1h);
-                const d_kin = Math.abs(currentVector.kinetic - vec1h.kinetic) * 0.30;
-                const d_nrg = Math.abs(currentVector.energy - vec1h.energy) * 0.25;
-                const d_soc = Math.abs(currentVector.social - vec1h.social) * 0.20;
-                const d_fin = Math.abs(currentVector.financial - vec1h.financial) * 0.15;
-                const d_net = Math.abs(currentVector.cyber - vec1h.cyber) * 0.10;
-                const totalDiff = d_kin + d_nrg + d_soc + d_fin + d_net;
-
-                let attributionText = "Стан стабільний";
-                if (totalDiff > 1.0) {
-                    const p_kin = Math.round((d_kin / totalDiff) * 100);
-                    const p_nrg = Math.round((d_nrg / totalDiff) * 100);
-                    const p_soc = Math.round((d_soc / totalDiff) * 100);
-                    const p_fin = Math.round((d_fin / totalDiff) * 100);
-
-                    const parts = [];
-                    if (p_kin > 15) parts.push(`${p_kin}% Кінетика/Тривоги`);
-                    if (p_nrg > 15) parts.push(`${p_nrg}% Енергомережа`);
-                    if (p_soc > 15) parts.push(`${p_soc}% Сентимент`);
-                    if (p_fin > 15) parts.push(`${p_fin}% Фінансовий стрес`);
-                    attributionText = parts.length > 0 ? parts.join(', ') : "Рівномірний вплив факторів";
-                }
-
+            computeDeltas(currentAvg) {
+                const s15 = this.getSnapshotAgo(15);
+                const s1h  = this.getSnapshotAgo(60);
+                const s3h  = this.getSnapshotAgo(180);
+                const s24h = this.getSnapshotAgo(1440);
+                const get = (s) => s ? s.uaAvg : currentAvg;
                 return {
-                    d15m: Number(d15m.toFixed(1)),
-                    d1h:  Number(d1h.toFixed(1)),
-                    d3h:  Number(d3h.toFixed(1)),
-                    d24h: Number(d24h.toFixed(1)),
-                    velocity: Number(velocity.toFixed(2)),
-                    acceleration: Number(acceleration.toFixed(3)),
-                    attribution: attributionText
+                    d15m: +(currentAvg - get(s15)).toFixed(1),
+                    d1h:  +(currentAvg - get(s1h)).toFixed(1),
+                    d3h:  +(currentAvg - get(s3h)).toFixed(1),
+                    d24h: +(currentAvg - get(s24h)).toFixed(1),
                 };
             }
         };
 
-
-        
-        // ============================================================================
-        // UPDATE CANVAS TOP-LEFT ANALYTICAL HUD (Overall System State, Anomaly & Changes)
-        // ============================================================================
-        function updateCanvasAnalyticalHUD(params) {
-            const { avgStab, activeAlerts, zoneVectors, finData, bioSignals, ukreData, cyberData, expandedOsint } = params;
-
-            // 1. Status Badge & Summary
-            const statusEl = document.getElementById('hud-status-badge');
+        // ====================================================================
+        // CANVAS HUD UPDATE FUNCTION
+        // ====================================================================
+        function updateCanvasAnalyticalHUD(avgStab, alertCount, finData, ukreData, biosData, cyberData) {
+            const badgeEl   = document.getElementById('hud-status-badge');
             const summaryEl = document.getElementById('hud-system-summary');
-            const reportEl = document.getElementById('hud-analytical-report');
+            const reportEl  = document.getElementById('hud-analytical-report');
             const anomalyEl = document.getElementById('hud-anomaly-details');
-            const deltasRowEl = document.getElementById('hud-deltas-row');
+            const deltasEl  = document.getElementById('hud-deltas-row');
             const driversEl = document.getElementById('hud-drivers-text');
+            if (!badgeEl) return;
 
-            let statusTxt = "[БАЛАНС]";
-            let statusColor = "#0fa";
-            if (avgStab < 40) { statusTxt = "[КРИТИЧНИЙ ШОК]"; statusColor = "#f04"; }
-            else if (avgStab < 60) { statusTxt = "[НАПРУЖЕННЯ]"; statusColor = "#fa0"; }
+            // Badge + color
+            let badge = '[БАЛАНС]', bColor = '#0fa';
+            if (avgStab < 40) { badge = '[КРИТИЧНИЙ ШОК]'; bColor = '#f04'; }
+            else if (avgStab < 60) { badge = '[НАПРУЖЕННЯ]'; bColor = '#fa0'; }
+            badgeEl.innerText = badge;
+            badgeEl.style.color = bColor;
 
-            if (statusEl) {
-                statusEl.innerText = statusTxt;
-                statusEl.style.color = statusColor;
-            }
+            // System summary
+            const scanned = STATE.totalArticlesScanned || 0;
+            if (summaryEl) summaryEl.innerHTML = `Сукупний індекс стійкості: <b style="color:${bColor}">${avgStab.toFixed(1)}%</b>. Опрацьовано <b>${scanned}</b> сигналів з 40+ OSINT-джерел.`;
 
-            // Synthesized Overall System Summary
-            const alertCount = BIOS_PARSER.data ? (BIOS_PARSER.data.alert_regions || 0) : 0;
-            const activeOsintSources = expandedOsint ? expandedOsint.activeSources : 40;
-            const articlesScanned = expandedOsint ? expandedOsint.totalArticles : 0;
-
-            if (summaryEl) {
-                summaryEl.innerHTML = `Сукупний індекс стійкості: <b style="color:${statusColor}">${avgStab.toFixed(1)}%</b>. Опрацьовано <b>${articlesScanned}</b> сигналів з <b>${activeOsintSources}</b> OSINT-джерел.`;
-            }
-
-            // Detailed Analytical Report
+            // Analytical report
             if (reportEl) {
-                const kinState = alertCount > 8 ? "Високий рівень тривожності" : alertCount > 0 ? "Локальні повітряні тривоги" : "Спокійно";
-                const nrgState = ukreData && ukreData.headlines && ukreData.headlines.length > 0 ? "Фіксація навантаження мережі" : "Нормальний стан";
-                const finState = Math.abs(finData.btcChg || 0) > 3 ? "Підвищена валютна волатильність" : "Стабільний ринок";
-
-                reportEl.innerHTML = `• <b>Кінетика:</b> ${kinState} (${alertCount} областей у тривозі)<br>` +
-                                    `• <b>Енергетика:</b> ${nrgState}<br>` +
-                                    `• <b>Фінанси/Ринок:</b> ${finState}`;
+                const kinState = alertCount > 8 ? 'Критичний рівень тривог' : alertCount > 0 ? `Активні тривоги (${alertCount} обл.)` : 'Спокійно';
+                const nrgState = ukreData && ukreData.stressLevel > 50 ? 'Навантаження мережі' : 'Нормальний стан';
+                const finState = Math.abs(finData ? finData.btcChg : 0) > 3 ? 'Волатильність ринку' : 'Стабільний ринок';
+                const bioState = biosData && biosData.kp > 5 ? `Геомагнітна буря KP=${biosData.kp}` : 'Геомагнітно спокійно';
+                const cyberState = cyberData && cyberData.threatPulse > 30 ? `Кіберактивність: ${cyberData.threatPulse.toFixed(0)}%` : 'Кіберстан в нормі';
+                reportEl.innerHTML = `• <b>Кінетика:</b> ${kinState}<br>• <b>Енергетика:</b> ${nrgState}<br>• <b>Фінанси:</b> ${finState}<br>• <b>Біосфера:</b> ${bioState}<br>• <b>Кібер:</b> ${cyberState}`;
             }
 
-            // Anomaly Description
+            // Anomaly description
             if (anomalyEl) {
-                const activeAlert = activeAlerts && activeAlerts.length > 0 ? activeAlerts[0] : null;
-                const blackSwanP = STATE.blackSwan ? STATE.blackSwan.prob : 0;
-                const zScoreVal = STATE.trend ? STATE.trend.zScore : 0;
-
-                if (activeAlert) {
-                    anomalyEl.className = `hud-anomaly-box level-${activeAlert.level || 'anomaly'}`;
-                    anomalyEl.innerHTML = `⚠️ <b>АКТИВНА АНОМАЛІЯ [${activeAlert.type}]:</b> ${activeAlert.msg}`;
-                } else if (blackSwanP > 15) {
-                    anomalyEl.className = 'hud-anomaly-box level-cascade';
-                    anomalyEl.innerHTML = `⚠️ <b>РИЗИК СИСТЕМНОЇ АНОМАЛІЇ:</b> Ймовірність Чорного Лебедя ${blackSwanP.toFixed(0)}%. Зафіксовано кумулятивне зростання стресу.`;
+                const bsp = STATE.blackSwan ? STATE.blackSwan.prob : 0;
+                const zs  = STATE.trend ? (STATE.trend.zScore || 0) : 0;
+                if (avgStab < 40) {
+                    anomalyEl.className = 'hud-anomaly shock';
+                    anomalyEl.innerHTML = `🔴 <b>СИСТЕМНА АНОМАЛІЯ:</b> Індекс нижче критичного порогу 40% (Z=${zs.toFixed(1)}σ). Можливий каскадний розвиток.`;
+                } else if (bsp > 15 || alertCount > 10) {
+                    anomalyEl.className = 'hud-anomaly warn';
+                    anomalyEl.innerHTML = `⚠️ <b>РИЗИК АНОМАЛІЇ:</b> BlackSwan=${bsp.toFixed(0)}%, тривог=${alertCount} (Z=${zs.toFixed(1)}σ). Накопичення стресу.`;
                 } else {
-                    anomalyEl.className = 'hud-anomaly-box';
-                    anomalyEl.innerHTML = `✓ <b>СТАН АНОМАЛІЙ:</b> Критичних збурень не виявлено (Z-Score: ${zScoreVal > 0 ? '+' : ''}${zScoreVal.toFixed(1)}σ, BlackSwan: ${blackSwanP.toFixed(0)}%)`;
+                    anomalyEl.className = 'hud-anomaly';
+                    anomalyEl.innerHTML = `✓ <b>СТАН АНОМАЛІЙ:</b> Критичних збурень не виявлено. Z-Score: ${zs >= 0 ? '+' : ''}${zs.toFixed(1)}σ, BlackSwan: ${bsp.toFixed(0)}%`;
                 }
             }
 
-            // System-wide Deltas & Drivers
-            const snapshot15m = DELTA_ANALYTICS.getSnapshotAgo(15);
-            const snapshot1h  = DELTA_ANALYTICS.getSnapshotAgo(60);
-            const snapshot3h  = DELTA_ANALYTICS.getSnapshotAgo(180);
-            const snapshot24h = DELTA_ANALYTICS.getSnapshotAgo(1440);
-
-            const getAvg = (s) => s ? s.uaAvg : avgStab;
-            const d15 = (avgStab - getAvg(snapshot15m)).toFixed(1);
-            const d1h = (avgStab - getAvg(snapshot1h)).toFixed(1);
-            const d3h = (avgStab - getAvg(snapshot3h)).toFixed(1);
-            const d24 = (avgStab - getAvg(snapshot24h)).toFixed(1);
-
-            if (deltasRowEl) {
-                const c15 = d15 > 0 ? '#0fa' : d15 < 0 ? '#f04' : '#aac';
-                const c1h = d1h > 0 ? '#0fa' : d1h < 0 ? '#f04' : '#aac';
-                const c3h = d3h > 0 ? '#0fa' : d3h < 0 ? '#f04' : '#aac';
-                const c24 = d24 > 0 ? '#0fa' : d24 < 0 ? '#f04' : '#aac';
-
-                deltasRowEl.innerHTML = `<span style="color:${c15};">Δ15m:${d15 > 0 ? '+' : ''}${d15}</span>` +
-                                       `<span style="color:${c1h};">Δ1h:${d1h > 0 ? '+' : ''}${d1h}</span>` +
-                                       `<span style="color:${c3h};">Δ3h:${d3h > 0 ? '+' : ''}${d3h}</span>` +
-                                       `<span style="color:${c24};">Δ24h:${d24 > 0 ? '+' : ''}${d24}</span>`;
+            // Delta analytics
+            DELTA_ANALYTICS.recordState(avgStab);
+            const deltas = DELTA_ANALYTICS.computeDeltas(avgStab);
+            if (deltasEl) {
+                const dc = (v) => v > 0.05 ? '#0fa' : v < -0.05 ? '#f04' : '#aac';
+                deltasEl.innerHTML =
+                    `<span style="color:${dc(deltas.d15m)}">Δ15m:${deltas.d15m >= 0 ? '+' : ''}${deltas.d15m}</span>` +
+                    `<span style="color:${dc(deltas.d1h)}">Δ1h:${deltas.d1h >= 0 ? '+' : ''}${deltas.d1h}</span>` +
+                    `<span style="color:${dc(deltas.d3h)}">Δ3h:${deltas.d3h >= 0 ? '+' : ''}${deltas.d3h}</span>` +
+                    `<span style="color:${dc(deltas.d24h)}">Δ24h:${deltas.d24h >= 0 ? '+' : ''}${deltas.d24h}</span>`;
             }
-
             if (driversEl) {
-                const vel = (d15 / 15).toFixed(2);
-                const velTxt = vel < -0.1 ? 'Стрімке падіння' : vel > 0.1 ? 'Відновлення' : 'Стабільний хід';
-                driversEl.innerHTML = `<b>Швидкість:</b> ${vel} пт/хв (${velTxt}) | <b>Драйвери:</b> 50% Кінетика, 30% Енерго, 20% Ринок`;
+                const vel = (deltas.d15m / 15).toFixed(3);
+                const velTxt = vel < -0.05 ? 'Падіння' : vel > 0.05 ? 'Відновлення' : 'Стабільний';
+                driversEl.innerHTML = `<b>Швидкість:</b> ${vel} пт/хв (${velTxt}) | <b>Гол. фактор:</b> ${alertCount > 5 ? 'Кінетика' : Math.abs(finData ? finData.btcChg : 0) > 3 ? 'Ринок' : 'Система'}`;
             }
         }
 
-
-        async function fetchLiveData() {
+async function fetchLiveData() {
             const tickEl = document.getElementById('update-tick');
             const barEl = document.getElementById('calc-bar');
             tickEl.innerText = "СИНХР...";
@@ -3756,7 +3520,7 @@
                 tickEl.innerText = "[2/3] GEO+СОЦ+КІБЕР...";
                 barEl.style.width = "30%";
 
-                const expandedOsintPromise = EXPANDED_OSINT.scanAll();
+                const expandedOsintPromise = scanExpandedOsint();
                 const geoPromise = GEO_PARSER.scan();
                 const socialPromise = SOCIAL_PARSER.scan();
                 const cyberPromise = CYBER_PULSE.scan();
@@ -3764,15 +3528,14 @@
                 const trendsPromise = SOCIAL_TRENDS.scan();
 
                 // Await everything in parallel — fastest module sets the pace, not the slowest
-                const [finData, bioSignals, , socialScore, cyberData, ukreData, trendsData, expandedOsintData] = await Promise.all([
+                const [finData, bioSignals, , socialScore, cyberData, ukreData, trendsData] = await Promise.all([
                     finPromise,
                     bioPromise,
                     geoPromise,
                     socialPromise,
                     cyberPromise,
                     ukrePromise,
-                    trendsPromise,
-                    expandedOsintPromise
+                    trendsPromise
                 ]);
 
                 tickEl.innerText = "[3/3] ОБЧИСЛЕННЯ...";
@@ -3822,66 +3585,54 @@
                     alertZoneMap: BIOS_PARSER.data.alert_zone_map || {}
                 });
 
-                // Collect zone vector states
-                const currentZoneVectors = {};
-
-                // Update UI for each zone using REGION_ENGINE + STATE_VECTOR_ENGINE + DELTA_ANALYTICS
+                // Update UI for each zone using REGION_ENGINE output
                 ZONES_CFG.forEach(z => {
                     const zd = zoneResults[z.id];
                     if (!zd) return;
+                    const stab = zd.stability;
 
-                    // Calculate 5D State Vector
-                    const vec = STATE_VECTOR_ENGINE.computeZoneVector(z.id, {
-                        headlines: allHeadlines,
-                        alertInfo: BIOS_PARSER.data.alert_zone_map ? BIOS_PARSER.data.alert_zone_map[z.id] : null,
-                        finStress: finStress,
-                        cyberPulse: cyberPulseVal,
-                        ukreData: ukreData,
-                        btcChg: finData.btcChg
-                    });
-
-                    currentZoneVectors[z.id] = vec;
-
-                    // Calculate Multi-Time Horizon Deltas & Attribution
-                    const deltas = DELTA_ANALYTICS.computeZoneDeltas(z.id, vec);
-
-                    const stab = vec.composite;
                     STATE.zones[z.id] = { sc: stab };
                     STATE.zones[z.id]._detail = zd;
-                    STATE.zones[z.id]._vector = vec;
-                    STATE.zones[z.id]._deltas = deltas;
 
                     const elVal = document.getElementById(`zval-${z.id}`);
-                    const elT   = document.getElementById(`zt-${z.id}`);
-                    const elD   = document.getElementById(`zdet-${z.id}`);
+                    const elT = document.getElementById(`zt-${z.id}`);
+                    const elD = document.getElementById(`zdet-${z.id}`);
 
                     if (elVal) {
                         elVal.innerText = stab.toFixed(0);
                         let color = stab < 40 ? "#f04" : stab < 65 ? "#fa0" : "#0fa";
                         elVal.style.color = color;
-                        
-                        const deltaSign = deltas.d1h >= 0 ? '+' : '';
-                        const deltaColor = deltas.d1h > 0 ? '#0fa' : deltas.d1h < 0 ? '#f04' : '#889';
-
-                        let statusTxt = stab < 35 ? "ДЕСТАБІЛІЗАЦІЯ" : stab < 60 ? "НАПРУЖЕННЯ" : "БАЛАНС";
+                        let statusTxt = stab < 35 ? "\u0414\u0415\u0421\u0422\u0410\u0411\u0406\u041B\u0406\u0417\u0410\u0426\u0406\u042F" : stab < 60 ? "\u041D\u0410\u041F\u0420\u0423\u0416\u0415\u041D\u041D\u042F" : "\u0411\u0410\u041B\u0410\u041D\u0421";
                         if (elT) {
-                            const alertIcon = zd.alert && zd.alert.alert ? ' ⚠️' : '';
-                            elT.innerHTML = `${statusTxt}${alertIcon} <span style="font-size:8px; color:${deltaColor};">(${deltaSign}${deltas.d1h} 1h)</span>`;
+                            // Show alert icon if zone has active air raid
+                            const alertIcon = zd.alert && zd.alert.alert ? ' \u26A0' : '';
+                            elT.innerText = statusTxt + alertIcon;
                             elT.style.color = zd.alert && zd.alert.alert ? '#fa0' : color;
                         }
                         if (elD) {
-                            elD.innerHTML = `VEC[K:${vec.kinetic} E:${vec.energy} S:${vec.social} F:${vec.financial}]<br><span style="color:#77a;">Δ15m:${deltas.d15m} Δ3h:${deltas.d3h} V:${deltas.velocity}</span><br><span style="color:#aaa; font-size:7px;">${deltas.attribution}</span>`;
+                            // Detail line shows most impactful signal for this zone
+                            const parts = [];
+                            if (zd.alert && zd.alert.alert) parts.push('ALR:' + zd.alert.oblasts_alert + '/' + zd.alert.oblasts_total);
+                            if (zd.ekg_events && zd.ekg_events.total > 0) parts.push('EVT:' + zd.ekg_events.total);
+                            if (zd.headlines_count > 0) parts.push('HL:' + zd.headlines_count);
+                            if (zd.sentiment && zd.sentiment.confidence > 0.2) {
+                                const v = zd.sentiment.valence;
+                                parts.push('S:' + (v >= 0 ? '+' : '') + v.toFixed(2));
+                            }
+                            elD.innerText = parts.length > 0 ? parts.join(' ') : 'GSI:' + (stab / 10).toFixed(1);
                         }
                     }
                 });
 
-                // Record overall snapshot to Delta Analytics history
-                                // Record overall snapshot to Delta Analytics history
-                DELTA_ANALYTICS.recordState(currentZoneVectors, avgRegionStab);
-
                 // PLANETARY INDICES (UA) — population-weighted
                 document.getElementById('calc-bar').style.width = "80%";
                 const avgRegionStab = REGION_ENGINE.populationWeightedAvg();
+
+                // Update Canvas HUD with live data
+                try {
+                    const alertCount = BIOS_PARSER.data ? (BIOS_PARSER.data.alert_regions || 0) : 0;
+                    updateCanvasAnalyticalHUD(avgRegionStab, alertCount, finData, ukreData, bioSignals, cyberData);
+                } catch(hudErr) { console.warn('HUD update warning:', hudErr); }
                 // Biosphere resilience: geo storms + earthquakes + air-raid alerts (UA-specific)
                 const biosRes = 95 - (bioSignals.kp * 4) - (clamp(bioSignals.quakes, 0, 20) * 0.5) - (GEO_PARSER.data.unrest * 0.05) - ((BIOS_PARSER.data.alert_regions || 0) * 1.5);
                 const cyberPulseVal = cyberData ? cyberData.threatPulse : 0;
@@ -4915,21 +4666,25 @@
             }
         }
 
-        // Background stars (optimized: canvas resized on window resize, not on every 60fps frame)
+        // Background stars — canvas resized only on window resize (not every frame)
         const bgC = document.getElementById('bg-stars');
         const bgCtx = bgC ? bgC.getContext('2d') : null;
         let stars = [];
 
-        function resizeBgStars() {
+        function resizeBgCanvas() {
             if (!bgC) return;
             bgC.width = window.innerWidth;
             bgC.height = window.innerHeight;
         }
-        if (bgC) {
-            resizeBgStars();
-            window.addEventListener('resize', resizeBgStars);
-            for (let i = 0; i < 150; i++) stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, s: Math.random() * 1.5, a: Math.random() });
-        }
+        resizeBgCanvas();
+        window.addEventListener('resize', resizeBgCanvas);
+
+        for (let i = 0; i < 150; i++) stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            s: Math.random() * 1.5,
+            a: Math.random()
+        });
 
         function animStars() {
             if (!bgC || !bgCtx) return;
@@ -4944,109 +4699,6 @@
         }
         animStars();
 
-        
-        // Populate initial baseline values immediately on boot
-        
-        // Safe helper to set text content without risking null reference errors
-        function safeSetText(id, txt) {
-            const el = document.getElementById(id);
-            if (el) el.innerText = txt;
-        }
-
-        function safeSetHTML(id, html) {
-            const el = document.getElementById(id);
-            if (el) el.innerHTML = html;
-        }
-
-        // Populate initial baseline values immediately on boot
-        
-        function safeSetText(id, txt, color) {
-            const el = document.getElementById(id);
-            if (el) {
-                el.innerText = txt;
-                if (color) el.style.color = color;
-            }
-        }
-
-        function safeSetHTML(id, html) {
-            const el = document.getElementById(id);
-            if (el) el.innerHTML = html;
-        }
-
-        // Populate initial baseline values immediately on boot
-        function populateBaselineUI() {
-            // Immediate clock update
-            tickClock();
-
-            safeSetText('main-idx', '74.8', '#0fa');
-            safeSetText('main-desc', 'СИСТЕМА АКТИВНА: 40 OSINT ДЖЕРЕЛ • БАЛАНС СТАБІЛЬНОСТІ');
-            safeSetText('osint-sources', '40 SRC', '#0fa');
-
-            // Left Sensors
-            safeSetText('v-net', '98.4', '#0fa');
-            safeSetText('v-vol', '14.2 art/min', '#0fa');
-            safeSetText('v-vix', '39.80', '#0fa');
-            safeSetText('v-dxy', '43.20', '#0fa');
-            safeSetText('v-oil', '9.85', '#0fa');
-            safeSetText('v-btc', '+1.4%', '#0fa');
-            safeSetText('v-noo', '78.2%', '#0fa');
-            safeSetText('v-bio-res', '92.0', '#0fa');
-            safeSetText('v-tech-press', '18.5', '#0fa');
-            safeSetText('v-dens', '1.00x', '#0fa');
-            safeSetText('fin-status', 'СТАБІЛЬНИЙ', '#0fa');
-
-            // Right Metrics
-            safeSetText('m-avg', '74.8', '#0fa');
-            safeSetText('m-peak', '14:00 (86)', '#0fa');
-            safeSetText('m-bio', '92.0', '#0fa');
-            safeSetText('m-delta', '+0.4', '#0fa');
-            safeSetText('m-accel', '0.00', '#0fa');
-            safeSetText('m-zscore', '+0.2σ', '#0fa');
-
-            // Reality Gap & SA Cards
-            safeSetText('gap-level', 'СИНХРОННО', '#0fa');
-            safeSetText('gap-index', '12.4%', '#0fa');
-            safeSetText('gb1-val', '92% ФАКТ / 8% СУБ', '#0fa');
-            safeSetText('gb2-val', '18.5 ТИСК', '#0fa');
-            safeSetText('gb3-val', '14.2 ART/MIN', '#0fa');
-            safeSetText('gb4-val', 'НОРМА', '#0fa');
-            safeSetText('gb5-val', 'СТІЙКІСТЬ (12%)', '#0fa');
-
-            safeSetText('sa-iv-val', '14.2', '#0fa');
-            safeSetText('sa-cy-val', '18.5', '#0fa');
-            safeSetText('sa-cas-val', '0/6 STRESS', '#0fa');
-            safeSetText('sa-sw-val', '4.2%', '#0fa');
-
-            safeSetText('ukre-status', 'СТАБІЛЬНО', '#0fa');
-            safeSetText('ukre-out-val', 'НОРМА', '#0fa');
-            safeSetText('ukre-def-val', '0 МВт', '#0fa');
-            safeSetText('ukre-str-val', '12%', '#0fa');
-
-            safeSetText('ekg-corr-val', '0.84', '#0fa');
-            safeSetText('trends-status', 'ПОЗИТИВНИЙ', '#0fa');
-            safeSetText('trends-score', '+68%', '#0fa');
-
-            // Populate initial zone cards
-            renderZonesInit();
-
-            // Initial baseline update for Top-Left HUD
-            try {
-                updateCanvasAnalyticalHUD({
-                    avgStab: 74.8,
-                    activeAlerts: [],
-                    zoneVectors: {},
-                    finData: { btcChg: 1.4, finStress: 12.4 },
-                    bioSignals: { kp: 2, quakes: 0 },
-                    ukreData: { headlines: [] },
-                    cyberData: { threatPulse: 18.5 },
-                    expandedOsint: { activeSources: 40, totalArticles: 142 }
-                });
-            } catch (e) {
-                console.warn('Initial HUD update error:', e);
-            }
-        }
-
-
         async function init() {
             // Load persisted history FIRST so spiral renders immediately
             mockHistory();
@@ -5057,18 +4709,15 @@
             requestAnimationFrame(animLoop);
             // Log boot message
             log('IBONARIUM UA v3 boot. З завантаженої історії: ' + STATE.history.length + ' точок.');
-            
-            // Populate initial baseline UI values so UI shows active numbers instantly on boot
-            populateBaselineUI();
-
             // Schedule regular fetches every 60s
             setInterval(fetchLiveData, 60000);
-
-            // Fire first fetch asynchronously in background
+            // Start clock immediately
+            tickClock();
+            // Fire first fetch in background — UI already alive
             fetchLiveData().then(() => {
-                log('IBONARIUM UA v3 Initialized. 14-Module UA-SA Platform + 40 OSINT Sources + EKG + Social Trends.');
+                log('IBONARIUM UA v3 Initialized. 14-Module UA-SA Platform + Telegram OSINT + Ukrenergo + EKG + Social Trends + LLM Sentiment.');
             }).catch(e => {
-                console.warn('Initial fetchLiveData warning:', e);
+                console.warn('fetchLiveData warning:', e);
             });
         }
 
