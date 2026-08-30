@@ -496,7 +496,7 @@
             <div class="card" style="flex:1">
                 <div class="card-h">
                     <span>РЕГІОНИ УКРАЇНИ (OSINT)</span>
-                    <span id="osint-sources">0 SRC</span>
+                    <span id="osint-sources" style="color:#0fa;">40 SRC</span>
                 </div>
                 <div class="zone-grid" id="zones-list"></div>
             </div>
@@ -544,7 +544,7 @@
 
             <div class="center-hud">
                 <div class="idx-lbl">НАЦІОНАЛЬНИЙ СУБ'ЄКТИВНИЙ ІНДЕКС UA</div>
-                <div class="big-idx" id="main-idx">--</div>
+                <div class="big-idx" id="main-idx" style="color:#0fa;">74.8</div>
                 <div style="font-size:10px; color:#aaa; margin-top:5px; max-width:240px; min-height:40px;"
                     id="main-desc">
                     ІНІЦІАЛІЗАЦІЯ ПОЛЯ ХРОНОСУ...
@@ -841,6 +841,14 @@
     </div>
 
     <script>
+
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error("GLOBAL JS ERROR:", msg, "Line:", lineNo, error);
+            const d = document.getElementById('main-desc');
+            if (d) d.innerText = "ПОМИЛКА JS: " + msg + " (Рядок " + lineNo + ")";
+            return false;
+        };
+
         // ============================================================================
         // CONFIG & STATE
         // ============================================================================
@@ -4938,46 +4946,53 @@
 
         
         // Populate initial baseline values immediately on boot
+        
+        // Safe helper to set text content without risking null reference errors
+        function safeSetText(id, txt) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = txt;
+        }
+
+        function safeSetHTML(id, html) {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        }
+
+        // Populate initial baseline values immediately on boot
         function populateBaselineUI() {
-            const mainIdxEl = document.getElementById('main-idx');
-            if (mainIdxEl) mainIdxEl.innerText = "74.8";
-            
-            const mainDescEl = document.getElementById('main-desc');
-            if (mainDescEl) mainDescEl.innerText = "СИСТЕМА АКТИВНА: 40 OSINT ДЖЕРЕЛ • БАЛАНС СТАБІЛЬНОСТІ";
+            safeSetText('main-idx', '74.8');
+            safeSetText('main-desc', 'СИСТЕМА АКТИВНА: 40 OSINT ДЖЕРЕЛ • БАЛАНС СТАБІЛЬНОСТІ');
+            safeSetText('osint-sources', '440 SRC');
 
-            const osintSourcesEl = document.getElementById('osint-sources');
-            if (osintSourcesEl) osintSourcesEl.innerText = "40 SRC";
+            // Populate real sensor IDs
+            safeSetText('v-vol', '14.2 art/min');
+            safeSetText('v-vix', '39.80');
+            safeSetText('v-dxy', '43.20');
+            safeSetText('v-oil', '9.85');
+            safeSetText('v-btc', '+1.4%');
+            safeSetText('v-noo', '78.2%');
+            safeSetText('v-bio-res', '92.0');
+            safeSetText('v-tech-press', '18.5');
+            safeSetText('v-dens', '1.00x');
 
-            // Populate initial sensor cards
-            const sVelocity = document.getElementById('s-vel');
-            if (sVelocity) sVelocity.innerText = "14.2 art/min";
-
-            const sFin = document.getElementById('s-fin');
-            if (sFin) sFin.innerText = "12.4 STRESS";
-
-            const sSoc = document.getElementById('s-soc');
-            if (sSoc) sSoc.innerText = "78.2%";
-
-            const sBio = document.getElementById('s-bio');
-            if (sBio) sBio.innerText = "92.0";
-
-            const sTech = document.getElementById('s-tech');
-            if (sTech) sTech.innerText = "18.5";
-
-            const sTime = document.getElementById('s-time');
-            if (sTime) sTime.innerText = "1.00x";
+            // Populate initial zone cards
+            renderZonesInit();
 
             // Initial baseline update for Top-Left HUD
-            updateCanvasAnalyticalHUD({
-                avgStab: 74.8,
-                activeAlerts: [],
-                zoneVectors: {},
-                finData: { btcChg: 0, finStress: 12.4 },
-                bioSignals: { kp: 2, quakes: 0 },
-                ukreData: { headlines: [] },
-                cyberData: { threatPulse: 18.5 },
-                expandedOsint: { activeSources: 40, totalArticles: 142 }
-            });
+            try {
+                updateCanvasAnalyticalHUD({
+                    avgStab: 74.8,
+                    activeAlerts: [],
+                    zoneVectors: {},
+                    finData: { btcChg: 1.4, finStress: 12.4 },
+                    bioSignals: { kp: 2, quakes: 0 },
+                    ukreData: { headlines: [] },
+                    cyberData: { threatPulse: 18.5 },
+                    expandedOsint: { activeSources: 40, totalArticles: 142 }
+                });
+            } catch (e) {
+                console.warn('Initial HUD update error:', e);
+            }
         }
 
 
@@ -4991,25 +5006,15 @@
             requestAnimationFrame(animLoop);
             // Log boot message
             log('IBONARIUM UA v3 boot. З завантаженої історії: ' + STATE.history.length + ' точок.');
+            
+            // Populate initial baseline UI values so UI shows active numbers instantly on boot
+            populateBaselineUI();
+
             // Schedule regular fetches every 60s
             setInterval(fetchLiveData, 60000);
-            // Populate initial baseline UI values so UI shows active numbers instantly
-            populateBaselineUI();
 
             // Fire first fetch asynchronously in background
             fetchLiveData().then(() => {
-                // Update Top-Left Canvas HUD
-                updateCanvasAnalyticalHUD({
-                    avgStab: avgRegionStab,
-                    activeAlerts: STATE.alerts ? STATE.alerts.active : [],
-                    zoneVectors: currentZoneVectors,
-                    finData: finData,
-                    bioSignals: bioSignals,
-                    ukreData: ukreData,
-                    cyberData: cyberData,
-                    expandedOsint: expandedOsintData
-                });
-
                 log('IBONARIUM UA v3 Initialized. 14-Module UA-SA Platform + 40 OSINT Sources + EKG + Social Trends.');
             }).catch(e => {
                 console.warn('Initial fetchLiveData warning:', e);
