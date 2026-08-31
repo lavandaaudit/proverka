@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ibonarium World Radio — The world sounds better together</title>
-  <meta name="description" content="Discover and listen to live radio stations from every corner of the world on an interactive 3D globe with 1000+ live stations.">
+  <meta name="description" content="Discover and listen to live radio stations from every corner of the world on an interactive 3D globe with 2000+ live stations.">
   <meta name="author" content="Ibonarium Cosmo Dynamics Lab">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -656,7 +656,7 @@
       position: fixed;
       inset: 0;
       z-index: 100;
-      background: rgba(4, 1, 10, 0.85);
+      background: rgba(4, 1, 10, 0.88);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       display: none;
@@ -673,12 +673,13 @@
 
     .catalog-modal {
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
+      height: 85vh;
       max-height: 85vh;
       background: #0d0618;
-      border: 1px solid rgba(224, 2, 121, 0.3);
+      border: 1px solid rgba(224, 2, 121, 0.35);
       border-radius: 24px;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(224, 2, 121, 0.2);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(224, 2, 121, 0.25);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -690,6 +691,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
     .catalog-title {
       font-size: 18px;
@@ -700,12 +702,13 @@
       gap: 10px;
     }
     .catalog-title-badge {
-      font-size: 11px;
-      padding: 3px 8px;
+      font-size: 11.5px;
+      padding: 3px 10px;
       background: rgba(224, 2, 121, 0.2);
       border: 1px solid rgba(224, 2, 121, 0.4);
       color: var(--pink-neon);
       border-radius: 6px;
+      font-weight: 600;
     }
     .catalog-close-btn {
       width: 32px;
@@ -724,9 +727,10 @@
     }
 
     .catalog-search-bar {
-      padding: 16px 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       position: relative;
+      flex-shrink: 0;
     }
     .catalog-search-input {
       width: 100%;
@@ -754,36 +758,58 @@
       pointer-events: none;
     }
 
+    /* CLEARLY VISIBLE FILTER PILLS ROW */
     .catalog-filter-tags {
       display: flex;
-      gap: 8px;
-      padding: 12px 24px;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
       overflow-x: auto;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      overflow-y: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-shrink: 0;
+      min-height: 60px;
     }
     .catalog-filter-tags::-webkit-scrollbar {
-      display: none;
+      height: 4px;
+    }
+    .catalog-filter-tags::-webkit-scrollbar-thumb {
+      background: rgba(224, 2, 121, 0.3);
+      border-radius: 4px;
     }
     .tag-pill {
-      padding: 5px 12px;
+      height: 34px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 999px;
-      font-size: 11.5px;
-      font-weight: 500;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #d1c5e4;
       white-space: nowrap;
       cursor: pointer;
+      flex-shrink: 0;
       transition: all 0.2s ease;
     }
-    .tag-pill:hover, .tag-pill.active {
-      background: rgba(224, 2, 121, 0.2);
+    .tag-pill:hover {
+      background: rgba(224, 2, 121, 0.25);
       border-color: var(--pink-neon);
       color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .tag-pill.active {
+      background: linear-gradient(135deg, #e00279, #9c0054);
+      border-color: var(--pink-neon);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(224, 2, 121, 0.5);
     }
 
     .catalog-list {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
       padding: 16px 24px;
       display: flex;
@@ -863,9 +889,6 @@
     @media (max-width: 900px) {
       .topbar {
         padding: 16px 20px;
-      }
-      .day-night-pill {
-        display: none;
       }
       .main-content {
         top: 80px;
@@ -960,7 +983,7 @@
       <div class="top-actions">
         <div class="station-count-pill" id="station-counter">
           <span class="accent-dot"></span>
-          <span id="station-count-text">Завантаження станцій…</span>
+          <span id="station-count-text">Завантаження 2000+ станцій…</span>
         </div>
         <div class="live-status-pill">
           <span class="live-status-dot"></span>
@@ -1052,7 +1075,7 @@
         <div class="catalog-header">
           <div class="catalog-title">
             <span>Радіостанції Світу</span>
-            <span class="catalog-title-badge" id="catalog-count-badge">1200+ станцій</span>
+            <span class="catalog-title-badge" id="catalog-count-badge">2000+ станцій</span>
           </div>
           <button class="catalog-close-btn" id="catalog-close-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1071,7 +1094,7 @@
         </div>
 
         <div class="catalog-filter-tags" id="filter-tags">
-          <button class="tag-pill active" data-tag="all">Усі станції</button>
+          <button class="tag-pill active" data-tag="all">🌐 Усі станції</button>
           <button class="tag-pill" data-tag="Ukraine">🇺🇦 Україна</button>
           <button class="tag-pill" data-tag="United Kingdom">🇬🇧 UK</button>
           <button class="tag-pill" data-tag="Germany">🇩🇪 Німеччина</button>
@@ -1079,10 +1102,13 @@
           <button class="tag-pill" data-tag="France">🇫🇷 Франція</button>
           <button class="tag-pill" data-tag="Italy">🇮🇹 Італія</button>
           <button class="tag-pill" data-tag="Spain">🇪🇸 Іспанія</button>
+          <button class="tag-pill" data-tag="Poland">🇵🇱 Польща</button>
           <button class="tag-pill" data-tag="Japan">🇯🇵 Японія</button>
-          <button class="tag-pill" data-tag="Electronic">Electronic / Dance</button>
-          <button class="tag-pill" data-tag="Jazz">Jazz / Chill</button>
-          <button class="tag-pill" data-tag="Rock">Rock</button>
+          <button class="tag-pill" data-tag="Brazil">🇧🇷 Бразилія</button>
+          <button class="tag-pill" data-tag="Electronic">⚡ Electronic / Dance</button>
+          <button class="tag-pill" data-tag="Jazz">🎷 Jazz / Chill</button>
+          <button class="tag-pill" data-tag="Rock">🎸 Rock</button>
+          <button class="tag-pill" data-tag="News">📻 News / Talk</button>
         </div>
 
         <div class="catalog-list" id="catalog-stations-list">
@@ -1507,7 +1533,7 @@
     }
 
     // =================================================================
-    // 1000+ REFINED SLEEK STATION DOTS (HIGH-DENSITY INSTANCED / BATCHED)
+    // 2000+ REFINED SLEEK STATION DOTS (HIGH-DENSITY GPU POINTS)
     // =================================================================
     let stationPointsObj = null;
 
@@ -1530,6 +1556,7 @@
       const colorPink = new THREE.Color(0xff2d92);
       const colorPurple = new THREE.Color(0xb5179e);
       const colorBlue = new THREE.Color(0x00f5d4);
+      const colorOrange = new THREE.Color(0xff7700);
 
       state.stations.forEach((st, i) => {
         if (st.geo_lat == null || st.geo_long == null) return;
@@ -1539,10 +1566,10 @@
         positions[i * 3 + 1] = pos.y;
         positions[i * 3 + 2] = pos.z;
 
-        // Variety of vibrant glowing colors
         let c = colorPink;
-        if (st.tags && st.tags.toLowerCase().includes('jazz')) c = colorBlue;
+        if (st.tags && (st.tags.toLowerCase().includes('jazz') || st.tags.toLowerCase().includes('chill'))) c = colorBlue;
         else if (st.tags && st.tags.toLowerCase().includes('rock')) c = colorPurple;
+        else if (st.tags && st.tags.toLowerCase().includes('news')) c = colorOrange;
 
         colors[i * 3] = c.r;
         colors[i * 3 + 1] = c.g;
@@ -1553,7 +1580,6 @@
       geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
       geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-      // Crisp glowing particle dots (non-massive, very refined)
       const material = new THREE.PointsMaterial({
         size: 0.022,
         vertexColors: true,
@@ -1716,7 +1742,7 @@
           if (earthIntersects.length > 0) {
             const hitPoint = earthIntersects[0].point;
             const hitCoord = vector3ToLatLon(hitPoint.clone().sub(globeGroup.position));
-            const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 6.0); // precise 6-degree radius
+            const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 6.0);
 
             if (nearest) {
               domElement.style.cursor = 'pointer';
@@ -1926,17 +1952,17 @@
     }
 
     // =================================================================
-    // API FETCH (LOAD 1000+ REAL WORKING WORLDWIDE STATIONS)
+    // API FETCH (LOAD 2000+ REAL WORKING WORLDWIDE STATIONS)
     // =================================================================
     async function loadGlobalStations(query = '', tag = '') {
       const counterText = document.getElementById('station-count-text');
       
-      // Load 1200 geo-tagged worldwide stations
-      let endpoint = '/json/stations/search?has_geo_info=true&limit=1200&order=clickcount&reverse=true&hidebroken=true';
+      // Query 2500 geo-tagged worldwide stations
+      let endpoint = '/json/stations/search?has_geo_info=true&limit=2500&order=clickcount&reverse=true&hidebroken=true';
       if (query) {
-        endpoint = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&limit=300`;
+        endpoint = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&limit=400`;
       } else if (tag && tag !== 'all') {
-        endpoint = `/json/stations/bycountrycodeexact/${encodeURIComponent(tag)}?hidebroken=true&limit=300`;
+        endpoint = `/json/stations/bycountrycodeexact/${encodeURIComponent(tag)}?hidebroken=true&limit=400`;
       }
 
       for (const mirror of RADIO_API_MIRRORS) {
@@ -1952,7 +1978,6 @@
                 let lat = s.geo_lat;
                 let lon = s.geo_long;
 
-                // If geo is missing, assign country coordinate with random city jitter
                 if (lat == null || lon == null) {
                   const cc = (s.countrycode || '').toUpperCase();
                   if (COUNTRY_COORDS[cc]) {
@@ -2019,7 +2044,7 @@
       }
 
       let html = '';
-      list.slice(0, 300).forEach(st => {
+      list.slice(0, 400).forEach(st => {
         const isActive = state.activeStation && state.activeStation.stationuuid === st.stationuuid;
         html += `
           <div class="station-list-item ${isActive ? 'active' : ''}" data-uuid="${st.stationuuid}">
@@ -2039,8 +2064,8 @@
         `;
       });
 
-      if (list.length > 300) {
-        html += `<div style="text-align: center; padding: 14px; color: var(--pink-neon); font-size: 12px;">Показано топ-300 станцій. Введіть назву або місто у пошуку для деталізації.</div>`;
+      if (list.length > 400) {
+        html += `<div style="text-align: center; padding: 14px; color: var(--pink-neon); font-size: 12px;">Показано топ-400 станцій. Введіть назву або місто у пошуку для деталізації.</div>`;
       }
 
       container.innerHTML = html;
@@ -2151,7 +2176,7 @@
       updateUIState();
       setupDOMEvents();
 
-      // Fetch dynamic 1000+ radio stations worldwide in background
+      // Fetch dynamic 2000+ radio stations worldwide in background
       loadGlobalStations();
     }
 
