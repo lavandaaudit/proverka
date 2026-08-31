@@ -128,51 +128,55 @@
       align-items: center;
       gap: 14px;
       text-decoration: none;
+      flex-shrink: 0;
     }
 
-    .brand-logo-img {
-      height: 52px;
-      width: auto;
-      max-height: 56px;
-      object-fit: contain;
+    .brand-emblem-wrap {
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
       filter: drop-shadow(0 0 16px rgba(224, 2, 121, 0.45));
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .brand-container:hover .brand-logo-img {
-      transform: scale(1.05);
+    .brand-container:hover .brand-emblem-wrap {
+      transform: scale(1.08) rotate(4deg);
+    }
+
+    .brand-emblem-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .brand-emblem-svg {
-      width: 52px;
-      height: 52px;
-      filter: drop-shadow(0 0 14px rgba(224, 2, 121, 0.4));
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .brand-container:hover .brand-emblem-svg {
-      transform: scale(1.06) rotate(6deg);
+      width: 58px;
+      height: 58px;
     }
 
     .brand-titles {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 3px;
     }
     .brand-title-main {
-      font-size: 17px;
+      font-size: 19px;
       font-weight: 800;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.16em;
       color: #ffffff;
       text-transform: uppercase;
-      line-height: 1.1;
+      line-height: 1;
     }
     .brand-title-sub {
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.26em;
       color: var(--pink-neon);
       text-transform: uppercase;
-      line-height: 1.1;
-      text-shadow: 0 0 10px rgba(255, 45, 146, 0.45);
+      line-height: 1;
+      text-shadow: 0 0 12px rgba(255, 45, 146, 0.5);
     }
 
     /* Top right live status badge */
@@ -897,27 +901,168 @@
       box-shadow: 0 0 16px rgba(224, 2, 121, 0.4);
     }
 
-    /* Mobile Responsive */
+    /* Mobile Responsive Adaptation */
     @media (max-width: 900px) {
       .topbar {
         padding: 16px 20px;
+        gap: 10px;
+      }
+      .brand-emblem-wrap {
+        width: 48px;
+        height: 48px;
+      }
+      .brand-title-main {
+        font-size: 16px;
+      }
+      .brand-title-sub {
+        font-size: 10px;
       }
       .main-content {
-        top: 80px;
+        top: 90px;
         left: 20px;
         right: 20px;
         width: auto;
+        max-width: 420px;
         bottom: 20px;
       }
+      .globe-controls-panel {
+        right: 20px;
+        bottom: 20px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 12px 14px;
+      }
+      .brand-container {
+        gap: 10px;
+      }
+      .brand-emblem-wrap {
+        width: 44px;
+        height: 44px;
+      }
+      .brand-title-main {
+        font-size: 14px;
+        letter-spacing: 0.12em;
+      }
+      .brand-title-sub {
+        font-size: 9.5px;
+        letter-spacing: 0.18em;
+      }
+      .station-count-pill {
+        display: none;
+      }
+      .live-status-pill {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
+      .main-content {
+        top: auto;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-height: 52vh;
+        overflow-y: auto;
+        gap: 10px;
+        padding-right: 0;
+      }
+      .hero-text-block {
+        gap: 4px;
+        margin-bottom: 0;
+      }
       .hero-title {
-        font-size: 30px;
+        font-size: 22px;
+        line-height: 1.1;
       }
       .hero-subtitle {
-        font-size: 12.5px;
+        display: none;
+      }
+      .player-card {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 16px;
+      }
+      .station-art-thumb {
+        width: 44px;
+        height: 44px;
+      }
+      .station-title {
+        font-size: 13px;
+      }
+      .station-country {
+        font-size: 11px;
+      }
+      .player-controls-row {
+        gap: 10px;
+      }
+      .control-btn {
+        width: 28px;
+        height: 28px;
+      }
+      .main-play-btn {
+        width: 36px;
+        height: 36px;
+      }
+      .playlist-card {
+        padding: 6px 8px;
+        border-radius: 16px;
+      }
+      .station-list-item {
+        padding: 6px 8px;
+        gap: 8px;
+      }
+      .item-icon-badge {
+        width: 28px;
+        height: 28px;
+        font-size: 9px;
+      }
+      .item-name {
+        font-size: 12px;
+      }
+      .item-sub {
+        font-size: 10px;
       }
       .globe-controls-panel {
-        right: 16px;
-        bottom: 16px;
+        right: 12px;
+        top: 72px;
+        bottom: auto;
+        gap: 6px;
+      }
+      .globe-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+      }
+      .modal-overlay {
+        padding: 0;
+      }
+      .catalog-modal {
+        max-width: 100vw;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+      .catalog-header {
+        padding: 14px 16px;
+      }
+      .catalog-search-bar {
+        padding: 10px 16px;
+      }
+      .catalog-filter-tags {
+        padding: 10px 16px;
+        gap: 8px;
+        min-height: 52px;
+      }
+      .tag-pill {
+        height: 30px;
+        padding: 0 12px;
+        font-size: 11px;
+      }
+      .catalog-list {
+        padding: 12px 16px;
       }
     }
   </style>
@@ -965,10 +1110,10 @@
     <!-- Header Navigation -->
     <header class="topbar">
       <a href="#" class="brand-container">
-        <!-- Official Logo Image 1.png with SVG fallback -->
-        <img src="1.png" alt="Ibonarium World Radio" class="brand-logo-img" onerror="this.style.display='none'; document.getElementById('brand-svg-fallback').style.display='flex';">
-        <div id="brand-svg-fallback" style="display: none; align-items: center; gap: 14px;">
-          <svg class="brand-emblem-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Enlarged Official Emblem with SVG fallback -->
+        <div class="brand-emblem-wrap">
+          <img src="1.png" alt="Ibonarium Emblem" class="brand-emblem-img" onerror="this.style.display='none'; document.getElementById('brand-emblem-svg').style.display='block';">
+          <svg id="brand-emblem-svg" class="brand-emblem-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: none;">
             <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3 3"/>
             <circle cx="50" cy="50" r="44" stroke="rgba(224,2,121,0.5)" stroke-width="1"/>
             <path id="circlePath" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
@@ -984,10 +1129,11 @@
             <line x1="58" y1="34" x2="58" y2="58" stroke="#c084fc" stroke-width="0.6"/>
             <path d="M47 48 C47 45 53 43 54 46 C55 49 51 51 47 51 Z M54 45 L56 44" stroke="#ffffff" stroke-width="1.2" fill="#ffffff" stroke-linecap="round"/>
           </svg>
-          <div class="brand-titles">
-            <span class="brand-title-main">IBONARIUM</span>
-            <span class="brand-title-sub">WORLD RADIO</span>
-          </div>
+        </div>
+        <!-- Bold Titles right next to the emblem -->
+        <div class="brand-titles">
+          <span class="brand-title-main">IBONARIUM</span>
+          <span class="brand-title-sub">WORLD RADIO</span>
         </div>
       </a>
 
@@ -1471,9 +1617,13 @@
       if (window.innerWidth > 900) {
         camera.position.set(1.4, 0.25, 5.6);
         if (controls) controls.target.set(0.9, 0, 0);
+      } else if (window.innerWidth > 640) {
+        camera.position.set(0, 0.5, 6.8);
+        if (controls) controls.target.set(0, 0.3, 0);
       } else {
-        camera.position.set(0, 0, 6.2);
-        if (controls) controls.target.set(0, 0, 0);
+        // Mobile portrait mode — raise Earth slightly above the bottom player card
+        camera.position.set(0, 1.1, 7.4);
+        if (controls) controls.target.set(0, 0.55, 0);
       }
     }
 
