@@ -1,2333 +1,1931 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ibonarium World Radio — 3D Globe of Radio Stations</title>
-<meta name="description" content="Інтерактивний 3D-глобус Землі з тисячами онлайн-радіостанцій з усього світу. Натисніть на маркер, щоб слухати.">
-<meta name="author" content="Ibonarium">
-<meta property="og:title" content="Ibonarium World Radio">
-<meta property="og:description" content="Інтерактивний 3D-глобус з усіма онлайн-радіостанціями світу">
-<meta property="og:type" content="website">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%230057d6'/%3E%3Cstop offset='0.5' stop-color='%23e00279'/%3E%3Cstop offset='1' stop-color='%23ff5400'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='13' fill='url(%23g)'/%3E%3Cpath d='M16 6a10 10 0 100 20 10 10 0 000-20zm0 2a8 8 0 110 16 8 8 0 010-16z' fill='%23fff' opacity='0.9'/%3E%3Ccircle cx='12' cy='13' r='1.5' fill='%23fff'/%3E%3Ccircle cx='20' cy='14' r='1.5' fill='%23fff'/%3E%3Ccircle cx='15' cy='20' r='1.5' fill='%23fff'/%3E%3Ccircle cx='22' cy='20' r='1.5' fill='%23fff'/%3E%3C/svg%3E">
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ibonarium World Radio — The world sounds better together</title>
+  <meta name="description" content="Discover and listen to live radio stations from every corner of the world on an interactive 3D particle globe.">
+  <meta name="author" content="Ibonarium Cosmo Dynamics Lab">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23090314' stroke='%23e00279' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23e00279'/%3E%3Cpath d='M16 4 A12 12 0 0 1 28 16' stroke='%23ff2d92' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 
-:root {
-  --bg: #000005;
-  --bg-elev: #060614;
-  --fg: #ffffff;
-  --muted: #8b8b94;
-  --muted-dark: #3a3a44;
-  --accent-blue: #0057d6;
-  --accent-blue-light: #3478e6;
-  --accent-orange: #ff5400;
-  --accent-orange-light: #ff8a3d;
-  --accent-pink: #e00279;
-  --accent-pink-light: #f873be;
-  --accent-purple: #6b1a99;
-  --accent-purple-light: #b857d6;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-soft: rgba(255, 255, 255, 0.03);
-  --sidebar-w: 340px;
-}
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: var(--bg);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: var(--fg);
-}
+    :root {
+      --bg-space: #030008;
+      --pink-primary: #e00279;
+      --pink-neon: #ff2d92;
+      --pink-glow: #ff54a2;
+      --pink-subtle: rgba(224, 2, 121, 0.15);
+      --purple-accent: #8b28cf;
+      --purple-glow: rgba(139, 40, 207, 0.35);
+      --card-bg: rgba(12, 6, 22, 0.72);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-active: rgba(224, 2, 121, 0.4);
+      --text-white: #ffffff;
+      --text-muted: #8e8a9f;
+      --text-dim: #5c5770;
+      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'Space Grotesk', var(--font-main);
+    }
 
-button { font-family: inherit; cursor: pointer; }
-input { font-family: inherit; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-space);
+      font-family: var(--font-main);
+      color: var(--text-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-#app {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: var(--bg);
-}
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+      outline: none;
+    }
 
-/* === Background gradient layers === */
-.bg-glow-1, .bg-glow-2 {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-}
-.bg-glow-1 { background: radial-gradient(circle at 15% 20%, rgba(107, 26, 153, 0.10), transparent 45%); }
-.bg-glow-2 { background: radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.04), transparent 50%); }
+    input {
+      font-family: inherit;
+    }
 
-/* === Globe container === */
-#globe-container {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  cursor: grab;
-}
-#globe-container:active { cursor: grabbing; }
+    /* App container */
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at 75% 45%, #130524 0%, #06010f 45%, #030008 100%);
+    }
 
-/* Globe overlay gradients on top of canvas */
-#globe-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 30%, rgba(107, 26, 153, 0.06), transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(164, 58, 233, 0.10), transparent 50%),
-    linear-gradient(to bottom, transparent 0%, transparent 70%, rgba(5, 0, 16, 0.4) 100%);
-}
+    /* 3D Canvas */
+    #globe-canvas-container {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      cursor: grab;
+    }
+    #globe-canvas-container:active {
+      cursor: grabbing;
+    }
 
-/* === Loading screen === */
-#loading-screen {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  transition: opacity 0.6s ease, visibility 0.6s ease;
-}
-#loading-screen.hidden { opacity: 0; visibility: hidden; }
-.loading-globe {
-  position: relative;
-  width: 80px; height: 80px;
-}
-.loading-globe::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink), var(--accent-orange));
-  opacity: 0.3;
-  filter: blur(20px);
-  animation: pulse 1.6s ease-in-out infinite;
-}
-.loading-globe-icon {
-  position: relative;
-  width: 100%; height: 100%;
-  color: rgba(164, 58, 233, 0.7);
-  animation: pulse 1.6s ease-in-out infinite;
-}
-.loading-text {
-  margin-top: 24px;
-  font-size: 14px;
-  font-weight: 600;
-  background: linear-gradient(90deg, #a43ae9, #c084fc, #f6579b, #a43ae9);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 4s ease-in-out infinite, pulse 1.6s ease-in-out infinite;
-}
-.loading-sub {
-  margin-top: 4px;
-  font-size: 12px;
-  color: #475569;
-}
+    /* Ambient Lighting Overlays */
+    .space-glow {
+      position: absolute;
+      pointer-events: none;
+      z-index: 2;
+      border-radius: 50%;
+      filter: blur(80px);
+    }
+    .space-glow-1 {
+      top: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(139, 40, 207, 0.12) 0%, transparent 70%);
+    }
+    .space-glow-2 {
+      bottom: -150px;
+      right: 15%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(224, 2, 121, 0.08) 0%, transparent 70%);
+    }
 
-/* === Top bar === */
-.topbar {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  pointer-events: none;
-}
-.topbar > * { pointer-events: auto; }
+    /* Top Bar */
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 36px;
+      pointer-events: none;
+    }
+    .topbar > * {
+      pointer-events: auto;
+    }
 
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px; height: 40px;
-  border-radius: 12px;
-  background: rgba(7, 0, 20, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  color: #888;
-  transition: all 0.2s ease;
-}
-.icon-btn:hover {
-  background: rgba(164, 58, 233, 0.1);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
+    /* Brand Logo */
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
 
-.pill-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 12px;
-  background: rgba(7, 0, 20, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  color: #888;
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-.pill-btn:hover {
-  background: rgba(164, 58, 233, 0.1);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
+    .brand-emblem-svg {
+      width: 44px;
+      height: 44px;
+      filter: drop-shadow(0 0 12px rgba(224, 2, 121, 0.35));
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .brand-container:hover .brand-emblem-svg {
+      transform: scale(1.06) rotate(6deg);
+    }
 
-/* Mobile brand */
-.mobile-brand {
-  display: none;
-  align-items: center;
-  gap: 8px;
-}
-.brand-icon {
-  width: 28px; height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-orange));
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
-}
-.brand-icon svg { width: 16px; height: 16px; color: white; }
-.brand-name {
-  font-size: 14px;
-  font-weight: 700;
-  background: linear-gradient(90deg, #a43ae9, #c084fc, #f6579b, #a43ae9);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 4s ease-in-out infinite;
-}
+    .brand-titles {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .brand-title-main {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      color: #ffffff;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .brand-title-sub {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: var(--pink-neon);
+      text-transform: uppercase;
+      line-height: 1;
+      text-shadow: 0 0 10px rgba(255, 45, 146, 0.4);
+    }
 
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-}
+    /* Top right live status badge */
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-.menu-toggle { display: none; }
+    .live-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      background: rgba(18, 7, 28, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(224, 2, 121, 0.45);
+      border-radius: 999px;
+      color: #ff54a2;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      box-shadow: 0 0 20px rgba(224, 2, 121, 0.18), inset 0 0 10px rgba(224, 2, 121, 0.1);
+      transition: all 0.25s ease;
+    }
+    .live-status-pill:hover {
+      background: rgba(30, 10, 48, 0.85);
+      border-color: var(--pink-neon);
+      box-shadow: 0 0 26px rgba(255, 45, 146, 0.35);
+      color: #ffffff;
+    }
+    .live-status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pink-neon);
+      box-shadow: 0 0 10px var(--pink-neon);
+      animation: livePulse 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    }
 
-/* === Sidebar === */
-.sidebar {
-  position: absolute;
-  top: 0; left: 0; bottom: 0;
-  z-index: 30;
-  width: var(--sidebar-w);
-  display: flex;
-  flex-direction: column;
-  background: rgba(7, 0, 20, 0.8);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-right: 1px solid var(--border);
-  overflow: hidden;
-}
-.sidebar::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, #888, transparent);
-  opacity: 0.8;
-}
-.sidebar::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(107, 26, 153, 0.25), transparent);
-}
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
 
-.sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
+    /* Main Left Container */
+    .main-content {
+      position: absolute;
+      top: 100px;
+      left: 36px;
+      bottom: 28px;
+      width: 390px;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 20px;
+      pointer-events: none;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    .main-content::-webkit-scrollbar {
+      width: 4px;
+    }
+    .main-content::-webkit-scrollbar-thumb {
+      background: rgba(224, 2, 121, 0.2);
+      border-radius: 4px;
+    }
+    .main-content > * {
+      pointer-events: auto;
+    }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-.brand-logo {
-  position: relative;
-  width: 36px; height: 36px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-pink) 50%, var(--accent-orange) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.brand-logo svg { width: 20px; height: 20px; color: white; }
-.brand-logo .sparkle {
-  position: absolute;
-  top: -4px; right: -4px;
-  width: 12px; height: 12px;
-  color: var(--accent-orange);
-  animation: pulse 1.6s ease-in-out infinite;
-}
-.brand-title {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  background: linear-gradient(90deg, #a43ae9, #c084fc, #f6579b, #a43ae9);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 4s ease-in-out infinite;
-  line-height: 1.2;
-}
-.brand-sub {
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(240, 171, 252, 0.7);
-  margin-top: 2px;
-}
+    /* Hero Typography */
+    .hero-text-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+    .hero-title {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      color: #ffffff;
+    }
+    .hero-title .pink-accent {
+      color: var(--pink-neon);
+      background: linear-gradient(135deg, #ff2d92 0%, #e00279 60%, #ff6aa9 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(255, 45, 146, 0.4);
+      display: inline-block;
+    }
+    .hero-subtitle {
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: #9d98ad;
+      max-width: 340px;
+      font-weight: 400;
+    }
 
-.sidebar-info {
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-.sidebar-info .count {
-  color: #888;
-  font-weight: 600;
-}
+    /* Glassmorphism Cards */
+    .glass-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 10% 0%, rgba(224, 2, 121, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
 
-/* Search */
-.search-wrap {
-  position: relative;
-  margin-bottom: 8px;
-}
-.search-input {
-  width: 100%;
-  height: 40px;
-  padding: 0 36px 0 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  color: white;
-  font-size: 13px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-.search-input::placeholder { color: #64748b; }
-.search-input:focus {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.05);
-}
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px; height: 16px;
-  color: rgba(255, 255, 255, 0.2);
-  pointer-events: none;
-}
-.search-clear {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px; height: 16px;
-  background: none;
-  border: none;
-  color: var(--muted);
-  display: none;
-}
-.search-clear.visible { display: block; }
-.search-clear:hover { color: #888; }
+    /* 1. Mini Player Card */
+    .player-card {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .player-card:hover {
+      border-color: rgba(224, 2, 121, 0.3);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 20px rgba(224, 2, 121, 0.12);
+    }
 
-.back-btn {
-  width: 100%;
-  height: 32px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: #888;
-  font-size: 13px;
-  font-weight: 500;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-}
-.back-btn:hover {
-  background: rgba(164, 58, 233, 0.1);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
-.back-btn.visible { display: flex; }
-.back-btn svg { width: 16px; height: 16px; }
+    .player-top-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* Stations list */
-.stations {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 12px;
-}
-.stations::-webkit-scrollbar { width: 5px; }
-.stations::-webkit-scrollbar-track { background: transparent; }
-.stations::-webkit-scrollbar-thumb {
-  background: rgba(107, 26, 153, 0.25);
-  border-radius: 3px;
-}
-.stations::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+    .station-art-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1b0a2c, #3a0d42);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    }
+    .station-art-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .station-art-fallback {
+      width: 24px;
+      height: 24px;
+      color: var(--pink-neon);
+      opacity: 0.9;
+    }
 
-.country-group { margin-bottom: 20px; min-width: 0; }
-.country-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 8px 8px;
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: rgba(240, 171, 252, 0.8);
-}
-.country-header .country-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-}
-.country-header .country-count {
-  color: var(--muted-dark);
-  flex-shrink: 0;
-}
-.country-header svg {
-  width: 12px; height: 12px;
-  color: var(--accent-orange);
-  flex-shrink: 0;
-}
+    .station-header-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-.station-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid transparent;
-  text-align: left;
-  transition: all 0.2s ease;
-  min-width: 0;
-}
-.station-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.06);
-}
-.station-item.active {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.06), rgba(196, 132, 252, 0.1));
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.06);
-}
+    /* Soundwave bars */
+    .soundwave-indicator {
+      display: flex;
+      align-items: center;
+      gap: 2.5px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    .soundwave-bar {
+      width: 3px;
+      height: 100%;
+      background: var(--pink-neon);
+      border-radius: 2px;
+      transform-origin: bottom;
+      box-shadow: 0 0 6px var(--pink-neon);
+    }
+    .playing .soundwave-bar:nth-child(1) { animation: soundwave 1s infinite ease-in-out; }
+    .playing .soundwave-bar:nth-child(2) { animation: soundwave 0.8s infinite ease-in-out 0.15s; }
+    .playing .soundwave-bar:nth-child(3) { animation: soundwave 1.2s infinite ease-in-out 0.3s; }
+    .playing .soundwave-bar:nth-child(4) { animation: soundwave 0.9s infinite ease-in-out 0.45s; }
 
-.station-icon {
-  width: 36px; height: 36px;
-  border-radius: 8px;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.station-item.active .station-icon {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(224, 2, 121, 0.2));
-  border-color: rgba(255, 255, 255, 0.15);
-}
-.station-icon img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
-.station-icon svg {
-  width: 16px; height: 16px;
-  color: var(--muted-dark);
-}
-.station-item.active .station-icon svg { color: #888; }
+    @keyframes soundwave {
+      0%, 100% { transform: scaleY(0.25); }
+      50% { transform: scaleY(1); }
+    }
 
-.station-info {
-  flex: 1;
-  min-width: 0;
-}
-.station-name {
-  font-size: 12px;
-  font-weight: 500;
-  color: #cbd5e1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.3;
-}
-.station-item:hover .station-name { color: white; }
-.station-item.active .station-name { color: white; }
-.station-tags {
-  font-size: 10px;
-  color: var(--muted-dark);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    .station-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .station-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.01em;
+    }
+    .station-country {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-.now-playing {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  flex-shrink: 0;
-  padding-right: 4px;
-}
-.now-playing .bar {
-  width: 2px;
-  background: var(--accent-orange);
-  border-radius: 1px;
-  animation: equalizer 0.9s ease-in-out infinite;
-}
-.now-playing .bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-.now-playing .bar:nth-child(2) { height: 10px; animation-delay: 0.15s; }
-.now-playing .bar:nth-child(3) { height: 6px; animation-delay: 0.3s; }
+    /* Player Controls */
+    .player-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-top: 2px;
+    }
 
-/* Empty state */
-.empty-state, .loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 64px 0;
-  color: var(--muted);
-}
-.empty-state svg, .loading-state .spinner {
-  width: 32px; height: 32px;
-  color: rgba(255, 255, 255, 0.1);
-  margin-bottom: 12px;
-}
-.loading-state .spinner {
-  width: 40px; height: 40px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #a43ae9;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  color: transparent;
-}
-.empty-state-text, .loading-state-text {
-  font-size: 14px;
-  color: var(--muted-dark);
-}
+    .control-btn {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+    .control-btn:hover {
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+    .control-btn:active {
+      transform: scale(0.95);
+    }
 
-/* === Player === */
-.player {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 50;
-  border-top: 1px solid var(--border);
-  background: rgba(6, 6, 20, 0.85);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-}
-.player.visible { transform: translateY(0); }
+    .main-play-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ff4099, var(--pink-primary));
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(224, 2, 121, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .main-play-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 26px rgba(255, 45, 146, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+    }
+    .main-play-btn:active {
+      transform: scale(0.96);
+    }
 
-.player-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+    /* Volume Slider */
+    .volume-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      margin-left: 4px;
+    }
+    .volume-icon-btn {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      transition: color 0.2s ease;
+    }
+    .volume-icon-btn:hover {
+      color: #ffffff;
+    }
 
-.player-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+    .volume-range-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.12);
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+    .volume-range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--pink-neon);
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--pink-neon);
+      transition: transform 0.15s ease;
+    }
+    .volume-range-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+    .volume-range-slider::-moz-range-thumb {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--pink-neon);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--pink-neon);
+    }
 
-.player-station {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-}
+    /* 2. Stations Playlist Card */
+    .playlist-card {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-.player-icon-wrap {
-  position: relative;
-  width: 52px; height: 52px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-pink) 50%, var(--accent-orange) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-}
-.player-icon-wrap img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-.player-icon-wrap .player-default {
-  position: absolute;
-  width: 22px; height: 22px;
-  color: rgba(255, 255, 255, 0.95);
-}
-.player-pulse-ring {
-  position: absolute;
-  inset: -3px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  opacity: 0;
-  display: none;
-  pointer-events: none;
-}
-.player.playing .player-pulse-ring {
-  display: block;
-  animation: player-pulse 1.6s ease-in-out infinite;
-}
+    .station-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 9px 12px;
+      border-radius: 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+    }
+    .station-list-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.06);
+    }
+    .station-list-item.active {
+      background: linear-gradient(90deg, rgba(224, 2, 121, 0.18) 0%, rgba(139, 40, 207, 0.08) 100%);
+      border-color: var(--card-border-active);
+      box-shadow: inset 0 0 16px rgba(224, 2, 121, 0.08);
+    }
 
-.player-meta {
-  flex: 1;
-  min-width: 0;
-}
-.player-name-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.player-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.player-equalizer {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex-shrink: 0;
-}
-.player-equalizer .bar {
-  width: 2px;
-  background: var(--accent-orange);
-  border-radius: 1px;
-  animation: equalizer 0.9s ease-in-out infinite;
-}
-.player-equalizer .bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-.player-equalizer .bar:nth-child(2) { height: 12px; animation-delay: 0.1s; }
-.player-equalizer .bar:nth-child(3) { height: 6px; animation-delay: 0.2s; }
+    .item-icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      color: #ffffff;
+      position: relative;
+    }
+    .badge-pink {
+      background: linear-gradient(135deg, #e00279, #9c0054);
+      box-shadow: 0 0 12px rgba(224, 2, 121, 0.35);
+    }
+    .badge-blue {
+      background: linear-gradient(135deg, #0072ff, #0043a8);
+      box-shadow: 0 0 12px rgba(0, 114, 255, 0.3);
+    }
+    .badge-orange {
+      background: linear-gradient(135deg, #ff7700, #cc4400);
+      box-shadow: 0 0 12px rgba(255, 119, 0, 0.3);
+    }
+    .badge-magenta {
+      background: linear-gradient(135deg, #d6006e, #880044);
+      box-shadow: 0 0 12px rgba(214, 0, 110, 0.3);
+    }
+    .badge-dark {
+      background: linear-gradient(135deg, #201a33, #0d0a17);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-.player-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.player-sub .country { color: rgba(240, 171, 252, 0.8); }
-.player-sub .sep { color: var(--muted-dark); margin: 0 6px; }
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .item-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: #e5e2f0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .station-list-item.active .item-name {
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .item-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .station-list-item.active .item-sub {
+      color: #c988bb;
+    }
 
-.player-error {
-  font-size: 12px;
-  color: #fca5a5;
-  margin-top: 2px;
-}
+    .item-play-action {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(224, 2, 121, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--pink-neon);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .station-list-item:hover .item-play-action {
+      background: var(--pink-neon);
+      color: #ffffff;
+      border-color: var(--pink-neon);
+      box-shadow: 0 0 12px rgba(255, 45, 146, 0.6);
+      transform: scale(1.08);
+    }
+    .station-list-item.active .item-play-action {
+      background: var(--pink-primary);
+      color: #ffffff;
+      border-color: var(--pink-primary);
+      box-shadow: 0 0 14px rgba(224, 2, 121, 0.7);
+    }
 
-.player-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+    /* Playlist bottom link */
+    .playlist-footer-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--pink-neon);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    .playlist-footer-btn:hover {
+      color: #ffffff;
+      background: rgba(224, 2, 121, 0.12);
+      transform: translateX(3px);
+    }
+    .playlist-footer-btn svg {
+      transition: transform 0.2s ease;
+    }
+    .playlist-footer-btn:hover svg {
+      transform: translateX(4px);
+    }
 
-.player-control-btn {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-.player-control-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #888;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-.player-control-btn svg { width: 16px; height: 16px; }
+    /* Search & Full Catalog Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(4, 1, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
 
-.play-btn {
-  position: relative;
-  width: 50px; height: 50px;
-  border-radius: 50%;
-  background: white;
-  color: black;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.18s ease;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
-}
-.play-btn:hover {
-  background: white;
-  transform: scale(1.05);
-}
-.play-btn svg {
-  width: 22px; height: 22px;
-  position: relative;
-  z-index: 1;
-}
-.play-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
+    .catalog-modal {
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      background: #0d0618;
+      border: 1px solid rgba(224, 2, 121, 0.3);
+      border-radius: 24px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(224, 2, 121, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
 
-.close-btn:hover {
-  background: rgba(127, 29, 29, 0.3);
-  color: #fca5a5;
-  border-color: rgba(248, 113, 113, 0.3);
-}
+    .catalog-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .catalog-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .catalog-title-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      background: rgba(224, 2, 121, 0.2);
+      border: 1px solid rgba(224, 2, 121, 0.4);
+      color: var(--pink-neon);
+      border-radius: 6px;
+    }
+    .catalog-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+    .catalog-close-btn:hover {
+      background: rgba(224, 2, 121, 0.3);
+      color: #ffffff;
+    }
 
-.player-volume {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  width: 160px;
-}
-.volume-btn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  display: flex;
-  align-items: center;
-}
-.volume-btn:hover { color: #888; }
-.volume-btn svg { width: 16px; height: 16px; }
+    .catalog-search-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+    }
+    .catalog-search-input {
+      width: 100%;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0 42px 0 42px;
+      color: #ffffff;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .catalog-search-input:focus {
+      border-color: var(--pink-neon);
+      background: rgba(224, 2, 121, 0.06);
+      box-shadow: 0 0 16px rgba(224, 2, 121, 0.2);
+    }
+    .catalog-search-icon {
+      position: absolute;
+      left: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      pointer-events: none;
+    }
 
-.volume-slider {
-  flex: 1;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  outline: none;
-}
-.volume-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--accent-purple);
-  cursor: pointer;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
-}
-.volume-slider::-moz-range-thumb {
-  width: 14px; height: 14px;
-  border-radius: 50%;
-  background: var(--accent-purple);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
-}
+    .catalog-filter-tags {
+      display: flex;
+      gap: 8px;
+      padding: 12px 24px;
+      overflow-x: auto;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .catalog-filter-tags::-webkit-scrollbar {
+      display: none;
+    }
+    .tag-pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tag-pill:hover, .tag-pill.active {
+      background: rgba(224, 2, 121, 0.2);
+      border-color: var(--pink-neon);
+      color: #ffffff;
+    }
 
-/* === Info modal === */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(5, 0, 16, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.modal-backdrop.visible { display: flex; }
+    .catalog-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .catalog-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .catalog-list::-webkit-scrollbar-thumb {
+      background: rgba(224, 2, 121, 0.25);
+      border-radius: 4px;
+    }
 
-.modal {
-  position: relative;
-  max-width: 448px;
-  width: 100%;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: #0a0a14;
-  padding: 28px;
-  overflow: hidden;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
-}
-.modal::before {
-  content: '';
-  position: absolute;
-  top: -80px; right: -80px;
-  width: 160px; height: 160px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 50%;
-  filter: blur(48px);
-  pointer-events: none;
-}
-.modal::after {
-  content: '';
-  position: absolute;
-  bottom: -80px; left: -80px;
-  width: 160px; height: 160px;
-  background: rgba(224, 2, 121, 0.08);
-  border-radius: 50%;
-  filter: blur(48px);
-  pointer-events: none;
-}
+    /* 3D Tooltip */
+    #globe-tooltip {
+      position: absolute;
+      z-index: 30;
+      pointer-events: none;
+      background: rgba(14, 6, 26, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 45, 146, 0.45);
+      border-radius: 12px;
+      padding: 8px 14px;
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(224, 2, 121, 0.3);
+      transform: translate(-50%, -120%);
+      display: none;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    #globe-tooltip .tt-name {
+      font-weight: 700;
+      color: #ffffff;
+    }
+    #globe-tooltip .tt-country {
+      color: var(--pink-neon);
+      font-size: 10.5px;
+      margin-top: 2px;
+    }
 
-.modal-close {
-  position: absolute;
-  top: 14px; right: 14px;
-  width: 32px; height: 32px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  color: #888;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-}
-.modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 20px;
-  position: relative;
-}
-.modal-logo {
-  width: 52px; height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-pink) 50%, var(--accent-orange) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-logo svg { width: 26px; height: 26px; color: white; }
-.modal-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.01em;
-}
-.modal-subtitle {
-  font-size: 11px;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  margin-top: 3px;
-}
-
-.modal-body {
-  position: relative;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #aaa;
-}
-.modal-body p { margin-bottom: 14px; }
-.modal-body p:last-child { margin-bottom: 0; }
-.modal-body .label {
-  color: white;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 4px;
-}
-.modal-body .item {
-  display: block;
-  color: #888;
-}
-
-.modal-footer {
-  position: relative;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-  font-size: 12px;
-  color: #555;
-}
-.modal-footer a {
-  color: white;
-  text-decoration: none;
-}
-.modal-footer a:hover { text-decoration: underline; }
-
-/* === 3D HTML labels (for hovered markers) === */
-.station-label {
-  background: linear-gradient(135deg, rgba(107, 26, 153, 0.10), rgba(164, 58, 233, 0.10));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: white;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid rgba(164, 58, 233, 0.45);
-  box-shadow: 0 8px 32px rgba(107, 26, 153, 0.2), inset 0 0 16px rgba(255, 255, 255, 0.06);
-  pointer-events: none;
-  white-space: nowrap;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transform: translate(-50%, -100%);
-  margin-top: -8px;
-}
-.station-label .name {
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
-}
-.station-label .country {
-  font-size: 11px;
-  color: #888;
-  font-weight: 400;
-  margin-top: 2px;
-  letter-spacing: 0.01em;
-}
-
-/* === Animations === */
-@keyframes shimmer {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes equalizer {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(0.3); }
-}
-@keyframes player-pulse {
-  0%, 100% {
-    opacity: 0;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.15);
-  }
-}
-@keyframes neon-pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(224, 2, 121, 0.6); }
-  50% { opacity: 0.6; box-shadow: 0 0 24px rgba(224, 2, 121, 0.9); }
-}
-
-/* === Responsive === */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 45;
-  }
-  .sidebar.open { transform: translateX(0); }
-  .mobile-brand { display: flex; }
-  .menu-toggle { display: inline-flex; }
-  .pill-btn .label-text { display: none; }
-  .pill-btn { padding: 0 12px; }
-  .player-volume { display: none; }
-  .like-btn { display: none; }
-  .external-btn { display: none; }
-  .player-inner { padding: 10px 12px; gap: 8px; }
-  .player-row { gap: 10px; }
-  .player-name { font-size: 13px; }
-  .player-sub { font-size: 11px; }
-  .player-icon-wrap { width: 40px; height: 40px; }
-  .play-btn { width: 40px; height: 40px; }
-  .play-btn svg { width: 16px; height: 16px; }
-  .player-control-btn { width: 32px; height: 32px; }
-}
-
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 44;
-  background: rgba(5, 0, 16, 0.8);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  display: none;
-}
-.sidebar-backdrop.visible { display: block; }
-</style>
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+      .topbar {
+        padding: 16px 20px;
+      }
+      .main-content {
+        top: 80px;
+        left: 20px;
+        right: 20px;
+        width: auto;
+        bottom: 20px;
+      }
+      .hero-title {
+        font-size: 30px;
+      }
+      .hero-subtitle {
+        font-size: 12.5px;
+      }
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-  <!-- Loading screen -->
-  <div id="loading-screen">
-    <div class="loading-globe">
-      <svg class="loading-globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="2" y1="12" x2="22" y2="12"></line>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-      </svg>
-    </div>
-    <div class="loading-text">Завантаження Землі…</div>
-    <div class="loading-sub">Готуємо глобус та радіостанції</div>
-  </div>
+  <div id="app">
+    <!-- Ambient Glows -->
+    <div class="space-glow space-glow-1"></div>
+    <div class="space-glow space-glow-2"></div>
 
-  <!-- Background layers -->
-  <div class="bg-glow-1"></div>
-  <div class="bg-glow-2"></div>
-
-  <!-- Globe container -->
-  <div id="globe-container"></div>
-  <div id="globe-overlay"></div>
-
-  <!-- Top bar -->
-  <header class="topbar">
-    <button class="icon-btn menu-toggle" id="menu-toggle" aria-label="Відкрити список станцій">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-        <circle cx="12" cy="12" r="2"></circle>
-        <path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path>
-        <path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path>
-        <path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path>
-        <path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path>
-      </svg>
-    </button>
-
-    <div class="mobile-brand">
-      <div class="brand-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-      </div>
-      <span class="brand-name">Ibonarium</span>
+    <!-- 3D Three.js Globe Container -->
+    <div id="globe-canvas-container"></div>
+    <div id="globe-tooltip">
+      <div class="tt-name" id="tt-name">Radio Station</div>
+      <div class="tt-country" id="tt-country">United Kingdom</div>
     </div>
 
-    <div class="topbar-right">
-      <button class="pill-btn" id="info-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    <!-- Header Navigation -->
+    <header class="topbar">
+      <a href="#" class="brand-container">
+        <!-- Exact reference circular logo SVG with geodesic cage & bird -->
+        <svg class="brand-emblem-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="50" cy="50" r="48" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <circle cx="50" cy="50" r="44" stroke="rgba(224,2,121,0.5)" stroke-width="1"/>
+          <!-- Circular text: IBONARIUM COSMO DYNAMICS LAB -->
+          <path id="circlePath" d="M 50,50 m -37,0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="none"/>
+          <text font-size="6.5" font-family="Space Grotesk, sans-serif" font-weight="700" fill="#e5d0f5" letter-spacing="1.8">
+            <textPath href="#circlePath" startOffset="50%" text-anchor="middle">
+              IBONARIUM · COSMO DYNAMICS LAB ·
+            </textPath>
+          </text>
+          <!-- Center Geodesic Cage & Bird -->
+          <circle cx="50" cy="50" r="22" fill="#120622" stroke="#ff2d92" stroke-width="1.2"/>
+          <path d="M50 28 C38 28 35 44 35 58 L65 58 C65 44 62 28 50 28 Z" stroke="#c084fc" stroke-width="0.8" fill="none"/>
+          <line x1="50" y1="28" x2="50" y2="58" stroke="#c084fc" stroke-width="0.8"/>
+          <line x1="42" y1="34" x2="42" y2="58" stroke="#c084fc" stroke-width="0.6"/>
+          <line x1="58" y1="34" x2="58" y2="58" stroke="#c084fc" stroke-width="0.6"/>
+          <!-- Bird inside -->
+          <path d="M47 48 C47 45 53 43 54 46 C55 49 51 51 47 51 Z M54 45 L56 44" stroke="#ffffff" stroke-width="1.2" fill="#ffffff" stroke-linecap="round"/>
         </svg>
-        <span class="label-text">Про проект</span>
-      </button>
-      <a class="pill-btn external-btn" href="https://github.com" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"></path>
-        </svg>
-        <span class="label-text">GitHub</span>
+
+        <div class="brand-titles">
+          <span class="brand-title-main">IBONARIUM</span>
+          <span class="brand-title-sub">WORLD RADIO</span>
+        </div>
       </a>
-    </div>
-  </header>
 
-  <!-- Sidebar -->
-  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">
-        <div class="brand-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-          </svg>
-        </div>
-        <div>
-          <div class="brand-title">Ibonarium</div>
-          <div class="brand-sub">World Radio</div>
+      <div class="top-actions">
+        <div class="live-status-pill">
+          <span class="live-status-dot"></span>
+          <span>((•)) В ефірі</span>
         </div>
       </div>
-      <div class="sidebar-info">
-        Завантажено <span class="count" id="station-count">0</span> онлайн-радіостанцій з усього світу. Клікни на маркер на Землі або обери зі списку.
-      </div>
-      <div class="search-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input type="text" class="search-input" id="search-input" placeholder="Пошук станції...">
-        <button class="search-clear" id="search-clear" aria-label="Очистити">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <button class="back-btn" id="back-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-        Повернутися до топ-станцій
-      </button>
-    </div>
-    <div class="stations" id="stations-list"></div>
-  </aside>
+    </header>
 
-  <!-- Player -->
-  <div class="player" id="player">
-    <div class="player-inner">
-      <div class="player-row">
-        <div class="player-station">
-          <div class="player-icon-wrap" id="player-icon-wrap">
-            <div class="player-default">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="2"></circle>
-                <path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path>
-                <path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path>
-                <path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path>
-                <path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path>
+    <!-- Main Left Column -->
+    <main class="main-content">
+      <!-- Slogan Section -->
+      <section class="hero-text-block">
+        <h1 class="hero-title">
+          The world<br>
+          sounds better<br>
+          <span class="pink-accent">together.</span>
+        </h1>
+        <p class="hero-subtitle">
+          Discover and listen to live radio stations from every corner of the world.
+        </p>
+      </section>
+
+      <!-- 1. Mini Player Card -->
+      <div class="glass-card player-card" id="player-card">
+        <div class="player-top-row">
+          <div class="station-art-thumb" id="station-art">
+            <svg class="station-art-fallback" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v20M17 5v14M7 9v6M22 8v8M2 11v2"/>
+            </svg>
+          </div>
+
+          <div class="station-header-info">
+            <div class="soundwave-indicator" id="soundwave">
+              <div class="soundwave-bar"></div>
+              <div class="soundwave-bar"></div>
+              <div class="soundwave-bar"></div>
+              <div class="soundwave-bar"></div>
+            </div>
+
+            <div class="station-meta">
+              <div class="station-title" id="current-station-name">Barnstaple</div>
+              <div class="station-country" id="current-station-country">United Kingdom</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-controls-row">
+          <button class="control-btn" id="prev-btn" title="Попередня станція">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="19 20 9 12 19 4 19 20"></polygon>
+              <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"></line>
+            </svg>
+          </button>
+
+          <button class="main-play-btn" id="play-pause-btn" title="Відтворення / Пауза">
+            <svg id="play-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 4 20 12 6 20 6 4"></polygon>
+            </svg>
+          </button>
+
+          <button class="control-btn" id="next-btn" title="Наступна станція">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"></line>
+            </svg>
+          </button>
+
+          <div class="volume-group">
+            <button class="volume-icon-btn" id="volume-mute-btn" title="Звук">
+              <svg id="vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
               </svg>
-            </div>
-            <div class="player-pulse-ring"></div>
-          </div>
-          <div class="player-meta">
-            <div class="player-name-row">
-              <div class="player-name" id="player-name">—</div>
-              <div class="player-equalizer" id="player-equalizer" style="display: none;">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-              </div>
-            </div>
-            <div class="player-sub" id="player-sub">—</div>
-            <div class="player-error" id="player-error" style="display: none;"></div>
+            </button>
+            <input type="range" class="volume-range-slider" id="volume-slider" min="0" max="100" value="80" title="Гучність">
           </div>
         </div>
-        <div class="player-controls">
-          <button class="player-control-btn like-btn" id="like-btn" aria-label="Вподобати">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
-          <button class="play-btn" id="play-btn" aria-label="Відтворити">
-            <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-          </button>
-          <a class="player-control-btn external-btn" id="external-btn" target="_blank" rel="noopener noreferrer" aria-label="Сайт станції">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-          </a>
-          <button class="player-control-btn close-btn" id="close-btn" aria-label="Зупинити">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      </div>
+
+      <!-- 2. Playlist / Station List Card -->
+      <div class="glass-card playlist-card" id="quick-playlist-container">
+        <!-- Station items will be rendered dynamically with exact reference presets -->
+      </div>
+    </main>
+
+    <!-- Full Station Catalog / Search Modal -->
+    <div class="modal-overlay" id="catalog-modal">
+      <div class="catalog-modal">
+        <div class="catalog-header">
+          <div class="catalog-title">
+            <span>Радіостанції Світу</span>
+            <span class="catalog-title-badge" id="catalog-count-badge">2000+ станцій</span>
+          </div>
+          <button class="catalog-close-btn" id="catalog-close-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
           </button>
         </div>
-        <div class="player-volume">
-          <button class="volume-btn" id="volume-btn" aria-label="Вимкнути звук">
-            <svg id="volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-            </svg>
-          </button>
-          <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="80">
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Info modal -->
-  <div class="modal-backdrop" id="modal-backdrop">
-    <div class="modal">
-      <button class="modal-close" id="modal-close" aria-label="Закрити">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-      <div class="modal-header">
-        <div class="modal-logo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="2" y1="12" x2="22" y2="12"></line>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        <div class="catalog-search-bar">
+          <svg class="catalog-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
+          <input type="text" class="catalog-search-input" id="catalog-search-input" placeholder="Пошук станції за назвою, жанром або країною...">
         </div>
-        <div>
-          <div class="modal-title">Ibonarium</div>
-          <div class="modal-subtitle">World Radio</div>
+
+        <div class="catalog-filter-tags" id="filter-tags">
+          <button class="tag-pill active" data-tag="all">Усі станції</button>
+          <button class="tag-pill" data-tag="Ukraine">🇺🇦 Україна</button>
+          <button class="tag-pill" data-tag="United Kingdom">🇬🇧 UK</button>
+          <button class="tag-pill" data-tag="Germany">🇩🇪 Німеччина</button>
+          <button class="tag-pill" data-tag="United States">🇺🇸 США</button>
+          <button class="tag-pill" data-tag="France">🇫🇷 Франція</button>
+          <button class="tag-pill" data-tag="Electronic">Electronic / Dance</button>
+          <button class="tag-pill" data-tag="Jazz">Jazz / Chill</button>
+          <button class="tag-pill" data-tag="Rock">Rock</button>
+          <button class="tag-pill" data-tag="News">News / Talk</button>
         </div>
-      </div>
-      <div class="modal-body">
-        <p>
-          Інтерактивний 3D-глобус Землі з усіма доступними онлайн-радіостанціями світу.
-          Натисніть на неоновий маркер, щоб почати слухати радіо з будь-якої точки планети.
-        </p>
-        <p>
-          <span class="label">Технології:</span>
-          <span class="item">• Three.js (3D-Земля)</span>
-          <span class="item">• Radio-Browser API</span>
-          <span class="item">• Pure HTML/CSS/JS — без збірки</span>
-        </p>
-        <p>
-          <span class="label">Як користуватися:</span>
-          <span class="item">• Обертайте Землю мишею (drag)</span>
-          <span class="item">• Колесо миші — zoom</span>
-          <span class="item">• Клік на маркер — відтворення</span>
-          <span class="item">• Пошук за назвою в панелі</span>
-        </p>
-      </div>
-      <div class="modal-footer">
-        Дані: <a href="https://www.radio-browser.info" target="_blank" rel="noopener noreferrer">radio-browser.info</a><br>
-        Текстура Землі: NASA Blue Marble
+
+        <div class="catalog-list" id="catalog-stations-list">
+          <!-- Catalog items -->
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Three.js via importmap -->
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.185.1/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.185.1/examples/jsm/"
-  }
-}
-</script>
-
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// =================================================================
-// CONFIGURATION
-// =================================================================
-const GLOBE_RADIUS = 2;
-const MARKER_IDLE_COLOR = 0xe00279;     // bright pink (matches reference)
-const MARKER_HOVER_COLOR = 0xff8a3d;    // orange
-const MARKER_ACTIVE_COLOR = 0x0057d6;   // blue
-
-const RADIO_API_MIRRORS = [
-  'https://de1.api.radio-browser.info',
-  'https://nl1.api.radio-browser.info',
-  'https://at1.api.radio-browser.info'
-];
-
-// =================================================================
-// STATE
-// =================================================================
-const state = {
-  stations: [],
-  currentStation: null,
-  isPlaying: false,
-  isLoadingAudio: false,
-  volume: 0.8,
-  audio: null,
-  searchMode: 'top', // 'top' | 'search'
-  activeMarker: null,
-  hoveredMarker: null,
-  markersGroup: null,
-  globeMesh: null
-};
-
-// =================================================================
-// AUDIO
-// =================================================================
-function initAudio() {
-  state.audio = new Audio();
-  state.audio.crossOrigin = 'anonymous';
-  state.audio.preload = 'none';
-  state.audio.volume = state.volume;
-
-  state.audio.addEventListener('play', () => {
-    state.isPlaying = true;
-    updatePlayerUI();
-  });
-  state.audio.addEventListener('pause', () => {
-    state.isPlaying = false;
-    updatePlayerUI();
-  });
-  state.audio.addEventListener('waiting', () => {
-    state.isLoadingAudio = true;
-    updatePlayerUI();
-    hideError();
-  });
-  state.audio.addEventListener('playing', () => {
-    state.isLoadingAudio = false;
-    updatePlayerUI();
-    hideError();
-  });
-  state.audio.addEventListener('error', (e) => {
-    console.error('Audio error:', e);
-    state.isLoadingAudio = false;
-    showError('Не вдалося завантажити потік. Спробуйте іншу станцію.');
-    updatePlayerUI();
-  });
-}
-
-function playStation(station) {
-  if (!state.audio) return;
-  state.currentStation = station;
-  state.audio.src = station.url_resolved || station.url;
-  state.audio.volume = state.volume;
-  state.isLoadingAudio = true;
-  state.audio.play().then(() => {
-    state.isLoadingAudio = false;
-    updatePlayerUI();
-  }).catch((err) => {
-    console.error('Playback error:', err);
-    state.isLoadingAudio = false;
-    showError('Не вдалося відтворити цю станцію. Спробуйте іншу.');
-    updatePlayerUI();
-  });
-  updatePlayerUI();
-}
-
-function togglePlay() {
-  if (!state.audio || !state.currentStation) return;
-  if (state.audio.paused) {
-    state.audio.play().catch(console.error);
-  } else {
-    state.audio.pause();
-  }
-}
-
-function stopPlayback() {
-  if (state.audio) {
-    state.audio.pause();
-    state.audio.src = '';
-  }
-  state.currentStation = null;
-  state.isPlaying = false;
-  state.isLoadingAudio = false;
-  updatePlayerUI();
-  updateMarkers();
-}
-
-function setVolume(vol) {
-  state.volume = vol;
-  if (state.audio) state.audio.volume = vol;
-  updateVolumeIcon();
-}
-
-// =================================================================
-// THREE.JS SCENE
-// =================================================================
-let scene, camera, renderer, controls;
-let earthMesh, atmosphereMesh1, atmosphereMesh2, atmosphereMesh3;
-let starsField;
-
-function latLonToVector3(lat, lon, radius) {
-  const phi = (90 - lat) * (Math.PI / 180);
-  const theta = (lon + 180) * (Math.PI / 180);
-  const x = -radius * Math.sin(phi) * Math.cos(theta);
-  const z = radius * Math.sin(phi) * Math.sin(theta);
-  const y = radius * Math.cos(phi);
-  return new THREE.Vector3(x, y, z);
-}
-
-function initThree() {
-  const container = document.getElementById('globe-container');
-
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000005);
-  scene.fog = new THREE.Fog(0x000005, 8, 25);
-
-  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 0, 5.5);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
-  renderer.setClearColor(0x000005, 1);
-  container.appendChild(renderer.domElement);
-
-  // Lights — subtle, neutral white with a hint of color
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-  const dirLight1 = new THREE.DirectionalLight(0xffffff, 2.0);
-  dirLight1.position.set(5, 3, 5);
-  scene.add(dirLight1);
-  const dirLight2 = new THREE.DirectionalLight(0x6688aa, 0.8);
-  dirLight2.position.set(-5, 2, -3);
-  scene.add(dirLight2);
-  const pointLight = new THREE.PointLight(0xe00279, 0.8, 15);
-  pointLight.position.set(-3, -3, -5);
-  scene.add(pointLight);
-
-  // Stars
-  createStars();
-
-  // Earth + atmosphere
-  createEarth();
-
-  // Markers group
-  state.markersGroup = new THREE.Group();
-  scene.add(state.markersGroup);
-
-  // Controls — NO auto-rotate, planet stays still until user interacts
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.enablePan = false;
-  controls.enableZoom = true;
-  controls.minDistance = 2.6;
-  controls.maxDistance = 8;
-  controls.rotateSpeed = 0.5;
-  controls.zoomSpeed = 0.7;
-  controls.autoRotate = false;
-
-  // Raycaster for clicks
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  let isDragging = false;
-  let pointerDown = { x: 0, y: 0 };
-
-  renderer.domElement.addEventListener('pointerdown', (e) => {
-    isDragging = false;
-    pointerDown = { x: e.clientX, y: e.clientY };
-  });
-
-  renderer.domElement.addEventListener('pointermove', (e) => {
-    if (Math.abs(e.clientX - pointerDown.x) > 4 || Math.abs(e.clientY - pointerDown.y) > 4) {
-      isDragging = true;
+  <!-- Three.js + OrbitControls -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
     }
-    pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    updateHover(pointer, raycaster);
-  });
-
-  renderer.domElement.addEventListener('pointerup', (e) => {
-    if (isDragging) return;
-    pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
-    pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
-    handleClick(pointer, raycaster);
-  });
-
-  window.addEventListener('resize', onResize);
-  animate();
-}
-
-function createStars() {
-  const starsGeometry = new THREE.BufferGeometry();
-  const starCount = 6000;
-  const positions = new Float32Array(starCount * 3);
-  const colors = new Float32Array(starCount * 3);
-
-  for (let i = 0; i < starCount; i++) {
-    const radius = 60 + Math.random() * 40;
-    const theta = Math.random() * Math.PI * 2;
-    const phi = Math.acos(2 * Math.random() - 1);
-    positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
-    positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
-    positions[i * 3 + 2] = radius * Math.cos(phi);
-    // Random subtle tint
-    const tint = 0.7 + Math.random() * 0.3;
-    colors[i * 3] = tint;
-    colors[i * 3 + 1] = tint;
-    colors[i * 3 + 2] = tint;
   }
+  </script>
 
-  starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-  const starsMaterial = new THREE.PointsMaterial({
-    size: 0.15,
-    sizeAttenuation: true,
-    vertexColors: true,
-    transparent: true,
-    opacity: 0.9
-  });
+    // =================================================================
+    // CONFIG & STATE
+    // =================================================================
+    const GLOBE_RADIUS = 2.4;
+    const RADIO_API_MIRRORS = [
+      'https://de1.api.radio-browser.info',
+      'https://nl1.api.radio-browser.info',
+      'https://at1.api.radio-browser.info'
+    ];
 
-  starsField = new THREE.Points(starsGeometry, starsMaterial);
-  scene.add(starsField);
-}
-
-function createEarth() {
-  const geometry = new THREE.SphereGeometry(GLOBE_RADIUS, 96, 96);
-  const textureLoader = new THREE.TextureLoader();
-  textureLoader.crossOrigin = 'anonymous';
-
-  // Start with a placeholder material
-  const material = new THREE.MeshStandardMaterial({
-    color: 0x0a0a14,
-    roughness: 0.85,
-    metalness: 0.15,
-    emissive: new THREE.Color(0x0a0a14),
-    emissiveIntensity: 0.05
-  });
-  earthMesh = new THREE.Mesh(geometry, material);
-  earthMesh.rotation.y = 0;
-  scene.add(earthMesh);
-
-  // Load earth texture
-  textureLoader.load(
-    'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg',
-    (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = 4;
-      material.map = texture;
-      material.color = new THREE.Color(0xffffff);
-      material.needsUpdate = true;
-    },
-    undefined,
-    (err) => console.error('Earth texture failed:', err)
-  );
-
-  // Load topology as bump map
-  textureLoader.load(
-    'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png',
-    (texture) => {
-      material.bumpMap = texture;
-      material.bumpScale = 0.05;
-      material.needsUpdate = true;
-    },
-    undefined,
-    (err) => console.error('Topology failed:', err)
-  );
-
-  // Atmosphere layers (purple-magenta glow using additive blending)
-  const atm1Geo = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64);
-  const atm1Mat = new THREE.MeshBasicMaterial({
-    color: 0x0057d6,
-    transparent: true,
-    opacity: 0.18,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending
-  });
-  atmosphereMesh1 = new THREE.Mesh(atm1Geo, atm1Mat);
-  atmosphereMesh1.scale.setScalar(1.025);
-  scene.add(atmosphereMesh1);
-
-  const atm2Geo = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64);
-  const atm2Mat = new THREE.MeshBasicMaterial({
-    color: 0xe00279,
-    transparent: true,
-    opacity: 0.12,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending
-  });
-  atmosphereMesh2 = new THREE.Mesh(atm2Geo, atm2Mat);
-  atmosphereMesh2.scale.setScalar(1.08);
-  scene.add(atmosphereMesh2);
-
-  const atm3Geo = new THREE.SphereGeometry(GLOBE_RADIUS, 64, 64);
-  const atm3Mat = new THREE.MeshBasicMaterial({
-    color: 0xff5400,
-    transparent: true,
-    opacity: 0.06,
-    side: THREE.BackSide,
-    blending: THREE.AdditiveBlending
-  });
-  atmosphereMesh3 = new THREE.Mesh(atm3Geo, atm3Mat);
-  atmosphereMesh3.scale.setScalar(1.18);
-  scene.add(atmosphereMesh3);
-}
-
-function createMarker(station) {
-  if (station.geo_lat == null || station.geo_long == null) return null;
-  const position = latLonToVector3(station.geo_lat, station.geo_long, GLOBE_RADIUS * 1.005);
-
-  const group = new THREE.Group();
-  group.position.copy(position);
-  group.userData.station = station;
-
-  // Orient the group so its local +Y axis points outward from globe center
-  const outward = position.clone().normalize();
-  group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), outward);
-
-  // --- Idle marker: small refined dot ---
-  const dotSize = 0.022;
-  const dotGeo = new THREE.SphereGeometry(dotSize, 12, 12);
-  const dotMat = new THREE.MeshBasicMaterial({
-    color: MARKER_IDLE_COLOR,
-    transparent: true,
-    opacity: 0.85,
-    blending: THREE.AdditiveBlending
-  });
-  const dot = new THREE.Mesh(dotGeo, dotMat);
-  dot.position.y = 0; // sits on the surface
-  group.add(dot);
-
-  // Subtle glow halo around the dot
-  const glowGeo = new THREE.SphereGeometry(dotSize * 2, 12, 12);
-  const glowMat = new THREE.MeshBasicMaterial({
-    color: MARKER_IDLE_COLOR,
-    transparent: true,
-    opacity: 0.12,
-    blending: THREE.AdditiveBlending
-  });
-  const glow = new THREE.Mesh(glowGeo, glowMat);
-  group.add(glow);
-
-  // --- Hover ring (thin torus on the globe surface) ---
-  const ringGeo = new THREE.RingGeometry(dotSize * 1.8, dotSize * 2.4, 24);
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: MARKER_HOVER_COLOR,
-    transparent: true,
-    opacity: 0,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending
-  });
-  const ring = new THREE.Mesh(ringGeo, ringMat);
-  ring.rotation.x = -Math.PI / 2; // lay flat on surface
-  ring.position.y = 0.001;
-  group.add(ring);
-
-  // --- Active pin (cone pointing outward + small sphere on top) ---
-  // Created hidden, shown only when active
-  const pinGroup = new THREE.Group();
-  pinGroup.visible = false;
-
-  // Cone (teardrop pointing outward, base at surface)
-  const coneHeight = 0.18;
-  const coneGeo = new THREE.ConeGeometry(0.035, coneHeight, 16);
-  const coneMat = new THREE.MeshBasicMaterial({
-    color: MARKER_ACTIVE_COLOR,
-    transparent: true,
-    opacity: 0.95,
-    blending: THREE.AdditiveBlending
-  });
-  const cone = new THREE.Mesh(coneGeo, coneMat);
-  cone.position.y = coneHeight / 2;
-  pinGroup.add(cone);
-
-  // Small sphere on top of cone
-  const topGeo = new THREE.SphereGeometry(0.045, 16, 16);
-  const topMat = new THREE.MeshBasicMaterial({
-    color: MARKER_HOVER_COLOR,
-    transparent: true,
-    opacity: 1,
-    blending: THREE.AdditiveBlending
-  });
-  const top = new THREE.Mesh(topGeo, topMat);
-  top.position.y = coneHeight + 0.02;
-  pinGroup.add(top);
-
-  // Glow around the top sphere
-  const topGlowGeo = new THREE.SphereGeometry(0.09, 12, 12);
-  const topGlowMat = new THREE.MeshBasicMaterial({
-    color: MARKER_ACTIVE_COLOR,
-    transparent: true,
-    opacity: 0.3,
-    blending: THREE.AdditiveBlending
-  });
-  const topGlow = new THREE.Mesh(topGlowGeo, topGlowMat);
-  topGlow.position.y = coneHeight + 0.02;
-  pinGroup.add(topGlow);
-
-  group.add(pinGroup);
-
-  // --- Active base ring (pulsing on surface) ---
-  const baseRingGeo = new THREE.RingGeometry(0.05, 0.07, 32);
-  const baseRingMat = new THREE.MeshBasicMaterial({
-    color: MARKER_ACTIVE_COLOR,
-    transparent: true,
-    opacity: 0,
-    side: THREE.DoubleSide,
-    blending: THREE.AdditiveBlending
-  });
-  const baseRing = new THREE.Mesh(baseRingGeo, baseRingMat);
-  baseRing.rotation.x = -Math.PI / 2;
-  baseRing.position.y = 0.002;
-  group.add(baseRing);
-
-  group.userData.dot = dot;
-  group.userData.glow = glow;
-  group.userData.ring = ring;
-  group.userData.pinGroup = pinGroup;
-  group.userData.baseRing = baseRing;
-  group.userData.dotSize = dotSize;
-
-  return group;
-}
-
-function rebuildMarkers() {
-  if (!state.markersGroup) return;
-  // Clear existing markers
-  while (state.markersGroup.children.length > 0) {
-    const child = state.markersGroup.children[0];
-    state.markersGroup.remove(child);
-    // Dispose geometries/materials
-    child.traverse((obj) => {
-      if (obj.geometry) obj.geometry.dispose();
-      if (obj.material) {
-        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
-        else obj.material.dispose();
+    // Reference presets
+    const PRESET_STATIONS = [
+      {
+        stationuuid: 'barnstaple-uk-01',
+        name: 'Barnstaple',
+        country: 'United Kingdom',
+        tags: 'Pop · Hits',
+        url: 'https://stream.thevoicefm.co.uk/thevoice',
+        url_resolved: 'https://stream.thevoicefm.co.uk/thevoice',
+        geo_lat: 51.08,
+        geo_long: -4.06,
+        badgeType: 'pink',
+        badgeIcon: 'waves'
+      },
+      {
+        stationuuid: 'deutschlandfunk-de',
+        name: 'Deutschlandfunk',
+        country: 'Germany',
+        tags: 'Culture · News',
+        url: 'https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3',
+        url_resolved: 'https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3',
+        geo_lat: 50.9375,
+        geo_long: 6.9603,
+        badgeType: 'blue',
+        badgeText: '≡'
+      },
+      {
+        stationuuid: '0n-70s-radio',
+        name: '- 0 N - 70s on Radio',
+        country: 'Germany',
+        tags: '70s · 70s',
+        url: 'https://0n-70s.radionetz.de/0n-70s.mp3',
+        url_resolved: 'https://0n-70s.radionetz.de/0n-70s.mp3',
+        geo_lat: 52.52,
+        geo_long: 13.405,
+        badgeType: 'orange',
+        badgeText: '70s'
+      },
+      {
+        stationuuid: '0n-80s-radio',
+        name: '- 0 N - 80s on Radio',
+        country: 'Germany',
+        tags: '80s · 80s',
+        url: 'https://0n-80s.radionetz.de/0n-80s.mp3',
+        url_resolved: 'https://0n-80s.radionetz.de/0n-80s.mp3',
+        geo_lat: 48.1351,
+        geo_long: 11.582,
+        badgeType: 'magenta',
+        badgeText: '80s'
+      },
+      {
+        stationuuid: 'deutschrap-hiphop',
+        name: 'Deutschrap',
+        country: 'Germany',
+        tags: 'Hip-Hop · Deutschrap',
+        url: 'https://stream.bigfm.de/deutschrap/mp3-128',
+        url_resolved: 'https://stream.bigfm.de/deutschrap/mp3-128',
+        geo_lat: 48.7758,
+        geo_long: 9.1829,
+        badgeType: 'dark',
+        badgeIcon: 'radio'
       }
-    });
-  }
+    ];
 
-  // Build new markers
-  const count = Math.min(state.stations.length, 800);
-  for (let i = 0; i < count; i++) {
-    const station = state.stations[i];
-    const marker = createMarker(station);
-    if (marker) state.markersGroup.add(marker);
-  }
+    const state = {
+      stations: [...PRESET_STATIONS],
+      activeStation: PRESET_STATIONS[0],
+      isPlaying: false,
+      volume: 0.8,
+      audio: null,
+      markerMeshes: [],
+      radarBeacon: null,
+      hoveredStation: null
+    };
 
-  updateMarkers();
-}
+    // =================================================================
+    // AUDIO ENGINE
+    // =================================================================
+    function initAudioEngine() {
+      state.audio = new Audio();
+      state.audio.crossOrigin = 'anonymous';
+      state.audio.volume = state.volume;
 
-function updateMarkers() {
-  if (!state.markersGroup) return;
-  state.markersGroup.children.forEach((marker) => {
-    const isActive = state.currentStation && marker.userData.station.stationuuid === state.currentStation.stationuuid;
-    const isHovered = state.hoveredMarker === marker;
+      state.audio.addEventListener('play', () => {
+        state.isPlaying = true;
+        updateUIState();
+      });
 
-    const dot = marker.userData.dot;
-    const glow = marker.userData.glow;
-    const ring = marker.userData.ring;
-    const pinGroup = marker.userData.pinGroup;
-    const baseRing = marker.userData.baseRing;
+      state.audio.addEventListener('pause', () => {
+        state.isPlaying = false;
+        updateUIState();
+      });
 
-    if (isActive) {
-      // Show the pin, hide the dot
-      dot.visible = false;
-      glow.visible = false;
-      pinGroup.visible = true;
-      ring.material.opacity = 0;
-      baseRing.material.opacity = 0.6;
-    } else if (isHovered) {
-      // Show dot (slightly bigger) + hover ring
-      dot.visible = true;
-      dot.material.color.setHex(MARKER_HOVER_COLOR);
-      dot.material.opacity = 1;
-      dot.scale.setScalar(1.4);
-      glow.material.color.setHex(MARKER_HOVER_COLOR);
-      glow.material.opacity = 0.25;
-      glow.scale.setScalar(1.5);
-      ring.material.opacity = 0.7;
-      pinGroup.visible = false;
-      baseRing.material.opacity = 0;
-    } else {
-      // Idle
-      dot.visible = true;
-      dot.material.color.setHex(MARKER_IDLE_COLOR);
-      dot.material.opacity = 0.85;
-      dot.scale.setScalar(1);
-      glow.visible = true;
-      glow.material.color.setHex(MARKER_IDLE_COLOR);
-      glow.material.opacity = 0.12;
-      glow.scale.setScalar(1);
-      ring.material.opacity = 0;
-      pinGroup.visible = false;
-      baseRing.material.opacity = 0;
-    }
-  });
-}
-
-// Hover label management
-let currentLabel = null;
-let hoverLabelEl = null;
-
-function ensureHoverLabelEl() {
-  if (hoverLabelEl) return hoverLabelEl;
-  hoverLabelEl = document.createElement('div');
-  hoverLabelEl.style.cssText = `
-    position: absolute;
-    background: linear-gradient(135deg, rgba(196, 132, 252, 0.18), rgba(164, 58, 233, 0.10));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: white;
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(164, 58, 233, 0.45);
-    box-shadow: 0 8px 32px rgba(196, 132, 252, 0.35), inset 0 0 16px rgba(164, 58, 233, 0.25);
-    pointer-events: none;
-    white-space: nowrap;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    transform: translate(-50%, -100%);
-    z-index: 10;
-    display: none;
-    transition: opacity 0.15s ease;
-  `;
-  document.getElementById('globe-container').appendChild(hoverLabelEl);
-  return hoverLabelEl;
-}
-
-function updateHover(pointer, raycaster) {
-  if (!state.markersGroup) return;
-  raycaster.setFromCamera(pointer, camera);
-  // Use dot meshes for hit-testing (slightly larger threshold for better UX)
-  raycaster.params.Points = { threshold: 0.05 };
-  const targets = [];
-  state.markersGroup.children.forEach((m) => {
-    if (m.userData.dot) {
-      m.userData.dot.userData.parentGroup = m;
-      targets.push(m.userData.dot);
-    }
-  });
-  const intersects = raycaster.intersectObjects(targets, false);
-
-  let hovered = null;
-  if (intersects.length > 0) {
-    hovered = intersects[0].object.userData.parentGroup;
-  }
-
-  if (hovered !== state.hoveredMarker) {
-    state.hoveredMarker = hovered;
-    updateMarkers();
-    updateLabel();
-
-    if (hovered) {
-      renderer.domElement.style.cursor = 'pointer';
-    } else {
-      renderer.domElement.style.cursor = 'grab';
-    }
-  }
-}
-
-function updateLabel() {
-  const el = ensureHoverLabelEl();
-  if (!state.hoveredMarker) {
-    el.style.display = 'none';
-    return;
-  }
-  const station = state.hoveredMarker.userData.station;
-  const name = station.name.length > 32 ? station.name.slice(0, 30) + '…' : station.name;
-  el.innerHTML = `<div style="font-size: 13px; font-weight: 600; color: white; text-shadow: 0 0 8px rgba(164, 58, 233, 0.6);">${escapeHtml(name)}</div>` + (station.country ? `<div style="font-size: 11px; color: #e48fba; margin-top: 2px;">${escapeHtml(station.country)}</div>` : '');
-  el.style.display = 'block';
-}
-
-function updateLabelPosition() {
-  if (!state.hoveredMarker || !hoverLabelEl) return;
-  if (hoverLabelEl.style.display === 'none') return;
-  // Project 3D position to 2D screen
-  const pos = state.hoveredMarker.position.clone();
-  state.hoveredMarker.parent.localToWorld(pos);
-  pos.project(camera);
-  const x = (pos.x * 0.5 + 0.5) * window.innerWidth;
-  const y = (-pos.y * 0.5 + 0.5) * window.innerHeight;
-  hoverLabelEl.style.left = x + 'px';
-  hoverLabelEl.style.top = (y - 12) + 'px';
-}
-
-function handleClick(pointer, raycaster) {
-  if (!state.markersGroup) return;
-  raycaster.setFromCamera(pointer, camera);
-  const targets = [];
-  state.markersGroup.children.forEach((m) => {
-    if (m.userData.dot) {
-      m.userData.dot.userData.parentGroup = m;
-      targets.push(m.userData.dot);
-    }
-    // Also allow clicking the pin group when active
-    if (m.userData.pinGroup && m.userData.pinGroup.visible) {
-      m.userData.pinGroup.children.forEach((child) => {
-        child.userData.parentGroup = m;
-        targets.push(child);
+      state.audio.addEventListener('error', (e) => {
+        console.warn('Audio stream error, attempting fallback:', e);
+        state.isPlaying = false;
+        updateUIState();
       });
     }
-  });
-  const intersects = raycaster.intersectObjects(targets, false);
-  if (intersects.length > 0) {
-    const station = intersects[0].object.userData.parentGroup.userData.station;
-    playStation(station);
-  }
-}
 
-function onResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+    function playStation(station) {
+      if (!station) return;
+      state.activeStation = station;
 
-let lastTime = 0;
-function animate(time = 0) {
-  requestAnimationFrame(animate);
-  const delta = (time - lastTime) / 1000;
-  lastTime = time;
+      if (state.audio) {
+        state.audio.src = station.url_resolved || station.url;
+        state.audio.play().then(() => {
+          state.isPlaying = true;
+          updateUIState();
+        }).catch(err => {
+          console.warn('Audio autoplay requires user interaction:', err);
+          state.isPlaying = false;
+          updateUIState();
+        });
+      }
 
-  // NO auto-rotation — planet stays still. Only subtle star field drift for life.
-  if (starsField) starsField.rotation.y += delta * 0.005;
+      // Update radar beacon position on 3D globe
+      updateRadarBeacon(station.geo_lat, station.geo_long);
 
-  // Animate the active marker beam (pulse effect)
-  if (state.activeBeam) {
-    const mat = state.activeBeam.material;
-    mat.opacity = 0.5 + 0.3 * Math.sin(time * 0.004);
-  }
+      // Rotate globe gently to focus the station
+      focusStationOnGlobe(station.geo_lat, station.geo_long);
 
-  controls.update();
-  renderer.render(scene, camera);
-  updateLabelPosition();
-}
+      updateUIState();
+      renderQuickPlaylist();
+    }
 
-// =================================================================
-// RADIO API
-// =================================================================
-async function fetchStations(action, query) {
-  let path;
-  if (action === 'search' && query) {
-    path = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&order=votes&reverse=true&limit=200`;
-  } else {
-    path = `/json/stations/topvote/2000?hidebroken=true`;
-  }
-
-  for (const mirror of RADIO_API_MIRRORS) {
-    try {
-      const res = await fetch(`${mirror}${path}`, {
-        headers: {
-          'User-Agent': 'IbonariumWorldRadio/1.0',
-          'Accept': 'application/json'
+    function togglePlay() {
+      if (!state.audio) return;
+      if (state.isPlaying) {
+        state.audio.pause();
+      } else {
+        if (!state.audio.src && state.activeStation) {
+          state.audio.src = state.activeStation.url_resolved || state.activeStation.url;
         }
+        state.audio.play().catch(console.error);
+      }
+    }
+
+    function playNext() {
+      const idx = state.stations.findIndex(s => s.stationuuid === state.activeStation.stationuuid);
+      const nextIdx = (idx + 1) % state.stations.length;
+      playStation(state.stations[nextIdx]);
+    }
+
+    function playPrev() {
+      const idx = state.stations.findIndex(s => s.stationuuid === state.activeStation.stationuuid);
+      const prevIdx = (idx - 1 + state.stations.length) % state.stations.length;
+      playStation(state.stations[prevIdx]);
+    }
+
+    // =================================================================
+    // 3D SCENE & PARTICLE GLOBE (THREE.JS)
+    // =================================================================
+    let scene, camera, renderer, controls;
+    let globeGroup, particleGlobeMesh, stationPointsMesh;
+    let radarRings = [];
+
+    function latLonToVector3(lat, lon, radius) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      const x = -radius * Math.sin(phi) * Math.cos(theta);
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y = radius * Math.cos(phi);
+      return new THREE.Vector3(x, y, z);
+    }
+
+    function init3DScene() {
+      const container = document.getElementById('globe-canvas-container');
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+      // Position camera offset to center globe on right side on desktop
+      updateCameraPosition();
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      container.appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.enablePan = false;
+      controls.minDistance = 3.2;
+      controls.maxDistance = 8.5;
+      controls.rotateSpeed = 0.6;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.25;
+
+      // Group holding the globe and all elements
+      globeGroup = new THREE.Group();
+      scene.add(globeGroup);
+
+      // Dark core sphere with atmospheric glow
+      createBaseSphere();
+
+      // Dense Particle Earth (Matrix Landmass Dots)
+      createParticleLandmasses();
+
+      // Station markers
+      createStationMarkers();
+
+      // Active Station Sonar / Radar Beacon
+      createRadarBeacon();
+
+      // Background stars
+      createStarfield();
+
+      // Raycasting setup for marker interactions
+      setupRaycaster(container);
+
+      window.addEventListener('resize', onWindowResize);
+      animate();
+    }
+
+    function updateCameraPosition() {
+      if (window.innerWidth > 900) {
+        // Desktop: Globe placed aesthetically to the right
+        camera.position.set(1.2, 0.4, 6.2);
+        if (controls) controls.target.set(1.0, 0, 0);
+      } else {
+        // Mobile: Centered globe
+        camera.position.set(0, 0, 6.8);
+        if (controls) controls.target.set(0, 0, 0);
+      }
+    }
+
+    function createBaseSphere() {
+      // Inner dark globe
+      const innerGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 0.995, 64, 64);
+      const innerMat = new THREE.MeshBasicMaterial({
+        color: 0x04010a,
+        transparent: true,
+        opacity: 0.98
       });
-      if (res.ok) {
-        const data = await res.json();
-        return data
-          .filter(s => s.geo_lat !== null && s.geo_long !== null && (s.url_resolved || s.url))
-          .map(s => ({
-            stationuuid: s.stationuuid,
-            name: (s.name || 'Unknown').trim(),
-            url: s.url,
-            url_resolved: s.url_resolved || s.url,
-            homepage: s.homepage || '',
-            favicon: s.favicon || '',
-            tags: s.tags || '',
-            country: s.country || '',
-            countrycode: s.countrycode || '',
-            state: s.state || '',
-            language: s.language || '',
-            votes: s.votes || 0,
-            codec: s.codec || '',
-            bitrate: s.bitrate || 0,
-            geo_lat: s.geo_lat,
-            geo_long: s.geo_long
-          }));
-      }
-    } catch (e) {
-      console.error(`Mirror ${mirror} failed:`, e);
-      continue;
+      const innerSphere = new THREE.Mesh(innerGeo, innerMat);
+      globeGroup.add(innerSphere);
+
+      // Atmosphere Fresnel Glow
+      const atmGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.03, 64, 64);
+      const atmMat = new THREE.ShaderMaterial({
+        transparent: true,
+        side: THREE.BackSide,
+        blending: THREE.AdditiveBlending,
+        uniforms: {
+          glowColor: { value: new THREE.Color(0xe00279) }
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          uniform vec3 glowColor;
+          void main() {
+            float intensity = pow(0.65 - dot(vNormal, vec3(0, 0, 1.0)), 2.2);
+            gl_FragColor = vec4(glowColor, intensity * 0.45);
+          }
+        `
+      });
+      const atmMesh = new THREE.Mesh(atmGeo, atmMat);
+      globeGroup.add(atmMesh);
     }
-  }
-  throw new Error('All radio-browser mirrors failed');
-}
 
-// =================================================================
-// UI
-// =================================================================
-function escapeHtml(str) {
-  if (!str) return '';
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-// Deterministically assign a color class to each station based on its uuid.
-// This gives each station a stable color (blue, orange, pink, purple, etc.)
-// matching the reference design's colorful circle avatars.
-function getStationColorClass(uuid) {
-  if (!uuid) return 'color-blue';
-  let hash = 0;
-  for (let i = 0; i < uuid.length; i++) {
-    hash = ((hash << 5) - hash) + uuid.charCodeAt(i);
-    hash |= 0;
-  }
-  const colors = ['color-blue', 'color-orange', 'color-pink', 'color-purple', 'color-green', 'color-yellow', 'color-red', 'color-cyan'];
-  return colors[Math.abs(hash) % colors.length];
-}
-
-function renderStations() {
-  const list = document.getElementById('stations-list');
-  const count = document.getElementById('station-count');
-  count.textContent = state.stations.length;
-
-  if (state.stations.length === 0) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="2"></circle>
-          <path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path>
-          <path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path>
-          <path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path>
-          <path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path>
-        </svg>
-        <div class="empty-state-text">Станції не знайдені</div>
-      </div>`;
-    return;
-  }
-
-  // Group by country
-  const byCountry = new Map();
-  for (const s of state.stations) {
-    const c = s.country || 'Невідомо';
-    if (!byCountry.has(c)) byCountry.set(c, []);
-    byCountry.get(c).push(s);
-  }
-  const sorted = Array.from(byCountry.entries()).sort((a, b) => b[1].length - a[1].length);
-
-  let html = '';
-  for (const [country, stations] of sorted) {
-    html += `<div class="country-group">
-      <div class="country-header">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 18V5l12-2v13"></path>
-          <circle cx="6" cy="18" r="3"></circle>
-          <circle cx="18" cy="16" r="3"></circle>
-        </svg>
-        <span class="country-name">${escapeHtml(country)}</span>
-        <span class="country-count">${stations.length}</span>
-      </div>`;
-    for (const s of stations) {
-      const isActive = state.currentStation && state.currentStation.stationuuid === s.stationuuid;
-      const tags = s.tags ? s.tags.split(',').slice(0, 2).join(' · ') : '';
-      const colorClass = getStationColorClass(s.stationuuid);
-      const favicon = s.favicon ? `<img src="${escapeHtml(s.favicon)}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-        <svg style="display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="2"></circle>
-          <path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path>
-          <path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path>
-          <path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path>
-          <path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path>
-        </svg>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="2"></circle>
-          <path d="M16.247 7.761a6 6 0 0 1 0 8.478"></path>
-          <path d="M19.075 4.933a10 10 0 0 1 0 14.134"></path>
-          <path d="M4.925 19.067a10 10 0 0 1 0-14.134"></path>
-          <path d="M7.753 16.239a6 6 0 0 1 0-8.478"></path>
-        </svg>`;
-      html += `<button class="station-item ${isActive ? 'active' : ''}" data-uuid="${escapeHtml(s.stationuuid)}">
-        <div class="station-icon ${colorClass}">${favicon}</div>
-        <div class="station-info">
-          <div class="station-name">${escapeHtml(s.name)}</div>
-          ${tags ? `<div class="station-tags">${escapeHtml(tags)}</div>` : ''}
-        </div>
-        ${isActive ? `<div class="now-playing">
-          <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-        </div>` : ''}
-      </button>`;
-    }
-    html += `</div>`;
-  }
-  list.innerHTML = html;
-
-  // Attach click handlers
-  list.querySelectorAll('.station-item').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const uuid = btn.getAttribute('data-uuid');
-      const station = state.stations.find(s => s.stationuuid === uuid);
-      if (station) {
-        playStation(station);
-        // Close mobile sidebar
-        if (window.innerWidth <= 768) {
-          closeSidebar();
-        }
-      }
-    });
-  });
-}
-
-function showLoadingState() {
-  const list = document.getElementById('stations-list');
-  list.innerHTML = `
-    <div class="loading-state">
-      <div class="spinner"></div>
-      <div class="loading-state-text">Завантаження...</div>
-    </div>`;
-}
-
-function updatePlayerUI() {
-  const player = document.getElementById('player');
-  if (!state.currentStation) {
-    player.classList.remove('visible');
-    return;
-  }
-
-  player.classList.add('visible');
-  player.classList.toggle('playing', state.isPlaying);
-
-  const name = document.getElementById('player-name');
-  const sub = document.getElementById('player-sub');
-  const equalizer = document.getElementById('player-equalizer');
-  const playIcon = document.getElementById('play-icon');
-  const externalBtn = document.getElementById('external-btn');
-  const iconWrap = document.getElementById('player-icon-wrap');
-
-  name.textContent = state.currentStation.name;
-
-  let subText = '';
-  if (state.currentStation.country) subText += `<span class="country">${escapeHtml(state.currentStation.country)}</span>`;
-  if (state.currentStation.bitrate) subText += `<span class="sep">·</span>${state.currentStation.bitrate} kbps`;
-  if (state.currentStation.codec) subText += `<span class="sep">·</span>${escapeHtml(state.currentStation.codec)}`;
-  sub.innerHTML = subText || '—';
-
-  // Show equalizer when playing
-  equalizer.style.display = state.isPlaying ? 'flex' : 'none';
-
-  // Show loading icon if loading
-  if (state.isLoadingAudio) {
-    playIcon.innerHTML = `<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-dasharray="42" stroke-linecap="round">
-      <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
-    </circle>`;
-  } else if (state.isPlaying) {
-    playIcon.innerHTML = `<rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect>`;
-  } else {
-    playIcon.innerHTML = `<polygon points="5 3 19 12 5 21 5 3"></polygon>`;
-  }
-
-  // External link
-  if (state.currentStation.homepage) {
-    externalBtn.href = state.currentStation.homepage;
-    externalBtn.style.display = 'flex';
-  } else {
-    externalBtn.style.display = 'none';
-  }
-
-  // Favicon
-  const existingImg = iconWrap.querySelector('img');
-  const defaultIcon = iconWrap.querySelector('.player-default');
-  if (state.currentStation.favicon) {
-    if (!existingImg) {
-      const img = document.createElement('img');
-      img.alt = '';
-      img.onerror = () => {
-        img.style.display = 'none';
-        defaultIcon.style.display = 'block';
+    // High density particle landmass generator (matches reference dots)
+    function createParticleLandmasses() {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        generatePointsFromImage(img);
       };
-      img.src = state.currentStation.favicon;
-      iconWrap.insertBefore(img, iconWrap.firstChild);
-    } else if (existingImg.src !== state.currentStation.favicon) {
-      existingImg.src = state.currentStation.favicon;
-      existingImg.style.display = 'block';
-      defaultIcon.style.display = 'none';
+      img.onerror = () => {
+        // Procedural fallback map if network texture fails
+        generateProceduralLandmass();
+      };
+      // World landmask topology
+      img.src = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png';
     }
-  } else if (existingImg) {
-    existingImg.remove();
-    defaultIcon.style.display = 'block';
-  }
 
-  updateMarkers();
-}
+    function generatePointsFromImage(image) {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const w = 360;
+      const h = 180;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(image, 0, 0, w, h);
+      const imgData = ctx.getImageData(0, 0, w, h).data;
 
-function showError(msg) {
-  const err = document.getElementById('player-error');
-  err.textContent = msg;
-  err.style.display = 'block';
-}
+      const positions = [];
+      const colors = [];
+      const sizes = [];
 
-function hideError() {
-  const err = document.getElementById('player-error');
-  err.style.display = 'none';
-}
+      const colorPink = new THREE.Color(0xff2d92);
+      const colorPurple = new THREE.Color(0x9d4edd);
+      const colorViolet = new THREE.Color(0x5a189a);
 
-function updateVolumeIcon() {
-  const icon = document.getElementById('volume-icon');
-  if (state.volume === 0) {
-    icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>`;
-  } else {
-    icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
-  }
-}
+      const rows = 160;
+      const cols = 320;
 
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('sidebar-backdrop').classList.add('visible');
-}
+      for (let r = 0; r < rows; r++) {
+        const lat = 90 - (r / rows) * 180;
+        const phi = (90 - lat) * (Math.PI / 180);
 
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-backdrop').classList.remove('visible');
-}
+        for (let c = 0; c < cols; c++) {
+          const lon = (c / cols) * 360 - 180;
 
-// =================================================================
-// INITIALIZATION
-// =================================================================
-async function init() {
-  initAudio();
-  initThree();
+          // Sample pixel from mask
+          const px = Math.floor((c / cols) * w);
+          const py = Math.floor((r / rows) * h);
+          const idx = (py * w + px) * 4;
+          const brightness = (imgData[idx] + imgData[idx + 1] + imgData[idx + 2]) / 3;
 
-  // Initial fetch
-  showLoadingState();
-  try {
-    state.stations = await fetchStations('top');
-    renderStations();
-    rebuildMarkers();
-  } catch (err) {
-    console.error('Failed to load stations:', err);
-    const list = document.getElementById('stations-list');
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-text">Не вдалося завантажити радіостанції.<br>Спробуйте оновити сторінку.</div>
-      </div>`;
-  } finally {
-    // Hide loading screen
-    setTimeout(() => {
-      document.getElementById('loading-screen').classList.add('hidden');
-    }, 600);
-  }
+          // If brightness indicates landmass
+          if (brightness > 35) {
+            const theta = (lon + 180) * (Math.PI / 180);
+            const radius = GLOBE_RADIUS;
 
-  // Wire up UI events
-  setupUIEvents();
-}
+            const x = -radius * Math.sin(phi) * Math.cos(theta);
+            const z = radius * Math.sin(phi) * Math.sin(theta);
+            const y = radius * Math.cos(phi);
 
-function setupUIEvents() {
-  // Play/pause button
-  document.getElementById('play-btn').addEventListener('click', togglePlay);
-  document.getElementById('close-btn').addEventListener('click', stopPlayback);
+            positions.push(x, y, z);
 
-  // Volume
-  const volumeSlider = document.getElementById('volume-slider');
-  volumeSlider.addEventListener('input', (e) => {
-    setVolume(parseFloat(e.target.value) / 100);
-  });
-  document.getElementById('volume-btn').addEventListener('click', () => {
-    if (state.volume > 0) {
-      state._lastVolume = state.volume;
-      setVolume(0);
-      volumeSlider.value = 0;
-    } else {
-      setVolume(state._lastVolume || 0.8);
-      volumeSlider.value = (state._lastVolume || 0.8) * 100;
+            // Shading & color variation
+            const mixFactor = (lat + 90) / 180;
+            const ptColor = colorPink.clone().lerp(colorPurple, Math.random() * 0.6);
+            colors.push(ptColor.r, ptColor.g, ptColor.b);
+
+            // Particle size
+            sizes.push(0.022 + Math.random() * 0.015);
+          }
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
+
+      // Circular glowing particle shader
+      const material = new THREE.PointsMaterial({
+        size: 0.028,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        blending: THREE.AdditiveBlending
+      });
+
+      particleGlobeMesh = new THREE.Points(geometry, material);
+      globeGroup.add(particleGlobeMesh);
     }
-  });
 
-  // Like button (just visual feedback)
-  document.getElementById('like-btn').addEventListener('click', (e) => {
-    e.currentTarget.querySelector('svg').classList.toggle('liked');
-    const svg = e.currentTarget.querySelector('svg');
-    if (svg.classList.contains('liked')) {
-      svg.setAttribute('fill', '#a43ae9');
-      svg.style.color = '#a43ae9';
-    } else {
-      svg.setAttribute('fill', 'none');
-      svg.style.color = '';
+    function generateProceduralLandmass() {
+      // Fallback: Fibonacci sphere distribution
+      const count = 18000;
+      const positions = [];
+      const colors = [];
+      const colorPink = new THREE.Color(0xff2d92);
+
+      for (let i = 0; i < count; i++) {
+        const phi = Math.acos(1 - 2 * (i + 0.5) / count);
+        const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+
+        const x = GLOBE_RADIUS * Math.sin(phi) * Math.cos(theta);
+        const y = GLOBE_RADIUS * Math.cos(phi);
+        const z = GLOBE_RADIUS * Math.sin(phi) * Math.sin(theta);
+
+        positions.push(x, y, z);
+        colors.push(colorPink.r, colorPink.g, colorPink.b);
+      }
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+      const material = new THREE.PointsMaterial({
+        size: 0.025,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.7,
+        blending: THREE.AdditiveBlending
+      });
+
+      particleGlobeMesh = new THREE.Points(geometry, material);
+      globeGroup.add(particleGlobeMesh);
     }
-  });
 
-  // Search
-  const searchInput = document.getElementById('search-input');
-  const searchClear = document.getElementById('search-clear');
-  const backBtn = document.getElementById('back-btn');
-  let searchTimer = null;
+    // =================================================================
+    // STATION MARKERS ON 3D GLOBE
+    // =================================================================
+    const markerGroup = new THREE.Group();
 
-  searchInput.addEventListener('input', (e) => {
-    const val = e.target.value;
-    if (val) {
-      searchClear.classList.add('visible');
-    } else {
-      searchClear.classList.remove('visible');
+    function createStationMarkers() {
+      globeGroup.add(markerGroup);
+      renderStationMarkers();
     }
-    clearTimeout(searchTimer);
-    if (val.trim().length >= 2) {
-      searchTimer = setTimeout(() => {
-        state.searchMode = 'search';
-        backBtn.classList.add('visible');
-        showLoadingState();
-        fetchStations('search', val.trim())
-          .then((stations) => {
-            state.stations = stations;
-            renderStations();
-            rebuildMarkers();
-          })
-          .catch((err) => {
-            console.error('Search failed:', err);
-            state.stations = [];
-            renderStations();
-            rebuildMarkers();
+
+    function renderStationMarkers() {
+      // Clear existing
+      while (markerGroup.children.length > 0) {
+        const obj = markerGroup.children[0];
+        markerGroup.remove(obj);
+      }
+      state.markerMeshes = [];
+
+      state.stations.forEach(st => {
+        if (st.geo_lat == null || st.geo_long == null) return;
+        const pos = latLonToVector3(st.geo_lat, st.geo_long, GLOBE_RADIUS * 1.01);
+
+        // Outer glow dot
+        const dotGeo = new THREE.SphereGeometry(0.038, 12, 12);
+        const dotMat = new THREE.MeshBasicMaterial({
+          color: 0xff2d92,
+          transparent: true,
+          opacity: 0.9,
+          blending: THREE.AdditiveBlending
+        });
+        const mesh = new THREE.Mesh(dotGeo, dotMat);
+        mesh.position.copy(pos);
+        mesh.userData = { station: st };
+
+        markerGroup.add(mesh);
+        state.markerMeshes.push(mesh);
+      });
+    }
+
+    // =================================================================
+    // ACTIVE STATION RADAR BEACON (CONCENTRIC PULSING RINGS)
+    // =================================================================
+    function createRadarBeacon() {
+      state.radarBeacon = new THREE.Group();
+      globeGroup.add(state.radarBeacon);
+
+      radarRings = [];
+      const ringCount = 3;
+
+      for (let i = 0; i < ringCount; i++) {
+        const ringGeo = new THREE.RingGeometry(0.04, 0.06, 32);
+        const ringMat = new THREE.MeshBasicMaterial({
+          color: 0xff2d92,
+          transparent: true,
+          opacity: 0.8,
+          side: THREE.DoubleSide,
+          blending: THREE.AdditiveBlending
+        });
+        const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+        state.radarBeacon.add(ringMesh);
+        radarRings.push({ mesh: ringMesh, progress: i / ringCount });
+      }
+
+      // Center bright core
+      const coreGeo = new THREE.SphereGeometry(0.05, 16, 16);
+      const coreMat = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        blending: THREE.AdditiveBlending
+      });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      state.radarBeacon.add(coreMesh);
+
+      if (state.activeStation) {
+        updateRadarBeacon(state.activeStation.geo_lat, state.activeStation.geo_long);
+      }
+    }
+
+    function updateRadarBeacon(lat, lon) {
+      if (!state.radarBeacon || lat == null || lon == null) return;
+      const pos = latLonToVector3(lat, lon, GLOBE_RADIUS * 1.015);
+      state.radarBeacon.position.copy(pos);
+
+      // Align radar rings tangent to the globe surface
+      const normal = pos.clone().normalize();
+      state.radarBeacon.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    }
+
+    function focusStationOnGlobe(lat, lon) {
+      if (lat == null || lon == null || !controls) return;
+      // Pause auto-rotation temporarily when tuning into a station
+      controls.autoRotate = false;
+      setTimeout(() => { controls.autoRotate = true; }, 6000);
+    }
+
+    function createStarfield() {
+      const count = 1500;
+      const positions = [];
+      for (let i = 0; i < count; i++) {
+        const r = 25 + Math.random() * 40;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        positions.push(
+          r * Math.sin(phi) * Math.cos(theta),
+          r * Math.sin(phi) * Math.sin(theta),
+          r * Math.cos(phi)
+        );
+      }
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      const mat = new THREE.PointsMaterial({
+        size: 0.12,
+        color: 0xd8b4e2,
+        transparent: true,
+        opacity: 0.6
+      });
+      const stars = new THREE.Points(geo, mat);
+      scene.add(stars);
+    }
+
+    // =================================================================
+    // INTERACTION & RAYCASTING
+    // =================================================================
+    function setupRaycaster(domElement) {
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      const tooltip = document.getElementById('globe-tooltip');
+      const ttName = document.getElementById('tt-name');
+      const ttCountry = document.getElementById('tt-country');
+
+      let isDown = false;
+      let startX = 0;
+      let startY = 0;
+
+      domElement.addEventListener('pointerdown', (e) => {
+        isDown = true;
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+
+      domElement.addEventListener('pointermove', (e) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(state.markerMeshes);
+
+        if (intersects.length > 0) {
+          domElement.style.cursor = 'pointer';
+          const st = intersects[0].object.userData.station;
+          state.hoveredStation = st;
+
+          ttName.textContent = st.name;
+          ttCountry.textContent = st.country || 'Live Radio';
+          tooltip.style.display = 'block';
+          tooltip.style.left = e.clientX + 'px';
+          tooltip.style.top = e.clientY + 'px';
+        } else {
+          domElement.style.cursor = isDown ? 'grabbing' : 'grab';
+          state.hoveredStation = null;
+          tooltip.style.display = 'none';
+        }
+      });
+
+      domElement.addEventListener('pointerup', (e) => {
+        isDown = false;
+        const diffX = Math.abs(e.clientX - startX);
+        const diffY = Math.abs(e.clientY - startY);
+
+        if (diffX < 5 && diffY < 5 && state.hoveredStation) {
+          playStation(state.hoveredStation);
+        }
+      });
+    }
+
+    // =================================================================
+    // ANIMATION LOOP
+    // =================================================================
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      // Animate pulsing radar beacon rings
+      radarRings.forEach(r => {
+        r.progress = (r.progress + delta * 0.6) % 1.0;
+        const scale = 1.0 + r.progress * 4.5;
+        r.mesh.scale.set(scale, scale, 1);
+        r.mesh.material.opacity = (1.0 - r.progress) * 0.85;
+      });
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      updateCameraPosition();
+    }
+
+    // =================================================================
+    // UI RENDERING & EVENTS
+    // =================================================================
+    function renderQuickPlaylist() {
+      const container = document.getElementById('quick-playlist-container');
+      const displayStations = state.stations.slice(0, 5);
+
+      let html = '';
+      displayStations.forEach(st => {
+        const isActive = state.activeStation && state.activeStation.stationuuid === st.stationuuid;
+        const badgeClass = `badge-${st.badgeType || 'pink'}`;
+
+        let badgeContent = '';
+        if (st.badgeIcon === 'waves') {
+          badgeContent = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12h2M8 8v8M12 4v16M16 8v8M20 12h2"/></svg>`;
+        } else if (st.badgeIcon === 'radio') {
+          badgeContent = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M19.1 4.9a10 10 0 0 1 0 14.2M4.9 19.1a10 10 0 0 1 0-14.2M7.8 16.2a6 6 0 0 1 0-8.4"/></svg>`;
+        } else if (st.badgeText) {
+          badgeContent = `<span>${st.badgeText}</span>`;
+        } else {
+          badgeContent = `<span>${(st.name || 'R').slice(0, 2).toUpperCase()}</span>`;
+        }
+
+        html += `
+          <div class="station-list-item ${isActive ? 'active' : ''}" data-uuid="${st.stationuuid}">
+            <div class="item-icon-badge ${badgeClass}">
+              ${badgeContent}
+            </div>
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(st.name)}</div>
+              <div class="item-sub">${escapeHtml(st.tags || st.country || 'Live')}</div>
+            </div>
+            <div class="item-play-action">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                ${isActive && state.isPlaying ? '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>' : '<polygon points="7 4 19 12 7 20 7 4"></polygon>'}
+              </svg>
+            </div>
+          </div>
+        `;
+      });
+
+      html += `
+        <button class="playlist-footer-btn" id="view-all-stations-btn">
+          <span>View all stations</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      `;
+
+      container.innerHTML = html;
+
+      // Event listeners for playlist items
+      container.querySelectorAll('.station-list-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const uuid = el.dataset.uuid;
+          const found = state.stations.find(s => s.stationuuid === uuid);
+          if (found) {
+            if (state.activeStation && state.activeStation.stationuuid === uuid) {
+              togglePlay();
+            } else {
+              playStation(found);
+            }
+          }
+        });
+      });
+
+      // View all click
+      const viewAllBtn = document.getElementById('view-all-stations-btn');
+      if (viewAllBtn) {
+        viewAllBtn.addEventListener('click', () => openCatalogModal());
+      }
+    }
+
+    function updateUIState() {
+      const playSvg = document.getElementById('play-svg');
+      const soundwave = document.getElementById('soundwave');
+      const nameEl = document.getElementById('current-station-name');
+      const countryEl = document.getElementById('current-station-country');
+      const playerCard = document.getElementById('player-card');
+
+      if (state.activeStation) {
+        nameEl.textContent = state.activeStation.name;
+        countryEl.textContent = state.activeStation.country || 'Live Worldwide';
+      }
+
+      if (state.isPlaying) {
+        playSvg.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect>';
+        soundwave.classList.add('playing');
+        playerCard.classList.add('playing');
+      } else {
+        playSvg.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"></polygon>';
+        soundwave.classList.remove('playing');
+        playerCard.classList.remove('playing');
+      }
+
+      renderQuickPlaylist();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+      }[m]));
+    }
+
+    // =================================================================
+    // API FETCH (RADIO-BROWSER WORLDWIDE)
+    // =================================================================
+    async function loadGlobalStations(query = '', tag = '') {
+      let endpoint = '/json/stations/topvote/300?hidebroken=true';
+      if (query) {
+        endpoint = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&limit=150`;
+      } else if (tag && tag !== 'all') {
+        endpoint = `/json/stations/bycountrycodeexact/${encodeURIComponent(tag)}?hidebroken=true&limit=150`;
+      }
+
+      for (const mirror of RADIO_API_MIRRORS) {
+        try {
+          const res = await fetch(`${mirror}${endpoint}`, {
+            headers: { 'Accept': 'application/json' }
           });
-      }, 400);
-    } else if (val.trim().length === 0 && state.searchMode === 'search') {
-      // Reset to top
-      handleBackToTop();
+          if (res.ok) {
+            const data = await res.json();
+            const valid = data
+              .filter(s => s.geo_lat != null && s.geo_long != null && (s.url_resolved || s.url))
+              .map(s => ({
+                stationuuid: s.stationuuid,
+                name: (s.name || 'Radio').trim(),
+                country: s.country || '',
+                tags: s.tags || '',
+                url: s.url,
+                url_resolved: s.url_resolved || s.url,
+                geo_lat: s.geo_lat,
+                geo_long: s.geo_long,
+                badgeType: ['pink', 'blue', 'orange', 'magenta', 'dark'][Math.floor(Math.random() * 5)]
+              }));
+
+            if (valid.length > 0) {
+              state.stations = [...PRESET_STATIONS, ...valid.filter(v => !PRESET_STATIONS.some(p => p.name === v.name))];
+              renderStationMarkers();
+              renderCatalogList(state.stations);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn(`Mirror ${mirror} lookup failed:`, e);
+        }
+      }
     }
-  });
 
-  searchClear.addEventListener('click', () => {
-    searchInput.value = '';
-    searchClear.classList.remove('visible');
-    handleBackToTop();
-  });
-
-  backBtn.addEventListener('click', handleBackToTop);
-
-  async function handleBackToTop() {
-    state.searchMode = 'top';
-    backBtn.classList.remove('visible');
-    showLoadingState();
-    try {
-      state.stations = await fetchStations('top');
-      renderStations();
-      rebuildMarkers();
-    } catch (err) {
-      console.error('Failed to reload stations:', err);
+    // =================================================================
+    // CATALOG MODAL & SEARCH
+    // =================================================================
+    function openCatalogModal() {
+      const modal = document.getElementById('catalog-modal');
+      modal.classList.add('active');
+      renderCatalogList(state.stations);
     }
-  }
 
-  // Mobile sidebar
-  document.getElementById('menu-toggle').addEventListener('click', openSidebar);
-  document.getElementById('sidebar-backdrop').addEventListener('click', closeSidebar);
-
-  // Info modal
-  document.getElementById('info-btn').addEventListener('click', () => {
-    document.getElementById('modal-backdrop').classList.add('visible');
-  });
-  document.getElementById('modal-close').addEventListener('click', () => {
-    document.getElementById('modal-backdrop').classList.remove('visible');
-  });
-  document.getElementById('modal-backdrop').addEventListener('click', (e) => {
-    if (e.target.id === 'modal-backdrop') {
-      document.getElementById('modal-backdrop').classList.remove('visible');
+    function closeCatalogModal() {
+      const modal = document.getElementById('catalog-modal');
+      modal.classList.remove('active');
     }
-  });
 
-  // ESC to close modal/sidebar
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      document.getElementById('modal-backdrop').classList.remove('visible');
-      closeSidebar();
-    }
-    // Space to toggle play
-    if (e.key === ' ' && state.currentStation && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      togglePlay();
-    }
-  });
-}
+    function renderCatalogList(list) {
+      const container = document.getElementById('catalog-stations-list');
+      const badge = document.getElementById('catalog-count-badge');
+      badge.textContent = `${list.length} станцій`;
 
-// Start the app
-init().catch((err) => {
-  console.error('Initialization failed:', err);
-  document.getElementById('loading-screen').classList.add('hidden');
-});
-</script>
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-dim);">Станцій не знайдено</div>`;
+        return;
+      }
+
+      let html = '';
+      list.forEach(st => {
+        const isActive = state.activeStation && state.activeStation.stationuuid === st.stationuuid;
+        html += `
+          <div class="station-list-item ${isActive ? 'active' : ''}" data-uuid="${st.stationuuid}">
+            <div class="item-icon-badge badge-pink">
+              <span>${(st.name || 'R').slice(0, 2).toUpperCase()}</span>
+            </div>
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(st.name)}</div>
+              <div class="item-sub">${escapeHtml(st.country || st.tags || 'Live')}</div>
+            </div>
+            <div class="item-play-action">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="7 4 19 12 7 20 7 4"></polygon>
+              </svg>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      container.querySelectorAll('.station-list-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const uuid = el.dataset.uuid;
+          const found = state.stations.find(s => s.stationuuid === uuid);
+          if (found) {
+            playStation(found);
+            closeCatalogModal();
+          }
+        });
+      });
+    }
+
+    // =================================================================
+    // EVENT BINDINGS
+    // =================================================================
+    function setupDOMEvents() {
+      document.getElementById('play-pause-btn').addEventListener('click', togglePlay);
+      document.getElementById('prev-btn').addEventListener('click', playPrev);
+      document.getElementById('next-btn').addEventListener('click', playNext);
+
+      // Volume Slider
+      const volumeSlider = document.getElementById('volume-slider');
+      volumeSlider.addEventListener('input', (e) => {
+        const val = parseFloat(e.target.value) / 100;
+        state.volume = val;
+        if (state.audio) state.audio.volume = val;
+      });
+
+      // Mute Toggle
+      document.getElementById('volume-mute-btn').addEventListener('click', () => {
+        if (state.volume > 0) {
+          state._prevVol = state.volume;
+          state.volume = 0;
+          volumeSlider.value = 0;
+        } else {
+          state.volume = state._prevVol || 0.8;
+          volumeSlider.value = (state._prevVol || 0.8) * 100;
+        }
+        if (state.audio) state.audio.volume = state.volume;
+      });
+
+      // Modal close events
+      document.getElementById('catalog-close-btn').addEventListener('click', closeCatalogModal);
+      document.getElementById('catalog-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'catalog-modal') closeCatalogModal();
+      });
+
+      // Catalog Search Input
+      const searchInput = document.getElementById('catalog-search-input');
+      let searchTimer = null;
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimer);
+        const q = e.target.value.trim().toLowerCase();
+        searchTimer = setTimeout(() => {
+          if (q.length >= 2) {
+            const filtered = state.stations.filter(s =>
+              s.name.toLowerCase().includes(q) ||
+              (s.country && s.country.toLowerCase().includes(q)) ||
+              (s.tags && s.tags.toLowerCase().includes(q))
+            );
+            renderCatalogList(filtered);
+          } else {
+            renderCatalogList(state.stations);
+          }
+        }, 200);
+      });
+
+      // Tag Filter Pills
+      document.querySelectorAll('.tag-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tag = btn.dataset.tag;
+          if (tag === 'all') {
+            renderCatalogList(state.stations);
+          } else {
+            const filtered = state.stations.filter(s =>
+              (s.country && s.country.toLowerCase().includes(tag.toLowerCase())) ||
+              (s.tags && s.tags.toLowerCase().includes(tag.toLowerCase()))
+            );
+            renderCatalogList(filtered);
+          }
+        });
+      });
+
+      // Keyboard space to play/pause
+      window.addEventListener('keydown', (e) => {
+        if (e.code === 'Space' && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault();
+          togglePlay();
+        }
+      });
+    }
+
+    // =================================================================
+    // INITIALIZATION
+    // =================================================================
+    function init() {
+      initAudioEngine();
+      init3DScene();
+      renderQuickPlaylist();
+      updateUIState();
+      setupDOMEvents();
+
+      // Fetch dynamic radio stations worldwide in background
+      loadGlobalStations();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
