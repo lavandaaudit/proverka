@@ -953,7 +953,7 @@
             <line x1="11" y1="8" x2="11" y2="14"></line>
             <line x1="8" y1="11" x2="14" y2="11"></line>
           </svg>
-          <span>Коліщатко — зум Землі</span>
+          <span>Клікніть на маркер для музики</span>
         </div>
         <div class="live-status-pill">
           <span class="live-status-dot"></span>
@@ -1107,11 +1107,9 @@
       'https://at1.api.radio-browser.info'
     ];
 
-    // High resolution textures for realistic detailed continents
+    // High resolution textures for realistic clean continents (NO Z-FIGHTING)
     const EARTH_TEXTURE_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg';
     const EARTH_BUMP_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png';
-    const EARTH_SPECULAR_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-water.png';
-    const EARTH_NIGHT_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-night.jpg';
 
     // Reference presets
     const PRESET_STATIONS = [
@@ -1264,10 +1262,10 @@
     }
 
     // =================================================================
-    // 3D SCENE & REALISTIC TEXTURED GLOBE (THREE.JS)
+    // 3D SCENE & REALISTIC CLEAN EARTH (THREE.JS)
     // =================================================================
     let scene, camera, renderer, controls;
-    let globeGroup, earthMesh, cloudsMesh;
+    let globeGroup, earthMesh;
     let radarRings = [];
     let targetCameraPosition = null;
 
@@ -1278,6 +1276,15 @@
       const z = radius * Math.sin(phi) * Math.sin(theta);
       const y = radius * Math.cos(phi);
       return new THREE.Vector3(x, y, z);
+    }
+
+    function vector3ToLatLon(vec) {
+      const radius = vec.length();
+      const phi = Math.acos(vec.y / radius);
+      const theta = Math.atan2(vec.z, -vec.x);
+      const lat = 90 - (phi * 180 / Math.PI);
+      const lon = (theta * 180 / Math.PI) - 180;
+      return { lat, lon };
     }
 
     function init3DScene() {
@@ -1317,10 +1324,10 @@
       // Lighting for realistic 3D topography & specular oceans
       setupLighting();
 
-      // Realistic Textured Earth Globe
-      createRealisticEarth();
+      // Clean, High-Def Realistic Earth Globe (NO Z-fighting stripes)
+      createRealisticCleanEarth();
 
-      // Station markers
+      // Station markers (with enlarged clickable hitbox)
       createStationMarkers();
 
       // Active Station Sonar / Radar Beacon
@@ -1329,7 +1336,7 @@
       // Background stars
       createStarfield();
 
-      // Raycasting setup for marker interactions
+      // Ultra-responsive Raycasting for instant clickable points on Earth
       setupRaycaster(container);
 
       // Zoom Buttons
@@ -1341,11 +1348,11 @@
 
     function setupLighting() {
       // Ambient Light for dark side clarity
-      const ambientLight = new THREE.AmbientLight(0x2d1b4e, 1.2);
+      const ambientLight = new THREE.AmbientLight(0x2d1b4e, 1.4);
       scene.add(ambientLight);
 
-      // Main Sun Light (illuminates continents and creates realistic shading)
-      const sunLight = new THREE.DirectionalLight(0xffffff, 2.4);
+      // Main Sun Light (illuminates continents cleanly)
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.5);
       sunLight.position.set(6, 4, 7);
       scene.add(sunLight);
 
@@ -1354,7 +1361,7 @@
       rimLight.position.set(-6, -3, -5);
       scene.add(rimLight);
 
-      const purplePoint = new THREE.PointLight(0x9d4edd, 1.2, 20);
+      const purplePoint = new THREE.PointLight(0x9d4edd, 1.4, 20);
       purplePoint.position.set(4, -4, 5);
       scene.add(purplePoint);
     }
@@ -1371,26 +1378,25 @@
       }
     }
 
-    function createRealisticEarth() {
+    function createRealisticCleanEarth() {
       const textureLoader = new THREE.TextureLoader();
       textureLoader.crossOrigin = 'anonymous';
 
-      // 1. Base Earth Sphere with Real Geography & Continents
-      const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 96, 96);
+      // Single clean Earth Sphere - Eliminates Z-fighting artifacts completely
+      const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
 
-      // High-quality material with map, bump topography, and specular reflection on oceans
       const earthMat = new THREE.MeshStandardMaterial({
-        color: 0x9988aa,
-        roughness: 0.65,
+        color: 0x332244,
+        roughness: 0.7,
         metalness: 0.1,
-        emissive: new THREE.Color(0x150825),
-        emissiveIntensity: 0.35
+        emissive: new THREE.Color(0x0c0418),
+        emissiveIntensity: 0.25
       });
 
       earthMesh = new THREE.Mesh(earthGeo, earthMat);
       globeGroup.add(earthMesh);
 
-      // Load Blue Marble / Night Earth Texture
+      // Load Blue Marble Real Texture
       textureLoader.load(
         EARTH_TEXTURE_URL,
         (tex) => {
@@ -1401,7 +1407,7 @@
           earthMat.needsUpdate = true;
         },
         undefined,
-        (err) => console.warn('Earth texture error:', err)
+        (err) => console.warn('Earth texture load error:', err)
       );
 
       // Load Topography Bump Map (mountains and coastlines relief)
@@ -1409,38 +1415,13 @@
         EARTH_BUMP_URL,
         (bumpTex) => {
           earthMat.bumpMap = bumpTex;
-          earthMat.bumpScale = 0.045;
+          earthMat.bumpScale = 0.035;
           earthMat.needsUpdate = true;
         }
       );
 
-      // Load Specular / Water map
-      textureLoader.load(
-        EARTH_SPECULAR_URL,
-        (specTex) => {
-          earthMat.roughnessMap = specTex;
-          earthMat.needsUpdate = true;
-        }
-      );
-
-      // 2. Realistic Night Lights Emissive Layer (City lights glowing in dark areas)
-      const nightGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.001, 64, 64);
-      const nightMat = new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0.7,
-        blending: THREE.AdditiveBlending
-      });
-      const nightMesh = new THREE.Mesh(nightGeo, nightMat);
-      globeGroup.add(nightMesh);
-
-      textureLoader.load(EARTH_NIGHT_URL, (nightTex) => {
-        nightMat.map = nightTex;
-        nightMat.color = new THREE.Color(0xff66bb); // subtle glowing neon tint
-        nightMat.needsUpdate = true;
-      });
-
-      // 3. Neon Atmospheric Glow (Pink & Violet Rim)
-      const atmGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.028, 64, 64);
+      // Neon Atmospheric Glow (Pink & Violet Rim)
+      const atmGeo = new THREE.SphereGeometry(GLOBE_RADIUS * 1.025, 64, 64);
       const atmMat = new THREE.ShaderMaterial({
         transparent: true,
         side: THREE.BackSide,
@@ -1460,7 +1441,7 @@
           uniform vec3 glowColor;
           void main() {
             float intensity = pow(0.6 - dot(vNormal, vec3(0, 0, 1.0)), 2.0);
-            gl_FragColor = vec4(glowColor, intensity * 0.55);
+            gl_FragColor = vec4(glowColor, intensity * 0.5);
           }
         `
       });
@@ -1469,7 +1450,7 @@
     }
 
     // =================================================================
-    // STATION MARKERS ON 3D GLOBE
+    // STATION MARKERS ON 3D GLOBE (HIGH-CLICKABILITY HITBOXES)
     // =================================================================
     const markerGroup = new THREE.Group();
 
@@ -1488,33 +1469,45 @@
 
       state.stations.forEach(st => {
         if (st.geo_lat == null || st.geo_long == null) return;
-        const pos = latLonToVector3(st.geo_lat, st.geo_long, GLOBE_RADIUS * 1.008);
+        const pos = latLonToVector3(st.geo_lat, st.geo_long, GLOBE_RADIUS * 1.01);
 
-        // Marker pin with outer glow
-        const dotGeo = new THREE.SphereGeometry(0.034, 12, 12);
+        const stationPointGroup = new THREE.Group();
+        stationPointGroup.position.copy(pos);
+        stationPointGroup.userData = { station: st };
+
+        // Visible glowing neon dot
+        const dotGeo = new THREE.SphereGeometry(0.042, 16, 16);
         const dotMat = new THREE.MeshBasicMaterial({
           color: 0xff2d92,
           transparent: true,
           opacity: 0.95,
           blending: THREE.AdditiveBlending
         });
-        const mesh = new THREE.Mesh(dotGeo, dotMat);
-        mesh.position.copy(pos);
-        mesh.userData = { station: st };
+        const dotMesh = new THREE.Mesh(dotGeo, dotMat);
+        stationPointGroup.add(dotMesh);
 
-        // Subtle glow halo
-        const haloGeo = new THREE.SphereGeometry(0.065, 8, 8);
+        // Halo glow
+        const haloGeo = new THREE.SphereGeometry(0.08, 12, 12);
         const haloMat = new THREE.MeshBasicMaterial({
           color: 0xe00279,
           transparent: true,
-          opacity: 0.25,
+          opacity: 0.35,
           blending: THREE.AdditiveBlending
         });
         const haloMesh = new THREE.Mesh(haloGeo, haloMat);
-        mesh.add(haloMesh);
+        stationPointGroup.add(haloMesh);
 
-        markerGroup.add(mesh);
-        state.markerMeshes.push(mesh);
+        // Invisible large click-target hitbox (0.16 diameter for effortless clicks)
+        const hitGeo = new THREE.SphereGeometry(0.12, 8, 8);
+        const hitMat = new THREE.MeshBasicMaterial({
+          visible: false
+        });
+        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+        hitMesh.userData = { station: st };
+        stationPointGroup.add(hitMesh);
+
+        markerGroup.add(stationPointGroup);
+        state.markerMeshes.push(hitMesh); // raycaster checks this generous hitbox
       });
     }
 
@@ -1637,7 +1630,7 @@
     }
 
     // =================================================================
-    // INTERACTION & RAYCASTING
+    // DIRECT CLICK & HOVER RAYCASTING (INSTANT RADIO ON CLICK)
     // =================================================================
     function setupRaycaster(domElement) {
       const raycaster = new THREE.Raycaster();
@@ -1661,11 +1654,13 @@
         mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(state.markerMeshes);
 
-        if (intersects.length > 0) {
+        // Check markers first
+        const markerIntersects = raycaster.intersectObjects(state.markerMeshes, false);
+
+        if (markerIntersects.length > 0) {
           domElement.style.cursor = 'pointer';
-          const st = intersects[0].object.userData.station;
+          const st = markerIntersects[0].object.userData.station;
           state.hoveredStation = st;
 
           ttName.textContent = st.name;
@@ -1673,6 +1668,29 @@
           tooltip.style.display = 'block';
           tooltip.style.left = e.clientX + 'px';
           tooltip.style.top = e.clientY + 'px';
+        } else if (earthMesh) {
+          // Check Earth surface proximity to nearby station
+          const earthIntersects = raycaster.intersectObject(earthMesh, false);
+          if (earthIntersects.length > 0) {
+            const hitPoint = earthIntersects[0].point;
+            // Find if any station is close to hovered surface point
+            const hitCoord = vector3ToLatLon(hitPoint.clone().sub(globeGroup.position));
+            const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 12.0); // within 12 degrees
+
+            if (nearest) {
+              domElement.style.cursor = 'pointer';
+              state.hoveredStation = nearest;
+              ttName.textContent = nearest.name;
+              ttCountry.textContent = nearest.country || 'Live Radio';
+              tooltip.style.display = 'block';
+              tooltip.style.left = e.clientX + 'px';
+              tooltip.style.top = e.clientY + 'px';
+              return;
+            }
+          }
+          domElement.style.cursor = isDown ? 'grabbing' : 'grab';
+          state.hoveredStation = null;
+          tooltip.style.display = 'none';
         } else {
           domElement.style.cursor = isDown ? 'grabbing' : 'grab';
           state.hoveredStation = null;
@@ -1680,15 +1698,51 @@
         }
       });
 
+      // INSTANT PLAY ON CLICK
       domElement.addEventListener('pointerup', (e) => {
         isDown = false;
         const diffX = Math.abs(e.clientX - startX);
         const diffY = Math.abs(e.clientY - startY);
 
-        if (diffX < 5 && diffY < 5 && state.hoveredStation) {
-          playStation(state.hoveredStation);
+        // Only register as click if not dragging the globe around
+        if (diffX < 7 && diffY < 7) {
+          if (state.hoveredStation) {
+            playStation(state.hoveredStation);
+          } else if (earthMesh) {
+            // If clicked on Earth surface, find and play nearest station
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const earthIntersects = raycaster.intersectObject(earthMesh, false);
+
+            if (earthIntersects.length > 0) {
+              const hitPoint = earthIntersects[0].point;
+              const hitCoord = vector3ToLatLon(hitPoint.clone().sub(globeGroup.position));
+              const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 35.0);
+              if (nearest) {
+                playStation(nearest);
+              }
+            }
+          }
         }
       });
+    }
+
+    function findNearestStation(lat, lon, maxDistanceDegrees = 25.0) {
+      let nearest = null;
+      let minDistance = Infinity;
+
+      for (const st of state.stations) {
+        if (st.geo_lat == null || st.geo_long == null) continue;
+        const dLat = st.geo_lat - lat;
+        const dLon = st.geo_long - lon;
+        const dist = Math.sqrt(dLat * dLat + dLon * dLon);
+        if (dist < minDistance && dist <= maxDistanceDegrees) {
+          minDistance = dist;
+          nearest = st;
+        }
+      }
+      return nearest;
     }
 
     // =================================================================
@@ -1699,7 +1753,6 @@
     function animate() {
       requestAnimationFrame(animate);
       const delta = clock.getDelta();
-      const elapsed = clock.getElapsedTime();
 
       // Animate pulsing radar beacon rings
       radarRings.forEach(r => {
