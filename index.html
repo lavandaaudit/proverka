@@ -774,41 +774,34 @@
       pointer-events: none;
     }
 
-    /* CLEARLY VISIBLE FILTER PILLS ROW */
+    /* EXPANDED MULTI-ROW FILTER TAGS (NO SCROLL, CLEAN WRAPPING ROWS) */
     .catalog-filter-tags {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 10px;
-      padding: 14px 24px;
-      overflow-x: auto;
-      overflow-y: hidden;
+      gap: 6px;
+      padding: 12px 20px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       flex-shrink: 0;
-      min-height: 60px;
-    }
-    .catalog-filter-tags::-webkit-scrollbar {
-      height: 4px;
-    }
-    .catalog-filter-tags::-webkit-scrollbar-thumb {
-      background: rgba(224, 2, 121, 0.3);
-      border-radius: 4px;
+      background: rgba(10, 4, 18, 0.45);
     }
     .tag-pill {
-      height: 34px;
-      padding: 0 16px;
+      height: 27px;
+      padding: 0 10px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #d1c5e4;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #c4b8db;
       white-space: nowrap;
       cursor: pointer;
       flex-shrink: 0;
-      transition: all 0.2s ease;
+      transition: all 0.16s ease;
+      line-height: 1;
     }
     .tag-pill:hover {
       background: rgba(224, 2, 121, 0.25);
@@ -820,7 +813,7 @@
       background: linear-gradient(135deg, #e00279, #9c0054);
       border-color: var(--pink-neon);
       color: #ffffff;
-      box-shadow: 0 0 14px rgba(224, 2, 121, 0.5);
+      box-shadow: 0 0 12px rgba(224, 2, 121, 0.45);
     }
 
     .catalog-list {
@@ -1251,21 +1244,48 @@
         </div>
 
         <div class="catalog-filter-tags" id="filter-tags">
+          <!-- All -->
           <button class="tag-pill active" data-tag="all">🌐 Усі станції</button>
-          <button class="tag-pill" data-tag="Ukraine">🇺🇦 Україна</button>
-          <button class="tag-pill" data-tag="United Kingdom">🇬🇧 UK</button>
-          <button class="tag-pill" data-tag="Germany">🇩🇪 Німеччина</button>
-          <button class="tag-pill" data-tag="United States">🇺🇸 США</button>
-          <button class="tag-pill" data-tag="France">🇫🇷 Франція</button>
-          <button class="tag-pill" data-tag="Italy">🇮🇹 Італія</button>
-          <button class="tag-pill" data-tag="Spain">🇪🇸 Іспанія</button>
-          <button class="tag-pill" data-tag="Poland">🇵🇱 Польща</button>
-          <button class="tag-pill" data-tag="Japan">🇯🇵 Японія</button>
-          <button class="tag-pill" data-tag="Brazil">🇧🇷 Бразилія</button>
-          <button class="tag-pill" data-tag="Electronic">⚡ Electronic / Dance</button>
-          <button class="tag-pill" data-tag="Jazz">🎷 Jazz / Chill</button>
-          <button class="tag-pill" data-tag="Rock">🎸 Rock</button>
-          <button class="tag-pill" data-tag="News">📻 News / Talk</button>
+          
+          <!-- Popular Countries -->
+          <button class="tag-pill" data-tag="Ukraine,UA">🇺🇦 Україна</button>
+          <button class="tag-pill" data-tag="United Kingdom,UK,GB,Britain">🇬🇧 UK</button>
+          <button class="tag-pill" data-tag="Germany,DE,Deutschland">🇩🇪 Німеччина</button>
+          <button class="tag-pill" data-tag="United States,USA,US">🇺🇸 США</button>
+          <button class="tag-pill" data-tag="France,FR">🇫🇷 Франція</button>
+          <button class="tag-pill" data-tag="Italy,IT,Italia">🇮🇹 Італія</button>
+          <button class="tag-pill" data-tag="Spain,ES,España">🇪🇸 Іспанія</button>
+          <button class="tag-pill" data-tag="Poland,PL,Polska">🇵🇱 Польща</button>
+          <button class="tag-pill" data-tag="Canada,CA">🇨🇦 Канада</button>
+          <button class="tag-pill" data-tag="Japan,JP">🇯🇵 Японія</button>
+          <button class="tag-pill" data-tag="Brazil,BR,Brasil">🇧🇷 Бразилія</button>
+          <button class="tag-pill" data-tag="Netherlands,NL,Holland">🇳🇱 Нідерланди</button>
+          <button class="tag-pill" data-tag="Switzerland,CH,Swiss">🇨🇭 Швейцарія</button>
+          <button class="tag-pill" data-tag="Austria,AT">🇦🇹 Австрія</button>
+          <button class="tag-pill" data-tag="Sweden,SE">🇸🇪 Швеція</button>
+          <button class="tag-pill" data-tag="Norway,NO">🇳🇴 Норвегія</button>
+          <button class="tag-pill" data-tag="Greece,GR">🇬🇷 Греція</button>
+          <button class="tag-pill" data-tag="Portugal,PT">🇵🇹 Португалія</button>
+          <button class="tag-pill" data-tag="Australia,AU">🇦🇺 Австралія</button>
+          <button class="tag-pill" data-tag="Mexico,MX">🇲🇽 Мексика</button>
+          <button class="tag-pill" data-tag="Argentina,AR">🇦🇷 Аргентина</button>
+          <button class="tag-pill" data-tag="Korea,KR">🇰🇷 Корея</button>
+          <button class="tag-pill" data-tag="India,IN">🇮🇳 Індія</button>
+
+          <!-- Musical Genres & Formats -->
+          <button class="tag-pill" data-tag="pop,hits,top40,charts">🎧 Pop / Hits</button>
+          <button class="tag-pill" data-tag="electronic,electro,edm,dance,house,techno,trance">⚡ Electronic / Dance</button>
+          <button class="tag-pill" data-tag="deep house,club,dj">🔥 Deep House</button>
+          <button class="tag-pill" data-tag="jazz,smooth jazz,blues">🎷 Jazz / Blues</button>
+          <button class="tag-pill" data-tag="chillout,chill,lounge,ambient,relax">☕ Lounge / Chill</button>
+          <button class="tag-pill" data-tag="rock,classic rock,hard rock,grunge">🎸 Rock</button>
+          <button class="tag-pill" data-tag="indie,alternative">🎹 Indie / Alternative</button>
+          <button class="tag-pill" data-tag="metal,heavy metal">⚡ Metal</button>
+          <button class="tag-pill" data-tag="hip hop,rap,r&b,urban">🎤 Hip-Hop / Rap</button>
+          <button class="tag-pill" data-tag="80s,90s,70s,retro,oldies,disco">📻 80s / 90s Retro</button>
+          <button class="tag-pill" data-tag="classical,classic,orchestra,piano,symphonic">🎻 Classical</button>
+          <button class="tag-pill" data-tag="latin,reggae,salsa,bachata,dancehall">🌴 Latin / Reggae</button>
+          <button class="tag-pill" data-tag="news,talk,information,sport">📰 News / Talk</button>
         </div>
 
         <div class="catalog-list" id="catalog-stations-list">
@@ -2299,20 +2319,29 @@
         }, 200);
       });
 
-      // Tag Filter Pills
+      // Tag Filter Pills (Multi-keyword smart search)
       document.querySelectorAll('.tag-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.tag-pill').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          const tag = btn.dataset.tag;
-          if (tag === 'all') {
+          const tagAttr = btn.dataset.tag || 'all';
+          if (tagAttr === 'all') {
             renderCatalogList(state.stations);
           } else {
-            const filtered = state.stations.filter(s =>
-              (s.country && s.country.toLowerCase().includes(tag.toLowerCase())) ||
-              (s.city && s.city.toLowerCase().includes(tag.toLowerCase())) ||
-              (s.tags && s.tags.toLowerCase().includes(tag.toLowerCase()))
-            );
+            const keywords = tagAttr.toLowerCase().split(',').map(k => k.trim());
+            const filtered = state.stations.filter(s => {
+              const country = (s.country || '').toLowerCase();
+              const city = (s.city || '').toLowerCase();
+              const name = (s.name || '').toLowerCase();
+              const tags = (s.tags || '').toLowerCase();
+
+              return keywords.some(kw => 
+                country.includes(kw) || 
+                city.includes(kw) || 
+                name.includes(kw) || 
+                tags.includes(kw)
+              );
+            });
             renderCatalogList(filtered);
           }
         });
