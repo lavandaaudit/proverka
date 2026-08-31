@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ibonarium World Radio — The world sounds better together</title>
-  <meta name="description" content="Discover and listen to live radio stations from every corner of the world on an interactive 3D globe with real-time day/night cycle.">
+  <meta name="description" content="Discover and listen to live radio stations from every corner of the world on an interactive 3D globe with 1000+ live stations.">
   <meta name="author" content="Ibonarium Cosmo Dynamics Lab">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -170,21 +170,26 @@
       gap: 12px;
     }
 
-    .day-night-pill {
+    .station-count-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       padding: 6px 14px;
-      background: rgba(18, 7, 28, 0.65);
+      background: rgba(18, 7, 28, 0.7);
       backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 45, 146, 0.3);
       border-radius: 999px;
-      color: #c9b8e2;
-      font-size: 11.5px;
+      color: #ffffff;
+      font-size: 12px;
       font-weight: 600;
+      box-shadow: 0 0 14px rgba(224, 2, 121, 0.15);
     }
-    .day-night-pill svg {
-      color: #ffaa00;
+    .station-count-pill .accent-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 8px #00ff88;
     }
 
     .live-status-pill {
@@ -668,7 +673,7 @@
 
     .catalog-modal {
       width: 100%;
-      max-width: 680px;
+      max-width: 720px;
       max-height: 85vh;
       background: #0d0618;
       border: 1px solid rgba(224, 2, 121, 0.3);
@@ -953,19 +958,9 @@
       </a>
 
       <div class="top-actions">
-        <div class="day-night-pill" id="terminator-status" title="Реальна лінія дня і ночі за UTC">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-          <span id="utc-clock">UTC Live Solar</span>
+        <div class="station-count-pill" id="station-counter">
+          <span class="accent-dot"></span>
+          <span id="station-count-text">Завантаження станцій…</span>
         </div>
         <div class="live-status-pill">
           <span class="live-status-dot"></span>
@@ -1006,7 +1001,7 @@
             </div>
 
             <div class="station-meta">
-              <div class="station-title" id="current-station-name">Barnstaple</div>
+              <div class="station-title" id="current-station-name">The Voice (Barnstaple)</div>
               <div class="station-country" id="current-station-country">United Kingdom</div>
             </div>
           </div>
@@ -1057,7 +1052,7 @@
         <div class="catalog-header">
           <div class="catalog-title">
             <span>Радіостанції Світу</span>
-            <span class="catalog-title-badge" id="catalog-count-badge">2000+ станцій</span>
+            <span class="catalog-title-badge" id="catalog-count-badge">1200+ станцій</span>
           </div>
           <button class="catalog-close-btn" id="catalog-close-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1083,6 +1078,7 @@
           <button class="tag-pill" data-tag="United States">🇺🇸 США</button>
           <button class="tag-pill" data-tag="France">🇫🇷 Франція</button>
           <button class="tag-pill" data-tag="Italy">🇮🇹 Італія</button>
+          <button class="tag-pill" data-tag="Spain">🇪🇸 Іспанія</button>
           <button class="tag-pill" data-tag="Japan">🇯🇵 Японія</button>
           <button class="tag-pill" data-tag="Electronic">Electronic / Dance</button>
           <button class="tag-pill" data-tag="Jazz">Jazz / Chill</button>
@@ -1120,11 +1116,38 @@
       'https://at1.api.radio-browser.info'
     ];
 
-    // High resolution NASA maps for crisp continent and city zoom
+    // High resolution NASA Blue Marble texture
     const EARTH_TEXTURE_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg';
     const EARTH_BUMP_URL = 'https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png';
 
-    // Curated high-reliability global presets
+    // Country coordinates database for automatic spatial distribution
+    const COUNTRY_COORDS = {
+      'UA': { lat: 50.45, lon: 30.52, name: 'Ukraine' },
+      'GB': { lat: 51.50, lon: -0.12, name: 'United Kingdom' },
+      'DE': { lat: 52.52, lon: 13.40, name: 'Germany' },
+      'FR': { lat: 48.85, lon: 2.35, name: 'France' },
+      'IT': { lat: 41.90, lon: 12.49, name: 'Italy' },
+      'ES': { lat: 40.41, lon: -3.70, name: 'Spain' },
+      'US': { lat: 39.82, lon: -98.57, name: 'United States' },
+      'CA': { lat: 45.42, lon: -75.69, name: 'Canada' },
+      'BR': { lat: -15.79, lon: -47.88, name: 'Brazil' },
+      'JP': { lat: 35.68, lon: 139.69, name: 'Japan' },
+      'AU': { lat: -33.86, lon: 151.20, name: 'Australia' },
+      'NL': { lat: 52.36, lon: 4.90, name: 'Netherlands' },
+      'PL': { lat: 52.22, lon: 21.01, name: 'Poland' },
+      'CH': { lat: 46.94, lon: 7.44, name: 'Switzerland' },
+      'AT': { lat: 48.20, lon: 16.37, name: 'Austria' },
+      'SE': { lat: 59.32, lon: 18.06, name: 'Sweden' },
+      'NO': { lat: 59.91, lon: 10.75, name: 'Norway' },
+      'MX': { lat: 19.43, lon: -99.13, name: 'Mexico' },
+      'AR': { lat: -34.60, lon: -58.38, name: 'Argentina' },
+      'GR': { lat: 37.98, lon: 23.72, name: 'Greece' },
+      'PT': { lat: 38.72, lon: -9.13, name: 'Portugal' },
+      'IN': { lat: 28.61, lon: 77.20, name: 'India' },
+      'KR': { lat: 37.56, lon: 126.97, name: 'South Korea' }
+    };
+
+    // Reference presets
     const PRESET_STATIONS = [
       {
         stationuuid: 'barnstaple-uk-01',
@@ -1203,58 +1226,6 @@
         geo_long: 9.1829,
         badgeType: 'dark',
         badgeIcon: 'radio'
-      },
-      {
-        stationuuid: 'paris-fg-fr',
-        name: 'Radio FG (Paris)',
-        country: 'France',
-        city: 'Paris',
-        tags: 'House · Dance',
-        url: 'https://radiofg.impek.com/fg.mp3',
-        url_resolved: 'https://radiofg.impek.com/fg.mp3',
-        geo_lat: 48.8566,
-        geo_long: 2.3522,
-        badgeType: 'pink',
-        badgeIcon: 'waves'
-      },
-      {
-        stationuuid: 'tokyo-shonan-jp',
-        name: 'Shonan Beach FM (Tokyo)',
-        country: 'Japan',
-        city: 'Tokyo',
-        tags: 'Jazz · Chill',
-        url: 'https://musicbird-hls.sslcdn.jp/shonanbeachfm/shonanbeachfm/playlist.m3u8',
-        url_resolved: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-        geo_lat: 35.6762,
-        geo_long: 139.6503,
-        badgeType: 'orange',
-        badgeText: 'JP'
-      },
-      {
-        stationuuid: 'nyc-wqxr-us',
-        name: 'WQXR Classical (New York)',
-        country: 'United States',
-        city: 'New York',
-        tags: 'Classical · Ambient',
-        url: 'https://stream.wqxr.org/wqxr',
-        url_resolved: 'https://stream.wqxr.org/wqxr',
-        geo_lat: 40.7128,
-        geo_long: -74.006,
-        badgeType: 'blue',
-        badgeText: 'NY'
-      },
-      {
-        stationuuid: 'lviv-lvivska-hvylia',
-        name: 'Львівська Хвиля',
-        country: 'Ukraine',
-        city: 'Lviv',
-        tags: 'News · Pop',
-        url: 'https://onair.lviv.fm:8443/lviv.fm',
-        url_resolved: 'https://onair.lviv.fm:8443/lviv.fm',
-        geo_lat: 49.8397,
-        geo_long: 24.0297,
-        badgeType: 'magenta',
-        badgeText: '🇺🇦'
       }
     ];
 
@@ -1376,15 +1347,13 @@
       return { lat, lon };
     }
 
-    // Calculate real UTC sun position for realistic day/night terminator
+    // Real-time solar vector for realistic day/night cycle
     function calculateSunVector() {
       const now = new Date();
       const utcHours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
       const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
 
-      // Solar longitude based on UTC time (15 deg per hour)
       const sunLon = -(utcHours - 12) * 15;
-      // Solar declination approximation
       const sunLat = 23.44 * Math.sin((2 * Math.PI / 365) * (dayOfYear - 81));
 
       return latLonToVector3(sunLat, sunLon, 12.0);
@@ -1405,20 +1374,19 @@
       renderer.toneMappingExposure = 1.35;
       container.appendChild(renderer.domElement);
 
-      // Smooth Orbit Controls — ULTRA DEEP ZOOM + CALM ROTATION
+      // Smooth Orbit Controls — ULTRA DEEP ZOOM + SLOW CALM ROTATION
       controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.06;
       controls.enablePan = false;
       controls.enableZoom = true;
       controls.zoomSpeed = 0.9;
-      // Ultra-deep zoom down to city level (radius is 2.40, minimum distance is 2.45)
+      // Ultra-deep zoom down to city level (radius is 2.40, minimum distance is 2.46)
       controls.minDistance = 2.46;
       controls.maxDistance = 14.0;
       controls.rotateSpeed = 0.55;
       controls.autoRotate = true;
-      // Slow, majestic rotation (not fast)
-      controls.autoRotateSpeed = 0.08;
+      controls.autoRotateSpeed = 0.08; // slow & majestic
 
       globeGroup = new THREE.Group();
       scene.add(globeGroup);
@@ -1449,17 +1417,14 @@
     }
 
     function setupDayNightLighting() {
-      // Ambient Light for dark night side visibility (soft cosmic blue)
       const ambientLight = new THREE.AmbientLight(0x221338, 1.3);
       scene.add(ambientLight);
 
-      // Sun Light positioned at real-time solar subpoint
       sunLight = new THREE.DirectionalLight(0xfff8ee, 2.8);
       const sunPos = calculateSunVector();
       sunLight.position.copy(sunPos);
       scene.add(sunLight);
 
-      // Atmospheric Rim Light (Pink brand glow on edges)
       const rimLight = new THREE.DirectionalLight(0xe00279, 1.4);
       rimLight.position.set(-sunPos.x * 0.8, -sunPos.y * 0.8, -sunPos.z * 0.8);
       scene.add(rimLight);
@@ -1479,7 +1444,6 @@
       const textureLoader = new THREE.TextureLoader();
       textureLoader.crossOrigin = 'anonymous';
 
-      // 128x128 Sphere Geometry for ultra-smooth zoom
       const earthGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 128, 128);
 
       const earthMat = new THREE.MeshStandardMaterial({
@@ -1493,7 +1457,6 @@
       earthMesh = new THREE.Mesh(earthGeo, earthMat);
       globeGroup.add(earthMesh);
 
-      // Load Blue Marble High-Res Map
       textureLoader.load(
         EARTH_TEXTURE_URL,
         (tex) => {
@@ -1505,7 +1468,6 @@
         }
       );
 
-      // Load Topography Bump Map (mountains & coasts relief)
       textureLoader.load(
         EARTH_BUMP_URL,
         (bumpTex) => {
@@ -1545,63 +1507,63 @@
     }
 
     // =================================================================
-    // REFINED REFINED STATION DOTS (NOT MASSIVE / SLEEK GLOW)
+    // 1000+ REFINED SLEEK STATION DOTS (HIGH-DENSITY INSTANCED / BATCHED)
     // =================================================================
-    const markerGroup = new THREE.Group();
+    let stationPointsObj = null;
 
     function createStationMarkers() {
-      globeGroup.add(markerGroup);
       renderStationMarkers();
     }
 
     function renderStationMarkers() {
-      // Clear existing
-      while (markerGroup.children.length > 0) {
-        const obj = markerGroup.children[0];
-        markerGroup.remove(obj);
+      if (stationPointsObj) {
+        globeGroup.remove(stationPointsObj);
+        stationPointsObj.geometry.dispose();
       }
+
       state.markerMeshes = [];
 
-      state.stations.forEach(st => {
+      const count = state.stations.length;
+      const positions = new Float32Array(count * 3);
+      const colors = new Float32Array(count * 3);
+
+      const colorPink = new THREE.Color(0xff2d92);
+      const colorPurple = new THREE.Color(0xb5179e);
+      const colorBlue = new THREE.Color(0x00f5d4);
+
+      state.stations.forEach((st, i) => {
         if (st.geo_lat == null || st.geo_long == null) return;
         const pos = latLonToVector3(st.geo_lat, st.geo_long, GLOBE_RADIUS * 1.006);
 
-        const stationGroup = new THREE.Group();
-        stationGroup.position.copy(pos);
-        stationGroup.userData = { station: st };
+        positions[i * 3] = pos.x;
+        positions[i * 3 + 1] = pos.y;
+        positions[i * 3 + 2] = pos.z;
 
-        // DELICATE, REFINED DOT (Radius 0.018 - not chunky/massive)
-        const dotGeo = new THREE.SphereGeometry(0.018, 12, 12);
-        const dotMat = new THREE.MeshBasicMaterial({
-          color: 0xff2d92,
-          transparent: true,
-          opacity: 0.95,
-          blending: THREE.AdditiveBlending
-        });
-        const dotMesh = new THREE.Mesh(dotGeo, dotMat);
-        stationGroup.add(dotMesh);
+        // Variety of vibrant glowing colors
+        let c = colorPink;
+        if (st.tags && st.tags.toLowerCase().includes('jazz')) c = colorBlue;
+        else if (st.tags && st.tags.toLowerCase().includes('rock')) c = colorPurple;
 
-        // Subtle soft halo
-        const haloGeo = new THREE.SphereGeometry(0.038, 8, 8);
-        const haloMat = new THREE.MeshBasicMaterial({
-          color: 0xe00279,
-          transparent: true,
-          opacity: 0.3,
-          blending: THREE.AdditiveBlending
-        });
-        const haloMesh = new THREE.Mesh(haloGeo, haloMat);
-        stationGroup.add(haloMesh);
-
-        // Invisible click target hitbox (radius 0.09 for easy tapping)
-        const hitGeo = new THREE.SphereGeometry(0.09, 8, 8);
-        const hitMat = new THREE.MeshBasicMaterial({ visible: false });
-        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
-        hitMesh.userData = { station: st };
-        stationGroup.add(hitMesh);
-
-        markerGroup.add(stationGroup);
-        state.markerMeshes.push(hitMesh);
+        colors[i * 3] = c.r;
+        colors[i * 3 + 1] = c.g;
+        colors[i * 3 + 2] = c.b;
       });
+
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+      // Crisp glowing particle dots (non-massive, very refined)
+      const material = new THREE.PointsMaterial({
+        size: 0.022,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.95,
+        blending: THREE.AdditiveBlending
+      });
+
+      stationPointsObj = new THREE.Points(geometry, material);
+      globeGroup.add(stationPointsObj);
     }
 
     // =================================================================
@@ -1654,10 +1616,9 @@
     function flyToStation(lat, lon) {
       if (lat == null || lon == null || !controls) return;
 
-      // Pause rotation on focus
       controls.autoRotate = false;
 
-      // Fly close to city level (distance 3.4)
+      // Fly close to city level
       const targetPos = latLonToVector3(lat, lon, 3.4);
 
       targetCameraPosition = {
@@ -1750,26 +1711,12 @@
 
         raycaster.setFromCamera(mouse, camera);
 
-        // Check markers first
-        const markerIntersects = raycaster.intersectObjects(state.markerMeshes, false);
-
-        if (markerIntersects.length > 0) {
-          domElement.style.cursor = 'pointer';
-          const st = markerIntersects[0].object.userData.station;
-          state.hoveredStation = st;
-
-          ttName.textContent = st.city ? `${st.name} (${st.city})` : st.name;
-          ttCountry.textContent = st.country || 'Live Radio';
-          tooltip.style.display = 'block';
-          tooltip.style.left = e.clientX + 'px';
-          tooltip.style.top = e.clientY + 'px';
-        } else if (earthMesh) {
-          // Check Earth surface proximity to nearest station
+        if (earthMesh) {
           const earthIntersects = raycaster.intersectObject(earthMesh, false);
           if (earthIntersects.length > 0) {
             const hitPoint = earthIntersects[0].point;
             const hitCoord = vector3ToLatLon(hitPoint.clone().sub(globeGroup.position));
-            const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 10.0);
+            const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 6.0); // precise 6-degree radius
 
             if (nearest) {
               domElement.style.cursor = 'pointer';
@@ -1782,14 +1729,11 @@
               return;
             }
           }
-          domElement.style.cursor = isDown ? 'grabbing' : 'grab';
-          state.hoveredStation = null;
-          tooltip.style.display = 'none';
-        } else {
-          domElement.style.cursor = isDown ? 'grabbing' : 'grab';
-          state.hoveredStation = null;
-          tooltip.style.display = 'none';
         }
+
+        domElement.style.cursor = isDown ? 'grabbing' : 'grab';
+        state.hoveredStation = null;
+        tooltip.style.display = 'none';
       });
 
       // INSTANT PLAY ON CLICK
@@ -1810,7 +1754,7 @@
             if (earthIntersects.length > 0) {
               const hitPoint = earthIntersects[0].point;
               const hitCoord = vector3ToLatLon(hitPoint.clone().sub(globeGroup.position));
-              const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 28.0);
+              const nearest = findNearestStation(hitCoord.lat, hitCoord.lon, 18.0);
               if (nearest) {
                 playStation(nearest);
               }
@@ -1820,7 +1764,7 @@
       });
     }
 
-    function findNearestStation(lat, lon, maxDistanceDegrees = 20.0) {
+    function findNearestStation(lat, lon, maxDistanceDegrees = 15.0) {
       let nearest = null;
       let minDistance = Infinity;
 
@@ -1917,7 +1861,7 @@
 
       html += `
         <button class="playlist-footer-btn" id="view-all-stations-btn">
-          <span>View all stations</span>
+          <span>View all stations (${state.stations.length})</span>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="5" y1="12" x2="19" y2="12"></line>
             <polyline points="12 5 19 12 12 19"></polyline>
@@ -1982,14 +1926,17 @@
     }
 
     // =================================================================
-    // API FETCH (LOAD REAL WORLD STATIONS WITH VERIFIED STREAMS)
+    // API FETCH (LOAD 1000+ REAL WORKING WORLDWIDE STATIONS)
     // =================================================================
     async function loadGlobalStations(query = '', tag = '') {
-      let endpoint = '/json/stations/topvote/500?hidebroken=true';
+      const counterText = document.getElementById('station-count-text');
+      
+      // Load 1200 geo-tagged worldwide stations
+      let endpoint = '/json/stations/search?has_geo_info=true&limit=1200&order=clickcount&reverse=true&hidebroken=true';
       if (query) {
-        endpoint = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&limit=250`;
+        endpoint = `/json/stations/byname/${encodeURIComponent(query)}?hidebroken=true&limit=300`;
       } else if (tag && tag !== 'all') {
-        endpoint = `/json/stations/bycountrycodeexact/${encodeURIComponent(tag)}?hidebroken=true&limit=250`;
+        endpoint = `/json/stations/bycountrycodeexact/${encodeURIComponent(tag)}?hidebroken=true&limit=300`;
       }
 
       for (const mirror of RADIO_API_MIRRORS) {
@@ -2000,24 +1947,44 @@
           if (res.ok) {
             const data = await res.json();
             const valid = data
-              .filter(s => s.geo_lat != null && s.geo_long != null && (s.url_resolved || s.url))
-              .map(s => ({
-                stationuuid: s.stationuuid,
-                name: (s.name || 'Radio').trim(),
-                country: s.country || '',
-                city: s.state || s.country || '',
-                tags: s.tags || '',
-                url: s.url,
-                url_resolved: s.url_resolved || s.url,
-                geo_lat: s.geo_lat,
-                geo_long: s.geo_long,
-                badgeType: ['pink', 'blue', 'orange', 'magenta', 'dark'][Math.floor(Math.random() * 5)]
-              }));
+              .filter(s => (s.url_resolved || s.url))
+              .map(s => {
+                let lat = s.geo_lat;
+                let lon = s.geo_long;
+
+                // If geo is missing, assign country coordinate with random city jitter
+                if (lat == null || lon == null) {
+                  const cc = (s.countrycode || '').toUpperCase();
+                  if (COUNTRY_COORDS[cc]) {
+                    lat = COUNTRY_COORDS[cc].lat + (Math.random() - 0.5) * 3.5;
+                    lon = COUNTRY_COORDS[cc].lon + (Math.random() - 0.5) * 3.5;
+                  }
+                }
+
+                return {
+                  stationuuid: s.stationuuid,
+                  name: (s.name || 'Radio').trim(),
+                  country: s.country || '',
+                  city: s.state || s.country || '',
+                  tags: s.tags || '',
+                  url: s.url,
+                  url_resolved: s.url_resolved || s.url,
+                  geo_lat: lat,
+                  geo_long: lon,
+                  badgeType: ['pink', 'blue', 'orange', 'magenta', 'dark'][Math.floor(Math.random() * 5)]
+                };
+              })
+              .filter(s => s.geo_lat != null && s.geo_long != null);
 
             if (valid.length > 0) {
               state.stations = [...PRESET_STATIONS, ...valid.filter(v => !PRESET_STATIONS.some(p => p.stationuuid === v.stationuuid || p.name === v.name))];
               renderStationMarkers();
               renderCatalogList(state.stations);
+              if (counterText) {
+                counterText.textContent = `${state.stations.length} станцій онлайн`;
+              }
+              const badge = document.getElementById('catalog-count-badge');
+              if (badge) badge.textContent = `${state.stations.length} станцій`;
               return;
             }
           }
@@ -2044,7 +2011,7 @@
     function renderCatalogList(list) {
       const container = document.getElementById('catalog-stations-list');
       const badge = document.getElementById('catalog-count-badge');
-      badge.textContent = `${list.length} станцій`;
+      if (badge) badge.textContent = `${list.length} станцій`;
 
       if (list.length === 0) {
         container.innerHTML = `<div style="text-align: center; padding: 40px; color: var(--text-dim);">Станцій не знайдено</div>`;
@@ -2052,7 +2019,7 @@
       }
 
       let html = '';
-      list.forEach(st => {
+      list.slice(0, 300).forEach(st => {
         const isActive = state.activeStation && state.activeStation.stationuuid === st.stationuuid;
         html += `
           <div class="station-list-item ${isActive ? 'active' : ''}" data-uuid="${st.stationuuid}">
@@ -2071,6 +2038,10 @@
           </div>
         `;
       });
+
+      if (list.length > 300) {
+        html += `<div style="text-align: center; padding: 14px; color: var(--pink-neon); font-size: 12px;">Показано топ-300 станцій. Введіть назву або місто у пошуку для деталізації.</div>`;
+      }
 
       container.innerHTML = html;
 
@@ -2180,7 +2151,7 @@
       updateUIState();
       setupDOMEvents();
 
-      // Fetch dynamic radio stations worldwide in background
+      // Fetch dynamic 1000+ radio stations worldwide in background
       loadGlobalStations();
     }
 
