@@ -165,38 +165,35 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom: 1px solid #4dd2ff;
 }
 
-/* ===== GAME.WORK BUTTON ===== */
+/* ===== GAME.WORK ===== */
+/* Точна відповідність звичайним посиланням */
 .gamework-row {
-  width: 100%;
   display: flex;
   justify-content: center;
-  margin-top: 8px;
+  width: 100%;
+  margin-top: 0;
 }
 
 .link a.gamework-button {
-  display: inline-block;
-  padding: 11px 38px;
-  border: 1px solid #4dd2ff;
-  border-radius: 2px;
-  color: #9fe7ff;
-  background: rgba(77,210,255,0.04);
-  font-size: 14px;
-  letter-spacing: 4px;
+  color: #4dd2ff;
   text-decoration: none;
-  text-transform: uppercase;
-  box-shadow: 0 0 10px rgba(77,210,255,0.12);
-  transition: all 0.35s ease;
+  border-bottom: 1px dotted #4dd2ff;
+  transition: 0.3s;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: normal;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .link a.gamework-button:hover {
-  color: #ffffff;
-  background: rgba(77,210,255,0.16);
-  border-color: #9fe7ff;
-  box-shadow:
-    0 0 12px rgba(77,210,255,0.5),
-    0 0 28px rgba(77,210,255,0.25);
-  letter-spacing: 5px;
-  opacity: 1;
+  opacity: 0.8;
+  border-bottom: 1px solid #4dd2ff;
 }
 
 /* ===== MAGNETIC STORM ===== */
@@ -216,11 +213,6 @@ input[type="range"]::-webkit-slider-thumb {
   .main-text { font-size: 14px; }
   .sub-text { font-size: 12px; }
   .row { gap: 12px; }
-
-  .link a.gamework-button {
-    padding: 10px 32px;
-    font-size: 13px;
-  }
 }
 </style>
 </head>
@@ -320,12 +312,10 @@ let playing = false;
 let reconnectAttempts = 0;
 const MAX_RECONNECT = 5;
 
-// Встановлюємо джерело стріму
 audio.src = "https://ice1.somafm.com/dronezone-128-mp3";
 
 volume.oninput = () => audio.volume = volume.value;
 
-// Обробка помилок та автоматичне перепідключення
 audio.onerror = (e) => {
   console.warn("Audio error:", e);
 
@@ -339,12 +329,10 @@ audio.onerror = (e) => {
   }
 };
 
-// Скидання лічильника при успішному відтворенні
 audio.onplaying = () => {
   reconnectAttempts = 0;
 };
 
-// Обробка буферизації
 audio.onwaiting = () => {
   console.log("Buffering...");
 };
